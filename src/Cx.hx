@@ -1,4 +1,7 @@
+import format.zip.Data;
+import format.zip.Tools;
 import haxe.io.Bytes;
+import haxe.xml.Fast;
 import neko.zip.Reader;
 /**
  * ...
@@ -19,15 +22,6 @@ class Cx {
 	static public function pngToHtmlImg(pngFile:String) {
 		var bytes = neko.io.File.getBytes(pngFile);		
 		return pngBytesToHtmlImg(bytes);
-		
-		/*
-		var string = bytes.toString();
-		var BASE64:String = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-		var string64 = haxe.BaseCode.encode(string, BASE64);		
-		var html = '<img src="data:image/png;base64,' + string64 + '" />';
-		return html;
-		*/
-		//Util.putContent('test.html', html);		
 	}
 	
 	static public function pngBytesToHtmlImg(pngBytes:Bytes) {
@@ -41,27 +35,62 @@ class Cx {
 	
 	//------------------------------------------------------------------------------------------------
 	
-	static public function zipGetEntries(zipFilename:String): List<neko.zip.Reader.ZipEntry> {
-		var f = neko.io.File.read(zipFilename, true);
-		var zipEntries = neko.zip.Reader.readZip(f);		
-		f.close();
-		return zipEntries;
+	static public function zipGetEntries(zipFilename:String): List<format.zip.Data.Entry> {
+		var bytes = neko.io.File.getBytes(zipFilename);
+		var bytesInput = new haxe.io.BytesInput(bytes);
+		var r = new format.zip.Reader(bytesInput);
+		var data = r.read();
+		return data;		
 	}	
 	
-	static public function zipListEntries(zipEntries : List<neko.zip.Reader.ZipEntry>) {
+	static public function zipListEntries(zipEntries : List<format.zip.Data.Entry>) {
 		for(zipEntry in zipEntries ) {
-			var content = (zipEntry.compressed) ? neko.zip.Reader.unzip(zipEntry) : zipEntry.data;
-			neko.Lib.println("- " + zipEntry.fileName + ": " + content.length);
+			var content = zipEntry.data;
+			neko.Lib.println("- " + zipEntry.fileName + ": " + zipEntry.compressed + ':' + content.length);
 		}
-	}	
+	}		
 	
-	static public function zipGetEntryData(zipEntries: List<neko.zip.Reader.ZipEntry>, entryFileName:String): Bytes {
+	static public function zipGetEntryData(zipEntries: List<format.zip.Data.Entry>, entryFileName:String): Bytes {
 		for (zipEntry in zipEntries ) {
 			if (zipEntry.fileName == entryFileName) {
-				return (zipEntry.compressed) ? neko.zip.Reader.unzip(zipEntry) : zipEntry.data;
+				return zipEntry.data;
 			}
 		}
 		return null;
 	}
 	
+	//----------------------------------------------------------------------------------------------------------
+
+	/*
+	var xmlFast = Cx.odtGetContentXmlFast('test.odt');
+	trace(xmlFast);
+	
+	for (sub in xmlFast.elements) {
+		switch(sub.name) {
+			case 'text:h': 					
+				trace(sub.innerHTML);
+			case 'text:p':
+				trace(sub.innerHTML);
+				for (textElement in sub.elements) {
+					trace(textElement.innerHTML);
+				}
+		}
+	}		
+	*/
+	
+	static public function odtGetContentXmlStr(odtFileName:String):String {
+		var entries = odtGetZipEntries(odtFileName);
+		var contentBytes:Bytes = zipGetEntryData(entries, 'content.xml');
+		var xmlStr = contentBytes.toString();
+		return xmlStr;
+	}
+	
+	static public function odtGetZipEntries(odtFileName:String):List<format.zip.Data.Entry> {
+		return zipGetEntries(odtFileName);
+	}
+	
+	static public function odtGetContentXmlFast(odtFilename:String): Fast {
+		var xmlStr = odtGetContentXmlStr(odtFilename);
+		return new Fast(Xml.parse(xmlStr).firstElement().elementsNamed('office:body').next().firstElement());
+	}
 }
