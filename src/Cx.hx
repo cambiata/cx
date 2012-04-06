@@ -78,9 +78,8 @@ class Cx {
 	}		
 	*/
 	
-	static public function odtGetContentXmlStr(odtFileName:String):String {
-		var entries = odtGetZipEntries(odtFileName);
-		var contentBytes:Bytes = zipGetEntryData(entries, 'content.xml');
+	static public function odtGetContentXmlStr(zipEntries:List<format.zip.Data.Entry>):String {		
+		var contentBytes:Bytes = zipGetEntryData(zipEntries, 'content.xml');
 		var xmlStr = contentBytes.toString();
 		return xmlStr;
 	}
@@ -89,8 +88,9 @@ class Cx {
 		return zipGetEntries(odtFileName);
 	}
 	
-	static public function odtGetContentXmlFast(odtFilename:String): Fast {
-		var xmlStr = odtGetContentXmlStr(odtFilename);
-		return new Fast(Xml.parse(xmlStr).firstElement().elementsNamed('office:body').next().firstElement());
+	static public function odtGetBodyTextXmlStr(zipEntries:List<format.zip.Data.Entry>): String {
+		var xmlStr = odtGetContentXmlStr(zipEntries);
+		var bodyTextStr = Xml.parse(xmlStr).firstElement().elementsNamed('office:body').next().firstElement().toString();
+		return bodyTextStr;
 	}
 }
