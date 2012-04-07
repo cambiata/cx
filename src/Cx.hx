@@ -1,8 +1,3 @@
-import format.zip.Data;
-import format.zip.Tools;
-import haxe.io.Bytes;
-import haxe.xml.Fast;
-import neko.zip.Reader;
 /**
  * ...
  * @author Jonas Nyström
@@ -29,14 +24,20 @@ class Cx {
 		f.close();		
 	}
 	
+	static public function putContentBinary(filename:String, content:String) {
+		var f = neko.io.File.write(filename, true);
+		f.writeString(content);
+		f.close();		
+	}
+	
 	//-----------------------------------------------------------------------------------------------
-
+	
 	static public function pngToHtmlImg(pngFile:String) {
 		var bytes = neko.io.File.getBytes(pngFile);		
 		return pngBytesToHtmlImg(bytes);
 	}
 	
-	static public function pngBytesToHtmlImg(pngBytes:Bytes, ?style:String='') {
+	static public function pngBytesToHtmlImg(pngBytes:haxe.io.Bytes, ?style:String='') {
 		var string = pngBytes.toString();
 		var BASE64:String = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 		var string64 = haxe.BaseCode.encode(string, BASE64);		
@@ -61,7 +62,7 @@ class Cx {
 		}
 	}		
 	
-	static public function zipGetEntryData(zipEntries: List<format.zip.Data.Entry>, entryFileName:String): Bytes {
+	static public function zipGetEntryData(zipEntries: List<format.zip.Data.Entry>, entryFileName:String): haxe.io.Bytes {
 		for (zipEntry in zipEntries ) {
 			if (zipEntry.fileName == entryFileName) {
 				return zipEntry.data;
@@ -72,13 +73,13 @@ class Cx {
 	
 	//----------------------------------------------------------------------------------------------------------
 
-	/*
-		var html = Cx.odtContentGetMeta() + Cx.odtToHtml('5a.odt');
-		Cx.putContent('odt2.html', html);	
-	*/
+	static public function odtTest(odtFileName:String) {
+		var html = Cx.odtContentGetMeta() + Cx.odtToHtml(odtFileName);
+		Cx.putContent(odtFileName+'.html', html);	
+	}
 	
 	static public function odtGetContentXmlStr(zipEntries:List<format.zip.Data.Entry>):String {		
-		var contentBytes:Bytes = zipGetEntryData(zipEntries, 'content.xml');
+		var contentBytes:haxe.io.Bytes = zipGetEntryData(zipEntries, 'content.xml');
 		var xmlStr = contentBytes.toString();
 		return xmlStr;
 	}
@@ -208,4 +209,27 @@ class Cx {
 		recursive(xml);
 		return html;
 	}	
+	
+	//--------------------------------------------------------------------------------------------------------
+	
+	static public function nmeSpriteToPngTest() {
+		var sprite = new nme.display.Sprite();
+		sprite.graphics.beginFill(0x0000FF);
+		sprite.graphics.drawCircle(20, 10, 8);
+		sprite.graphics.drawCircle(220, 210, 8);
+		Cx.nmeSpriteToPng(sprite, 'nmeSprite.png');		
+	}
+	
+	static public function nmeSpriteToPng(source : nme.display.Sprite, pngFileName:String, ?width=0.0, ?height=0.0) {		
+		if (width == 0) {
+			width = source.width;
+			height = source.height;
+		}
+		var bitmapData = new nme.display.BitmapData(Std.int(width), Std.int(height), false);
+		bitmapData.draw(source);
+		var byteArray = bitmapData.encode('x');
+		putContentBinary(pngFileName, byteArray.asString());
+	}
+	
+	
 }
