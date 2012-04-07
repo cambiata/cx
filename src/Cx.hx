@@ -29,18 +29,19 @@ class Cx {
 		f.close();		
 	}
 	
+	//-----------------------------------------------------------------------------------------------
+
 	static public function pngToHtmlImg(pngFile:String) {
 		var bytes = neko.io.File.getBytes(pngFile);		
 		return pngBytesToHtmlImg(bytes);
 	}
 	
-	static public function pngBytesToHtmlImg(pngBytes:Bytes) {
+	static public function pngBytesToHtmlImg(pngBytes:Bytes, ?style:String='') {
 		var string = pngBytes.toString();
 		var BASE64:String = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 		var string64 = haxe.BaseCode.encode(string, BASE64);		
-		var html = '<img src="data:image/png;base64,' + string64 + '" />';
+		var html = '<img style="' + style + '" src="data:image/png;base64,' + string64 + '" />';
 		return html;
-		
 	}
 	
 	//------------------------------------------------------------------------------------------------
@@ -72,20 +73,8 @@ class Cx {
 	//----------------------------------------------------------------------------------------------------------
 
 	/*
-	var xmlFast = Cx.odtGetContentXmlFast('test.odt');
-	trace(xmlFast);
-	
-	for (sub in xmlFast.elements) {
-		switch(sub.name) {
-			case 'text:h': 					
-				trace(sub.innerHTML);
-			case 'text:p':
-				trace(sub.innerHTML);
-				for (textElement in sub.elements) {
-					trace(textElement.innerHTML);
-				}
-		}
-	}		
+		var html = Cx.odtContentGetMeta() + Cx.odtToHtml('5a.odt');
+		Cx.putContent('odt2.html', html);	
 	*/
 	
 	static public function odtGetContentXmlStr(zipEntries:List<format.zip.Data.Entry>):String {		
@@ -104,29 +93,115 @@ class Cx {
 		return bodyTextStr;
 	}
 	
-	static public function odtContentToHtml(xmlStr:String):String {
+	static public function odtContentGetMeta() {
+		return '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />';
+	}
+	
+	static public function odtToHtml(odtFileName:String, ?imgScale:Float=40.0): String {
+		var zipEntries = odtGetZipEntries(odtFileName);
+		var xmlStr = odtGetBodyTextXmlStr(zipEntries);
+		var html = odtContentToHtml(xmlStr, zipEntries, imgScale);
+		return html;
+	}
+	
+	static public function odtContentToHtml(xmlStr:String, ?zipEntries:List<format.zip.Data.Entry>, ?imgScale:Float=40):String {
 		var html = '';
-		function recursive(xml:Xml, ?level:Int=0) {		
+		function recursive(xml:Xml, ?level:Int=0, ?parentWidth:Int=0, ?parentHeight:Int=0) {		
 			for (child in xml) {
-				//trace(level + ': ' + child.nodeType);
+				//trace(level + ': ' + child.nodeType);				
+				level++;
 				switch(child.nodeType) {
+					
 					case Xml.Element: 
 						switch (child.nodeName) {
-							default: html += '<tag name="' + child.nodeName + '">';
-						}
+							case 'office:text':
+								html += '<div>';							
+								recursive(child, level);								
+								html += '</div>';								
+							
+							case 'text:h': 
+								var hLevel = child.get('text:outline-level');
+								html += '<h' + hLevel + '>';							
+								recursive(child, level);								
+								html += '</h' + hLevel + '>';
+							case 'text:p':
+								html += '<p>';							
+								recursive(child, level);								
+								html += '</p>';
+								
+							case 'text:span': 
+								var style = child.get('text:style-name');
+								switch(style) {
+									case 'T2':
+										html += '<b>';
+									case 'T1':
+										html += '<i>';
+								}
+								recursive(child, level);
+								switch(style) {
+									case 'T2':
+										html += '</b>';
+									case 'T1':
+										html += '</i>';
+								}
+							case 'text:list':
+								html += '<ul>';							
+								recursive(child, level);								
+								html += '</ul>';
+							case 'text:list-item':
+								html += '<li>';							
+								recursive(child, level);								
+								html += '</li>';
+								
+							case 'draw:frame':
+								var fWidth = Std.int(Std.parseFloat(StringTools.replace(child.get('svg:width'), 'cm', '')) * imgScale);
+								var fHeight = Std.int(Std.parseFloat(StringTools.replace(child.get('svg:height'), 'cm', '')) * imgScale);
+								//html += '<span style="border:1px solid #000; width:' + fWidth + 'px; height:' + fHeight + 'px;">';							
+								html += '<span>';
+								recursive(child, level, fWidth, fHeight);								
+								html += '</span>';
+							case 'draw:image':
+								var iSrc = child.get('xlink:href');								
+								var style = '';
+								if (parentWidth > 0) {
+									style = 'width:' + parentWidth + 'px;height:' + parentHeight + 'px';
+								}
+								
+								if (zipEntries == null) {
+									html += '<img style="' + style + '" src="' + iSrc + '" >';							
+									recursive(child, level);								
+									html += '</img>';
+								} else {									
+									var imgBytes = zipGetEntryData(zipEntries, iSrc);
+									var imgHtml = pngBytesToHtmlImg(imgBytes, style);
+									html += imgHtml;
+								}
 
-						level++;	
-						recursive(child, level);
-						level--;
-						
-						switch (child.nodeName) {
-							default: html += '</tag>';
+							case 'table:table':
+								html += '<table>';							
+								recursive(child, level);								
+								html += '</table>';									
+							case 'table:table-row':
+								html += '<tr>';							
+								recursive(child, level);								
+								html += '</tr>';									
+							case 'table:table-cell':
+								html += '<td>';							
+								recursive(child, level);								
+								html += '</td>';								
+								
+							default: 
+								html += '<tag name="' + child.nodeName + '">';
+								recursive(child, level);
+								html += '</tag>';
+								
 						}
 					case Xml.PCData:
 						if (StringTools.trim(child.toString()).length > 0) {
 							html += child;
 						}
 				}
+				level--;
 			}
 		}
 		var xml = Xml.parse(xmlStr);
