@@ -13,6 +13,16 @@ class Cx {
 		return 'Cx.test()';
 	}
 	
+	//-----------------------------------------------------------------------------------------------
+	
+	static public function stringRepeater(count:Int, repString:String) {
+		var r = '';
+		for (i in 0...count) {
+			r += repString;
+		}
+		return r;
+	}
+	
 	static public function putContent(filename:String, content:String) {
 		var f = neko.io.File.write(filename, false);
 		f.writeString(content);
@@ -93,4 +103,34 @@ class Cx {
 		var bodyTextStr = Xml.parse(xmlStr).firstElement().elementsNamed('office:body').next().firstElement().toString();
 		return bodyTextStr;
 	}
+	
+	static public function odtContentToHtml(xmlStr:String):String {
+		var html = '';
+		function recursive(xml:Xml, ?level:Int=0) {		
+			for (child in xml) {
+				//trace(level + ': ' + child.nodeType);
+				switch(child.nodeType) {
+					case Xml.Element: 
+						switch (child.nodeName) {
+							default: html += '<tag name="' + child.nodeName + '">';
+						}
+
+						level++;	
+						recursive(child, level);
+						level--;
+						
+						switch (child.nodeName) {
+							default: html += '</tag>';
+						}
+					case Xml.PCData:
+						if (StringTools.trim(child.toString()).length > 0) {
+							html += child;
+						}
+				}
+			}
+		}
+		var xml = Xml.parse(xmlStr);
+		recursive(xml);
+		return html;
+	}	
 }
