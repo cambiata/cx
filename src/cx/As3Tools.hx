@@ -30,6 +30,5 @@ class As3Tools {
 			
 		});
 		l.load(new URLRequest(filename));		
-		
 	}
 }
