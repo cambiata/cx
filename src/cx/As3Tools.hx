@@ -14,4 +14,22 @@ class As3Tools {
 		});
 		l.load(new URLRequest(filename));
 	}
+	
+	static public function testLoadFiles() {
+		var filename = 'test.files.amf';
+		var l = new URLLoader();
+		l.dataFormat = URLLoaderDataFormat.BINARY;
+		l.addEventListener(Event.COMPLETE, function(event:Event) {
+			var loadedByteArray:ByteArray = cast(l.data, ByteArray);
+			var object = loadedByteArray.readObject();
+
+			var files = cast(object.files, Array<Dynamic>);
+			for (byteArray in files) {
+				trace(byteArray.length);
+			}
+			
+		});
+		l.load(new URLRequest(filename));		
+		
+	}
 }
