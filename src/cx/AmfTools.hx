@@ -1,5 +1,7 @@
 package cx;
+import haxe.io.Bytes;
 import nekoserver.amf.io.Amf3Reader;
+import nme.utils.ByteArray;
 
 /**
  * ...
@@ -8,12 +10,49 @@ import nekoserver.amf.io.Amf3Reader;
 
 class AmfTools 
 {
+	static public function testFiles() {
+
+		var bytesList = FileTools.filesBytesInDirectory('files/');
+		var filesList = Lambda.array(bytesList);
+		
+		var object = { files: filesList };
+		//trace(obj);
+		objectToFile(object, 'test.object.amf');
+		var object2 = fileToObject('test.files.amf');
+		trace(object2.files.length);
+		var files = cast(object2.files, Array<Dynamic>);
+		trace(Type.typeof(object2.files));
+		for (f in files) {
+			trace(Type.typeof(f));
+			var bs:Bytes = cast(f, Bytes);
+			trace(bs.length);
+		}
+		
+		//------------------------------------------------------------------------------
+		// AS3 code:
+		/*
+		var filename = 'test.files.amf';
+		var l = new URLLoader();
+		l.dataFormat = URLLoaderDataFormat.BINARY;
+		l.addEventListener(Event.COMPLETE, function(event:Event) {
+			var loadedByteArray:ByteArray = cast(l.data, ByteArray);
+			var object = loadedByteArray.readObject();
+
+			var files = cast(object.files, Array<Dynamic>);
+			for (byteArray in files) {
+				trace(byteArray.length);
+			}
+			
+		});
+		l.load(new URLRequest(filename));
+		*/
+	}
+	
 	static public function test() {
-		var obj = { test: ['Hej', 'hopp'], name:'Jonas', age:45.1, obj: { a:'abc', b: [1.1, 2.22, 3.333] }}; // ['hejsan hoppsan'];
-		trace(obj);
-		objectToFile(obj, 'test.object.amf');
-		var obj2 = fileToObject('test.object.amf');
-		trace(obj2);
+		var object = { test: ['Hej', 'hopp'], name:'Jonas', age:45.1, obj: { a:'abc', b: [1.1, 2.22, 3.333] }}; // ['hejsan hoppsan'];
+		objectToFile(object, 'test.object.amf');
+		var object2 = fileToObject('test.object.amf');
+		trace(object2);
 	}
 	
 	static public function objectToFile(object:Dynamic, filename:String) {
@@ -36,26 +75,3 @@ class AmfTools
 		return object;
 	}
 }
-
-/*
-
-		var obj = {test: ['Hej', 'hopp'], name:'Jonas', age:45.1, obj:{a:'abc', b: [1.1,2.22,3.333]}}; // ['hejsan hoppsan'];
-		//-------------------------------------				
-		var output = new haxe.io.BytesOutput();
-		output.bigEndian = true;
-		var writer = new nekoserver.amf.io.Amf3Writer(output);
-		writer.write(obj);
-		//-----------------------------------------------------		
-		var f = neko.io.File.write('../helloNeko-3.amf', true);
-		f.write(output.getBytes());
-		f.close();
-		
-		//-------------------------------------		
-		var f = File.read('../helloNeko-3.amf', true);
-		var bytes = f.readAll();
-		var input = new haxe.io.BytesInput(bytes);		
-		var reader = new Amf3Reader(input);
-		var ret = reader.read();
-		trace(ret);
-		
-		*/
