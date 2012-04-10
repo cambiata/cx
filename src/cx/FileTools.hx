@@ -1,4 +1,6 @@
 package cx;
+import haxe.io.Bytes;
+import neko.io.File;
 /**
  * ...
  * @author Jonas Nyström
@@ -18,11 +20,13 @@ class FileTools
 		f.close();		
 	}
 
+	/*
 	static public function putContentBinary(filename:String, content:String) {
 		var f = neko.io.File.write(filename, true);
 		f.writeString(content);
 		f.close();		
 	}
+	*/
 	
 	static public function filesNamesInDirectory(dir:String) {
 		var filenames = neko.FileSystem.readDirectory(dir);
@@ -36,6 +40,16 @@ class FileTools
 		for (filename in filenames) { bytesList.add(neko.io.File.getBytes(dir + filename)); }		
 		return bytesList;
 	}	
+	
+	static public function getBytes(filename:String): Bytes {		
+		return File.getBytes(filename);		
+	}
+	
+	static public function putBytes(filename:String, bytes:Bytes) {
+		var f = neko.io.File.write(filename, true);
+		f.write(bytes);
+		f.close();				
+	}
 	
 
 }

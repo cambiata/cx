@@ -79,4 +79,23 @@ class BytesTools {
 		return ret;
 	}
 
+	//-----------------------------------------------------------------------------------------------------------------------
+	#if flash 
+	static public function splitByteArray(bytes:flash.utils.ByteArray, nrOfChannels:Int, segmentsLength:Int=4):Array<flash.utils.ByteArray> {
+		var iterations = Std.int(bytes.length / (segmentsLength * nrOfChannels));
+		var bbList = new Array<flash.utils.ByteArray>();
+		for (ch in 0...nrOfChannels) {
+			bbList.push(new flash.utils.ByteArray());
+		}
+		for (i in 0...iterations) {
+			for (ch in 0...nrOfChannels) {
+				var pos:Int = (i * nrOfChannels * segmentsLength) +  (ch * segmentsLength);
+				bbList[ch].writeBytes(bytes, pos, segmentsLength);
+			}
+		}
+		return bbList;		
+	}		
+	#end 
+	
+	
 }
