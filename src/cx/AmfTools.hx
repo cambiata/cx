@@ -1,6 +1,5 @@
 package cx;
 import haxe.io.Bytes;
-import nekoserver.amf.io.Amf3Reader;
 import nme.utils.ByteArray;
 
 /**

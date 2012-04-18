@@ -1,6 +1,7 @@
 package cx;
-import haxe.io.Bytes;
+import haxe.io.BytesData;
 import neko.io.File;
+import haxe.io.Bytes;
 /**
  * ...
  * @author Jonas Nyström
@@ -40,6 +41,19 @@ class FileTools
 		for (filename in filenames) { bytesList.add(neko.io.File.getBytes(dir + filename)); }		
 		return bytesList;
 	}	
+	
+	static public function fileDataBytesInDirectory(dir:String):List<BytesData> {
+		var list = new List<BytesData>();
+		var filenames = filesNamesInDirectory(dir);
+		
+		for (filename in filenames) { 
+			var bytes = File.getBytes(dir + filename);
+			
+			var bytesData:BytesData = BytesData.ofString(bytes.toString());
+			list.add(bytesData);
+		}
+		return list;
+	}
 	
 	static public function getBytes(filename:String): Bytes {		
 		return File.getBytes(filename);		

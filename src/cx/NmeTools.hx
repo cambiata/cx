@@ -1,4 +1,6 @@
 package cx;
+import nme.display.BitmapData;
+import nme.display.DisplayObject;
 
 /**
  * ...
@@ -6,6 +8,7 @@ package cx;
  */
 
 class NmeTools {	
+	
 	static public function spriteToPngTest() {
 		var sprite = new nme.display.Sprite();
 		sprite.graphics.beginFill(0x0000FF);
@@ -23,6 +26,23 @@ class NmeTools {
 		bitmapData.draw(source);
 		var byteArray = bitmapData.encode('png');
 		FileTools.putContentBinary(pngFileName, byteArray.asString());
+	}
+	
+	static public function displayObjectToByteArray(source:DisplayObject, ?width=0.0, ?height=0.0) {		
+		if (width == 0) {
+			width = source.width;
+			height = source.height;
+		}
+		var bitmapData = new nme.display.BitmapData(Std.int(width), Std.int(height), false);
+		bitmapData.draw(source);
+		
+		
+		/*
+		var byteArray = bitmapData.encode('png');
+		return byteArray;
+		*/
+		
+		
 	}
 }	
 

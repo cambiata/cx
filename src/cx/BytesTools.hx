@@ -1,4 +1,5 @@
 package cx;
+import haxe.io.BytesData;
 
 /**
  * ...
@@ -39,6 +40,35 @@ class BytesTools {
 		}		
 		return return resultBB.getBytes();
 	}
+	
+	public static function joinBytesDataList(bytesList:List<BytesData>, ?segmentLength:Int = 4):BytesData {
+		
+		bytesList = fillUpByteDatas(bytesList, segmentLength);
+		var channelsLength:Int = bytesList.length;
+		var bytesLength = BytesData.length(bytesList.first());
+		var totalLength = channelsLength * bytesLength;		
+		var totalSegmentsCount = Std.int(totalLength / segmentLength);
+		var totalIterations:Int = Std.int(totalSegmentsCount / channelsLength);
+		
+		
+		//var resultBB = new haxe.io.BytesBuffer();
+		var resultString = '';
+		
+		for (pos in 0...totalIterations) {
+			for (bytes in bytesList) {
+				trace(BytesData.toString(bytes));
+				/*
+				var sub = bytes.sub(pos * segmentLength, segmentLength);
+				resultBB.add(sub);
+				*/
+				
+				var seg = BytesData.toString(bytes).substr(pos * segmentLength, segmentLength);
+				
+				resultString += seg; // BytesData.toString(seg);
+			}
+		}		
+		return return BytesData.ofString(resultString);
+	}
 
 	public static function fillUp(bytesList:List<haxe.io.Bytes>, ?segmentLength:Int = 4):List<haxe.io.Bytes> {
 		var longest:Float = 0;			
@@ -57,6 +87,25 @@ class BytesTools {
 		}
 		return result;
 	}	
+	
+	public static function fillUpByteDatas(bytesList:List<BytesData>, ?segmentLength:Int = 4):List<haxe.io.BytesData> {
+		var longest:Float = 0;			
+		bytesList.map(function(bytes:haxe.io.BytesData):Void { longest = Math.max(BytesData.length(bytes), longest); } ); 
+		var nrOfSegments  = Math.ceil(longest / segmentLength);
+		var filledBytesLength = nrOfSegments * segmentLength;
+		var result = new List<haxe.io.BytesData>();
+		for (bytes in bytesList) {
+			var fillCount = filledBytesLength - BytesData.length(bytes);
+			
+			var fillString = StringTools.lpad('', '.', fillCount);
+			var bytesString = BytesData.toString(bytes);
+			var filledString = bytesString + fillString;
+			//trace(filledString);
+			result.add(BytesData.ofString(filledString));
+		}
+		return result;
+	}	
+	
 	
 	static public function split(bytes:haxe.io.Bytes, nrOfChannels:Int, segmentsLength:Int=4):List<haxe.io.Bytes> {
 		var iterations = Std.int(bytes.length / (segmentsLength * nrOfChannels));
@@ -77,6 +126,27 @@ class BytesTools {
 			ret.add(bbList[ch].getBytes());
 		}
 		return ret;
+	}
+	
+	static public function splitBytesData(bytes:BytesData, nrOfChannels:Int, segmentsLength:Int = 4): List<BytesData> {
+		var bytesStr = BytesData.toString(bytes);
+		
+		var strs = new Array<String>();
+		
+		for (ch in 0...nrOfChannels) strs[ch] = '';
+
+		while(bytesStr.length > 0) {
+			for (ch in 0...nrOfChannels) {
+				var seg = bytesStr.substr(0, segmentsLength);
+				bytesStr = bytesStr.substr(segmentsLength);
+				//trace([seg, bytesStr]);
+				strs[ch] += seg;
+			}
+		}
+		//trace(byteStrings);
+		var res = new List<BytesData>();
+		for (ch in 0...nrOfChannels) res.add(BytesData.ofString(strs[ch]));
+		return res;
 	}
 
 	//-----------------------------------------------------------------------------------------------------------------------
