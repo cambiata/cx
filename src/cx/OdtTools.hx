@@ -194,6 +194,14 @@ class OdtTools
 	}
 
 	static public function getIndexes(xmlStr:String, refFilename:String='') {
+		
+		/*
+		var starttag = '<tag name="text:alphabetical-index-mark-start';
+		var endtag = '<tag name="text:alphabetical-index-mark-end';
+		xmlStr = StringTools.replace(xmlStr, starttag, '<b>' + starttag);
+		xmlStr = StringTools.replace(xmlStr, endtag, '</b>' + endtag);
+		*/
+		
 		var ret = new Array<OdtIndex>();
 		var r = ~/(<text:alphabetical-index-mark-start[^<]+?>)([^<]*)(<text:alphabetical-index-mark-end[^<]+?>)/gm;
 		while (r.match(xmlStr)) {			
@@ -213,8 +221,6 @@ class OdtTools
 			
 			for (key in keys) {
 				ret.push( { id:id, content:content, pos:pos, len:len, key:key /*, key2:key2*/, filename:refFilename, filekey:EncodeTools.base64Encode(refFilename) } );
-				
-				
 			}
 			
 			

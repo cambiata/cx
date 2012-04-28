@@ -1,4 +1,6 @@
 package cx;
+import neko.db.Sqlite;
+import neko.FileSystem;
 /**
  * ...
  * @author Jonas Nyström
@@ -33,6 +35,17 @@ class SqliteTools {
 		return 'INSERT INTO "' + tableName + '" ' + sql;		
 	}
 	
+	static public function execute(filename:String, sql:String) {
+		var cnx = Sqlite.open(filename);	
+		cnx.request(sql);
+		cnx.close();
+	}	
 	
+	static public function createSqlite(filename:String):Bool {
+		if (FileSystem.exists(filename)) throw 'SQlite file ' + filename + ' already exists!';
+		var cnx = Sqlite.open(filename);	
+		cnx.close();	
+		return FileSystem.exists(filename);
+	}
 	
 }

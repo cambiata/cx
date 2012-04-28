@@ -25,6 +25,10 @@ class FileTools
 		f.close();		
 	}
 
+	static public function getContent(filename:String):String {
+		return File.getContent(filename);
+	}
+	
 	/*
 	static public function putContentBinary(filename:String, content:String) {
 		var f = neko.io.File.write(filename, true);
@@ -122,6 +126,8 @@ class FileTools
 		f.writeString(content);
 		f.close();			
 	}
+	
+	
 	
 	static public function executeFile(filename:String) {
 	

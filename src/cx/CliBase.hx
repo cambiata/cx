@@ -4,8 +4,7 @@ import neko.Lib;
 import neko.Sys;
 import neko.Utf8;
 
-class CliBase {
-	
+class CliBase {	
 	static public var DIVIDER1:String = '---------------------------------------------------------------------------------------------';
 	static public var DIVIDER2:String = '*********************************************************************************************';
 	static public var DIVIDER3:String = '- - - - - - - - - - - -';
@@ -13,9 +12,9 @@ class CliBase {
 	
 	public function new(apiClass:Class<Dynamic>, cmds:Array<Dynamic>, toolTitle:String) {
 		
-		Lib.println(DIVIDER2);
+		Lib.println(DIVIDER1);
 		Lib.println(CliBase.decode(toolTitle) + cx.CliBase.MyMacro.getDate() );
-		Lib.println(DIVIDER2);
+		Lib.println(DIVIDER1);
 		this.apiClass = apiClass;
 		Reflect.callMethod(this.apiClass, Reflect.field(this.apiClass, 'init'), []);
 		this.printAndWait(cmds);
@@ -30,8 +29,6 @@ class CliBase {
 	}
 	
 	private function printAndWait(cmds:Array<Dynamic>, prevCmds:Array<Dynamic> = null) {			
-		//trace(cmds);
-		//trace(prevCmds);
 		
 		if (prevCmds == null) prevCmds = [];
 		if (prevCmds.length == 0) {
@@ -47,31 +44,33 @@ class CliBase {
 		var cmdLabels = new Array<String>();
 		
 		for (c in cmdsArray) {
-			//trace(c);
 			if (Std.is(c, String)) {
-				cmdLabels.push(' ' + (key + 1) + ' : ' + c);
+				cmdLabels.push(' ' + (key + 1) + ' : ' + commandLabel(c));
 			} else if (Std.is(c, Array)) {
-				cmdLabels.push(' ' + (key + 1) + ' : ' + c[0] + ' >> ');
+				cmdLabels.push(' ' + (key + 1) + ' : ' + commandLabel(c[0]) + ' >');
 			}
 			keys.push(Std.string(key + 1));
 			key++;
 		}	
 		
-		Lib.println(DIVIDER3);
+		Lib.println('');
+		Lib.println(DIVIDER1);
+		Lib.println('');
+		Lib.println('MENY:');
 		for (l in cmdLabels) {
 			Lib.println(l);			
 		}
 			
 		//----------------------------------------------------
 		if (prevCmds.length == 0) {
-			Lib.println (' q : quit ');
+			Lib.println (' q : AVSLUTA ');
 		} else {
-			Lib.println (' q : exit <<');
+			Lib.println (' q : ROTMENY <');
 		}
-		Lib.println(DIVIDER3);
+		Lib.println('');
 		var r = '*';
 		while (Lambda.indexOf(keys, r) < 0) {
-			r = prompt(CliBase.decode('Välj kommando nummer'));
+			r = prompt(CliBase.decode(' > Välj menyalternativ nummer'));
 		} 	
 		
 		if (r == 'q') {
@@ -99,7 +98,8 @@ class CliBase {
 			//trace(selectedCmd);
 			if (Std.is(cmdsArray[i], String)) {
 				//trace('execute string ' + selectedCmd);
-				var selectedCmd:String = cmdsArray[i];
+				var selectedCmd:String = commandFunction(cmdsArray[i]);
+				//trace('Hello ' + selectedCmd);
 				doCommand(selectedCmd);
 				printAndWait(cmds,  prevCmds);
 			} else if (Std.is(cmdsArray[i], Array)) {				
@@ -115,87 +115,32 @@ class CliBase {
 					printAndWait(selectedCmds, prevCmds);
 				}
 			}
-			
-		}			
-					
+		}								
 	}
 	
+	static public function commandLabel(label:String):String {		
+		if (label.indexOf('|') > 0) {
+			label = label.substr(0, label.indexOf('|'));
+		}
+		return '' + CliBase.decode(label);		
+	}
 	
-	private function xprintAndWait(cmds:Array<Dynamic>, prevCmds:Array<Dynamic>=null) {		
-		
-		var keys = ['q'];
-		var cmds2 = cmds.copy();
-		if (prevCmds != null) {
-			var currentCmd = cmds2.shift();
-			trace(333);
-			if (!this.doSubCommand(currentCmd)) {
-				this.printAndWait(prevCmds);
-			}
-		}
-		
-		Lib.println(DIVIDER1);
-		trace(cmds);
-		trace(prevCmds);
-		Lib.println(DIVIDER1);
-		/*
-		if (this.memoryDir != '') Lib.println(' memory directory: ' + this.memoryDir.split('/').pop());
-		if (this.memoryId != 0) {
-			Lib.println(' Memory id:\t' + this.memoryId + ' (' + this.sqliteFiles.get(this.memoryId).split('/').pop() + ')');
-			this.list_title_data();
-		}
-		Lib.println(' group:' + this.idsSelected().length + ', topId:' +  topId + ', count:' + Iterators.array(this.sqliteFiles.keys()).length);
-		Lib.println('--------------------------------------------------------------------------------------------------------');
-
-		Lib.println('');
-		*/
-		
-		for (i in 0...cmds2.length) {
-			var cmd:Dynamic = cmds2[i];
-			var c:Dynamic;
-			if (Std.is(cmd, Array)) {
-				c = cmd[0];
-			} else {
-				c = cmd;				
-			}
-			var nr = i + 1;
-			Lib.println (' ' + nr + ' : ' + commandTextify(c));
-			keys.push(Std.string(nr));
-		}		
-		Lib.println (' q : Exit');
-		Lib.println('');
-		var r = '*';
-		while (Lambda.indexOf(keys, r) < 0) {
-			r = prompt('Choose command nr');
-		} 
-		
-		if (r == 'q') {
-			if (prevCmds != null) {
-				this.printAndWait(prevCmds);
-			} else {
-				return;
-			}			
-		} else {
-			var i = Std.parseInt(r)-1;
-			if (cmds2[i].length > 1) {
-				
-				if (Std.is(cmds2[i], Array)) {
-					//cmds[i].shift();
-					this.printAndWait(cmds[i], cmds);
-				} else {
-					trace(111);
-					this.doCommand(cmds2[i]);
-					this.printAndWait(cmds);
-				}
-			} else {
-				trace(222);
-				this.doCommand(cmds2[i][0]);
-				this.printAndWait(cmds);
-			}
-		}
+	static public function commandFunction(label:String):String {		
+		label = label.toLowerCase();
+		label = StringTools.replace(label, '|', '');
+		label = StringTools.replace(label, ' ', '_');
+		label = StringTools.replace(label, 'å', 'a');
+		label = StringTools.replace(label, 'ä', 'a');
+		label = StringTools.replace(label, 'ö', 'o');
+		label = StringTools.replace(label, 'Å', 'A');
+		label = StringTools.replace(label, 'Ä', 'A');
+		label = StringTools.replace(label, 'Ö', 'O');	
+		return '__' + label;
 	}
 
+	
 	public function doCommand(method:String) {
-		
+		//trace(method);
 		var methods = Type.getClassFields(this.apiClass);
 		
 		if (Lambda.indexOf(methods, method) > -1) {
@@ -234,11 +179,13 @@ class CliBase {
 		return false;
 	}	
 	
+	/*
 	static private function commandTextify(c:String):String {		
 		c = StringTools.replace(c, '_', ' ');
 		var first = c.substr(0, 1).toUpperCase();
 		return first + c.substr(1);			
 	}
+	*/
 		
 	static public function prompt(promptMsg:String, rpad:Int=0):String {
 		neko.Lib.print(StringTools.rpad(promptMsg + " ", " ", rpad) + ": ");
@@ -309,6 +256,7 @@ class CliBase {
 	
 			
 	static public function decode(str:String):String {
+		if (str == null) return null;
 		if (!Utf8.validate(str)) throw 'Error: string ' + str + ' must be Utf8 encoded!';
 		
 		var r:String = '';		

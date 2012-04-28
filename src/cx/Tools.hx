@@ -25,6 +25,12 @@ class Tools
 		return Std.int(float);
 	}
 	
+	static public function fillString(str:String, toLength:Int = 32, ?with :String = ' ', ?replaceNull:String='-') {
+		if (str == null) str = replaceNull;
+		do { str += with; } while (str.length < toLength);
+		return str.substr(0, toLength);
+	}
+	
 	static public function stringAscii(str:String):String {
 		str = StringTools.replace(str, 'å', String.fromCharCode(0xe5));
 		str = StringTools.replace(str, 'ä', String.fromCharCode(0xe4));
@@ -36,5 +42,27 @@ class Tools
 		str = StringTools.replace(str, 'è', String.fromCharCode(0xe8));		
 		return str;
 	}
+	
+	static public function getComputername():String return neko.Sys.getEnv('COMPUTERNAME')
+	
+	static public function inRange(min:Float, value:Float, max:Float):Bool {
+		if (value < min) return false;
+		if (value > max) return false;
+		return true;
+	}
+	
+	static public function arraysOverlap(array1:Array<Dynamic>, array2:Array<Dynamic>):Bool {		
+		for (item1 in array1) {
+			if (Lambda.has(array2, item1) == true) return true;
+		}
+		return false;
+	}
+	
+	static public function replaceNullString(str:String, with :String = '-'):String {
+		if (str == null) return with ;
+		return str;
+	}
+	
+	
 }
 
