@@ -11,14 +11,19 @@ import nx.element.Note;
 
 class TestNote extends haxe.unit.TestCase {
 	public function testNote1() {
-		var n = Note.getNew([Head.getNew(1), Head.getNew(2)]);
+		
+		var n = TO.getNote1();		
 		assertTrue(n != null);
 		assertEquals(1, n.getLevelTop());
 		assertEquals(2, n.getLevelBottom());
 		
-		var n = Note.getNew([Head.getNew(4), Head.getNew(3)]);
+		var n = TO.getNote2();
 		assertEquals(3, n.getLevelTop());
 		assertEquals(4, n.getLevelBottom());
 		
-	}
+	}	
+	
+
+	
+	
 }

@@ -28,7 +28,7 @@ class OdtResult extends ActionResult
 		var xmlStr = OdtTools.getContentXmlStr(z);
 		
 		var html = '';
-		html += '<div class="" style="background-color:#f5f5f5; width:100%;"><div style="width:800px; margin:0px auto; background-color:white;padding:40px 60px;">';
+		html += '<div class="" style="background-color:#f5f5f5; width:100%; padding-top:20px; padding-bottom:20px;"><div class="document" style="width:800px; border:1px solid #ddd; margin:0px auto; background-color:white;padding:80px 60px 100px 80px;/*box-shadow: 0 1px 10px rgba(0, 0, 0, 0.15);*/">';
 		html += OdtTools.getMeta() + OdtTools.getHtmlFromContent(xmlStr, z, 40);
 		html += '</div></div>';
         return html;

@@ -1,8 +1,10 @@
 package nx.display;
 import nme.geom.Rectangle;
+import nx.display.beam.IBeamGroup;
 import nx.element.Head;
 import nx.element.Note;
 import nx.enums.EDirectionUD;
+import nx.enums.ENoteType;
 import nx.enums.ENoteValue;
 import nx.enums.ESign;
 import nx.geom.DRectangle;
@@ -25,6 +27,7 @@ interface IDisplayNote {
 	function setDirection(direction:EDirectionUD):IDisplayNote;
 	function getSignsDisplayRect():DRectangle;
 	
+	
 	//function getDisplayPreRect():DRectangle;
 	/*
 	function getDisplayStaveRect():DRectangle;
@@ -32,6 +35,8 @@ interface IDisplayNote {
 	function getDisplayPostRect():DRectangle;
 	function getValue(): Int; // ????	
 	*/
+	
+	
 }
  
  
@@ -42,8 +47,8 @@ class DisplayNote implements IDisplayNote, implements IDisplayElement
 
 	public function new(note:Note<Dynamic>, ?forceDirection:EDirectionUD = null) {
 		this.note = note;
-		this.children = new Array<DisplayHead>();
-		for (child in note.children) this.children.push(new DisplayHead(child));		
+		this.displayHeads = new Array<DisplayHead>();
+		for (child in note.children) this.displayHeads.push(new DisplayHead(child));		
 		var dir = (forceDirection != null) ? forceDirection : this.calcDirection();
 		this.setDirection(dir);		
 	}
@@ -53,27 +58,39 @@ class DisplayNote implements IDisplayNote, implements IDisplayElement
 		return this.note;
 	}	
 	
-	private var children:Array<DisplayHead>;
+	private var displayHeads:Array<DisplayHead>;
 	public function getDisplayHeads():Array<DisplayHead> {
-		return this.children;
+		return this.displayHeads;
 	}
 	public function getDisplayHead(index:Int):DisplayHead {
-		return this.children[index];
+		return this.displayHeads[index];
 	}	
 	
 	public function getDisplayHeadPositions():Array<Int> {
 		var ret = new Array<Int>();
-		for (dh in this.children) {
+		for (dh in this.displayHeads) {
 			ret.push(dh.getPosition());
 		}
 		return ret;
 	}
 	
-	
 	public function getLevel():NxY {
-		if (this.children.length < 2) return this.note.getLevelTop();
+		if (this.displayHeads.length < 2) return this.note.getLevelTop();
 		return this.note.getLevelTop() + this.note.getLevelBottom();
 	}	
+		
+	public function getLevelTop():Int {
+		return this.note.getLevelTop();
+	}	
+	
+	public function getLevelBottom():Int {
+		return this.note.getLevelBottom();
+	}
+	 	
+	private function getType():ENoteType {
+		return this.note.type;
+	}	
+	
 	
 	private var direction:EDirectionUD;
 	public function getDirection():EDirectionUD {
@@ -93,10 +110,10 @@ class DisplayNote implements IDisplayNote, implements IDisplayElement
 	private var displayRect:DRectangle;
 	public function getDisplayRect():DRectangle {
 		if (this.displayRect != null) return this.displayRect;
-		var r = this.children[0].getDisplayRect();
-		if (this.children.length > 1) {
-			for (i in 1...this.children.length) {
-				var dHead = this.children[i];
+		var r = this.displayHeads[0].getDisplayRect();
+		if (this.displayHeads.length > 1) {
+			for (i in 1...this.displayHeads.length) {
+				var dHead = this.displayHeads[i];
 				r = DRectangle.fromRectangle(r.union(dHead.getDisplayRect()));
 			}
 		}
@@ -124,6 +141,9 @@ class DisplayNote implements IDisplayNote, implements IDisplayElement
 	public function debugSigns() {
 		trace(this.getSigns().debug());
 	}
+	
+	public var beamGroup:IBeamGroup;
+	public var beamTemp:Int;
 	
 	
 	//----------------------------------------------------------------------------------------

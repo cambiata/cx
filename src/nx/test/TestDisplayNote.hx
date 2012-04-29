@@ -67,17 +67,17 @@ class TestDisplayNote extends haxe.unit.TestCase {
 		//trace(dn.getSigns());
 		
 		var dn = new DisplayNote(Note.getNew([Head.getNew(0, ESign.Flat), Head.getNew(1, ESign.Flat)]));
-		trace(dn.getSigns());
+		//trace(dn.getSigns());
 		assertEquals(0, dn.getSigns()[0].position);
 		assertEquals(1, dn.getSigns()[1].position);
 
 		var dn = new DisplayNote(Note.getNew([Head.getNew(0, ESign.Flat), Head.getNew(5, ESign.Flat)]));
-		trace(dn.getSigns());
+		//trace(dn.getSigns());
 		assertEquals(0, dn.getSigns()[0].position);
 		assertEquals(1, dn.getSigns()[1].position);		
 		
 		var dn = new DisplayNote(Note.getNew([Head.getNew(0, ESign.Flat), Head.getNew(6, ESign.Flat)]));
-		trace(dn.getSigns());
+		//trace(dn.getSigns());
 		assertEquals(0, dn.getSigns()[0].position);
 		assertEquals(0, dn.getSigns()[0].position);
 		

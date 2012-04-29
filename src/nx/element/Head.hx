@@ -87,5 +87,12 @@ class Head < T:Node<Dynamic> > extends Node<Dynamic>, implements IHead {
 		return this.tieFrom;
 	}
 	
+	
+	override public function toString():String {
+		return super.toString() + '\t' + 'level:' + this.getLevel() + ', sign:' + this.getSign();
+	}
+	
+	
+	
 }
 

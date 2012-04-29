@@ -12,7 +12,7 @@ import nx.types.NxY;
  */
 
 interface IDisplayHead {
-	function getHead():Head<Dynamic>;
+	function getHead():IHead;
 	function setPosition(value:Int):IDisplayHead;
 	function getPosition():Int;
 	function getLevel():NxY;
@@ -21,12 +21,12 @@ interface IDisplayHead {
  
 class DisplayHead implements IDisplayHead, implements IDisplayElement
 {	
-	public function new(head:Head<Dynamic>) {
+	public function new(head:IHead) {
 		this.head = head;
 	}
 	
-	private var head:Head<Dynamic>;
-	public function getHead():Head<Dynamic> {
+	private var head:IHead;
+	public function getHead():IHead {
 		return this.head;
 	}
 

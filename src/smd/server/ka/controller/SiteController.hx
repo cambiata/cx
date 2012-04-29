@@ -12,6 +12,17 @@ import smd.server.ka.result.IndexResult;
 class SiteController extends UserController
 {
 
+	@URL("/document/kursplan")
+	public function kursplan() {						
+		return  new IndexResult(loginUser, 'Contact sidebar', new OdtResult('_docs/kurs/Kursplan-2011-2012.odt', { } ).execute());
+	}
+	
+	@URL("/document/studiehandledning")
+	public function studiehandledning() {						
+		return  new IndexResult(loginUser, 'Contact sidebar', new OdtResult('_docs/kurs/Studiehandledning-2011-2012.odt', { } ).execute());
+	}	
+	
+	
 	@URL("/odt2")
 	public function odt2() {						
 		return  new IndexResult(loginUser, 'Contact sidebar', new OdtResult('_docs/barockens-musiksyn.odt', { } ).execute());

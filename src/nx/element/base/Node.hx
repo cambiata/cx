@@ -69,11 +69,15 @@ class Node < T: Node<Dynamic> > {
 	public function parentTag():String 		return (this.parent != null) ? Type.getClassName(Type.getClass(this.parent)) + ':' + this.parent.index : 'no parent'
 
 	public function toString():String {
-		return this.tag(); // + ' (' + this.parentTag() + ')';
+		var className = Type.getClassName(Type.getClass(this));
+		var classNameShort = StringTools.replace(className, 'nx.element.', '');
+		var index = this.getIndex();		
+		return classNameShort + '[' + this.getIndex() + ']';
 	}
-	public function test(?level:Int=0) {
-		trace(StringTools.lpad('', '.', level) + this.toString());
-		for (child in this.children) child.test(level + 1);
-		
+	
+	public function toStringExt(str:String='', level:Int=0) {
+		var ret = '\r\n  - ' + StringTools.lpad('', '.', level*2) + this.toString();
+		for (child in this.children) str += child.toStringExt(str, level + 1);
+		return ret + str;
 	}
 }
