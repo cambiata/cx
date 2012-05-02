@@ -1,30 +1,20 @@
-package smd.server.ka.result;
-import cx.neko.Session;
-import cx.Web;
-import haxe.Firebug;
-import smd.server.base.result.ActionResult;
-import smd.server.base.controller.UserController;
-import smd.server.base.types.LoginUser;
-import smd.server.base.controller.UserController.UserTools;
-import smd.server.base.result.TemplateResult;
+package smd.server.base.result;
 import smd.server.base.types.PageData;
+import smd.server.base.types.LoginUser;
 
 /**
  * ...
  * @author Jonas Nyström
  */
 
-class IndexResult extends ActionResult
+class ScorxResult extends ActionResult
 {
 	private var templateFile:String;
 	private var data:PageData;
 	
 	public function new(?templateFile:String='templates/index.html', ?user:LoginUser=null, sidebarStr:String=null, contentStr=null) {		
-		
-		
-		var sidebar = (sidebarStr == null) ? new TemplateResult('templates/content/sidebar.html', user ).execute() : sidebarStr;
-		
-		var content = (contentStr == null) ? new TemplateResult('templates/content/home.html', user ).execute() : contentStr;
+		var sidebar = (sidebarStr == null) ? new TemplateResult('templates/scorx/sidebar.html', user ).execute() : sidebarStr;
+		var content = (contentStr == null) ? new TemplateResult('templates/scorx/list.html', user ).execute() : contentStr;
 		
 		this.data = { 
 			title:'Körakademin, Mellansels folkhögskola',

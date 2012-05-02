@@ -3,6 +3,9 @@ import cx.neko.NekoSession;
 import cx.Web;
 import harfang.controller.AbstractController;
 import harfang.module.Module;
+import smd.server.base.auth.AuthResult;
+import smd.server.base.types.LoginUser;
+import smd.server.ka.auth.KaAuth;
 
 /**
  * ...
@@ -35,9 +38,14 @@ class UserTools {
 				loginUser.msg = 'Logged out';
 			} else if (user != '' && pass != '') {
 				// try to log in...
-				if (getUserAuth(user, pass)) {					
-					loginUser.user = user;
-					loginUser.pass = pass;
+				var authResult:AuthResult = new KaAuth(Web.getCwd() + 'autentisering.dat').check(user, pass);
+				
+				if (authResult.success) {					
+				//if (true) {					
+					loginUser.user = authResult.person.fornamn + ' ' + authResult.person.efternamn;
+					loginUser.pass = authResult.person.xpass;
+					//loginUser.user = user;
+					//loginUser.pass = pass;
 					loginUser.msg = 'Login ok';
 				} else {
 					loginUser = getUserNull();
@@ -55,9 +63,11 @@ class UserTools {
 	}
 	
 	static public function getUserAuth(user:String, pass:String):Bool {
-		if (user != 'jonas') return false;
-		if (pass != '1234') return false;
-		return true;
+		//if (user != 'jonas') return false;
+		//if (pass != '1234') return false;
+		var authResult:AuthResult = new KaAuth('autentisering.dat').check(user, pass);
+		
+		return authResult.success;
 	}
 	
 	static public function getUserNull():LoginUser {
@@ -66,8 +76,3 @@ class UserTools {
 }
 
 
-typedef LoginUser = {
-	user:String,
-	pass:String,	
-	msg:String,
-}

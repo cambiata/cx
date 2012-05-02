@@ -18,7 +18,7 @@ class KaAuth implements IAuth {
 	}
 	
 	public function check(user:String, pass:String):AuthResult {		
-		var ret:AuthResult = { person:null, msg:null };
+		var ret:AuthResult = { success:false, person:null, msg:null };
 		//var id = user + '|' + pass;
 		//trace(id);
 		var file = neko.io.File.read(this.authFilename, false);				
@@ -30,6 +30,7 @@ class KaAuth implements IAuth {
 					if (checkPass == pass) {
 						file.close();
 						var p = PersonTools.getFromString(line);										
+						ret.success = true;
 						ret.person = p;
 						ret.msg = 'Authentication success: User ' + p.epost + ' ok!';
 						return ret;				
@@ -40,12 +41,11 @@ class KaAuth implements IAuth {
 						return ret;
 					}
 				}
-				trace(line);
+				//trace(line);
 			}
 		} catch (e:Dynamic) {
 			
-		}
-			
+		}			
 		file.close();	
 		ret.msg = 'Authentication fail: User ' + user + ' not found!';
 		return ret;

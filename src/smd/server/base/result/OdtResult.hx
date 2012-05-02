@@ -26,11 +26,16 @@ class OdtResult extends ActionResult
 		
 		var z = OdtTools.getZipEntries(this.odtFile);
 		var xmlStr = OdtTools.getContentXmlStr(z);
+		var html = OdtTools.getMeta() + OdtTools.getHtmlFromContent(xmlStr, z, 40);
 		
-		var html = '';
-		html += '<div class="" style="background-color:#f5f5f5; width:100%; padding-top:20px; padding-bottom:20px;"><div class="document" style="width:800px; border:1px solid #ddd; margin:0px auto; background-color:white;padding:80px 60px 100px 80px;/*box-shadow: 0 1px 10px rgba(0, 0, 0, 0.15);*/">';
-		html += OdtTools.getMeta() + OdtTools.getHtmlFromContent(xmlStr, z, 40);
-		html += '</div></div>';
-        return html;
+		return new TemplateResult( 'templates/content/document.html', { document:html }).execute() ;
+		
+		
+		
+		//var html = '';
+		//html += '<div class="" style="background-color:#f5f5f5; width:100%; padding-top:20px; padding-bottom:20px;"><div class="document" style="width:800px; border:1px solid #ddd; margin:0px auto; background-color:white;padding:80px 60px 100px 80px;/*box-shadow: 0 1px 10px rgba(0, 0, 0, 0.15);*/">';
+		//html += OdtTools.getMeta() + OdtTools.getHtmlFromContent(xmlStr, z, 40);
+		//html += '</div></div>';
+        //return html;
 	}
 }

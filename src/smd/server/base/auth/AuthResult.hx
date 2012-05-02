@@ -7,6 +7,7 @@ import ka.types.Person;
  */
 
 typedef AuthResult = {
+	success:Bool,
 	person:Person,
 	msg:String,	
 }
