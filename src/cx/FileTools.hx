@@ -37,7 +37,7 @@ class FileTools
 	}
 	*/
 	
-	static public function getFilesNamesInDirectory(dir:String, ?ext='') {
+	static public function getFilesNamesInDirectory(dir:String, ?ext=''):Array<String> {
 		var filenames = neko.FileSystem.readDirectory(dir);
 		
 		var validFilenames = new Array<String>();		
@@ -151,6 +151,17 @@ class FileTools
 	static public function putBinaryContentExecute(filename:String, content:String) {
 		putBinaryContent(filename, content);
 		executeFile(filename);
+	}
+	
+	static public function stripPath(filename:String):String {
+		filename = StringTools.replace(filename, '\\', '/');
+		return filename.substr(filename.lastIndexOf('/')+1);		
+	}
+	
+	static public function getFirstFilenameSegment(filename:String):String {
+		filename = stripPath(filename);
+		var segments = filename.split('.');
+		return return segments[0];
 	}
 	
 

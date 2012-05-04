@@ -92,12 +92,14 @@ class NekoSession
 
 	public static function get(name : String) : Dynamic
 	{
+		//trace('--- get');
 		start();
 		return sessionData.get(name);
 	}
 
 	public static function set(name : String, value : Dynamic)
 	{
+		//trace('--- set');
 		start();
 		needCommit = true;
 		sessionData.set(name, value);
@@ -167,9 +169,11 @@ class NekoSession
 		if( id==null )
 		{
 			var args = Sys.args();
+			//trace(args);
 			for( a in args )
 			{
 				var s = a.split("=");
+				//trace(s);
 				if( s[0] == sessionName )
 				{
 					id=s[1];
@@ -178,6 +182,13 @@ class NekoSession
 			}
 			//trace("getting id from command line");
 		}
+		/*
+		if (id == null) {
+			trace('id is not set from external source');
+		}
+		*/
+		//trace(id);
+		
 		var file : String;
 		var fileData : String;
 		if( id!=null )
@@ -185,10 +196,13 @@ class NekoSession
 			testValidId(id);
 
 			file = savePath + id + ".sess";
-			if( !neko.FileSystem.exists(file) ) 
+			if ( !neko.FileSystem.exists(file) ) {
+				//trace('cant find ' + file);
 				id = null;
+			}
 			else
 			{
+				//trace('file found ' + file);
 				fileData = try neko.io.File.getContent(file) catch ( e:Dynamic ) null;
 				if( fileData == null )
 				{
@@ -198,6 +212,7 @@ class NekoSession
 				else
 				{
 					sessionData = haxe.Unserializer.run(fileData);
+					//trace(sessionData);
 				}
 			}
 		}

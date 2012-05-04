@@ -1,4 +1,4 @@
-package sx.db.type;
+package sx.type;
 
 /**
  * ...
@@ -9,9 +9,11 @@ typedef TInformation = {
 	id:Int,
 	title:String,
 	subtitle:String,
+	sorttitle:String,
 	distributorId:String,
 	mediaformatId:String,
 	published:Int,
 	added:Date,
 	updated:Date,
+	introd:String,
 }

@@ -1,4 +1,4 @@
-package sx.db.type;
+package sx.type;
 
 /**
  * ...

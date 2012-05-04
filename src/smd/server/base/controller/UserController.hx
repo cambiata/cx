@@ -3,6 +3,7 @@ import cx.neko.NekoSession;
 import cx.Web;
 import harfang.controller.AbstractController;
 import harfang.module.Module;
+import haxe.Firebug;
 import smd.server.base.auth.AuthResult;
 import smd.server.base.types.LoginUser;
 import smd.server.ka.auth.KaAuth;
@@ -25,8 +26,8 @@ class UserController extends AbstractController {
 class UserTools {	
 	static public function getCurrentUser():LoginUser {
 		var loginUser:LoginUser = getUserNull();
-		NekoSession.setSavePath(Web.getCwd() + 'session/');
-
+		NekoSession.setSavePath(neko.Web.getCwd() + 'session/');		
+		//Firebug.trace(NekoSession.getSavePath());
 		// logga in eller logga ut...
 		if (Web.getMethod() == 'POST') {			
 			

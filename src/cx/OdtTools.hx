@@ -76,8 +76,15 @@ class OdtTools
 								recursive(child, level);								
 								html += '</h' + hLevel + '>';
 							case 'text:p':
+								var style = child.get('text:style-name');
 								html += '<p>';							
+								if (style == 'P1') html += '<b>';
+								if (style == 'P2') html += '<b>';
+								if (style == 'P3') html += '<b>';
 								recursive(child, level);								
+								if (style == 'P1') html += '</b>';
+								if (style == 'P2') html += '</b>';
+								if (style == 'P3') html += '</b>';
 								html += '</p>';
 								
 							case 'text:span': 
@@ -152,7 +159,7 @@ class OdtTools
 								*/
 
 							case 'table:table':
-								html += '<table>';							
+								html += '<table cellpadding="8">';							
 								recursive(child, level);								
 								html += '</table>';									
 							case 'table:table-row':
@@ -160,7 +167,7 @@ class OdtTools
 								recursive(child, level);								
 								html += '</tr>';									
 							case 'table:table-cell':
-								html += '<td>';							
+								html += '<td valign="top">';							
 								recursive(child, level);								
 								html += '</td>';								
 								

@@ -1,4 +1,4 @@
-package sx.db.type;
+package sx.type;
 
 /**
  * ...
@@ -8,4 +8,5 @@ package sx.db.type;
 typedef TExample = {
 	information:TInformation,
 	originatorItems:TOriginatorItems,
+	categories:TAlternatives,	
 }

@@ -13,6 +13,15 @@ import smd.server.ka.result.IndexResult;
 class SiteController extends UserController
 {
 
+	@URL("/doc/([a-zA-Z]+)", "g")
+	public function doc(param : String='document') {						
+		//return  new IndexResult(null, loginUser, null, 'info ' + param );
+		var content = null;
+		if (param.toLowerCase() != 'index') content = new OdtResult('_docs/' + param.toLowerCase() + '.odt', { } ).execute();
+		return  new IndexResult(null, loginUser, null, content );		
+	}	
+	
+	
 	@URL("/info/([a-zA-Z]+)", "g")
 	public function info(param : String='INFORMATION') {						
 		//return  new IndexResult(null, loginUser, null, 'info ' + param );

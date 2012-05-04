@@ -1,22 +1,23 @@
-package sx.db;
+package sx.util;
 import cx.SqliteTools;
 import neko.db.Sqlite;
 import neko.FileSystem;
 import neko.Utf8;
-import sx.db.type.TAlternative;
-import sx.db.type.TAlternatives;
-import sx.db.type.TCategories;
-import sx.db.type.TCategory;
-import sx.db.type.TChannelBase;
-import sx.db.type.TChannelsBase;
-import sx.db.type.TExample;
-import sx.db.type.TInformation;
-import sx.db.type.TOriginator;
-import sx.db.type.TOriginatorItem;
-import sx.db.type.TOriginatorItems;
-import sx.db.type.TOriginators;
-import sx.db.type.TPageBase;
-import sx.db.type.TPagesBase;
+import sx.type.TAlternative;
+import sx.type.TAlternatives;
+import sx.type.TCategories;
+import sx.type.TCategory;
+import sx.type.TChannelBase;
+import sx.type.TChannelsBase;
+import sx.type.TExample;
+import sx.type.TInformation;
+import sx.type.TOriginator;
+import sx.type.TOriginatorItem;
+import sx.type.TOriginatorItems;
+import sx.type.TOriginators;
+import sx.type.TPageBase;
+import sx.type.TPagesBase;
+import sx.util.ScorxTools;
 
 /**
  * ...
@@ -38,6 +39,7 @@ class ScorxDb {
 		SqliteTools.execute(filename, "INSERT INTO 'information' VALUES('id','')  ");
 		SqliteTools.execute(filename, "INSERT INTO 'information' VALUES('title','')   ");
 		SqliteTools.execute(filename, "INSERT INTO 'information' VALUES('subtitle','')   ");
+		SqliteTools.execute(filename, "INSERT INTO 'information' VALUES('sorttitle','')   ");
 		SqliteTools.execute(filename, "INSERT INTO 'information' VALUES('distributor_id','SKA')   ");
 		SqliteTools.execute(filename, "INSERT INTO 'information' VALUES('mediaformat_id','SCX')   ");
 		SqliteTools.execute(filename, "INSERT INTO 'information' VALUES('published','0')   ");
@@ -126,7 +128,26 @@ class ScorxDb {
 		var cnx = Sqlite.open(filename);	
 		cnx.request(sql);
 		cnx.close();
-	}	
+	}
+	
+	static public function getCategoriesAll(filename:String):TAlternatives {
+		var cnx = Sqlite.open(filename);	
+		var datas = new TAlternatives();
+		var sql = 'SELECT * FROM categories';	
+		var items = cnx.request(sql).results();
+		for (item in items) {
+			var data:TAlternative = {categoryId:item.type, value:item.value};
+			datas.push(data);
+		}	
+		var sql = 'SELECT * FROM categoriesdyn';
+		var items = cnx.request(sql).results();
+		for (item in items) {
+			var data:TAlternative = {categoryId:item.type, value:item.value};
+			datas.push(data);
+		}		
+		cnx.close();		
+		return datas;			
+	}
 	
 	//---------------------------------------------------------------------------------
 
@@ -205,8 +226,7 @@ class ScorxDb {
 		SqliteTools.execute(filename, sql);
 	}
 	
-	static public function getOriginators(filename:String):TOriginators {
-		//trace('get...');
+	static public function getOriginators(filename:String):TOriginators {		
 		var sql = 'SELECT * FROM originators';
 		var cnx = Sqlite.open(filename);	
 		var items = cnx.request(sql).results();
@@ -250,15 +270,17 @@ class ScorxDb {
 		cnx.close();		
 	}	
 	
-	static public function getAll(filename:String): TExample {
+	static public function getExample(filename:String): TExample {
 		var r:TExample = {
 			information:getInformation(filename),
 			originatorItems:getOriginatorItems(filename),
-		}		
+			categories:getCategoriesAll(filename),			
+		}			
 		return r;		
 	}
 	
 	static public function getInformation(filename:String): TInformation {
+		
 		if (!FileSystem.exists(filename)) throw "Can't find file " + filename;		
 		try {
 			var cnx = Sqlite.open(filename);			
@@ -269,14 +291,16 @@ class ScorxDb {
 			var updatedDate = (dynResults.updated > '') ? Date.fromString(dynResults.updated) : null;
 			
 			var r:TInformation = {
-				id: Std.parseInt(dynResults.id),
+				id: ScorxTools.getId(filename),
 				title: dynResults.title,
 				subtitle: dynResults.subtitle,
+				sorttitle: dynResults.sorttitle,
 				distributorId: Utf8.decode(dynResults.distributor_id),
 				mediaformatId: Utf8.decode(dynResults.mediaformat_id),
 				published: Std.parseInt(dynResults.published),
 				added: addedDate, 
 				updated: updatedDate,
+				introd: dynResults.introd,
 			}
 			return r;
 		} catch (msg:String) {
@@ -323,6 +347,34 @@ class ScorxDb {
 		return r;
 	}		
 	
+	/*
+	static public function addFieldSortTitle(filename:String) {
+		if (hasFieldSortTitle(filename)) {
+			trace('HAS: ' + filename);
+		} else {
+			SqliteTools.execute(filename, "INSERT INTO 'information' VALUES('sorttitle','')   ");
+		}
+	}
 	
+	static public function hasFieldSortTitle(filename:String):Bool {
+		var f = SqliteTools.select(filename, "SELECT * FROM 'information' WHERE type = 'sorttitle'"); //  
+		return f.length > 0;
+	}
+	*/
+	/*
+	static public function addFieldSortIntrod(filename:String) {
+		if (hasFieldSortIntrod(filename)) {
+			trace('HAS: ' + filename);
+		} else {
+			trace('...' + filename);
+			SqliteTools.execute(filename, "INSERT INTO 'information' VALUES('introd','')   ");
+		}
+	}
+	
+	static public function hasFieldSortIntrod(filename:String):Bool {
+		var f = SqliteTools.select(filename, "SELECT * FROM 'information' WHERE type = 'introd'"); //  
+		return f.length > 0;
+	}	
+	*/
 	
 }

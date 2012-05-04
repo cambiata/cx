@@ -1,0 +1,54 @@
+package sx.util;
+import sx.type.TExample;
+import sx.type.TListExample;
+import sx.type.TOriginatorshorts;
+
+/**
+ * ...
+ * @author Jonas Nyström
+ */
+
+class ExampleTools 
+{
+
+	static public function getListExample(example:TExample):TListExample {
+		var listExample:TListExample = {
+			id:example.information.id,
+			title:example.information.title,
+			subtitle:example.information.subtitle,
+			sorttitle:example.information.sorttitle,
+			bes:getBesFromExample(example),
+			ack:getAckFromExample(example),
+			originatorshorts:getOriginatorshortsFromExample(example),
+			introd:example.information.introd,
+			originatorItems:example.originatorItems,
+			categories:example.categories,			
+		}
+		return listExample;	
+	}	
+	
+	
+	static public function getBesFromExample(example:TExample):String {
+		for (cat in example.categories) {
+			if (cat.categoryId == 'bes') return cat.value;			
+		}
+		return null;
+	}
+
+	static public function getAckFromExample(example:TExample):String {
+		for (cat in example.categories) {
+			if (cat.categoryId == 'ack') return cat.value;			
+		}
+		return null;
+	}
+	
+	static public function getOriginatorshortsFromExample(example:TExample):TOriginatorshorts {
+		var originatorshorts = new TOriginatorshorts();
+		for (origItem in example.originatorItems) {
+			var originatorshort = ScorxTools.getOriginatorshort(origItem.originator);
+			originatorshorts.push(originatorshort);
+		}
+		return originatorshorts;
+	}
+	
+}

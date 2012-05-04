@@ -26,6 +26,8 @@ class IndexResult extends ActionResult
 		
 		var content = (contentStr == null) ? new TemplateResult('templates/content/home.html', user ).execute() : contentStr;
 		
+		content += 'NekoSession.getSavePath():' + cx.neko.NekoSession.getSavePath();
+		
 		this.data = { 
 			title:'Körakademin, Mellansels folkhögskola',
 			user:user, 
