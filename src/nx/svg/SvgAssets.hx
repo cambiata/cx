@@ -1,9 +1,7 @@
 package nx.svg;
 
+import nx.output.TScaling;
 import nx.svg.SVG2Gfx;
-import nx.Const.Scaling;
-import nx.Const.TScaling;
-
 import nme.display.Shape;
 
 

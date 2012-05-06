@@ -1,10 +1,8 @@
 package nx.display;
+import nme.geom.Rectangle;
+import nx.const.Constants;
 import nx.element.Head;
 import nx.enums.ESign;
-import nx.geom.DRectangle;
-import nx.Tools;
-import nx.types.NxX;
-import nx.types.NxY;
 
 /**
  * ...
@@ -15,13 +13,14 @@ interface IDisplayHead {
 	function getHead():IHead;
 	function setPosition(value:Int):IDisplayHead;
 	function getPosition():Int;
-	function getLevel():NxY;
+	function getLevel():Int;
 	function getSign():ESign;
 }
  
 class DisplayHead implements IDisplayHead, implements IDisplayElement
 {	
 	public function new(head:IHead) {
+		this.position = 0;
 		this.head = head;
 	}
 	
@@ -30,16 +29,16 @@ class DisplayHead implements IDisplayHead, implements IDisplayElement
 		return this.head;
 	}
 
-	private var position:NxX;
-	public  function setPosition(value:NxX):IDisplayHead {
-		this.position = Tools.intRange( -1, value, 1); // Std.int(Math.min(Math.max( -1, value), 1));
+	private var position:Int;
+	public  function setPosition(value:Int):IDisplayHead {
+		this.position = cx.Tools.intRange( -1, value, 1); // Std.int(Math.min(Math.max( -1, value), 1));
 		return this;
 	}	
-	public function getPosition():NxX {
+	public function getPosition():Int {
 		return this.position;
 	}
 	
-	public function getLevel():NxY {
+	public function getLevel():Int {
 		return this.head.getLevel();
 	}
 	
@@ -47,9 +46,9 @@ class DisplayHead implements IDisplayHead, implements IDisplayElement
 		return this.head.getSign();
 	}
 	
-	public function getDisplayRect():DRectangle {
-		var r = new DRectangle(this.position*nx.Const.NConst.headDisplayWidth, this.getLevel(), 0, 0);
-		r.inflate(nx.Const.NConst.headDisplayWidth / 2, 1);
+	public function getDisplayRect():Rectangle {
+		var r = new Rectangle(this.position* Constants.HEAD_WIDTH, this.getLevel(), 0, 0);
+		r.inflate(Constants.HEAD_HALFWIDTH, 1);
 		return r;
 	}	
 }

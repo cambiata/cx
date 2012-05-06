@@ -7,20 +7,7 @@ import nme.geom.Rectangle;
 
 class Scaling  {
 	
-	static public function getNormal():TScaling {
-		return {
-			linesWidth:		.75,
-			space:			8.0,
-			halfSpace: 		4.0,
-			noteWidth:		11.0,
-			halfNoteWidth:	5.5,
-			quarterNoteWidth: 2.25,
-			signPosWidth:	8.0,
-			svgScale:		.175,
-			svgX:			-5.0,
-			svgY:			-39.0,
-		}
-	}
+
 	static public function getBig():TScaling {
 		return {
 			linesWidth:		1.5,
@@ -35,6 +22,22 @@ class Scaling  {
 			svgY:			-82.0,
 		}
 	}
+	
+	static public function getNormal():TScaling {
+		return {
+			linesWidth:		.75,
+			space:			8.0,
+			halfSpace: 		4.0,
+			noteWidth:		11.0,
+			halfNoteWidth:	5.5,
+			quarterNoteWidth: 2.75,
+			signPosWidth:	8.0,
+			svgScale:		.175,
+			svgX:			-5.0,
+			svgY:			-39.0,
+		}
+	}
+	
 	static public function getSmall():TScaling {
 		return {
 			linesWidth:		.5,
@@ -50,11 +53,11 @@ class Scaling  {
 		}
 	}
 	
-	static public function toDRect(dr:Rectangle, ms:TScaling):Rectangle {
-		return new Rectangle(dr.x*ms.quarterNoteWidth, dr.y*ms.halfSpace, dr.width*ms.quarterNoteWidth, dr.height*ms.halfSpace);
+	static public function scaleRectangle(rectangle:Rectangle, ms:TScaling):Rectangle {
+		return new Rectangle(rectangle.x*ms.quarterNoteWidth, rectangle.y*ms.halfSpace, rectangle.width*ms.quarterNoteWidth, rectangle.height*ms.halfSpace);
 	}
 	
-	static public function toX(displayX:Float, ms:TScaling):Float {
+	static public function scaleX(displayX:Float, ms:TScaling):Float {
 		return displayX * ms.quarterNoteWidth;
 	}	
 	

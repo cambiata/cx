@@ -25,8 +25,7 @@ class IndexResult extends ActionResult
 		var sidebar = (sidebarStr == null) ? new TemplateResult('templates/content/sidebar.html', user ).execute() : sidebarStr;
 		
 		var content = (contentStr == null) ? new TemplateResult('templates/content/home.html', user ).execute() : contentStr;
-		
-		content += 'NekoSession.getSavePath():' + cx.neko.NekoSession.getSavePath();
+		content += addDebugInfo();
 		
 		this.data = { 
 			title:'Körakademin, Mellansels folkhögskola',
@@ -46,5 +45,11 @@ class IndexResult extends ActionResult
         var output = t.execute(this.data);
         return output;		
 	}	
+	
+	private function addDebugInfo() {
+		var debugInfo = '';
+		//debugInfo += 'NekoSession.getSavePath():' + cx.neko.NekoSession.getSavePath();
+		return debugInfo;
+	}
 }
 

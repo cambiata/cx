@@ -1,5 +1,6 @@
 package nx.display;
 import nme.geom.Rectangle;
+import nx.const.Constants;
 import nx.display.beam.IBeamGroup;
 import nx.element.Head;
 import nx.element.Note;
@@ -7,8 +8,6 @@ import nx.enums.EDirectionUD;
 import nx.enums.ENoteType;
 import nx.enums.ENoteValue;
 import nx.enums.ESign;
-import nx.geom.DRectangle;
-import nx.types.NxY;
 
 /**
  * ...
@@ -20,22 +19,25 @@ interface IDisplayNote {
 	function getDisplayHeads():Array<DisplayHead> ;
 	function getDisplayHead(index:Int):DisplayHead;
 	function getDisplayHeadPositions(): Array<Int>;
+	function getDisplayHeadBottomPosition():Int;
+	function getDisplayHeadTopPosition():Int;
 	
-	function getLevel():NxY;	
+	function getValue():ENoteValue;
+	function getLevel():Int;	
+
 	function getDirection():EDirectionUD;
-	
 	function setDirection(direction:EDirectionUD):IDisplayNote;
-	function getSignsDisplayRect():DRectangle;
 	
+	function getDisplayRect():Rectangle;
+	function getStaveDisplayRect():Rectangle;
 	
-	//function getDisplayPreRect():DRectangle;
-	/*
-	function getDisplayStaveRect():DRectangle;
-	function getDisplayRect():DRectangle;
-	function getDisplayPostRect():DRectangle;
-	function getValue(): Int; // ????	
-	*/
-	
+	function getSignsDisplayRect():Rectangle;
+	function getAppogiaturaDisplayRect():Rectangle;
+	function getTietoDisplayRect():Rectangle;
+	function getArpeggioDisplayRect():Rectangle;
+	function getNoteclefDisplayRect():Rectangle;
+	function getDotsDisplayRect():Rectangle;
+	function getTiefromDisplayRect():Rectangle;
 	
 }
  
@@ -45,10 +47,26 @@ using DisplayNote.SignsUtil;
 class DisplayNote implements IDisplayNote, implements IDisplayElement
 {
 
+	private var _hasTieFrom:Bool;
+	private var _hasTieTo:Bool;
+	private var _hasAppogiatura:Bool;
+	
+	
+	
 	public function new(note:Note<Dynamic>, ?forceDirection:EDirectionUD = null) {
 		this.note = note;
+		
+		this._hasTieFrom = false;
+		this._hasTieTo = false;
+		this._hasAppogiatura = false;
+		
 		this.displayHeads = new Array<DisplayHead>();
-		for (child in note.children) this.displayHeads.push(new DisplayHead(child));		
+		for (child in note.children) {
+			this.displayHeads.push(new DisplayHead(child));		
+			if (child.getTieFrom() != null) this._hasTieFrom = true;
+			if (child.getTieTo() != null) this._hasTieTo = true;
+			if (child.getApoggiatura() != null) this._hasAppogiatura = true;
+		}
 		var dir = (forceDirection != null) ? forceDirection : this.calcDirection();
 		this.setDirection(dir);		
 	}
@@ -73,8 +91,17 @@ class DisplayNote implements IDisplayNote, implements IDisplayElement
 		}
 		return ret;
 	}
+
+	public function getDisplayHeadTopPosition():Int {
+		return this.getDisplayHead(0).getPosition();
+	}
 	
-	public function getLevel():NxY {
+	public function getDisplayHeadBottomPosition():Int {
+		//if (this.getDisplayHeads().length == 1) return 0;
+		return this.getDisplayHead(this.getDisplayHeads().length-1).getPosition();
+	}	
+	
+	public function getLevel():Int {
 		if (this.displayHeads.length < 2) return this.note.getLevelTop();
 		return this.note.getLevelTop() + this.note.getLevelBottom();
 	}	
@@ -91,15 +118,18 @@ class DisplayNote implements IDisplayNote, implements IDisplayElement
 		return this.note.type;
 	}	
 	
+	//-----------------------------------------------------------------------------------------
 	
 	private var direction:EDirectionUD;
 	public function getDirection():EDirectionUD {
 		return this.direction;
 	}	
 	public function setDirection(direction:EDirectionUD):IDisplayNote {		
+		this.displayRect = null;
+		this.signsDisplayRect = null;
+		
 		this.calcHeadPositions(direction);
 		this.direction = direction;
-		this.displayRect = null;
 		return this;
 	}
 
@@ -107,28 +137,111 @@ class DisplayNote implements IDisplayNote, implements IDisplayElement
 		return this.note.getValue();
 	}
 	
-	private var displayRect:DRectangle;
-	public function getDisplayRect():DRectangle {
+	//-----------------------------------------------------------------------------------------
+	
+	public function hasSigns():Bool {
+		return this.getSigns().length > 0;
+	}
+	
+	public function hasStave():Bool {
+		return (this.getValue().stavingLevel != 0);
+	}
+	
+	public function hasDot():Bool {
+		return (this.getValue().dotLevel != 0);
+	}
+	
+	public function getDotLevel():Int {
+		return this.getValue().dotLevel;
+	}
+	
+	public function hasTieFrom():Bool {
+		return this._hasTieFrom;
+	}
+
+	public function hasTieTo():Bool {
+		return this._hasTieTo;
+	}
+	
+	public function hasAppogiatura():Bool {
+		return this._hasAppogiatura;
+	}
+	
+	
+	
+	//-----------------------------------------------------------------------------------------
+	// Display rectangles
+	
+	private var displayRect:Rectangle;
+	private var displayRectLeft:Float;
+	
+	public function getDisplayRect():Rectangle {
 		if (this.displayRect != null) return this.displayRect;
 		var r = this.displayHeads[0].getDisplayRect();
 		if (this.displayHeads.length > 1) {
 			for (i in 1...this.displayHeads.length) {
 				var dHead = this.displayHeads[i];
-				r = DRectangle.fromRectangle(r.union(dHead.getDisplayRect()));
+				//r = Rectangle.fromRectangle(r.union(dHead.getDisplayRect()));
+				r = r.union(dHead.getDisplayRect());
 			}
 		}
 		this.displayRect = r;
+		this.displayRectLeft = r.left;
 		return r;
 	}
 	
-	public function getSignsDisplayRect():DRectangle {
+	
+	private var signsDisplayRect:Rectangle;
+	public function getSignsDisplayRect():Rectangle {
+		if (!this.hasSigns()) return null;
+		if (this.signsDisplayRect != null) return this.signsDisplayRect;
+		
 		var signRect = this.getSigns().getSignsDisplayRect();
-		var noteRect = this.getDisplayRect();
-		signRect.offset(noteRect.left + -signRect.width - 1, 0);		
-		return DRectangle.fromRectangle(signRect);
+		if (signRect == null) return null;				
+
+		signRect.offset(this.getDisplayRect().left + -signRect.width - 1, 0);		
+		return signRect;
 	}
 	
+	public function getStaveDisplayRect():Rectangle {
+		if (!this.hasStave()) return null;				
+		
+		var levelBottom = this.getLevelBottom();
+		var levelTop = this.getLevelTop();	
+		var staveRectHeight:Int = 10;
+		if (this.getDirection() == EDirectionUD.Up) {
+			return new Rectangle(0, levelTop - staveRectHeight, Constants.HEAD_HALFWIDTH, staveRectHeight); 			
+		} else {
+			return new Rectangle(-Constants.HEAD_HALFWIDTH, levelTop, Constants.HEAD_HALFWIDTH, staveRectHeight); 			
+		}
+		
+	}
 	
+	public function getAppogiaturaDisplayRect():Rectangle {
+		return null;
+	}
+	
+	public function getTietoDisplayRect():Rectangle {
+		return null;
+	}
+	
+	public function getArpeggioDisplayRect():Rectangle {
+		return null;
+	}
+	
+	public function getNoteclefDisplayRect():Rectangle {
+		return null;
+	}
+	
+	public function getDotsDisplayRect():Rectangle {
+		return null;
+	} 
+	
+	public function getTiefromDisplayRect():Rectangle {
+		return null;
+	}
+	
+	//--------------------------------------------------------------------------------------------------------------
 	
 	public function getSigns():TSigns {
 		var r:TSigns = [];
@@ -152,7 +265,7 @@ class DisplayNote implements IDisplayNote, implements IDisplayElement
 		return (this.getLevel() > 0) ? EDirectionUD.Up : EDirectionUD.Down;
 	}	
 	
-	public function calcHeadPositions(direction:EDirectionUD):DisplayNote {
+	private function calcHeadPositions(direction:EDirectionUD):DisplayNote {
 		if (this.getDisplayHeads().length < 2) return this;
 		//if (this.type != nx.Enum.ENoteType.Normal) return this;
 		var len:Int = this.getDisplayHeads().length;		
@@ -250,21 +363,19 @@ class SignsUtil {
 		}
 	}
 	
-	static public function getSignsDisplayRect(signs:TSigns):DRectangle {
-		var resultRect:DRectangle = null;
+	static public function getSignsDisplayRect(signs:TSigns):Rectangle {
+		var resultRect:Rectangle = null;
 		for (sign in signs) {
-			var signRect = new DRectangle(sign.position * -3, sign.level - 3, 3, 6);
+			var signRect = new Rectangle(sign.position * -3, sign.level - 3, 3, 6);
 			if (resultRect == null) {
-				resultRect = DRectangle.fromRectangle(signRect.clone());
+				resultRect = signRect.clone();
 			} else {
-				resultRect = DRectangle.fromRectangle(resultRect.union(signRect));
+				resultRect = resultRect.union(signRect);
 			}
 		}	
-		resultRect.offset(-resultRect.left, 0);
+		if (resultRect != null) resultRect.offset(-resultRect.left, 0);
 		
-		return DRectangle.fromRectangle(resultRect);
+		return resultRect;
 	}
 }
-
-
 

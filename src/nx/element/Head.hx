@@ -1,14 +1,12 @@
 package nx.element;
 
-import nx.const.NConst;
+import nx.const.Constants;
 import nx.element.base.Node;
 import nx.element.pre.PreApoggiatura;
 import nx.element.pre.PreTie;
 import nx.element.post.PostTie;
 import nx.enums.ESign;
-import nx.Tools;
-import nx.types.NxY;
-import nx.types.NxX;
+import cx.Tools;
 
 /**
  * ...
@@ -16,8 +14,8 @@ import nx.types.NxX;
  */
 
 interface IHead {
-	function setLevel(value:NxY): IHead;
-	function getLevel():NxY;
+	function setLevel(value:Int): IHead;
+	function getLevel():Int;
 	function setSign(sign:ESign): IHead;
 	function getSign():ESign;
 	function setApoggiatura(apoggiatura:PreApoggiatura):IHead;
@@ -30,7 +28,7 @@ interface IHead {
 
 class Head < T:Node<Dynamic> > extends Node<Dynamic>, implements IHead {
 
-	static public function getNew(?level:NxY=0, ?sign:ESign=null) {
+	static public function getNew(?level:Int=0, ?sign:ESign=null) {
 		var item = new Head<Dynamic>();
 		item.level = level;
 		item.sign = (sign != null) ? sign : ESign.None;
@@ -42,12 +40,12 @@ class Head < T:Node<Dynamic> > extends Node<Dynamic>, implements IHead {
 		this.sign = ESign.None;		
 	}
 	
-	private var level:NxY;
-	public function setLevel(value:NxY):IHead {
-		this.level = Tools.intRange( -NConst.HEAD_MAX_LEVEL, value, NConst.HEAD_MAX_LEVEL); 
+	private var level:Int;
+	public function setLevel(value:Int):IHead {
+		this.level = Tools.intRange( -Constants.HEAD_MAX_LEVEL, value, Constants.HEAD_MAX_LEVEL); 
 		return this;
 	}
-	public function getLevel():NxY {
+	public function getLevel():Int {
 		return this.level;
 	}
 	

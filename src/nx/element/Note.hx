@@ -4,7 +4,6 @@ import nx.element.pre.PreArpeggio;
 import nx.element.pre.PreClef;
 import nx.enums.ENoteValue;
 import nx.enums.ENoteType;
-import nx.types.NxY;
 
 /**
  * ...
@@ -12,8 +11,8 @@ import nx.types.NxY;
  */
 
 interface INote {
-	function getLevelTop():NxY;
-	function getLevelBottom():NxY;	
+	function getLevelTop():Int;
+	function getLevelBottom():Int;	
 	function getValue():ENoteValue;
 	function getType():ENoteType;
 }
@@ -47,11 +46,11 @@ class Note < T:Head<Dynamic> > extends Node<Head<Dynamic>>
 		this.text = '';		
 	}
 	
-	public function getLevelTop():NxY {
+	public function getLevelTop():Int {
 		return this.first.getLevel();
 	}
 	
-	public function getLevelBottom():NxY {
+	public function getLevelBottom():Int {
 		return this.last.getLevel();
 	}	
 	

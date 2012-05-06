@@ -122,7 +122,7 @@ class FileTools
 	}
 	
 	static public function putBinaryContent(filename:String, content:String) {
-		var f = neko.io.File.write('test.png', true);
+		var f = neko.io.File.write(filename, true);
 		f.writeString(content);
 		f.close();			
 	}

@@ -1,5 +1,5 @@
 package nx.enums;
-import nx.const.NConst;
+import nx.const.Constants;
 
 /**
  * ...
@@ -38,7 +38,7 @@ class ENoteValue {
 	public var dotLevel:Int;
 	
 	static private function setValue(to4:Float, ?dot:Bool, ?tri:Bool, ?ddot:Bool):Int {
-		var val:Int = Std.int(to4 * NConst.BASE_NOTE_VALUE);
+		var val:Int = Std.int(to4 * Constants.BASE_NOTE_VALUE);
 		if (dot) return Std.int(val * 1.5);
 		if (tri) return Std.int((val / 3) * 2);
 		if (ddot) return Std.int(val * 1.75);

@@ -4,11 +4,13 @@ import nme.display.Sprite;
 import nx.display.DisplayNote;
 import nx.enums.EHeadType;
 import nx.svg.SvgAssets;
+import nx.output.Scaling;
 
 /**
  * ...
  * @author Jonas Nyström
  */
+using nx.output.Scaling;
 
 class Render implements IRender
 {
@@ -36,32 +38,47 @@ class Render implements IRender
 		
 	}
 	
-	/*
-	static public function testClef(target:Sprite, ms:TScaling, x:Float, y:Float) {
-		var shape = nx.svg.SvgAssets.getSvgShape('clefG', ms);
-		shape.x = x + ms.svgX + ms.space;  
-		shape.y = y + ms.svgY + ms.space;
-		target.addChild(shape);	  		
-	}	
-
-	static public function testLines(target:Sprite, ms:TScaling, x:Int, y:Int, width:Int) {		
-		target.graphics.lineStyle(ms.linesWidth, 0);
-		for (f in -2...3) {
-			var yPos = f * ms.space;
-			target.graphics.moveTo(x, y - yPos);
-			target.graphics.lineTo(x + width, y - yPos);
+	public function noteRects(noteX:Float, noteY:Float, displayNote:DisplayNote) {
+		var graphics = target.graphics;
+		
+		
+		graphics.beginFill(0, 0);
+		
+		
+		// Zero line
+		graphics.lineStyle(1, 0xCCCCCC);
+		graphics.moveTo(noteX, noteY - 60);
+		graphics.lineTo(noteX, noteY + 60);				
+		
+		// note
+		var r = Scaling.scaleRectangle(displayNote.getDisplayRect(), scaling); 		
+		graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);			
+		
+		// signs
+		var signsDisplayRect = displayNote.getSignsDisplayRect();
+		if (signsDisplayRect != null) {		
+			var r = Scaling.scaleRectangle(signsDisplayRect, scaling); 
+			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);				
 		}
-	}	
-	*/
+		
+		// stave
+		graphics.lineStyle(1, 0xff0000);
+		var staveDisplayRect = displayNote.getStaveDisplayRect();
+		if (staveDisplayRect != null) {
+			var r = staveDisplayRect.scaleRectangle(this.scaling);
+			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);				
+		}
+		
+	}
 	
 	public function note(noteX:Float, noteY:Float, displayNote:DisplayNote) {
 		//if (meas == null) meas = new scaling();
 		var graphics = target.graphics;
-		var noteW = scaling.noteWidth;
+		//var noteW = scaling.noteWidth;
 
 		function drawHead(x:Float, y:Float, level:Int, position:Int, headType:EHeadType) {
 			var headY = y + (level * scaling.halfSpace);
-			var headX = x + position * noteW;
+			var headX = x + position * scaling.noteWidth;
 			var shape:Shape; // = SvgAssets.getSvgShape("noteBlack", scaling);
 			//if (headType == EHeadType.Whole) shape = SvgAssets.getSvgShape("noteWhole", scaling);
 			//if (headType == EHeadType.White) shape = SvgAssets.getSvgShape("noteWhite", scaling);
@@ -83,32 +100,23 @@ class Render implements IRender
 
 		if (displayNote == null) return;
 		
-		graphics.beginFill(0, 0);
-		graphics.lineStyle(1, 0xff0000);
-		
-		// Zero line
-		graphics.lineStyle(1, 0xCCCCCC);
-		graphics.moveTo(noteX, noteY - 60);
-		graphics.lineTo(noteX, noteY + 60);		
+
 		
 		// Heads
-		var r = Scaling.toDRect(displayNote.getDisplayRect(), scaling); 
+		//var r = Scaling.scaleRectangle(displayNote.getDisplayRect(), scaling); 
 		//graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);		
-		for (dHead in displayNote.getDisplayHeads()) drawHead(noteX, noteY, dHead.getLevel(), dHead.getPosition(), displayNote.getNote().value.headType);
+		for (dHead in displayNote.getDisplayHeads()) 
+		{
+			//trace(dHead.getPosition());
+			drawHead(noteX, noteY, dHead.getLevel(), dHead.getPosition(), displayNote.getNote().value.headType);
+		}
 		
 		// Signs
-		var r = Scaling.toDRect(displayNote.getSignsDisplayRect(), scaling); 
-		//graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);		
-		signs(displayNote.getSigns(), noteX + r.left, noteY);
-		
-
-
-		
-
-
-		
-		
-
+		var signsDisplayRect = displayNote.getSignsDisplayRect();
+		if (signsDisplayRect != null) {
+			var r = Scaling.scaleRectangle(signsDisplayRect, scaling); 
+			signs(displayNote.getSigns(), noteX + r.left, noteY);			
+		}
 		
 		/*
 		gr.lineStyle(1, 0xccffcc);
@@ -124,15 +132,15 @@ class Render implements IRender
 		
 		var maxPos = 0;
 		for (sign in signs) {
-			trace(sign.position);
+			//trace(sign.position);
 			maxPos = Std.int(Math.max(maxPos, sign.position));
 		}
-		trace(maxPos);
+		//trace(maxPos);
 		var xOffset = (maxPos * scaling.signPosWidth) + scaling.halfNoteWidth;
 		
 		
 		function drawSign(x:Float, y:Float, level:Int, position:Int, sign:nx.enums.ESign) {		
-			trace('drawSign x:' + x);
+			//trace('drawSign x:' + x);
 			var shape:Shape;			
 			switch(sign) {
 				case ESign.Sharp: shape = SvgAssets.getSvgShape('signSharp', scaling);

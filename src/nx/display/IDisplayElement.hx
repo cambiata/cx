@@ -1,5 +1,5 @@
 package nx.display;
-import nx.geom.DRectangle;
+import nme.geom.Rectangle;
 
 /**
  * ...
@@ -8,5 +8,5 @@ import nx.geom.DRectangle;
 
 interface IDisplayElement 
 {
-	function getDisplayRect():DRectangle;	
+	function getDisplayRect():Rectangle;	
 }

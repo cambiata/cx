@@ -1,7 +1,7 @@
 package nx.test;
 import nx.element.Head;
 import nx.enums.ESign;
-import nx.const.NConst;
+import nx.const.Constants;
 /**
  * ...
  * @author Jonas Nyström
@@ -12,8 +12,8 @@ class TestHead extends haxe.unit.TestCase {
 		
 		var h = Head.getNew(1, ESign.Natural);
 		assertTrue(h.getLevel() == 1);
-		h.setLevel(NConst.HEAD_MAX_LEVEL + 1);
-		assertEquals(NConst.HEAD_MAX_LEVEL, h.getLevel());
+		h.setLevel(Constants.HEAD_MAX_LEVEL + 1);
+		assertEquals(Constants.HEAD_MAX_LEVEL, h.getLevel());
 		
 		
 

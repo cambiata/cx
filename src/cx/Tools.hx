@@ -51,6 +51,21 @@ class Tools
 		return true;
 	}
 	
+	static public function intRange(min:Int, value:Int, max:Int):Int {
+		if (value < min) return min;
+		if (value > max) return max;
+		return value;
+	}	
+	
+	static public function floatRange(min:Float, value:Float, max:Float):Float {
+		if (value < min) return min;
+		if (value > max) return max;
+		return value;
+	}		
+	
+	
+	
+	
 	static public function arraysOverlap(array1:Array<Dynamic>, array2:Array<Dynamic>):Bool {		
 		for (item1 in array1) {
 			if (Lambda.has(array2, item1) == true) return true;
