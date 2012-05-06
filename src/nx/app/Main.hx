@@ -27,7 +27,7 @@ class Main
 		runner.add(new TestDisplayNote());	
 		runner.add(new TestVoice());
 		runner.add(new TestDisplayVoice());
-		runner.add(new TestRenderDisplayNote(true));
+		runner.add(new TestRenderDisplayNote());
 		runner.run();
 		
 		//trace(Stack.callStack());

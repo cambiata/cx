@@ -18,15 +18,26 @@ import nx.output.Render;
 
 class TestRenderDisplayNote extends TestBasePng
 {
-	public function test0() {
-		var y = 100;
-		var x = 150;
-		var dn = new DisplayNote(Note.getNew([Head.getNew( -2, ESign.Flat), Head.getNew(-1, ESign.None), Head.getNew(0, ESign.None), Head.getNew(1, ESign.Sharp), Head.getNew( 5, ESign.Natural)], ENoteValue.Nv4));		
+	override function setup() {
+		super.setup();
+		
+		var y = 100;		
 		
 		var scaling = Scaling.getBig();
 		var render = new Render(this.sprite, scaling);		
 		render.clef(10, y);
-		render.lines(10, y, 900);
+		render.lines(10, y, 900);		
+	}
+	
+	public function test0() {
+
+		var y = 100;
+		var scaling = Scaling.getBig();		
+		var render = new Render(this.sprite, scaling);
+
+		var dn = new DisplayNote(Note.getNew([Head.getNew( -2, ESign.Flat), Head.getNew(-1, ESign.None), Head.getNew(0, ESign.None), Head.getNew(1, ESign.Sharp), Head.getNew( 5, ESign.Natural)], ENoteValue.Nv4));		
+		
+		var x = 150;
 		render.note(x, y, dn);	
 		render.noteRects(x, y, dn);
 		
@@ -47,7 +58,12 @@ class TestRenderDisplayNote extends TestBasePng
 		render.lines(10, y, 900);
 		render.note(x, y, dn);			
 
-		
+		this.spriteSave('test0.png');
+		assertTrue(true);
+	}
+	
+	public function test1() {
+		assertTrue(true);
 		var y = 100;		
 		var render = new Render(this.sprite, Scaling.getBig());
 
@@ -61,8 +77,7 @@ class TestRenderDisplayNote extends TestBasePng
 		//render.note(x, y, dnUnder);	
 		render.noteRects(x, y, dnUnder);
 		//DisplayNoteUtils.overlapHeads(dnOver, dnUnder);
-		
-		assertTrue(true);
+		this.spriteSave('test1.png');
 	}
 	
 
