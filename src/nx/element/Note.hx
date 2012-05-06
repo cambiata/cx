@@ -63,20 +63,20 @@ class Note < T:Head<Dynamic> > extends Node<Head<Dynamic>>
 	}
 	
 	private var clef:PreClef; 
-	private function setClef(clef:PreClef) {
+	public function setClef(clef:PreClef) {
 		this.clef = clef;
 		return this;
 	}
-	private function getClef():PreClef {
+	public function getClef():PreClef {
 		return this.clef;
 	}
 	
 	private var arpeggio:PreArpeggio; 
-	private function setArpeggio(arpeggio:PreArpeggio) {
+	public function setArpeggio(arpeggio:PreArpeggio) {
 		this.arpeggio = arpeggio;
 		return this;
 	}
-	private function getArpeggio():PreArpeggio {
+	public function getArpeggio():PreArpeggio {
 		return this.arpeggio;
 	}
 	

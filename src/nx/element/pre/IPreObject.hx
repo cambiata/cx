@@ -1,11 +1,13 @@
 package nx.element.pre;
+import nme.geom.Rectangle;
 
 /**
  * ...
  * @author Jonas Nyström
  */
 
-interface IPreObject {
 
+interface IPreObject {
+	//function getDisplayRect():Rectangle;
 	
 }

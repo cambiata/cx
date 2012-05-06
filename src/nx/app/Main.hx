@@ -1,7 +1,11 @@
 package nx.app;
 
+import cx.Tools;
 import haxe.Stack;
 import haxe.unit.TestRunner;
+import neko.Lib;
+import neko.Sys;
+import nme.geom.Rectangle;
 import nx.test.TestDisplayHead;
 import nx.test.TestDisplayNote;
 import nx.test.TestDisplayVoice;
@@ -29,6 +33,13 @@ class Main
 		runner.add(new TestDisplayVoice());
 		runner.add(new TestRenderDisplayNote());
 		runner.run();
+		
+		var r = new Rectangle(0, 0, 10, 10);
+		var ir = r.intersection(new Rectangle(5, 5, 10, 10));
+		//(trace(ir);
+		
+		
+		
 		
 		//trace(Stack.callStack());
 		

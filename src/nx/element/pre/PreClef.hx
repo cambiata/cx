@@ -1,4 +1,5 @@
 package nx.element.pre;
+import nx.enums.EClef;
 
 /**
  * ...
@@ -8,9 +9,12 @@ package nx.element.pre;
 class PreClef implements IPreObject
 {
 
-	public function new() 
+	public var clef(default, null):EClef;
+	public var levelOffset(default, null):Int;
+	public function new(clef:EClef, levelOffset:Int=0) 
 	{
-		
+		this.clef = clef;
+		this.levelOffset = levelOffset;
 	}
 	
 }

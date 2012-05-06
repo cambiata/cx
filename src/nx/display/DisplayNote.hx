@@ -1,4 +1,5 @@
 package nx.display;
+import cx.NmeTools;
 import nme.geom.Rectangle;
 import nx.const.Constants;
 import nx.display.beam.IBeamGroup;
@@ -8,6 +9,7 @@ import nx.enums.EDirectionUD;
 import nx.enums.ENoteType;
 import nx.enums.ENoteValue;
 import nx.enums.ESign;
+
 
 /**
  * ...
@@ -19,8 +21,9 @@ interface IDisplayNote {
 	function getDisplayHeads():Array<DisplayHead> ;
 	function getDisplayHead(index:Int):DisplayHead;
 	function getDisplayHeadPositions(): Array<Int>;
-	function getDisplayHeadBottomPosition():Int;
-	function getDisplayHeadTopPosition():Int;
+	function getDisplayHeadBottom():DisplayHead;
+	function getDisplayHeadTop():DisplayHead;
+	function getDisplayHeadsDisplayRects():Array<Rectangle>;
 	
 	function getValue():ENoteValue;
 	function getLevel():Int;	
@@ -35,23 +38,23 @@ interface IDisplayNote {
 	function getAppogiaturaDisplayRect():Rectangle;
 	function getTietoDisplayRect():Rectangle;
 	function getArpeggioDisplayRect():Rectangle;
-	function getNoteclefDisplayRect():Rectangle;
 	function getDotsDisplayRect():Rectangle;
 	function getTiefromDisplayRect():Rectangle;
+	function getClefDisplayRect():Rectangle;
 	
 }
  
  
 using DisplayNote.SignsUtil; 
-
+using cx.NmeTools;
 class DisplayNote implements IDisplayNote, implements IDisplayElement
 {
 
 	private var _hasTieFrom:Bool;
 	private var _hasTieTo:Bool;
 	private var _hasAppogiatura:Bool;
-	
-	
+	private var _hasArpeggio:Bool;
+	private var _hasClef:Bool;
 	
 	public function new(note:Note<Dynamic>, ?forceDirection:EDirectionUD = null) {
 		this.note = note;
@@ -67,6 +70,9 @@ class DisplayNote implements IDisplayNote, implements IDisplayElement
 			if (child.getTieTo() != null) this._hasTieTo = true;
 			if (child.getApoggiatura() != null) this._hasAppogiatura = true;
 		}
+		this._hasArpeggio = (note.getArpeggio() != null);
+		this._hasClef = (note.getClef() != null);
+		
 		var dir = (forceDirection != null) ? forceDirection : this.calcDirection();
 		this.setDirection(dir);		
 	}
@@ -84,6 +90,14 @@ class DisplayNote implements IDisplayNote, implements IDisplayElement
 		return this.displayHeads[index];
 	}	
 	
+	public function getDisplayHeadTop():DisplayHead {
+		return this.getDisplayHead(0);
+	}
+	
+	public function getDisplayHeadBottom():DisplayHead {
+		return this.getDisplayHead(this.getDisplayHeads().length - 1);
+	}
+	
 	public function getDisplayHeadPositions():Array<Int> {
 		var ret = new Array<Int>();
 		for (dh in this.displayHeads) {
@@ -92,6 +106,15 @@ class DisplayNote implements IDisplayNote, implements IDisplayElement
 		return ret;
 	}
 
+	public function getDisplayHeadsDisplayRects():Array<Rectangle> {
+		var a = new Array<Rectangle>();
+		for (h in this.getDisplayHeads()) {
+			a.push(h.getDisplayRect());
+		}
+		return a;
+	}
+	
+	/*
 	public function getDisplayHeadTopPosition():Int {
 		return this.getDisplayHead(0).getPosition();
 	}
@@ -100,6 +123,7 @@ class DisplayNote implements IDisplayNote, implements IDisplayElement
 		//if (this.getDisplayHeads().length == 1) return 0;
 		return this.getDisplayHead(this.getDisplayHeads().length-1).getPosition();
 	}	
+	*/
 	
 	public function getLevel():Int {
 		if (this.displayHeads.length < 2) return this.note.getLevelTop();
@@ -151,8 +175,8 @@ class DisplayNote implements IDisplayNote, implements IDisplayElement
 		return (this.getValue().dotLevel != 0);
 	}
 	
-	public function getDotLevel():Int {
-		return this.getValue().dotLevel;
+	public function hasDotDouble():Bool {
+		return this.getValue().dotLevel == 2;
 	}
 	
 	public function hasTieFrom():Bool {
@@ -167,7 +191,13 @@ class DisplayNote implements IDisplayNote, implements IDisplayElement
 		return this._hasAppogiatura;
 	}
 	
+	public function hasArpeggio():Bool {
+		return this._hasArpeggio;
+	}
 	
+	public function hasClef():Bool {
+		return this._hasClef;
+	}
 	
 	//-----------------------------------------------------------------------------------------
 	// Display rectangles
@@ -194,12 +224,20 @@ class DisplayNote implements IDisplayNote, implements IDisplayElement
 	private var signsDisplayRect:Rectangle;
 	public function getSignsDisplayRect():Rectangle {
 		if (!this.hasSigns()) return null;
-		if (this.signsDisplayRect != null) return this.signsDisplayRect;
-		
+		if (this.signsDisplayRect != null) return this.signsDisplayRect;		
 		var signRect = this.getSigns().getSignsDisplayRect();
 		if (signRect == null) return null;				
-
-		signRect.offset(this.getDisplayRect().left + -signRect.width - 1, 0);		
+		signRect.width = signRect.width + 1;
+		signRect.offset( -(signRect.width + Constants.HEAD_HALFWIDTH), 0);
+		
+		//trace(this.getDisplayHeadsDisplayRects());
+		
+		var ir = NmeTools.rectangleArraysIntersection(this.getDisplayHeadsDisplayRects(), [signRect]);
+		if (ir != null) {
+			if (ir.width > 0) signRect.offset( -ir.width, 0);
+		}
+		
+		//signRect.offset(this.getDisplayRect().left + -signRect.width - 1, 0);		
 		return signRect;
 	}
 	
@@ -218,27 +256,128 @@ class DisplayNote implements IDisplayNote, implements IDisplayElement
 	}
 	
 	public function getAppogiaturaDisplayRect():Rectangle {
-		return null;
+		if (!this.hasAppogiatura()) return null;
+		var ret:Rectangle = null;
+		for (h in this.getDisplayHeads()) {
+			var a = h.getHead().getApoggiatura();
+			if (a != null) {
+				var r = a.getDisplayRect();
+				r.offset(0, h.getLevel());
+				ret = (ret == null) ? r : ret.union(r);
+			}			
+		}
+		if (ret == null) return null;
+		if (ret != null) ret.offset(this.getDisplayRect().left - (ret.width), 0);
+		if (this.hasSigns()) {
+			var ir = (this.getSignsDisplayRect().intersection(ret));			
+			if (ir.width > 0) {
+				ret.offset( -(ret.left - this.getSignsDisplayRect().left) - ir.width , 0);
+			}
+		}				
+		return ret;
 	}
 	
 	public function getTietoDisplayRect():Rectangle {
-		return null;
+		if (!this.hasTieTo()) return null;
+		var y = this.getDisplayHeadTop().getLevel() - 2;
+		var h =  this.getDisplayHeadBottom().getLevel() - y;
+		var w = Constants.HEAD_WIDTH * 2;		
+		var x = this.getDisplayRect().left - w ;		
+		var ret = new Rectangle(x, y , w, h);
+		if (this.getDirection() == EDirectionUD.Up) ret.offset(0, 2);
+		if (this.hasSigns()) {
+			var ir = (this.getSignsDisplayRect().intersection(ret));
+			if (ir.width > 0) ret.offset(-(ir.width+1), 0);			
+		}		
+		if (this.hasAppogiatura()) {
+			var ir = (this.getAppogiaturaDisplayRect().intersection(ret));
+			if (ir.width > 0) ret.offset(-(ir.width), 0);			
+		}				
+		if (this.hasArpeggio()) {
+			var ir = (this.getArpeggioDisplayRect().intersection(ret));
+			if (ir.width > 0) ret.offset(-(ir.width), 0);			
+		}
+		return ret;
 	}
 	
 	public function getArpeggioDisplayRect():Rectangle {
-		return null;
+		if (!this.hasArpeggio()) return null;
+		var a = this.getNote().getArpeggio();				
+		var y = this.getDisplayHeadTop().getLevel() - 1 + a.topOffset;
+		var h =  this.getDisplayHeadBottom().getLevel() - y + 1 + a.bottomOffset;
+		var w = Constants.HEAD_WIDTH ;
+		var x = this.getDisplayRect().left - Constants.HEAD_WIDTH - Constants.HEAD_HALFWIDTH;
+		var ret = new Rectangle(x, y , w, h);		
+		if (this.hasSigns()) {
+			//ret.offset( -this.getSignsDisplayRect().width, 0);
+			var ir = (this.getSignsDisplayRect().intersection(ret));
+			if (ir.width > 0) {
+				ret.offset( -(ir.width), 0);
+			}
+		}
+		if (this.hasAppogiatura()) {
+			var ir = (this.getAppogiaturaDisplayRect().intersection(ret));
+			if (ir.width > 0) {
+				ret.offset( -(ir.width), 0);
+			}
+		}		
+
+		return ret;
 	}
 	
-	public function getNoteclefDisplayRect():Rectangle {
-		return null;
+	public function getClefDisplayRect():Rectangle {
+		if (!this.hasClef()) return null;
+		var c = this.getNote().getClef();				
+		
+		var y = -5 + c.levelOffset;
+		var h =  10;
+		var w = Constants.HEAD_WIDTH * 2;
+		var x = this.getDisplayRect().left - w;		
+		var ret = new Rectangle(x, y , w, h);		
+		if (this.hasSigns()) {
+			var ir = (this.getSignsDisplayRect().intersection(ret));
+			if (ir.width > 0) ret.offset( -(ir.width+1), 0);
+		}	
+		if (this.hasAppogiatura()) {
+			var ir = (this.getAppogiaturaDisplayRect().intersection(ret));
+			if (ir.width > 0) ret.offset( -(ir.width), 0);
+		}			
+		if (this.hasArpeggio()) {
+			var ir = (this.getArpeggioDisplayRect().intersection(ret));
+			if (ir.width > 0) ret.offset( -(ir.width), 0);
+		}	
+		if (this.hasTieTo()) {
+			var ir = (this.getTietoDisplayRect().intersection(ret));
+			if (ir.width > 0) ret.offset( -(ir.width), 0);
+		}			
+		return ret;
 	}
 	
 	public function getDotsDisplayRect():Rectangle {
-		return null;
+		if (!this.hasDot()) return null;
+		var y = this.getDisplayHeadTop().getLevel() - 1;
+		var h =  this.getDisplayHeadBottom().getLevel() - y + 1;
+		var w = (this.hasDotDouble()) ? Constants.HEAD_WIDTH + Constants.HEAD_HALFWIDTH : Constants.HEAD_WIDTH;
+		var x = this.getDisplayRect().right;
+		var ret = new Rectangle(x, y , w, h);
+		return ret;
 	} 
 	
 	public function getTiefromDisplayRect():Rectangle {
-		return null;
+		if (!this.hasTieFrom()) return null;
+		
+		var y = this.getDisplayHeadTop().getLevel() - 2;
+		var h =  this.getDisplayHeadBottom().getLevel() - y;
+		var w = Constants.HEAD_WIDTH * 2;		
+		var x = this.getDisplayRect().right ;		
+		
+		var ret = new Rectangle(x, y , w, h);
+		if (this.hasDot()) {
+			ret.offset(this.getDotsDisplayRect().width, 0) ;
+		}
+		if (this.getDirection() == EDirectionUD.Up) ret.offset(0, 2);
+		
+		return ret;
 	}
 	
 	//--------------------------------------------------------------------------------------------------------------

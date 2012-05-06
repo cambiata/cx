@@ -1,6 +1,8 @@
 package cx;
 import nme.display.BitmapData;
 import nme.display.DisplayObject;
+import nme.geom.Rectangle;
+import cx.FileTools;
 
 /**
  * ...
@@ -17,7 +19,7 @@ class NmeTools {
 		spriteToPng(sprite, 'nmeToolsTestSprite.png');		
 	}
 	
-	static public function spriteToPng(source : nme.display.Sprite, pngFileName:String, ?width=0.0, ?height=0.0) {		
+	static public function spriteToPng(source : nme.display.Sprite, pngFileName:String, ?width=1000.0, ?height=600.0) {		
 		if (width == 0) {
 			width = source.width;
 			height = source.height;
@@ -25,7 +27,7 @@ class NmeTools {
 		var bitmapData = new nme.display.BitmapData(Std.int(width), Std.int(height), false);
 		bitmapData.draw(source);
 		var byteArray = bitmapData.encode('png');
-		FileTools.putContentBinary(pngFileName, byteArray.asString());
+		FileTools.putBinaryContent(pngFileName, byteArray.asString());
 	}
 	
 	static public function displayObjectToByteArray(source:DisplayObject, ?width=0.0, ?height=0.0) {		
@@ -44,6 +46,31 @@ class NmeTools {
 		
 		
 	}
+	
+	static public function rectangleArraysIntersection(ra1:Array<Rectangle>, ra2:Array<Rectangle>):Rectangle {
+		var ret:Rectangle = null; // = new Rectangle(0, 0, 0, 0);
+		//trace('');
+		for (r1 in ra1) {
+			for (r2 in ra2) {
+				var i = r1.intersection(r2);
+				//trace([r1, r2, i]);
+				if ((i.width > 0) && (i.height > 0)) {
+					ret = (ret != null) ? ret.union(r1.intersection(r2)) : r1.intersection(r2);
+				}
+			}
+		}		
+		return ret;
+	}
+	
+	/*
+	static public function getRight(r:Rectangle):Float {
+		
+	}
+	
+	static public function getBottom(r:Rectangle):Float {
+		
+	}
+	*/
 }	
 
 //-------------------------------------------------------------------------------------------------

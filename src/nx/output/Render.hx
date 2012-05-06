@@ -50,11 +50,22 @@ class Render implements IRender
 		graphics.moveTo(noteX, noteY - 60);
 		graphics.lineTo(noteX, noteY + 60);				
 		
+		
+		// heads
+		graphics.lineStyle(1, 0xFF0000);
+		for (h in displayNote.getDisplayHeads()) {			
+			var r = Scaling.scaleRectangle(h.getDisplayRect(), scaling); 		
+			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);			
+		}
+		
+		
+		
 		// note
-		var r = Scaling.scaleRectangle(displayNote.getDisplayRect(), scaling); 		
-		graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);			
+		//var r = Scaling.scaleRectangle(displayNote.getDisplayRect(), scaling); 		
+		//graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);			
 		
 		// signs
+		graphics.lineStyle(2, 0x00FFFF);
 		var signsDisplayRect = displayNote.getSignsDisplayRect();
 		if (signsDisplayRect != null) {		
 			var r = Scaling.scaleRectangle(signsDisplayRect, scaling); 
@@ -68,6 +79,55 @@ class Render implements IRender
 			var r = staveDisplayRect.scaleRectangle(this.scaling);
 			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);				
 		}
+		
+		// dots
+		graphics.lineStyle(2, 0x00ff00);
+		var r = displayNote.getDotsDisplayRect();
+		if (r != null) {
+			var r = r.scaleRectangle(this.scaling);
+			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);	
+		}
+		
+		// tieFrom
+		graphics.lineStyle(2, 0x0000ff);
+		var r = displayNote.getTiefromDisplayRect();
+		if (r != null) {
+			var r = r.scaleRectangle(this.scaling);
+			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);	
+		}
+		
+		// apoggiatura 
+		graphics.lineStyle(2, 0xff0000);
+		var r = displayNote.getAppogiaturaDisplayRect();
+		if (r != null) {
+			var r = r.scaleRectangle(this.scaling);
+			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);	
+		}
+
+		// arpeggio 
+		graphics.lineStyle(2, 0x000000);
+		var r = displayNote.getArpeggioDisplayRect();
+		if (r != null) {
+			var r = r.scaleRectangle(this.scaling);
+			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);	
+		}
+
+		// tieTo
+		graphics.lineStyle(2, 0x0000ff);
+		var r = displayNote.getTietoDisplayRect();
+		if (r != null) {
+			var r = r.scaleRectangle(this.scaling);
+			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);	
+		}		
+		
+		// clef
+		graphics.lineStyle(2, 0xff00ff);
+		var r = displayNote.getClefDisplayRect();
+		if (r != null) {
+			var r = r.scaleRectangle(this.scaling);
+			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);	
+		}		
+		
 		
 	}
 	

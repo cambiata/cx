@@ -83,18 +83,21 @@ class TestDisplayNote extends haxe.unit.TestCase {
 	
 	public function test5() {		
 		var dn = new DisplayNote(Note.getNew([Head.getNew(0)]));
-		assertEquals(0, dn.getDisplayHeadTopPosition());
-		assertEquals(0, dn.getDisplayHeadBottomPosition());
+		assertEquals(0, dn.getDisplayHeadTop().getPosition());
+		assertEquals(0, dn.getDisplayHeadBottom().getPosition());
 
 		var dn = new DisplayNote(Note.getNew([Head.getNew(0), Head.getNew(1)]));
-		assertEquals(1, dn.getDisplayHeadTopPosition());
-		assertEquals(0, dn.getDisplayHeadBottomPosition());
+		assertEquals(1, dn.getDisplayHeadTop().getPosition());
+		assertEquals(0, dn.getDisplayHeadBottom().getPosition());
 		assertEquals(EDirectionUD.Up, dn.getDirection());
 		
 		var dn = new DisplayNote(Note.getNew([Head.getNew(-1), Head.getNew(0)]));
-		assertEquals(0, dn.getDisplayHeadTopPosition());
-		assertEquals( -1, dn.getDisplayHeadBottomPosition());
+		assertEquals(0, dn.getDisplayHeadTop().getPosition());
+		assertEquals( -1, dn.getDisplayHeadBottom().getPosition());
 		assertEquals(EDirectionUD.Down, dn.getDirection());		
+		
+		
+		
 	}
 		
 }

@@ -1,4 +1,5 @@
 package nx.element.pre;
+import nme.geom.Rectangle;
 
 /**
  * ...
@@ -11,4 +12,8 @@ class PreApoggiatura implements IPreObject
 	{
 		
 	}	
+	
+	public function getDisplayRect():Rectangle {
+		return new Rectangle(0, -1, 3, 2);
+	}
 }
