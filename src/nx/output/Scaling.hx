@@ -6,7 +6,6 @@ import nme.geom.Rectangle;
  */
 
 class Scaling  {
-	
 
 	static public function getBig():TScaling {
 		return {
@@ -22,6 +21,23 @@ class Scaling  {
 			svgY:			-82.0,
 		}
 	}
+	
+	static public function getMid():TScaling {
+		return {
+			linesWidth:			1.25,
+			space:				12.0,
+			halfSpace: 			6.0,
+			noteWidth:			16.5,
+			halfNoteWidth:		8.25,
+			quarterNoteWidth: 	4.124,
+			signPosWidth:		14.0,
+			svgScale:			.27,
+			svgX:				-8.0,
+			svgY:				-60.5,
+		}
+	}	
+	
+	
 	
 	static public function getNormal():TScaling {
 		return {
@@ -51,6 +67,23 @@ class Scaling  {
 			svgX:			-4.0,
 			svgY:			-32.0,
 		}
+	}
+	
+	static public function getLinear(): TScaling {
+		return {
+			linesWidth:			0.0,
+			space:				0.0,
+			halfSpace: 			10.0,
+			noteWidth:			0.0,
+			halfNoteWidth:		0.0,
+			quarterNoteWidth: 	10.0,
+			signPosWidth:		0.0,
+			svgScale:			0.0,
+			svgX:				0.0,
+			svgY:				0.0,
+		}		
+		
+		
 	}
 	
 	static public function scaleRectangle(rectangle:Rectangle, ms:TScaling):Rectangle {

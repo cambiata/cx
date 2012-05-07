@@ -1,6 +1,7 @@
 package cx;
 import nme.display.BitmapData;
 import nme.display.DisplayObject;
+import nme.geom.Point;
 import nme.geom.Rectangle;
 import cx.FileTools;
 
@@ -51,7 +52,9 @@ class NmeTools {
 		var ret:Rectangle = null; // = new Rectangle(0, 0, 0, 0);
 		//trace('');
 		for (r1 in ra1) {
+			if (r1 == null) continue;
 			for (r2 in ra2) {
+				if (r2 == null) continue;
 				var i = r1.intersection(r2);
 				//trace([r1, r2, i]);
 				if ((i.width > 0) && (i.height > 0)) {
@@ -62,6 +65,28 @@ class NmeTools {
 		return ret;
 	}
 	
+	static public function rectangleArraysIntersection2(ra1:Array<Rectangle>, ra2:Array<Rectangle>):Rectangle {
+		var ret:Rectangle = null; // = new Rectangle(0, 0, 0, 0);
+		//trace('');
+		for (r1 in ra1) {
+			if (r1 == null) continue;
+			for (r2 in ra2) {
+				if (r2 == null) continue;
+				var i = intersection2(r1, r2);
+				//trace([r1, r2, i]);
+				if ((i.width > 0) && (i.height > 0)) {
+					ret = (ret != null) ? ret.union(intersection2(r1, r2)) : intersection2(r1, r2);
+					
+					if (r2.left < r1.left) {
+						ret.width = r1.left - r2.left;
+					}					
+				}
+			}
+		}		
+		return ret;
+	}	
+	
+	
 	/*
 	static public function getRight(r:Rectangle):Float {
 		
@@ -71,6 +96,40 @@ class NmeTools {
 		
 	}
 	*/
+	
+	static public function rectanglePushX(r:Rectangle, x:Float):Rectangle {
+		if (r == null) return null;
+		r.offset(x, 0);
+		return r.clone();
+	}
+	
+	static public function intersection2(r1:Rectangle, r2:Rectangle):Rectangle {
+		if (r1 == null) return null;
+		if (r2 == null) return null;
+		var r2test:Rectangle = r2.clone();
+		r2test.width = 1000;
+
+		if (!r1.intersects(r2test)) return new Rectangle(0, 0, 0, 0);
+		var newX = Math.max(r1.left + r1.width, r2test.left);
+		var moveX = newX - r2test.left;
+		var newY = Math.max(r1.top + r1.height, r2test.top);
+		var moveY = newY - r2test.top;
+
+		return new Rectangle(0, 0, moveX, moveY);		
+	}
+	
+	static public function arrayRectanglesOverlapX(ar1:Array<Rectangle>, ar2:Array<Rectangle>) {
+		var move = 0.0;
+		for (r1 in ar1) {
+			for (r2 in ar2) {
+				var r3 = NmeTools.intersection2(r1, r2);
+				move = Math.max(move, r3.width);
+			}
+		}
+		return move;
+	}	
+	
+	
 }	
 
 //-------------------------------------------------------------------------------------------------

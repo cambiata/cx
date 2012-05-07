@@ -1,5 +1,6 @@
 package nx.app;
 
+import cx.NmeTools;
 import cx.Tools;
 import haxe.Stack;
 import haxe.unit.TestRunner;
@@ -23,7 +24,14 @@ class Main
 
 	static function main() 
 	{
-		trace('');
+		/*
+		var r1 = new Rectangle(2, 0, 10, 10);
+		var r2 = new Rectangle(0, 5, 5, 5);
+		var r3 = NmeTools.rectangleArraysIntersection([r1], [r2]);
+		trace(r3);
+		*/
+		
+	
 		var runner = new TestRunner();
 		runner.add(new TestHead());
 		runner.add(new TestDisplayHead());		
@@ -34,8 +42,8 @@ class Main
 		runner.add(new TestRenderDisplayNote());
 		runner.run();
 		
-		var r = new Rectangle(0, 0, 10, 10);
-		var ir = r.intersection(new Rectangle(5, 5, 10, 10));
+
+		
 		//(trace(ir);
 		
 		

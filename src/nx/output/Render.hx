@@ -12,8 +12,12 @@ import nx.output.Scaling;
  */
 using nx.output.Scaling;
 
+
+
 class Render implements IRender
 {
+	static public var drawRects:Bool = false;
+	
 	private var target:Sprite;
 	private var scaling:TScaling;
 	public function new(target:Sprite, scaling:TScaling) {
@@ -38,9 +42,12 @@ class Render implements IRender
 		
 	}
 	
+	public function noteARects(noteX:Float, noteY:Float, displayNote:DisplayNote, color:Int=0xFF0000) {
+		nx.display.utils.DisplayNoteUtils.drawAODR(displayNote.getArrayOfDisplayRects() , this.target, noteX, noteY, this.scaling, color);		
+	}
+	
 	public function noteRects(noteX:Float, noteY:Float, displayNote:DisplayNote) {
 		var graphics = target.graphics;
-		
 		
 		graphics.beginFill(0, 0);
 		
@@ -65,8 +72,8 @@ class Render implements IRender
 		//graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);			
 		
 		// signs
-		graphics.lineStyle(2, 0x00FFFF);
-		var signsDisplayRect = displayNote.getSignsDisplayRect();
+		graphics.lineStyle(1, 0x00FFFF);
+		var signsDisplayRect = displayNote.getDisplayRectSigns();
 		if (signsDisplayRect != null) {		
 			var r = Scaling.scaleRectangle(signsDisplayRect, scaling); 
 			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);				
@@ -74,55 +81,55 @@ class Render implements IRender
 		
 		// stave
 		graphics.lineStyle(1, 0xff0000);
-		var staveDisplayRect = displayNote.getStaveDisplayRect();
+		var staveDisplayRect = displayNote.getDisplayRectStave();
 		if (staveDisplayRect != null) {
 			var r = staveDisplayRect.scaleRectangle(this.scaling);
 			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);				
 		}
 		
 		// dots
-		graphics.lineStyle(2, 0x00ff00);
-		var r = displayNote.getDotsDisplayRect();
+		graphics.lineStyle(1, 0x00ff00);
+		var r = displayNote.getDisplayRectDots();
 		if (r != null) {
 			var r = r.scaleRectangle(this.scaling);
 			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);	
 		}
 		
 		// tieFrom
-		graphics.lineStyle(2, 0x0000ff);
-		var r = displayNote.getTiefromDisplayRect();
+		graphics.lineStyle(1, 0x0000ff);
+		var r = displayNote.getDisplayRectTieFrom();
 		if (r != null) {
 			var r = r.scaleRectangle(this.scaling);
 			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);	
 		}
 		
 		// apoggiatura 
-		graphics.lineStyle(2, 0xff0000);
-		var r = displayNote.getAppogiaturaDisplayRect();
+		graphics.lineStyle(1, 0xff0000);
+		var r = displayNote.getDisplayRectAppogiatura();
 		if (r != null) {
 			var r = r.scaleRectangle(this.scaling);
 			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);	
 		}
 
 		// arpeggio 
-		graphics.lineStyle(2, 0x000000);
-		var r = displayNote.getArpeggioDisplayRect();
+		graphics.lineStyle(1, 0x000000);
+		var r = displayNote.getDisplayRectArpeggio();
 		if (r != null) {
 			var r = r.scaleRectangle(this.scaling);
 			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);	
 		}
 
 		// tieTo
-		graphics.lineStyle(2, 0x0000ff);
-		var r = displayNote.getTietoDisplayRect();
+		graphics.lineStyle(1, 0x0000ff);
+		var r = displayNote.getDisplayRectTieTo();
 		if (r != null) {
 			var r = r.scaleRectangle(this.scaling);
 			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);	
 		}		
 		
 		// clef
-		graphics.lineStyle(2, 0xff00ff);
-		var r = displayNote.getClefDisplayRect();
+		graphics.lineStyle(1, 0xff00ff);
+		var r = displayNote.getDisplayRectClef();
 		if (r != null) {
 			var r = r.scaleRectangle(this.scaling);
 			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);	
@@ -131,7 +138,8 @@ class Render implements IRender
 		
 	}
 	
-	public function note(noteX:Float, noteY:Float, displayNote:DisplayNote) {
+	public function note(noteX:Float, noteY:Float, displayNote:DisplayNote) {		
+		if (drawRects) this.noteRects(noteX, noteY, displayNote);
 		//if (meas == null) meas = new scaling();
 		var graphics = target.graphics;
 		//var noteW = scaling.noteWidth;
@@ -172,7 +180,7 @@ class Render implements IRender
 		}
 		
 		// Signs
-		var signsDisplayRect = displayNote.getSignsDisplayRect();
+		var signsDisplayRect = displayNote.getDisplayRectSigns();
 		if (signsDisplayRect != null) {
 			var r = Scaling.scaleRectangle(signsDisplayRect, scaling); 
 			signs(displayNote.getSigns(), noteX + r.left, noteY);			
