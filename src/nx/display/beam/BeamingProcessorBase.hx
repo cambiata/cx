@@ -12,6 +12,7 @@ class BeamingProcessorBase {
 	public var valuePattern:Array<ENoteValue>;
 	public var dVoice:DisplayVoice; 
 	public var forceDirection:EDirectionUAD;
+	
 	public function beam(dVoice:DisplayVoice, valuePattern:Array<ENoteValue>, ?forceDirection:EDirectionUAD=null) {
 		this.valuePattern = valuePattern;
 		this.dVoice = dVoice;
@@ -27,6 +28,7 @@ class BeamingProcessorBase {
 		.setDisplayNoteDirections()
 		;
 	}	
+	
 	
 	private function setDisplayNoteDirections():BeamingProcessorBase {
 		for (bg in dVoice.getBeamlist()) {
@@ -46,6 +48,7 @@ class BeamingProcessorBase {
 		//trace('voice direction: ' + dVoice.voice.direction);
 		//trace('force direction: ' + this.forceDirection);
 		var useDirection:EDirectionUAD = (this.forceDirection != null) ? this.forceDirection : this.dVoice.getDirection();
+		if (useDirection == null) useDirection = EDirectionUAD.Auto;
 		//trace('use direction:  ' + useDirection);		
 		for (bg in dVoice.getBeamlist()) {
 			if (useDirection == EDirectionUAD.Auto) {

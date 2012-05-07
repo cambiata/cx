@@ -227,7 +227,8 @@ class DisplayNote implements IDisplayNote, implements IDisplayElement
 		if (this.signsDisplayRect != null) return this.signsDisplayRect;		
 		var signRect = this.getSigns().getDisplayRectSigns();
 		if (signRect == null) return null;				
-		signRect.width = signRect.width + 1;
+		
+		//signRect.width = signRect.width + 1;
 		signRect.offset( -(signRect.width + Constants.HEAD_HALFWIDTH), 0);
 		
 		//trace(this.getDisplayHeadsDisplayRects());

@@ -27,6 +27,8 @@ interface IDisplayVoice {
 	function getDisplayNoteValue(displayNote:DisplayNote):Int;
 	function getDisplayNotePositions():Array<Int>;
 	function getDisplayNoteEnds():Array<Int>;
+	function getNextDisplayNote(displayNote:DisplayNote):DisplayNote;
+	function getPrevDisplayNote(displayNote:DisplayNote):DisplayNote;
 	/*
 	function getDisplayNotesDDistance(displayNote:DisplayNote):Float;
 	*/	
@@ -36,6 +38,9 @@ class DisplayVoice implements IDisplayVoice
 {
 	public function new(voice:Voice<Note<Head<Dynamic>>>, ?direction:EDirectionUAD, ?beamingProcessor:IBeamingProcessor) {
 		this.voice = voice;
+		
+		if (direction != null) voice.setDirection(direction);
+		
 		this.beamingProcessor = beamingProcessor;
 		this.displayNotes = new Array<DisplayNote>();
 		
@@ -76,7 +81,11 @@ class DisplayVoice implements IDisplayVoice
 		this.voice.setDirection(direction);
 		this.direction = direction;
 		//trace(this.beamingProcessor);
-		if (this.beamingProcessor != null) this.beamingProcessor.doBeaming(this, this.direction);
+		
+		if (this.beamingProcessor != null) {
+			//trace('do beaming' + this.direction);
+			this.beamingProcessor.doBeaming(this, this.direction);
+		}
 		return this;
 	}
 	
@@ -110,9 +119,20 @@ class DisplayVoice implements IDisplayVoice
 		return this.displayNotes[index];
 	}
 	
-	//function getDisplayNoteFromPosition(position:Int):DisplayNote;
 	public function getDisplayNoteIndex(displayNote:DisplayNote):Int {
 		return Lambda.indexOf(this.displayNotes, displayNote);
+	}
+	
+	public function getNextDisplayNote(displayNote:DisplayNote):DisplayNote {
+		var i = getDisplayNoteIndex(displayNote);
+		if (i >= getDisplayNotesCount()) return null;
+		return getDisplayNote(i + 1);
+	}	
+	
+	public function getPrevDisplayNote(displayNote:DisplayNote):DisplayNote {
+		var i = getDisplayNoteIndex(displayNote);
+		if (i == 0) return null;
+		return getDisplayNote(i - 1);
 	}
 	
 	public function getDisplayNotesCount():Int {

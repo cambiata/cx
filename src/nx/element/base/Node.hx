@@ -45,6 +45,7 @@ class Node < T: Node<Dynamic> > {
 	}
 
 	//-----------------------------------------------------------------------------------
+	/*
 	public function toXml(xmlStr:String=''):String {
 		var className:String = Type.getClassName(Type.getClass(this));
 		xmlStr = xmlStr + '<' + className; 
@@ -63,6 +64,7 @@ class Node < T: Node<Dynamic> > {
 	private function addXmlAttributes(): String {
 		return ' test="123"';
 	}
+	*/
 	
 	//-----------------------------------------------------------------------------------
 	public function tag():String 			return Type.getClassName(Type.getClass(this)) + ':' + this.index

@@ -53,4 +53,19 @@ class ENoteValue {
 			default: return Nv4;
 		}
 	}
+	
+	static public function getFromValue(value:Int):ENoteValue {
+		//trace (Reflect.fields(ENoteValue));
+		for (f in Reflect.fields(ENoteValue)) {
+			if (StringTools.startsWith(f, 'Nv')) {
+				var val = (Reflect.field(ENoteValue, f));
+				//trace(val.value);
+				if (val.value == value) {
+					return cast(val, ENoteValue);
+					break;
+				}
+			}
+		}
+		return null;
+	}
 }

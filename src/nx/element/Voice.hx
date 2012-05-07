@@ -40,4 +40,39 @@ class Voice < T:Note<Head<Dynamic>> > extends Node<Note<Head<Dynamic>>>, impleme
 		return super.toString() + '\t' + 'direction:' + this.getDirection();
 	}		
 	
+	//-----------------------------------------------------------------------------------------------------
+	
+	public function toXml():Xml {		
+		
+		var xml:Xml = Xml.createElement('voice');				
+		
+		
+		for (note in this.children) {
+			var cxml = note.toXml();
+			xml.addChild(cxml);
+		}
+		xml.set('direction', Std.string(this.getDirection()));
+		return xml;
+	}
+	
+	static public function fromXml(xmlStr:String):Voice<Note<Head<Dynamic>>> {
+		
+		var xml = Xml.parse(xmlStr).firstElement();
+		
+		var notes = new Array<Note<Head<Dynamic>>>();
+		
+		for (n in xml.elementsNamed('note')) {
+			var note = Note.fromXml(n.toString());
+			notes.push(note);
+		}	
+		
+		var direction:EDirectionUAD = null;
+		var str = xml.get('direction');
+		if (str != null) try direction = Type.createEnum(EDirectionUAD, str);		
+		
+		var voice = Voice.getNew(notes, direction);
+		
+		return voice;
+	}
+	
 }

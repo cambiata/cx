@@ -90,6 +90,31 @@ class Head < T:Node<Dynamic> > extends Node<Dynamic>, implements IHead {
 		return super.toString() + '\t' + 'level:' + this.getLevel() + ', sign:' + this.getSign();
 	}
 	
+	//-----------------------------------------------------------------------------------------------------
+	
+	public function toXml():Xml {		
+		var xml:Xml = Xml.createElement('head');		
+		xml.set('level', Std.string(this.getLevel()));
+		xml.set('sign', Std.string(this.getSign()));				
+		return xml;
+	}
+	
+	static public function fromXml(xmlStr:String) {
+		
+		var xml = Xml.parse(xmlStr).firstElement();
+		
+		var level:Int = 0;
+		try level = Std.parseInt(xml.get('level'));			
+		
+		var sign:ESign = null;
+		var signStr = xml.get('sign');
+		if (signStr != null) try { sign = Type.createEnum(ESign, signStr); }
+		
+		var head = Head.getNew(level, sign);
+		
+		return head;
+	}
+	
 	
 	
 }

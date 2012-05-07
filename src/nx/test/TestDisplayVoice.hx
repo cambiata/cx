@@ -34,4 +34,16 @@ class TestDisplayVoice extends TestCase
 		
 	}
 	
+	public function test2() {
+		var dv = new DisplayVoice(TO.getVoiceOneBar4_4_Mixed1 ());
+		assertEquals(dv.getDisplayNotesCount(), 5);
+		var firstDN = dv.getDisplayNote(0);
+		var nextDN = dv.getDisplayNote(1);
+		dv.getNextDisplayNote (firstDN);
+		assertEquals(nextDN, dv.getNextDisplayNote(firstDN));		
+		assertEquals(dv.getDisplayNote(4), dv.getNextDisplayNote(dv.getDisplayNote(3)));
+		assertEquals(null, dv.getNextDisplayNote(dv.getDisplayNote(4)));
+		
+	}
+	
 }

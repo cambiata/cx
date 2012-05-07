@@ -19,5 +19,12 @@ class TestVoice extends haxe.unit.TestCase
 		
 	}
 	
+	public function test2() {
+		var v = TO.getVoiceOneBar4_4_Mixed1 ();
+		//trace(v.toStringExt());
+		assertEquals(v.children.length, 5);
+		
+	}
+	
 	
 }

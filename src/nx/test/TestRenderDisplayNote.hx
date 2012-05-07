@@ -5,7 +5,10 @@ import nme.display.Graphics;
 import nme.display.Sprite;
 import nme.geom.Point;
 import nme.geom.Rectangle;
+import nx.display.beam.BeamingProcessor_4;
+import nx.display.beam.BeamingProcessor_4dot;
 import nx.display.DisplayNote;
+import nx.display.DisplayVoice;
 import nx.display.utils.DisplayNoteUtils;
 import nx.element.Note;
 import nx.element.Head;
@@ -15,6 +18,7 @@ import nx.element.pre.PreArpeggio;
 import nx.element.pre.PreClef;
 import nx.element.pre.PreTie;
 import nx.enums.EClef;
+import nx.enums.EDirectionUAD;
 import nx.output.TScaling;
 import nx.test.base.TestBasePng;
 import nx.enums.ESign;
@@ -38,11 +42,15 @@ class TestRenderDisplayNote extends TestBasePng
 	override function setup() {
 		super.setup();		
 		var y = 100;		
-		this.scaling = Scaling.getBig();
+		this.scaling = Scaling.getMid();
 		this.render = new Render(this.sprite, this.scaling);	
 		Render.drawRects = true;
 		render.clef(10, y);
 		render.lines(10, y, 980);		
+		render.clef(10, 300);
+		render.lines(10, 300, 980);		
+		render.clef(10, 500);
+		render.lines(10, 500, 980);		
 	}
 	
 	public function test0() {
@@ -323,7 +331,7 @@ class TestRenderDisplayNote extends TestBasePng
 		render.note(300, y, dn1);
 		render.note(300+distance, y, dn2);				
 		
-		this.spriteSave('test3.png');
+		//this.spriteSave('test3.png');
 	}
 	
 	public function test4() {		
@@ -347,10 +355,140 @@ class TestRenderDisplayNote extends TestBasePng
 		assertTrue(true);
 	}
 	
-	
-	
-	public function testNme() {
+	public function testDisplayVoice() {
 		
+		var v = TO.getVoiceOneBar4_4_Nv8s_02();
+
+		var y = 100;
+		var dv = new DisplayVoice(v);
+		var x = 100.0;
+		var prevDn:DisplayNote;
+		for (dn in dv.getDisplayNotes()) {
+			prevDn = dv.getPrevDisplayNote(dn);
+			if (prevDn != null) {
+				var distance = prevDn.getNoteDistanceX(dn).scaleX(this.scaling);
+				x += distance;
+			}
+			render.note(x, y, dn);
+		}
+		
+		//var v = TO.getVoiceOneBar4_4_Nv8s();
+		var dv = new DisplayVoice(v, null, new BeamingProcessor_4());
+		var x = 400.0;
+		var prevDn:DisplayNote;
+		for (dn in dv.getDisplayNotes()) {
+			prevDn = dv.getPrevDisplayNote(dn);
+			if (prevDn != null) {
+				var distance = prevDn.getNoteDistanceX(dn).scaleX(this.scaling);
+				x += distance;
+			}
+			render.note(x, y, dn);
+		}		
+		
+		//var v = TO.getVoiceOneBar4_4_Nv8s();
+		var dv = new DisplayVoice(v, null, new BeamingProcessor_4dot ());
+		var x = 700.0;
+		var prevDn:DisplayNote;
+		for (dn in dv.getDisplayNotes()) {
+			prevDn = dv.getPrevDisplayNote(dn);
+			if (prevDn != null) {
+				var distance = prevDn.getNoteDistanceX(dn).scaleX(this.scaling);
+				x += distance;
+			}
+			render.note(x, y, dn);
+		}				
+		
+		
+		var y = 300;
+		//var v = TO.getVoiceOneBar4_4_Nv8s();
+		var dv = new DisplayVoice(v, EDirectionUAD.Down);
+		var x = 100.0;
+		var prevDn:DisplayNote;
+		for (dn in dv.getDisplayNotes()) {
+			prevDn = dv.getPrevDisplayNote(dn);
+			if (prevDn != null) {
+				var distance = prevDn.getNoteDistanceX(dn).scaleX(this.scaling);
+				x += distance;
+			}
+			render.note(x, y, dn);
+		}		
+		var y = 300;
+		//var v = TO.getVoiceOneBar4_4_Nv8s();
+		var dv = new DisplayVoice(v, EDirectionUAD.Down, new BeamingProcessor_4());
+		var x = 400.0;
+		var prevDn:DisplayNote;
+		for (dn in dv.getDisplayNotes()) {
+			prevDn = dv.getPrevDisplayNote(dn);
+			if (prevDn != null) {
+				var distance = prevDn.getNoteDistanceX(dn).scaleX(this.scaling);
+				x += distance;
+			}
+			render.note(x, y, dn);
+		}		
+		var y = 300;
+		//var v = TO.getVoiceOneBar4_4_Nv8s();
+		var dv = new DisplayVoice(v, EDirectionUAD.Down, new BeamingProcessor_4dot());
+		var x = 700.0;
+		var prevDn:DisplayNote;
+		for (dn in dv.getDisplayNotes()) {
+			prevDn = dv.getPrevDisplayNote(dn);
+			if (prevDn != null) {
+				var distance = prevDn.getNoteDistanceX(dn).scaleX(this.scaling);
+				x += distance;
+			}
+			render.note(x, y, dn);
+		}
+
+		var y = 500;
+		//var v = TO.getVoiceOneBar4_4_Nv8s();
+		var dv = new DisplayVoice(v, EDirectionUAD.Up);
+		var x = 100.0;
+		var prevDn:DisplayNote;
+		for (dn in dv.getDisplayNotes()) {
+			prevDn = dv.getPrevDisplayNote(dn);
+			if (prevDn != null) {
+				var distance = prevDn.getNoteDistanceX(dn).scaleX(this.scaling);
+				x += distance;
+			}
+			render.note(x, y, dn);
+		}		
+		
+		var y = 500;
+		//var v = TO.getVoiceOneBar4_4_Nv8s();
+		var dv = new DisplayVoice(v, EDirectionUAD.Up, new BeamingProcessor_4());
+		var x = 400.0;
+		var prevDn:DisplayNote;
+		for (dn in dv.getDisplayNotes()) {
+			prevDn = dv.getPrevDisplayNote(dn);
+			if (prevDn != null) {
+				var distance = prevDn.getNoteDistanceX(dn).scaleX(this.scaling);
+				x += distance;
+			}
+			render.note(x, y, dn);
+		}		
+		
+		var y = 500;
+		//var v = TO.getVoiceOneBar4_4_Nv8s();
+		var dv = new DisplayVoice(v, EDirectionUAD.Up, new BeamingProcessor_4dot());
+		var x = 700.0;
+		var prevDn:DisplayNote;
+		for (dn in dv.getDisplayNotes()) {
+			prevDn = dv.getPrevDisplayNote(dn);
+			if (prevDn != null) {
+				var distance = prevDn.getNoteDistanceX(dn).scaleX(this.scaling);
+				x += distance;
+			}
+			render.note(x, y, dn);
+		}
+		
+		//trace(dv.getBeamlist());		
+		this.spriteSave('displayVoice.png');
+		
+		assertTrue(true);
+		
+	}
+	
+	public function testNme() {		
 		var r1 = new Rectangle(0, 0, 2, 2);
 		var r2 = new Rectangle(1, 1, 2, 2);
 		var r3 = NmeTools.intersection2(r1, r2);
