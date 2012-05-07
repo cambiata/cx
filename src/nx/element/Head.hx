@@ -1,12 +1,14 @@
 package nx.element;
 
-import nx.const.Constants;
 import nx.element.base.Node;
+import nx.Constants;
+import nx.enums.ESign;
+
 import nx.element.pre.PreApoggiatura;
 import nx.element.pre.PreTie;
 import nx.element.post.PostTie;
-import nx.enums.ESign;
 import cx.Tools;
+
 
 /**
  * ...
@@ -14,6 +16,7 @@ import cx.Tools;
  */
 
 interface IHead {
+	
 	function setLevel(value:Int): IHead;
 	function getLevel():Int;
 	function setSign(sign:ESign): IHead;
@@ -24,10 +27,11 @@ interface IHead {
 	function getTieTo():PreTie;
 	function setTieFrom(tieFrom:PostTie): IHead;
 	function getTieFrom():PostTie;
+	
 }
 
 class Head < T:Node<Dynamic> > extends Node<Dynamic>, implements IHead {
-
+	
 	static public function getNew(?level:Int=0, ?sign:ESign=null) {
 		var item = new Head<Dynamic>();
 		item.level = level;
@@ -114,8 +118,4 @@ class Head < T:Node<Dynamic> > extends Node<Dynamic>, implements IHead {
 		
 		return head;
 	}
-	
-	
-	
 }
-

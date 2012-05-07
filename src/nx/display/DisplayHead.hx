@@ -1,6 +1,6 @@
 package nx.display;
 import nme.geom.Rectangle;
-import nx.const.Constants;
+import nx.Constants;
 import nx.element.Head;
 import nx.enums.ESign;
 

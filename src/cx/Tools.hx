@@ -43,7 +43,9 @@ class Tools
 		return str;
 	}
 	
+	#if neko 
 	static public function getComputername():String return neko.Sys.getEnv('COMPUTERNAME')
+	#end
 	
 	static public function inRange(min:Float, value:Float, max:Float):Bool {
 		if (value < min) return false;

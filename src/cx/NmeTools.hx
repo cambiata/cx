@@ -3,7 +3,10 @@ import nme.display.BitmapData;
 import nme.display.DisplayObject;
 import nme.geom.Point;
 import nme.geom.Rectangle;
+
+#if neko
 import cx.FileTools;
+#end
 
 /**
  * ...
@@ -12,6 +15,7 @@ import cx.FileTools;
 
 class NmeTools {	
 	
+	#if neko
 	static public function spriteToPngTest() {
 		var sprite = new nme.display.Sprite();
 		sprite.graphics.beginFill(0x0000FF);
@@ -30,6 +34,8 @@ class NmeTools {
 		var byteArray = bitmapData.encode('png');
 		FileTools.putBinaryContent(pngFileName, byteArray.asString());
 	}
+	#end
+	
 	
 	static public function displayObjectToByteArray(source:DisplayObject, ?width=0.0, ?height=0.0) {		
 		if (width == 0) {

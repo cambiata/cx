@@ -1,6 +1,6 @@
 package nx.element.pre;
 import nme.geom.Rectangle;
-import nx.const.Constants;
+import nx.Constants;
 
 /**
  * ...

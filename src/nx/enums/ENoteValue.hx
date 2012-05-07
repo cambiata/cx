@@ -1,5 +1,5 @@
 package nx.enums;
-import nx.const.Constants;
+import nx.Constants;
 
 /**
  * ...

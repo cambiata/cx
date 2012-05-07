@@ -1,7 +1,7 @@
 package nx.display;
 import cx.NmeTools;
 import nme.geom.Rectangle;
-import nx.const.Constants;
+import nx.Constants;
 import nx.display.beam.IBeamGroup;
 import nx.element.Head;
 import nx.element.Note;
