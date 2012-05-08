@@ -2,6 +2,7 @@ package sx.util;
 import sx.type.TExample;
 import sx.type.TListExample;
 import sx.type.TOriginatorshorts;
+import sx.type.TSupplyState;
 
 /**
  * ...
@@ -22,7 +23,11 @@ class ExampleTools
 			originatorshorts:getOriginatorshortsFromExample(example),
 			introd:example.information.introd,
 			originatorItems:example.originatorItems,
-			categories:example.categories,			
+			categories:example.categories,				
+			
+			state: Std.string(TSupplyState.Locked),
+			start:Date.fromString('2012-01-01').toString(),
+			stop:Date.fromString('2016-01-01').toString(),			
 		}
 		return listExample;	
 	}	

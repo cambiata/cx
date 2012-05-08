@@ -347,34 +347,4 @@ class ScorxDb {
 		return r;
 	}		
 	
-	/*
-	static public function addFieldSortTitle(filename:String) {
-		if (hasFieldSortTitle(filename)) {
-			trace('HAS: ' + filename);
-		} else {
-			SqliteTools.execute(filename, "INSERT INTO 'information' VALUES('sorttitle','')   ");
-		}
-	}
-	
-	static public function hasFieldSortTitle(filename:String):Bool {
-		var f = SqliteTools.select(filename, "SELECT * FROM 'information' WHERE type = 'sorttitle'"); //  
-		return f.length > 0;
-	}
-	*/
-	/*
-	static public function addFieldSortIntrod(filename:String) {
-		if (hasFieldSortIntrod(filename)) {
-			trace('HAS: ' + filename);
-		} else {
-			trace('...' + filename);
-			SqliteTools.execute(filename, "INSERT INTO 'information' VALUES('introd','')   ");
-		}
-	}
-	
-	static public function hasFieldSortIntrod(filename:String):Bool {
-		var f = SqliteTools.select(filename, "SELECT * FROM 'information' WHERE type = 'introd'"); //  
-		return f.length > 0;
-	}	
-	*/
-	
 }

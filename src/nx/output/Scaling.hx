@@ -38,7 +38,6 @@ class Scaling  {
 	}	
 	
 	
-	
 	static public function getNormal():TScaling {
 		return {
 			linesWidth:		.75,

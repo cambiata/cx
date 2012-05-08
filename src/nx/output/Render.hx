@@ -20,12 +20,16 @@ class Render implements IRender
 	
 	private var target:Sprite;
 	private var scaling:TScaling;
+	public function getScaling():TScaling {
+		return this.scaling;
+	}
+	
 	public function new(target:Sprite, scaling:TScaling) {
 		this.target = target;
 		this.scaling = scaling;
 	}
 	
-	public function lines(x:Int, y:Int, width:Int) {
+	public function lines(x:Float, y:Float, width:Float) {
 		target.graphics.lineStyle(scaling.linesWidth, 0);
 		for (f in -2...3) {
 			var yPos = f * scaling.space;

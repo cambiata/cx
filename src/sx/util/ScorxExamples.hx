@@ -27,8 +27,7 @@ class ScorxExamples
 	{
 		this.files = new TFiles();
 		this.ids = new Array<Int>();
-		this.listExamples = new TListExamples();
-		
+		this.listExamples = new TListExamples();		
 		if (dir == null) return;
 		this.files = ScorxTools.getFilesInDirectory(dir, subdirs);		
 		this.ids = ScorxTools.getIdsFromFiles(this.files);		

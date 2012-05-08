@@ -435,11 +435,13 @@ class DisplayNote implements IDisplayNote, implements IDisplayElement
 		return ret;
 	}	
 	
-	public function getNoteDistanceX(nextDisplayNote:DisplayNote):Float {		
+	public function getNoteDistanceX(nextDisplayNote:DisplayNote, includeNotesWidth:Bool=true):Float {		
 		var distance:Float = cx.NmeTools.arrayRectanglesOverlapX(this.getArrayOfDisplayRects(), nextDisplayNote.getArrayOfDisplayRects());
-		//return distance;
-		return Math.max(distance, this.getDisplayRect().width);
+		if (includeNotesWidth) return Math.max(distance, this.getDisplayRect().width);
+		return distance;
 	}
+	
+	
 	
 	
 	//--------------------------------------------------------------------------------------------------------------

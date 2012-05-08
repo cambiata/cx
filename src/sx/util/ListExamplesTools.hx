@@ -19,6 +19,10 @@ class ListExamplesTools
 		return ids;
 	}
 	
+	static public function getCount(listExamples:TListExamples):Int {
+		return Lambda.count(listExamples);
+	}
+	
 	
 	static public function getOriginatorshortsIds(listExamples:TListExamples):THashIds {
 		//if (originatorshortsIds != null) return originatorshortsIds;

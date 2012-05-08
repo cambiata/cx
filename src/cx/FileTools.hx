@@ -164,5 +164,14 @@ class FileTools
 		return return segments[0];
 	}
 	
+	static public function getFileAgeSeconds(filename:String) {
+		if (FileSystem.exists(filename)) {
+			var stat = FileSystem.stat(filename);
+			var a = stat.atime;
+			return Std.int((Date.now().getTime() - stat.atime.getTime())/1000);
+		}		
+		return null;
+	}
+	
 
 }
