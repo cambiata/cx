@@ -2,6 +2,7 @@ package nx.test;
 
 import nx.element.Head;
 import nx.element.Note;
+import nx.element.Part;
 import nx.element.Voice;
 import nx.enums.ENoteValue;
 import nx.enums.ESign;
@@ -82,11 +83,10 @@ class TO
 		TO.getNoteNv8Lm2 (), 
 		TO.getNoteNv8Lm5 (), 
 		TO.getNoteNv8Lm2Natural (),
-		TO.getNoteNv8L3 (), 
+		TO.getNoteNv8L3 ()
 		])
 		
 	static public function getVoiceOneBar4_4_Nv8s_02() return Voice.getNew([		
-		TO.getNoteNv8Lm2Natural (), 
 		TO.getNoteNv8L3 (), 
 		TO.getNoteNv8Lm2 (), 
 		TO.getNoteNv8L6Sharp (), 
@@ -95,5 +95,60 @@ class TO
 		TO.getNoteNv8L3 (), 
 		TO.getNoteNv8Lm2 (), 
 		TO.getNoteNv8Lm5 (), 
+		TO.getNoteNv8Lm2Natural (),
 		])
+	
+	// Fjärdedelar	
+	
+		static public function getVoiceOneBar4_4_Nv4s () return Voice.getNew([
+			//Note.getNew([Head.getNew( -2)]),
+			TO.getNoteNv4L0(),
+			TO.getNoteNv4L0(),
+			TO.getNoteNv4L0(),
+			TO.getNoteNv4L0(),
+		])
+
+		static public function getVoiceOneBar4_4_Nv4sLm3 () return Voice.getNew([		
+			Note.getNew([Head.getNew( 1)]),
+			//TO.getNoteNv4Lm3(),
+			TO.getNoteNv4Lm3(),
+			TO.getNoteNv4Lm3(),
+			TO.getNoteNv4Lm1Flat (),
+		])
+
+		static public function getVoiceOneBar4_4_Nv4sL1 () return Voice.getNew([		
+			//TO.getNoteNv4L1(), 
+			//Note.getNew([Head.getNew( -2)]),
+			TO.getNoteNv4L1(),
+			TO.getNoteNv4L1(),
+			TO.getNoteNv4L1(),
+			TO.getNoteNv4L1(),
+		])
+		
+	// Halvnoter	
+	
+		static public function getVoiceOneBar4_4_Nv2s() return Voice.getNew([		
+			TO.getNoteNv2L0(),
+			TO.getNoteNv2L0(),
+		])
+		
+		static public function getVoiceOneBar4_4_Nv2sLm2() return Voice.getNew([		
+			TO.getNoteNv2Lm2(),
+			TO.getNoteNv2Lm2(),
+		])
+		
+		static public function getVoiceOneBar4_4_Nv2sL2() return Voice.getNew([		
+			TO.getNoteNv2L2Sharp (),
+			TO.getNoteNv2Lm2(),
+		])
+		
+		
+	//-----------------------------------------------------------------------------------------------------
+	// Parts
+	
+	static public function getPart0() return Part.getNew([Voice.getNew([Note.getNew([Head.getNew(0)])])])
+	
+	static public function getPart4_4_2v_simple() return Part.getNew([getVoiceOneBar4_4_Nv4sLm3(), getVoiceOneBar4_4_Nv2sL2()])
+	
+	
 }

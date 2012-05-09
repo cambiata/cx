@@ -21,6 +21,37 @@ class Tools
 		return a2;
 	}
 	
+	static public function stringAfterLast(str:String, char:String):String {
+		var idx = str.lastIndexOf(char) + 1;
+		return str.substr(idx);
+	}	
+	
+	static public function stringAfterIncludingLast(str:String, char:String):String {
+		var idx = str.lastIndexOf(char);
+		return str.substr(idx);
+	}
+
+	static public function stringBeforeFirst(str:String, char:String):String {
+		var idx = str.indexOf(char);
+		return str.substr(0, idx);
+	}
+
+	static public function stringIncludingFirst(str:String, char:String):String {
+		var idx = str.indexOf(char) + 1;
+		return str.substr(0, idx);
+	}	
+	
+
+	static public function stringBeforeLast(str:String, char:String):String {
+		var idx = str.lastIndexOf(char);
+		return str.substr(0, idx);
+	}	
+	
+	static public function stringBeforeIncludingLast(str:String, char:String):String {
+		var idx = str.lastIndexOf(char)+1;
+		return str.substr(0, idx);
+	}		
+	
 	static public function toInt(float:Float):Int {
 		return Std.int(float);
 	}

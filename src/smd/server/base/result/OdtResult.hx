@@ -25,8 +25,8 @@ class OdtResult extends ActionResult
 		*/
 		
 		var z = OdtTools.getZipEntries(this.odtFile);
-		var xmlStr = OdtTools.getContentXmlStr(z);
-		var html = OdtTools.getMeta() + OdtTools.getHtmlFromContent(xmlStr, z, 40);
+		var xmlParts = OdtTools.getXmlParts(z);
+		var html = OdtTools.getMeta() + OdtTools.getHtmlFromContent(xmlParts, z, 40);
 		
 		return new TemplateResult( 'templates/content/document.html', { document:html }).execute() ;
 		

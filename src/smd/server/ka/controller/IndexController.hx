@@ -10,7 +10,7 @@ import smd.server.ka.result.IndexResult;
 class IndexController extends UserController
 {
 	//@URL("/", "g")
-	@URL("/")
+	@URL("^/$")
 	public function index() { 	
 		return new IndexResult(loginUser, null, null);
 	}

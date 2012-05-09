@@ -18,6 +18,11 @@ class FileTools
 		return 'test';
 	}
 
+	static public function safeSlashes(path:String):String {
+		return StringTools.replace(path, '\\', '/');
+	}
+	
+	
 	
 	static public function putContent(filename:String, content:String) {
 		var f = neko.io.File.write(filename, false);
@@ -172,6 +177,15 @@ class FileTools
 		}		
 		return null;
 	}
+
+	static public function getDirectory(fullfilename:String) {
+		return Tools.stringBeforeIncludingLast(FileTools.safeSlashes(fullfilename), '/');
+	}
 	
+	static public function getFilename(fullfilename:String) {
+		return Tools.stringAfterLast(FileTools.safeSlashes(fullfilename), '/');
+	}
+	
+
 
 }

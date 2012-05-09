@@ -49,6 +49,7 @@ class DisplayVoice implements IDisplayVoice
 		this.dNoteValues = new ObjectHash<Int>();
 		this.positionDNotes = new IntHash<DisplayNote>();		
 		
+		
 		//----------------------------------------
 		var pos = 0;
 		for (child in voice.children) {
@@ -64,6 +65,7 @@ class DisplayVoice implements IDisplayVoice
 		this.value = pos;	
 		
 		//------------------------------------------
+		// should be last, for updating everything...
 		this.setDirection(direction);
 	}
 	
@@ -80,12 +82,12 @@ class DisplayVoice implements IDisplayVoice
 	public function setDirection(direction:EDirectionUAD) {
 		this.voice.setDirection(direction);
 		this.direction = direction;
-		//trace(this.beamingProcessor);
-		
+		//trace(this.beamingProcessor);		
 		if (this.beamingProcessor != null) {
 			//trace('do beaming' + this.direction);
 			this.beamingProcessor.doBeaming(this, this.direction);
 		}
+	
 		return this;
 	}
 	
@@ -173,5 +175,7 @@ class DisplayVoice implements IDisplayVoice
 	
 	private var positionDNotes:IntHash<DisplayNote>;
 		
+	//------------------------------------------------------------------------------------------
+	
 	
 }

@@ -26,6 +26,18 @@ class OdtTools
 		*/
 	}
 	
+	static public function getXmlParts(zipEntries:List<format.zip.Data.Entry>):OdtXmlParts {	
+		var xmlStr = getContentXmlStr(zipEntries);
+		var xml = Xml.parse(xmlStr);	
+		var styleXml = xml.firstElement().elementsNamed('office:automatic-styles').next();
+		var parts: OdtXmlParts = {			
+			fontdecl: null,
+			styles: _getStyles(styleXml),
+			text: xml.firstElement().elementsNamed('office:body').next().firstElement(),			
+		}		
+		return parts;
+	}
+	
 	static public function getContentXmlStr(zipEntries:List<format.zip.Data.Entry>):String {		
 		var contentBytes:haxe.io.Bytes = ZipTools.getEntryData(zipEntries, 'content.xml');
 		var xmlStr = contentBytes.toString();
@@ -36,11 +48,19 @@ class OdtTools
 		return ZipTools.getEntries(odtFileName);
 	}
 	
+	/*
 	static public function getBodyTextXmlStr(zipEntries:List<format.zip.Data.Entry>): String {
 		var xmlStr = getContentXmlStr(zipEntries);
 		var bodyTextStr = Xml.parse(xmlStr).firstElement().elementsNamed('office:body').next().firstElement().toString();
 		return bodyTextStr;
 	}
+	
+	static public function getAutomaticStylesXmlStr(zipEntries:List<format.zip.Data.Entry>): String {
+		var xmlStr = getContentXmlStr(zipEntries);
+		var stylesXmlStr = Xml.parse(xmlStr).firstElement().elementsNamed('office:automatic-styles').next().firstElement().toString();
+		return stylesXmlStr;
+	}
+	*/
 	
 	static public function getMeta() {
 		return '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />';
@@ -48,14 +68,15 @@ class OdtTools
 	
 	static public function getHtmlFromOdt(odtFileName:String, meta:Bool=true, ?imgScale:Float=40.0): String {
 		var zipEntries = getZipEntries(odtFileName);
-		var xmlStr = getBodyTextXmlStr(zipEntries);
+		var parts = getXmlParts(zipEntries);
 		var html = '';
 		if (meta) html += OdtTools.getMeta();
-		html += getHtmlFromContent(xmlStr, zipEntries, imgScale);
+		html += getHtmlFromContent(parts, zipEntries, imgScale);
 		return html;
 	}
 	
-	static public function getHtmlFromContent(xmlStr:String, ?zipEntries:List<format.zip.Data.Entry>, ?imgScale:Float=40):String {
+	//static public function getHtmlFromContent(xmlStr:String, ?zipEntries:List<format.zip.Data.Entry>, ?imgScale:Float=40):String {
+	static public function getHtmlFromContent(xmlParts:OdtXmlParts, ?zipEntries:List<format.zip.Data.Entry>, ?imgScale:Float=40):String {		
 		var html = '';
 		function recursive(xml:Xml, ?level:Int=0, ?parentWidth:Int=0, ?parentHeight:Int=0) {		
 			for (child in xml) {
@@ -75,32 +96,33 @@ class OdtTools
 								html += '<h' + hLevel + '>';							
 								recursive(child, level);								
 								html += '</h' + hLevel + '>';
+								
 							case 'text:p':
-								var style = child.get('text:style-name');
-								html += '<p>';							
-								if (style == 'P1') html += '<b>';
-								if (style == 'P2') html += '<b>';
-								if (style == 'P3') html += '<b>';
+								var styletag = child.get('text:style-name');
+								html += '<p>';															
+								var styleObj:OdtStyle = xmlParts.styles.get(styletag);
+								if (styleObj != null) {
+									if (styleObj.bold)  html += '<b>';
+									if (styleObj.italic)  html += '<i>';
+								}
 								recursive(child, level);								
-								if (style == 'P1') html += '</b>';
-								if (style == 'P2') html += '</b>';
-								if (style == 'P3') html += '</b>';
+								if (styleObj != null) {
+									if (styleObj.italic)  html += '</i>';
+									if (styleObj.bold)  html += '</b>';
+								}
 								html += '</p>';
 								
 							case 'text:span': 
-								var style = child.get('text:style-name');
-								switch(style) {
-									case 'T2':
-										html += '<b>';
-									case 'T1':
-										html += '<i>';
+								var styletag = child.get('text:style-name');
+								var styleObj:OdtStyle = xmlParts.styles.get(styletag);
+								if (styleObj != null) {
+									if (styleObj.bold)  html += '<b>';
+									if (styleObj.italic)  html += '<i>';
 								}
 								recursive(child, level);
-								switch(style) {
-									case 'T2':
-										html += '</b>';
-									case 'T1':
-										html += '</i>';
+								if (styleObj != null) {
+									if (styleObj.italic)  html += '</i>';
+									if (styleObj.bold)  html += '</b>';
 								}
 							case 'text:list':
 								html += '<ul>';							
@@ -185,8 +207,8 @@ class OdtTools
 				level--;
 			}
 		}
-		var xml = Xml.parse(xmlStr);
-		recursive(xml);
+		
+		recursive(xmlParts.text);
 		return html;
 	}	
 	
@@ -350,6 +372,38 @@ class OdtTools
 		//return html;		
 		return ret;
 	}
+	
+	//-----------------------------------------------------------------------------------------------------
+		
+	static private function _getStyles(styleXml:Xml):OdtStyles {
+		var ret = new OdtStyles();
+		for (e in styleXml.elements()) {			
+			var styleName = e.get('style:name');
+			var style:OdtStyle = { name:styleName, bold:false, italic:false };
+			if (e.firstElement() != null) {
+				if (e.firstElement().get("fo:font-weight") == 'bold') style.bold = true;
+				if (e.firstElement().get("fo:font-style") == 'italic') style.italic = true;				
+			}
+			ret.set(styleName, style);
+		}
+		return ret;		
+	}
+}
+
+
+typedef OdtStyles = Hash<OdtStyle>;
+
+typedef OdtStyle = {
+	name:String,
+	bold:Bool,
+	italic:Bool,	
+}
+
+
+typedef OdtXmlParts = {
+	fontdecl:Xml,
+	text:Xml,
+	styles:OdtStyles,
 }
 
 

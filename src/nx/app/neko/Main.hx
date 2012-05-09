@@ -13,11 +13,14 @@ import nx.test.output.TestNotesOverlap;
 import nx.test.output.TestRenderDisplayNote;
 import nx.test.output.TestRenderDisplayNote2;
 import nx.test.output.TestRenderDisplayNote3;
+import nx.test.output.TestRenderDisplayPart;
 import nx.test.TestDisplayHead;
 import nx.test.TestDisplayNote;
+import nx.test.TestDisplayPart;
 import nx.test.TestDisplayVoice;
 import nx.test.TestHead;
 import nx.test.TestNote;
+import nx.test.TestPart;
 import nx.test.TestVoice;
 import nx.test.TestXml;
 
@@ -36,10 +39,13 @@ class Main
 		runner.add(new TestNote());
 		runner.add(new TestDisplayNote());	
 		runner.add(new TestVoice());
+		runner.add(new TestPart());
+		runner.add(new TestDisplayPart());
 		runner.add(new TestDisplayVoice());
-		runner.add(new TestRenderDisplayNote());
-		runner.add(new TestRenderDisplayNote2());
-		runner.add(new TestRenderDisplayNote3());
+		//srunner.add(new TestRenderDisplayNote());
+		//runner.add(new TestRenderDisplayNote2());
+		//runner.add(new TestRenderDisplayNote3());
+		runner.add(new TestRenderDisplayPart());
 		runner.add(new TestXml());
 		runner.run();
 	}
