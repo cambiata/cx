@@ -9,11 +9,8 @@ import smd.server.ka.result.IndexResult;
 
 class IndexController extends UserController
 {
-	//@URL("/", "g")
 	@URL("^/$")
 	public function index() { 	
-		return new IndexResult(loginUser, null, null);
+		return new IndexResult(this.authUser, null, null);
 	}
-	
-	
 }

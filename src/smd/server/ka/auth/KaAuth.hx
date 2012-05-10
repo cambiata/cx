@@ -3,6 +3,8 @@ import ka.tools.PersonerTools;
 import ka.tools.PersonTools;
 import ka.types.Person;
 import smd.server.base.auth.AuthResult;
+import smd.server.base.auth.AuthTools;
+import smd.server.base.auth.AuthUser;
 import smd.server.base.auth.IAuth;
 import haxe.io.Eof; 
 /**
@@ -17,10 +19,8 @@ class KaAuth implements IAuth {
 		this.authFilename = authFilename;
 	}
 	
-	public function check(user:String, pass:String):AuthResult {		
-		var ret:AuthResult = { success:false, person:null, msg:null };
-		//var id = user + '|' + pass;
-		//trace(id);
+	public function check(user:String, pass:String):AuthUser {		
+		var authUser:AuthUser = AuthTools.getUserNull();
 		var file = neko.io.File.read(this.authFilename, false);				
 		try {
 			while(true) {
@@ -30,15 +30,15 @@ class KaAuth implements IAuth {
 					if (checkPass == pass) {
 						file.close();
 						var p = PersonTools.getFromString(line);										
-						ret.success = true;
-						ret.person = p;
-						ret.msg = 'Authentication success: User ' + p.epost + ' ok!';
-						return ret;				
+						authUser.success = true;
+						authUser.person = p;
+						authUser.msg = 'Authentication success: User ' + p.epost + ' ok!';
+						return authUser;				
 						break;						
 					} else {
 						file.close();
-						ret.msg = 'Authentication fail: Wrong password for user ' + user;
-						return ret;
+						authUser.msg = 'Authentication fail: Wrong password for user ' + user;
+						return authUser;
 					}
 				}
 				//trace(line);
@@ -47,8 +47,8 @@ class KaAuth implements IAuth {
 			
 		}			
 		file.close();	
-		ret.msg = 'Authentication fail: User ' + user + ' not found!';
-		return ret;
+		authUser.msg = 'Authentication fail: User ' + user + ' not found!';
+		return authUser;
 	}
 	
 	

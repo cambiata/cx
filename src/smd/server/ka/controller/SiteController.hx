@@ -17,24 +17,24 @@ class SiteController extends UserController
 	public function doc(param : String='default') {						
 		var content = null;
 		if (param.toLowerCase() != 'default') content = new OdtResult('_docs/' + param.toLowerCase() + '.odt', { } ).execute();
-		return  new IndexResult(null, loginUser, null, content );		
+		return  new IndexResult(null, this.authUser, null, content );		
 	}	
 	
 	@URL("/info/([a-zA-Z]+)", "g")
 	public function info(param : String='default') {						
 		var content = null;
 		if (param.toLowerCase() != 'default') content = new TemplateResult('templates/info/' + param.toLowerCase() + '.html').execute();
-		return  new IndexResult(null, loginUser, null, content );		
+		return  new IndexResult(null, this.authUser, null, content );		
 	}
 	
 	@URL("/contact")
 	public function contact() {						
-		return new IndexResult(loginUser, null, '<p>Contact content</p>');
+		return new IndexResult(this.authUser, null, '<p>Contact content</p>');
 	}
 	
 	@URL("/player")
 	public function player() {						
-		return new IndexResult(loginUser, null, 'Player');
+		return new IndexResult(this.authUser, null, 'Player');
 	}		
 	
 

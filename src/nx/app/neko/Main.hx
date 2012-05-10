@@ -14,6 +14,7 @@ import nx.test.output.TestRenderDisplayNote;
 import nx.test.output.TestRenderDisplayNote2;
 import nx.test.output.TestRenderDisplayNote3;
 import nx.test.output.TestRenderDisplayPart;
+import nx.test.TestDisplayBar;
 import nx.test.TestDisplayHead;
 import nx.test.TestDisplayNote;
 import nx.test.TestDisplayPart;
@@ -40,8 +41,9 @@ class Main
 		runner.add(new TestDisplayNote());	
 		runner.add(new TestVoice());
 		runner.add(new TestPart());
-		runner.add(new TestDisplayPart());
 		runner.add(new TestDisplayVoice());
+		runner.add(new TestDisplayPart());
+		runner.add(new TestDisplayBar());
 		//srunner.add(new TestRenderDisplayNote());
 		//runner.add(new TestRenderDisplayNote2());
 		//runner.add(new TestRenderDisplayNote3());

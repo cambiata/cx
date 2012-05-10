@@ -46,6 +46,7 @@ class ConfigTools
 	static public function initField(configObject:Dynamic, field:String, valueString:String, arrayDelimiter:String = ',') {
 		
 		if (!Reflect.hasField(configObject, field)) { missingFields.push(field); return; }
+		//if (!Reflect.hasField(configObject, field)) Reflect.setField(configObject, field,);
 		
 		var f = Reflect.field(configObject, field);
 		

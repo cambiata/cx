@@ -22,6 +22,8 @@ interface IDisplayPart {
 	function getPrevDisplayNotesInSequence(displayNote:DisplayNote):DisplayNote;
 	function getNextDisplayNotesInSequence(displayNote:DisplayNote):DisplayNote;
 	function getDisplayNoteDisplayVoice(displayNote:DisplayNote): DisplayVoice;
+	
+	function getValue():Int;
 }
 
 using Lambda;
@@ -113,6 +115,16 @@ class DisplayPart implements IDisplayPart {
 			if (Lambda.has(dv.getDisplayNotes(), displayNote)) return dv;			
 		}		
 		return null;
+	}
+	
+	private var value:Int;
+	public function getValue():Int {
+		if (this.value > 0) return this.value;
+		var maxValue = 0.0;
+		for (displayVoice in this.getDisplayVoices()) {
+			maxValue = Math.max(displayVoice.getValue(), maxValue);
+		}
+		return Std.int(maxValue);		
 	}
 	
 	private var displayNoteXPostitions: ObjectHash<Float>;

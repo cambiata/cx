@@ -13,12 +13,12 @@ class ScorxlistController extends UserController
 
 	@URL("^/scorx/list/$")
 	public function scorxlist() {						
-		return new ScorxResult(null, this.loginUser, new TemplateResult('templates/scorx/sidebar.html').execute(), null);
+		return new ScorxResult(null, this.authUser, new TemplateResult('templates/scorx/sidebar.html').execute(), null);
 	}		
 	
 	@URL("^/scorx/$")
 	public function scorx() {						
-		return new ScorxResult(null, this.loginUser, new TemplateResult('templates/scorx/sidebar.html').execute(), null);
+		return new ScorxResult(null, this.authUser, new TemplateResult('templates/scorx/sidebar.html').execute(), null);
 	}	
 	
 }

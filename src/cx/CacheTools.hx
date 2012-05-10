@@ -12,15 +12,15 @@ import neko.FileSystem;
 using StringTools;
 class CacheTools 
 {
-	
 	static public var cacheDir:String = Web.getCwd() + 'cache/';	
 	
-	static public function getContent(cachefilename:String, maxAgeSeconds:Int=10, contentCallback:Void -> String = null):String {				
+	static public function getContent(cachefilename:String, maxAgeSeconds:Int=10, contentCallback:Void -> String = null, cacheCallback:Void -> Void = null):String {				
 		var fullfilename = getFullFilename(cachefilename);
 		removeCacheFileIfToOld(fullfilename, maxAgeSeconds);		
 		var content:String;
 		if (FileSystem.exists(fullfilename)) {			
 			content = FileTools.getContent(fullfilename);
+			if (cacheCallback != null) cacheCallback();
 		} else {			
 			if (contentCallback != null) {
 				content = contentCallback();
@@ -32,12 +32,13 @@ class CacheTools
 		return content;
 	}
 	
-	static public function getObject(cachefilename:String, maxAgeSeconds:Int = 10, contentCallback:Void -> Dynamic = null):Dynamic {
+	static public function getObject(cachefilename:String, maxAgeSeconds:Int = 10, contentCallback:Void -> Dynamic = null, cacheCallback:Void -> Void = null):Dynamic {
 		var fullfilename = getFullFilename(cachefilename);
 		removeCacheFileIfToOld(fullfilename, maxAgeSeconds);		
 		var content:Dynamic;
 		if (FileSystem.exists(fullfilename)) {			
 			content = Unserializer.run(FileTools.getContent(fullfilename));
+			if (cacheCallback != null) cacheCallback();
 		} else {			
 			if (contentCallback != null) {
 				content = contentCallback();
@@ -56,9 +57,7 @@ class CacheTools
 	static public function removeCacheFileIfToOld(filename:String, ageSeconds:Int) {
 		if (FileSystem.exists(filename)) {
 			var age = getFileAgeSeconds(filename);
-			//trace(age);
 			if (age > ageSeconds) {
-				//trace('delete!');
 				FileSystem.deleteFile(filename);
 			}
 		}		
