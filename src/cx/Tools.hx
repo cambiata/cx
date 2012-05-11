@@ -111,6 +111,15 @@ class Tools
 		return str;
 	}
 	
+	static public function arrayIntUnique(array:Array<Int>, sort:Bool = true):Array<Int> {
+		var ret = new Array<Int>();
+		for (item in array) {
+			if (!Lambda.has(ret, item)) ret.push(item);
+		}
+		if (sort) ret.sort(function(a, b) { return Reflect.compare(a, b); } );
+		return ret;
+	}
+	
 	
 	
 	

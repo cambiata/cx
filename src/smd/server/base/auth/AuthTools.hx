@@ -14,7 +14,7 @@ import smd.server.ka.auth.KaAuth;
 class AuthTools {	
 	
 	static public function getCurrentUser(auth:IAuth):AuthUser {
-		var loginUser:AuthUser = getUserNull();
+		var authUser:AuthUser = getUserNull();
 		NekoSession.setSavePath(neko.Web.getCwd() + 'session/');		
 		// logga in eller logga ut...
 		if (Web.getMethod() == 'POST') {						
@@ -22,8 +22,8 @@ class AuthTools {
 			var pass = Web.getParams().get('pass');
 			
 			if (user == 'logout') {					
-				loginUser = getUserNull();
-				loginUser.msg = 'Logged out';
+				authUser = getUserNull();
+				authUser.msg = 'Logged out';
 				SiteState.messages.infos.push('User logged out!');
 			} else if (user != '' && pass != '') {
 				// try to log in...
@@ -34,24 +34,24 @@ class AuthTools {
 				
 				if (authResult.success) {					
 					//if (true) {					
-					loginUser.user = authResult.person.fornamn + ' ' + authResult.person.efternamn;
-					loginUser.pass = authResult.person.xpass;
-					loginUser.msg = 'Login ok';
-					SiteState.messages.infos.push('Login ok');
+					authUser.user = authResult.person.fornamn + ' ' + authResult.person.efternamn;
+					authUser.pass = authResult.person.xpass;
+					authUser.msg = 'Login ok';
+					SiteState.messages.success.push('Login ok');
 					
 				} else {
-					loginUser = getUserNull();
-					loginUser.msg = 'Login fail!';
+					authUser = getUserNull();
+					authUser.msg = 'Login fail!';
 					SiteState.messages.errors.push('Login fail!');
 				}
 			}
-			NekoSession.set('loginUser', loginUser);
+			NekoSession.set('authUser', authUser);
 			NekoSession.close();
-			return loginUser;
+			return authUser;
 		}
 		
 		// Hämta användare från session...
-		var loggedinUser = NekoSession.get('loginUser');
+		var loggedinUser = NekoSession.get('authUser');
 		return loggedinUser;
 	}
 	

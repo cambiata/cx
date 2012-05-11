@@ -24,6 +24,8 @@ import ka.types.Admingrupp;
 import ka.types.Admingrupper;
 import ka.types.Kor;
 import ka.types.Korer;
+import neko.Sys;
+import systools.Dialogs;
 
 /**
  * ...
@@ -365,9 +367,26 @@ class AdminCli extends CliBase {
 	static public function _excel(personer:Personer, filename:String) {		
 		//var filename = 'export/urval-personer.xls';
 		Lib.println('');
-		Lib.println(' Exporterar personer till ' + filename + '...');		
-		PersonerExport.toExcel(filename, personer);
-		Lib.println(' Export klar!');		
+		//Lib.println(' Exporterar personer till ' + filename + '...');				
+		Lib.println(CliBase.decode(' Ange filnamn (tex personer.xls) i filvalsboxen. OBS! Denna kan lägga sig "bakom" detta kommandofönstter!'));
+		//var filename = Dialogs.saveFile('Exportera personer', 'Exportera personer till excel-fil (.xls)', Sys.getCwd());
+		
+		var filters: FILEFILTERS = 
+			{ count: 1
+			, descriptions: ["Excel file"]
+			, extensions: ["*.xls"]			
+			};			
+		
+		var filename = Dialogs.saveFile( 'Exportera personer', 'Exportera personer till excel-fil (.xls)', Sys.getCwd());
+		//trace(filename);
+		if (filename != 'null') {
+			Lib.println(CliBase.DIVIDER1);
+			Lib.println(' Exporterar...');
+			PersonerExport.toExcel(filename, personer);
+			Lib.println(' Export klar, filen har sparats som ' + filename);
+		} else {
+			Lib.println(CliBase.decode(' Inget filnamn valt. Export ej genomförd.'));
+		}
 		Lib.println('');		
 	}		
 	

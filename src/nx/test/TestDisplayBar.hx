@@ -17,9 +17,17 @@ class TestDisplayBar extends TestCase
 
 	public function test() {
 		
-		var b = Bar.getNew([Part.getNew([Voice.getNew([Note.getNew([Head.getNew(0)])])])]);
-		assertTrue(b != null);
-		//var db = new DisplayBar(
+		var p0 = Part.getNew([Voice.getNew([
+			Note.getNew([Head.getNew(-1)]),
+			Note.getNew([Head.getNew(-1)]),
+			Note.getNew([Head.getNew(-1)]),
+			Note.getNew([Head.getNew(-1)]),
+			])]);
+		var p1 = Part.getNew([Voice.getNew([Note.getNew([Head.getNew(0)])])]);
+		var db = new DisplayBar(Bar.getNew([p0, p1]));
+		assertTrue(db != null);
+		
+		//db.getNoteXPostitions();
 		
 		
 	}

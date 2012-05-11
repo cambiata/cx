@@ -12,6 +12,7 @@ class SiteState
 
 	static public var messages:Messages = {
 		errors: [],
+		success: [],
 		infos: [],
 		systems: [],
 	}

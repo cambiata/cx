@@ -10,6 +10,7 @@ import nme.geom.Rectangle;
 import nx.enums.ENoteValue;
 import nx.output.Render;
 import nx.test.output.TestNotesOverlap;
+import nx.test.output.TestRenderDisplayBar;
 import nx.test.output.TestRenderDisplayNote;
 import nx.test.output.TestRenderDisplayNote2;
 import nx.test.output.TestRenderDisplayNote3;
@@ -47,7 +48,8 @@ class Main
 		//srunner.add(new TestRenderDisplayNote());
 		//runner.add(new TestRenderDisplayNote2());
 		//runner.add(new TestRenderDisplayNote3());
-		runner.add(new TestRenderDisplayPart());
+		//runner.add(new TestRenderDisplayPart());
+		runner.add(new TestRenderDisplayBar());
 		runner.add(new TestXml());
 		runner.run();
 	}

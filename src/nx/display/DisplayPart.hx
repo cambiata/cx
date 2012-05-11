@@ -1,5 +1,6 @@
 package nx.display;
 import cx.ObjectHash;
+import nx.Constants;
 import nx.element.Part;
 import nx.element.Voice;
 import nx.element.Note;
@@ -23,6 +24,8 @@ interface IDisplayPart {
 	function getNextDisplayNotesInSequence(displayNote:DisplayNote):DisplayNote;
 	function getDisplayNoteDisplayVoice(displayNote:DisplayNote): DisplayVoice;
 	
+	function getDisplayNotePositionsXPositions():IntHash<Float>;
+	
 	function getValue():Int;
 }
 
@@ -42,6 +45,10 @@ class DisplayPart implements IDisplayPart {
 		return this.dNotePositions.get(displayNote);
 	}	
 	
+	private var displayNotePositions: Array<Int>;
+	public function getDisplayNotePositions(): Array<Int> {
+		return this.displayNotePositions;
+	}	
 	
 	public function new(part:Part<Voice<Note<Head<Dynamic>>>>) {
 		this.part = part;
@@ -49,6 +56,7 @@ class DisplayPart implements IDisplayPart {
 		this.displayVoices = new Array<DisplayVoice>();		
 		this.displayNoteMatrix = new IntHash<Array<DisplayNote>>(); 
 		this.dNotePositions = new ObjectHash<Int>();
+		this.displayNotePositions = new Array<Int>();
 		
 		for (voice in part.children) {
 			var displayVoice = new DisplayVoice(voice);
@@ -59,6 +67,8 @@ class DisplayPart implements IDisplayPart {
 				displayNoteMatrix.get(positionKey).push(displayNote);	
 				
 				this.dNotePositions.set(displayNote, positionKey);
+				
+				if (!Lambda.has(this.displayNotePositions, positionKey)) this.displayNotePositions.push(positionKey);
 			}			
 		}
 	}
@@ -100,11 +110,13 @@ class DisplayPart implements IDisplayPart {
 	}
 
 	public function getPrevDisplayNotesInSequence(displayNote:DisplayNote):DisplayNote {
+		if (this.displayNoteSequence == null) this.getDisplayNotesSequence();
 		var idx = this.displayNoteSequence.indexOf(displayNote);
 		if (idx > 0) return this.displayNoteSequence[idx - 1];
 		return null;
 	}
 	public function getNextDisplayNotesInSequence(displayNote:DisplayNote):DisplayNote {
+		if (this.displayNoteSequence == null) this.getDisplayNotesSequence();
 		var idx = this.displayNoteSequence.indexOf(displayNote);
 		if (idx < this.displayNoteSequence.length) return this.displayNoteSequence[idx + 1];
 		return null;
@@ -127,35 +139,78 @@ class DisplayPart implements IDisplayPart {
 		return Std.int(maxValue);		
 	}
 	
+	private var displayNoteAvoidVoiceXDistances: ObjectHash<Float>;
+	public function getDisplayNoteAvoidVoiceXDistances(): ObjectHash<Float> {
+		if (this.displayNoteAvoidVoiceXDistances != null) return this.displayNoteAvoidVoiceXDistances;
+		this.getDisplayNoteXPostitions();
+		return this.displayNoteAvoidVoiceXDistances;
+	}	
+	
+	private var displayNoteXDistances: ObjectHash<Float>;
+	public function getDisplayNoteXDistances(): ObjectHash<Float> {
+		if (this.displayNoteXDistances != null) return this.displayNoteXDistances;
+		this.getDisplayNoteXPostitions();
+		return this.displayNoteXDistances;	
+	}
+	
+	
 	private var displayNoteXPostitions: ObjectHash<Float>;
 	public function getDisplayNoteXPostitions(): ObjectHash<Float> {
-		if (this.displayNoteXPostitions != null) return this.displayNoteXPostitions;
+		if (this.displayNoteXPostitions != null) return this.displayNoteXPostitions;		
+		
 		this.displayNoteXPostitions = new ObjectHash<Float>();
+		this.displayNoteXDistances = new ObjectHash<Float>();
+		this.displayNoteAvoidVoiceXDistances = new ObjectHash<Float>();
+		
 		var prevDn:DisplayNote = null;
 		var xPos = 0.0;
+		var xAvoid = 0.0;
 		for (dn in this.getDisplayNotesSequence()) {			
 			prevDn = this.getPrevDisplayNotesInSequence(dn);
 			if (prevDn != null) {
-				var distance:Float = 0.0;
+				var xDistance:Float = 0.0;
 				if (this.getDisplayNotePosition(dn) != this.getDisplayNotePosition(prevDn)) {										
-					distance = prevDn.getNoteDistanceX(dn, true);
+					xDistance = prevDn.getNoteDistanceX(dn, true);
 					if (this.getDisplayNoteDisplayVoice(dn) != this.getDisplayNoteDisplayVoice(prevDn)) {
 						var v = getDisplayNoteDisplayVoice(dn);
 						var prevDnSameVoice = v.getPrevDisplayNote(dn);
-						var distance2 = prevDnSameVoice.getNoteDistanceX(dn);
-						distance = Math.max(distance, distance2);
+						var xDistance2 = prevDnSameVoice.getNoteDistanceX(dn);
+						xDistance = Math.max(xDistance, xDistance2);						
 					}
-					xPos += distance;
+					this.displayNoteAvoidVoiceXDistances.set(dn, 0.0);					
+					xPos += xDistance;
+					xAvoid = 0.0;
 				} else {
-					distance = prevDn.getNoteDistanceX(dn, false);
-					xPos += distance;
-				}
+					// Same voice, avoid collision!
+					xDistance = prevDn.getNoteDistanceX(dn, false);
+					xAvoid = xDistance;
+					xPos += xDistance;
+				}				
+				
 				this.displayNoteXPostitions.set(dn, xPos);
+				this.displayNoteXDistances.set(dn, xDistance);
+				this.displayNoteAvoidVoiceXDistances.set(dn, xAvoid);
 			} else {
-				displayNoteXPostitions.set(dn, 0.0);
+				this.displayNoteXPostitions.set(dn, 0.0);
+				this.displayNoteXDistances.set(dn, 0.0);
+				this.displayNoteAvoidVoiceXDistances.set(dn, 0.0);
 			}
 		}		
 		return this.displayNoteXPostitions;
+	}
+	
+	private var displayNotePositionsXPositions:IntHash<Float>;
+	public function getDisplayNotePositionsXPositions():IntHash<Float> {
+		if (this.displayNotePositionsXPositions != null) return this.displayNotePositionsXPositions;
+		this.displayNotePositionsXPositions = new IntHash<Float>();
+		var dnPosX:Float = 0;
+		for (dn in this.getDisplayNotesSequence()) {
+			dnPosX = this.getDisplayNoteXPostitions().get(dn);
+			var pos = this.getDisplayNotePosition(dn);			
+			if (!this.displayNotePositionsXPositions.exists(pos)) this.displayNotePositionsXPositions.set(pos, dnPosX);
+		}				
+		//displayNotePositionsXPositions.set(this.getValue(), dnPosX + Constants.HEAD_WIDTH);
+		return this.displayNotePositionsXPositions;
 	}
 	
 	

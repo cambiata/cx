@@ -20,13 +20,14 @@ class PersonerTools
 
 	static public function getPersonerHtml(personer:Personer, ?fieldnames:Person=null):String {
 		var html = '';		
-		html += '<table width="100%" border="1">';
+		html += '<table class="personer" width="100%" border="0">';
 		html += '<tr>';		
 		
 		
 		if (fieldnames != null) {
 			
 		}
+		
 		/*
 		for (field in fieldsPersoner) {
 			html += '<th>';	html += field; html += '</th>';	
@@ -38,6 +39,33 @@ class PersonerTools
 		html += '</tr>';
 		for (person in personer) {
 			html += '<tr>';
+			html += '<td valign="top">';
+			html += '<p class="name">' + Tools.replaceNullString(person.efternamn) + ', ' + Tools.replaceNullString(person.fornamn) + '</p>';
+			html += '</p>';
+			html += '</td>';			
+			html += '<td valign="top">';
+			html += '<p>' + Tools.replaceNullString(person.personnr) + '</p>';
+			html += '<p>' + Tools.replaceNullString(person.epost) + '</p>';
+			html += '<p>' + Tools.replaceNullString(person.gatuadr) + ', ' + Tools.replaceNullString(person.postnr) + ' ' + Tools.replaceNullString(person.postadr) + '</p>';
+			html += '</td>';
+
+			html += '<td valign="top" align="right">';
+			html += '<p class="expl" >Terminer:</p>';
+			html += '<p class="expl" >Kör:</p>';
+			html += '<p class="expl" >Roll:</p>';
+			html += '<p class="expl" >Adm-grupp:</p>';
+			html += '</td>';
+			
+			
+			html += '<td valign="top">';
+			html += '<p>' + Tools.replaceNullString(person.studieterminer.join(', ')) + '</p>';
+			html += '<p>' + Tools.replaceNullString(person.kor) + '</p>';
+			html += '<p>' + Tools.replaceNullString(person.roll) + '</p>';
+			html += '<p>' + Tools.replaceNullString(person.admgrupp) + '</p>';
+			html += '</td>';
+			
+			
+			/*
 			html += '<td>';	html += Tools.replaceNullString(person.personnr); html += '</td>';	
 			html += '<td>';	html += Tools.replaceNullString(person.fornamn); html += '</td>';	
 			html += '<td>';	html += Tools.replaceNullString(person.efternamn); html += '</td>';	
@@ -56,9 +84,22 @@ class PersonerTools
 			html += '<td>';	html += Tools.replaceNullString(person.loggpersonligt); html += '</td>';
 			html += '<td>';	html += Tools.replaceNullString(person.anteckningar); html += '</td>';
 			html += '<td>';	html += Tools.replaceNullString(person.xpass); html += '</td>';
+			*/
+			
+			
 			html += '</tr>';
 		}
-		html += '</table>';
+		html += '</table>';		
+		html += '<style>';
+		html += '.personer {font-family:"Arial"}' ;
+		html += '.personer p {color:red; margin-bottom: 4px; margin-top:4px;}' ;
+		html += '.personer p.name {color:blue; font-size:16pt; font-weight:bold; margin-bottom: 4px; margin-top:4px;}' ;
+		html += '.personer p.expl {color:gray; margin-bottom: 4px; margin-top:4px;}' ;
+		html += '.personer td {border-bottom:1px solid #ddd;}' ;
+		html += '</style>';
+		
+		
+		
 		return html;		
 	}
 	

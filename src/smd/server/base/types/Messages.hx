@@ -7,6 +7,7 @@ package smd.server.base.types;
 
 typedef Messages = {
 	errors:Array<String>,
+	success:Array<String>,
 	infos:Array<String>,
 	systems:Array<String>,
 }
