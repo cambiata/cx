@@ -45,9 +45,9 @@ class DisplayPart implements IDisplayPart {
 		return this.dNotePositions.get(displayNote);
 	}	
 	
-	private var displayNotePositions: Array<Int>;
-	public function getDisplayNotePositions(): Array<Int> {
-		return this.displayNotePositions;
+	private var displayNotePositionsArray: Array<Int>;
+	public function getDisplayNotePositionsArray(): Array<Int> {
+		return this.displayNotePositionsArray;
 	}	
 	
 	public function new(part:Part<Voice<Note<Head<Dynamic>>>>) {
@@ -56,7 +56,7 @@ class DisplayPart implements IDisplayPart {
 		this.displayVoices = new Array<DisplayVoice>();		
 		this.displayNoteMatrix = new IntHash<Array<DisplayNote>>(); 
 		this.dNotePositions = new ObjectHash<Int>();
-		this.displayNotePositions = new Array<Int>();
+		this.displayNotePositionsArray = new Array<Int>();
 		
 		for (voice in part.children) {
 			var displayVoice = new DisplayVoice(voice);
@@ -68,7 +68,7 @@ class DisplayPart implements IDisplayPart {
 				
 				this.dNotePositions.set(displayNote, positionKey);
 				
-				if (!Lambda.has(this.displayNotePositions, positionKey)) this.displayNotePositions.push(positionKey);
+				if (!Lambda.has(this.displayNotePositionsArray, positionKey)) this.displayNotePositionsArray.push(positionKey);
 			}			
 		}
 	}

@@ -54,7 +54,8 @@ class TestRenderDisplayBar extends RenderBase
 				Note.getNew([Head.getNew(0)]),
 				Note.getNew([Head.getNew(0)]),
 				Note.getNew([Head.getNew(0)]),
-				Note.getNew([Head.getNew(0)]),
+				Note.getNew([Head.getNew(0)], ENoteValue.Nv8),
+				Note.getNew([Head.getNew(0)], ENoteValue.Nv8),
 				/*
 				Note.getNew([Head.getNew(-1)], ENoteValue.Nv8),
 				Note.getNew([Head.getNew(-1)], ENoteValue.Nv8),
@@ -80,13 +81,13 @@ class TestRenderDisplayBar extends RenderBase
 				
 			]);		
 		var p2 = Part.getNew([Voice.getNew([
-			Note.getNew([Head.getNew(-1)]),
-			Note.getNew([Head.getNew(-1)]),
-			Note.getNew([Head.getNew(-1)]),
-			Note.getNew([Head.getNew(-1)]),
-			Note.getNew([Head.getNew(-1)]),
-			Note.getNew([Head.getNew(-1)]),
+			Note.getNew([Head.getNew(-3)], ENoteValue.Nv2),
+			Note.getNew([Head.getNew(-3)], ENoteValue.Nv2),
+			
 			/*
+			Note.getNew([Head.getNew(-3)]),
+			Note.getNew([Head.getNew(-3)]),
+			Note.getNew([Head.getNew(-3)]),
 			Note.getNew([Head.getNew(-1)], ENoteValue.Nv8),
 			Note.getNew([Head.getNew(-1)], ENoteValue.Nv8),
 			Note.getNew([Head.getNew(-1)], ENoteValue.Nv8),
@@ -96,16 +97,14 @@ class TestRenderDisplayBar extends RenderBase
 			])]);		
 			
 			
-		var db = new DisplayBar(Bar.getNew([p0, p1, /*p2*/]));
+		var db = new DisplayBar(Bar.getNew([p0, p1, p2]));
 		assertTrue(db != null);
 			
 		var dbSeq = db.getDisplayNotesSequence();
 		trace(dbSeq);
 		
 		for (dn in dbSeq) {
-			trace(dn.getLevelTop());
-			
-			
+			trace([dn.getLevelTop(), db.getDisplayNotePosition(dn)]);
 		}
 		
 		/*
@@ -134,20 +133,20 @@ class TestRenderDisplayBar extends RenderBase
 			y += 200;
 		}	
 		
-		trace(db.getDisplayNoteXPostitions());
+		//trace(db.getDisplayNoteXPostitions());
 		
 		
 		var x = 500;
 		var y = 100;
 		for (dp in db.getDisplayParts()) {
-			trace('---');
+			//trace('---');
 			for (dn in dp.getDisplayNotesSequence()) {			
 				//var x2 = x + dp.getDisplayNoteXPostitions().get(dn).scaleX(this.scaling);
 				var x2 = x + db.getDisplayNoteXPostitions().get(dn).scaleX(this.scaling);
 				//trace(dp.getDisplayNoteXPostitions());
-				trace(db.getDisplayNoteXPostitions());
-				render.note(x2, y, dn);
-				render.noteRects(x2, y, dn);
+				//trace(db.getDisplayNoteXPostitions());
+				//render.note(x2, y, dn);
+				//render.noteRects(x2, y, dn);
 				//trace([dp.getDisplayNoteXPostitions().get(dn), dp.getDisplayNotePosition(dn)]);
 			}
 			y += 200;

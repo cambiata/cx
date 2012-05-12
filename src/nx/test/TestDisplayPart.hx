@@ -24,7 +24,7 @@ class TestDisplayPart extends TestCase
 		var dv0 = TO.getVoiceOneBar4_4_Nv4sLm3 ().setDirection(EDirectionUAD.Up);
 		var dp = new DisplayPart(Part.getNew([dv0]));				
 		
-		var pos = dp.getDisplayNotePositions();
+		var pos = dp.getDisplayNotePositionsArray();
 		assertEquals(pos.toString(), [0, 3024, 6048, 9072].toString());
 	}
 	
