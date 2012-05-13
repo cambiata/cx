@@ -1,6 +1,8 @@
 package nx.test.output;
 import nx.display.DisplayBar;
 import nx.display.DisplayNote;
+import nx.element.post.PostTie;
+import nx.element.pre.PreTie;
 import nx.enums.ESign;
 import nx.test.base.RenderBase;
 import nx.element.Bar;
@@ -24,7 +26,7 @@ class TestRenderDisplayBar extends RenderBase
 		var p0 = Part.getNew([
 			Voice.getNew([
 				Note.getNew([Head.getNew(-1)]),
-				Note.getNew([Head.getNew(-1), Head.getNew(-2)]),
+				Note.getNew([Head.getNew(-1), Head.getNew(-0)]),
 				Note.getNew([Head.getNew(-1)]),
 				Note.getNew([Head.getNew(-1)]),
 				//Note.getNew([Head.getNew(-1)]),
@@ -40,11 +42,15 @@ class TestRenderDisplayBar extends RenderBase
 				Note.getNew([Head.getNew(2)]),
 				Note.getNew([Head.getNew(2)]),
 				Note.getNew([Head.getNew(2)]),
+
 				/*
+				Note.getNew([Head.getNew(2)], ENoteValue.Nv8),
+				Note.getNew([Head.getNew(2)], ENoteValue.Nv8),
 				Note.getNew([Head.getNew(1)], ENoteValue.Nv8),
 				Note.getNew([Head.getNew(1)], ENoteValue.Nv8),
 				Note.getNew([Head.getNew(1)], ENoteValue.Nv2),
 				*/
+				
 				]).setDirection(EDirectionUAD.Down), 
 				
 			]);
@@ -52,11 +58,13 @@ class TestRenderDisplayBar extends RenderBase
 		var p1 = Part.getNew([
 			Voice.getNew([
 				Note.getNew([Head.getNew(0)]),
-				Note.getNew([Head.getNew(0)]),
-				Note.getNew([Head.getNew(0)]),
+				Note.getNew([Head.getNew(0)], ENoteValue.Nv8),
+				Note.getNew([Head.getNew(0, ESign.Flat)], ENoteValue.Nv8),
 				Note.getNew([Head.getNew(0)], ENoteValue.Nv8),
 				Note.getNew([Head.getNew(0)], ENoteValue.Nv8),
+				Note.getNew([Head.getNew(0)]),
 				/*
+				Note.getNew([Head.getNew(0)]),
 				Note.getNew([Head.getNew(-1)], ENoteValue.Nv8),
 				Note.getNew([Head.getNew(-1)], ENoteValue.Nv8),
 				Note.getNew([Head.getNew(-1)]),
@@ -80,9 +88,16 @@ class TestRenderDisplayBar extends RenderBase
 				*/
 				
 			]);		
+			
+		var h = Head.getNew( -2);
+		h.setTieFrom(new PostTie());
+		var h2 = Head.getNew( -1);
+		h2.setTieTo(new PreTie());
+		
 		var p2 = Part.getNew([Voice.getNew([
-			Note.getNew([Head.getNew(-3)], ENoteValue.Nv2),
-			Note.getNew([Head.getNew(-3)], ENoteValue.Nv2),
+			Note.getNew([h], ENoteValue.Nv2),
+			//Note.getNew([Head.getNew(-3)], ENoteValue.Nv2),
+			Note.getNew([h2], ENoteValue.Nv2),
 			
 			/*
 			Note.getNew([Head.getNew(-3)]),
@@ -97,63 +112,37 @@ class TestRenderDisplayBar extends RenderBase
 			])]);		
 			
 			
-		var db = new DisplayBar(Bar.getNew([p0, p1, p2]));
+		var db = new DisplayBar(Bar.getNew([p0,/* p1, p2*/]));
+		trace(db.getEndXPosition());
 		assertTrue(db != null);
+		
+		trace(db.getDisplayNotePositionsArray());
+		trace(db.getDisplayNoteValuesArray());
+		trace(db.getDisplayNoteXOwingArray());
 			
-		var dbSeq = db.getDisplayNotesSequence();
-		trace(dbSeq);
-		
-		for (dn in dbSeq) {
-			trace([dn.getLevelTop(), db.getDisplayNotePosition(dn)]);
-		}
-		
-		/*
-		for (dp in db.getDisplayParts()) {			
-			var dpValue = dp.getValue();
-			var dpIdx = db.getDisplayPartIndex(dp);
-			trace([dpIdx, dpValue]);
-			
-			var dpXDistances = dp.getDisplayNotePositionsXDistances();
-			trace(dpXDistances);
-		}
-		*/
-		
-		
-		
 		
 		var x = 100;
 		var y = 100;
 		for (dp in db.getDisplayParts()) {
-			trace('---');
 			for (dn in dp.getDisplayNotesSequence()) {			
 				var x2 = x + dp.getDisplayNoteXPostitions().get(dn).scaleX(this.scaling);
 				render.note(x2, y, dn);
-				//trace([dp.getDisplayNoteXPostitions().get(dn), dp.getDisplayNotePosition(dn)]);
+				render.noteRects(x2, y, dn);
 			}
 			y += 200;
 		}	
 		
-		//trace(db.getDisplayNoteXPostitions());
-		
-		
 		var x = 500;
 		var y = 100;
 		for (dp in db.getDisplayParts()) {
-			//trace('---');
 			for (dn in dp.getDisplayNotesSequence()) {			
-				//var x2 = x + dp.getDisplayNoteXPostitions().get(dn).scaleX(this.scaling);
 				var x2 = x + db.getDisplayNoteXPostitions().get(dn).scaleX(this.scaling);
-				//trace(dp.getDisplayNoteXPostitions());
-				//trace(db.getDisplayNoteXPostitions());
-				//render.note(x2, y, dn);
-				//render.noteRects(x2, y, dn);
-				//trace([dp.getDisplayNoteXPostitions().get(dn), dp.getDisplayNotePosition(dn)]);
+				render.note(x2, y, dn);
+				render.noteRects(x2, y, dn);
 			}
 			y += 200;
 		}			
 		
-		//var dp = db.getDisplayPart(0);
-		//trace(dp.getDisplayNoteAvoidVoiceXDistances());
 		
 	}
 	

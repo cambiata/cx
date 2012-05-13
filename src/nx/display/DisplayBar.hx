@@ -35,6 +35,19 @@ class DisplayBar {
 		this.bar = bar;
 		this.displayParts = new Array<DisplayPart>();
 		for (child in bar.children) this.displayParts.push(new DisplayPart(child));
+		
+		this.displayNoteDisplayPart = new ObjectHash<DisplayPart>();
+		this.displayNoteDisplayVocie = new ObjectHash<DisplayVoice>();
+		
+		for (dp in this.displayParts) {
+			for (dv in dp.getDisplayVoices()) {
+				for (dn in dv.getDisplayNotes()) {
+					this.displayNoteDisplayPart.set(dn, dp);
+					this.displayNoteDisplayVocie.set(dn, dv);
+				}				
+			}			
+		}
+		
 		this.getValue();
 	}
 	
@@ -64,6 +77,19 @@ class DisplayBar {
 		return Std.int(maxValue);
 	}
 	
+	
+	private var displayNoteDisplayPart:ObjectHash<DisplayPart>;
+	public function getDisplayNoteDisplayPart(displayNote:DisplayNote):DisplayPart {
+		return this.displayNoteDisplayPart.get(displayNote);
+	}
+	
+	private var displayNoteDisplayVocie:ObjectHash<DisplayVoice>;
+	public function getDisplayNoteDisplayVoice(displayNote:DisplayNote):DisplayVoice {
+		return this.displayNoteDisplayVocie.get(displayNote);
+		
+	}
+	
+	
 	//-----------------------------------------------------------------------------------------------------
 	
 	private var displayNotePositionsArray:Array<Int>;
@@ -74,92 +100,79 @@ class DisplayBar {
 			var pos = dp.getDisplayNotePositionsArray();	
 			ret = ret.concat(pos);
 		}
-		return Tools.arrayIntUnique(ret);
+		this.displayNotePositionsArray = Tools.arrayIntUnique(ret);
+		return this.displayNotePositionsArray ;
 	}
+	
+	private var displayNoteValuesArray:Array<Int>;
+	public function getDisplayNoteValuesArray():Array<Int> {
+		if (displayNoteValuesArray == null) this.getDisplayNotePositionsArray();
+		this.displayNoteValuesArray = new Array<Int>();
+		var prevNp = 0;
+		trace(this.displayNotePositionsArray);
+		for (np in this.displayNotePositionsArray) {			
+			if (np == 0) continue;
+			var value = np - prevNp;			
+			this.displayNoteValuesArray.push(value);
+			prevNp = np;
+		}
+		return this.displayNoteValuesArray;
+		
+	}
+	
+	private var displayNoteXOwingArray:Array<Float>; 
+	public function getDisplayNoteXOwingArray():Array<Float> {
+		if (displayNoteXOwingArray == null) this.getDisplayNotePositionsXPositions();
+		return this.displayNoteXOwingArray;
+	}
+	
 	
 	private var displayNotePositionsXPositions:IntHash<Float>;
 	public function getDisplayNotePositionsXPositions():IntHash<Float> {
 		if (this.displayNotePositionsXPositions != null) return this.displayNotePositionsXPositions;
 		this.displayNotePositionsXPositions = new IntHash<Float>();
+		this.displayNoteXOwingArray = new Array<Float>();
 		
-		var max = new IntHash<Float>();
+		var above:DisplayNote; 
 		var posX = 0.0;
-		for (pos in this.getDisplayNotePositionsArray()) {							
-			
-			// öka på med ett huvud per position...
-			var distX:Float = Constants.HEAD_WIDTH;
-			
-
-			
-			for (dp in this.getDisplayParts()) {
-				if (dp.getDisplayNotesMatrix().exists(pos)) {
-					var dns = dp.getDisplayNotesMatrix().get(pos);
-					
-					for (dn in dns) {
-						
-						var dv = dp.getDisplayNoteDisplayVoice(dn);
-						var dvIdx = dp.getDisplayVoiceIndex(dv);
-						var dnIdx = dv.getDisplayNoteIndex(dn);
-						//trace([pos, dvIdx, dnIdx]);
-						
-						var prevDn = dp.getPrevDisplayNotesInSequence(dn);						
-						if (prevDn != null) {							
-							var dist2 = prevDn.getNoteDistanceX(dn, false);
-							//trace('has prev in seq: ' + dist2);
-							//distX = Math.max(distX, distX1);
-							//if (dvIdx == 0) distX += dist2;
-						}
-						
-						
-						
-					}
-					//trace(dns.length);
-				}
-			}
-			
-			posX += distX;
+		for (pos in this.getDisplayNotePositionsArray()) {
 			this.displayNotePositionsXPositions.set(pos, posX);
-			
-
-			
+			posX += Constants.HEAD_WIDTH;
 		}
-		//trace(max);
-		
-		/*
-		for (dp in this.getDisplayParts()) {
-			var dpXPositions = dp.getDisplayNotePositionsXPositions();
-			trace(dpXPositions);
+		// END POSITION!:
+		this.displayNotePositionsXPositions.set(this.getValue(), posX);
+		trace(this.displayNotePositionsXPositions);
+		for (part in this.getDisplayParts()) {			
+			var partPosXPos = part.getDisplayNotePositionsXPositions();
 		}
 		
-		
-		var posMinus = new Array<Float>();
-		for (dpIdx in 0...this.getDisplayPartsCount()) {
-			posMinus[dpIdx] = 0.0; 
-		}
-		
-		
-		for (pos in this.getDisplayNotePositions()) {				
-			var posMax:Float = null;			
-			for (dp in this.getDisplayParts()) {
-				var dpIdx = this.getDisplayPartIndex(dp);
-				var posX = dp.getDisplayNotePositionsXPositions().get(pos);
-				posMax = (posMax == null) ? posX : Math.max(posMax, posX);				
-			}
-			
-			for (dp in this.getDisplayParts()) {
-				var dpIdx = this.getDisplayPartIndex(dp);				
-				if (dp.getDisplayNotePositionsXPositions().exists(pos)) {
-					var posX = dp.getDisplayNotePositionsXPositions().get(pos);
-					var pMinus = posMax - posX;
-					posMinus[dpIdx] = posMinus[dpIdx] + pMinus;
-					var newPos = posX + posMinus[dpIdx];
-					this.displayNotePositionsXPositions.set(pos, newPos);
-					continue;
+		var positions = this.getDisplayNotePositionsArray();
+		positions.push(this.getValue());
+		for (pos in positions) {
+			var increaseDistance = 0.0;
+			for (part in this.getDisplayParts()) {			
+				if (part.getDisplayNotePositionsXPositions().exists(pos)) {
+					var partPosX = part.getDisplayNotePositionsXPositions().get(pos);
+					var defPosX = this.displayNotePositionsXPositions.get(pos);
+					if (partPosX > defPosX) {
+						increaseDistance = Math.max(increaseDistance, partPosX - defPosX);
+					}
 				}
 			}
+			
+			if (increaseDistance > 0) {
+				var posIdx = positions.indexOf(pos);
+				for (j in posIdx...positions.length) {							
+					var jPos = positions[j];
+					this.displayNotePositionsXPositions.set(jPos, this.displayNotePositionsXPositions.get(jPos) + increaseDistance);
+				}
+			}
+			
+			this.displayNoteXOwingArray.push(increaseDistance);
 		}
-		*/
-
+	
+		this.endXPosition = this.displayNotePositionsXPositions.get(this.getValue());
+		this.displayNoteXOwingArray.shift();
 		return this.displayNotePositionsXPositions;
 	}
 	
@@ -168,6 +181,7 @@ class DisplayBar {
 	
 	
 	private var displayNoteXPositions: ObjectHash<Float>;
+	
 	public function getDisplayNoteXPostitions(): ObjectHash<Float> {
 		if (this.displayNoteXPositions != null) return this.displayNoteXPositions;		
 		this.displayNoteXPositions = new ObjectHash<Float>();
@@ -178,42 +192,55 @@ class DisplayBar {
 				var pos = dp.getDisplayNotePosition(dn);
 				var dv = dp.getDisplayNoteDisplayVoice(dn);
 				var posX = this.getDisplayNotePositionsXPositions().get(pos) ;
-				//trace(posX);
-				var avoidDistX = dp.getDisplayNoteAvoidVoiceXDistances().get(dn);
-				//trace(avoidDistX);
-				this.displayNoteXPositions.set(dn, posX + avoidDistX);
+				var distX = dp.getDisplayNoteAvoidVoiceXDistances().get(dn);
+				this.displayNoteXPositions.set(dn, posX + distX);
 			}
 		}
 		return this.displayNoteXPositions;
 	}
-	
-	
+
 	private var displayNoteSequence: Array<DisplayNote>;
+	
 	public function getDisplayNotesSequence():Array<DisplayNote> {
-		if (this.displayNoteSequence != null) return this.displayNoteSequence;		
-		this.displayNoteSequence = new Array<DisplayNote>();
-		this.dNotePositions = new ObjectHash<Int>();
+		if (this.displayNoteSequence != null) return this.displayNoteSequence;				
+		this.displayNoteSequence = new Array<DisplayNote>();		
+		this.displayNotePositions = new ObjectHash<Int>();
 		for (pos in this.getDisplayNotePositionsArray()) {
+			
 			for (dp in this.getDisplayParts()) {				
 				
 				if (dp.getDisplayNotesMatrix().exists(pos)){
 					for (dn in dp.getDisplayNotesMatrix().get(pos)) {
 						this.displayNoteSequence.push(dn);
-						this.dNotePositions.set(dn, pos);
+						this.displayNotePositions.set(dn, pos);
 					}
 				}
 			}
-		}
-		
+		}		
 		return this.displayNoteSequence;
 	}
 	
-	private var dNotePositions:ObjectHash<Int>;
-	public function getDisplayNotePosition(displayNote:DisplayNote):Int {		
+	public function getPrevDisplayNotesInSequence(displayNote:DisplayNote):DisplayNote {
 		if (this.displayNoteSequence == null) this.getDisplayNotesSequence();
-		
-		return this.dNotePositions.get(displayNote);
+		var idx = this.displayNoteSequence.indexOf(displayNote);
+		if (idx > 0) return this.displayNoteSequence[idx - 1];
+		return null;
 	}	
+	
+	
+	private var displayNotePositions:ObjectHash<Int>;
+	public function getDisplayNotePosition(displayNote:DisplayNote):Int {		
+		if (this.displayNoteSequence == null) this.getDisplayNotesSequence();		
+		return this.displayNotePositions.get(displayNote);
+	}	
+	
+	
+	private var endXPosition:Float;
+	public function getEndXPosition():Float {
+		if (this.endXPosition == null) this.getDisplayNotePositionsXPositions();
+		return this.endXPosition;
+	}
+	
 	
 	
 	
