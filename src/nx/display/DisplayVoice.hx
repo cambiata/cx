@@ -1,5 +1,6 @@
 package nx.display;
 import cx.ObjectHash;
+import nx.display.beam.BeamTools;
 import nx.display.beam.IBeamingProcessor;
 import nx.element.Head;
 import nx.element.Note;
@@ -29,9 +30,6 @@ interface IDisplayVoice {
 	function getDisplayNoteEnds():Array<Int>;
 	function getNextDisplayNote(displayNote:DisplayNote):DisplayNote;
 	function getPrevDisplayNote(displayNote:DisplayNote):DisplayNote;
-	/*
-	function getDisplayNotesDDistance(displayNote:DisplayNote):Float;
-	*/	
 }
  
 class DisplayVoice implements IDisplayVoice
@@ -40,8 +38,8 @@ class DisplayVoice implements IDisplayVoice
 		this.voice = voice;
 		
 		if (direction != null) voice.setDirection(direction);
+		if (beamingProcessor != null) this.beamingProcessor = beamingProcessor;
 		
-		this.beamingProcessor = beamingProcessor;
 		this.displayNotes = new Array<DisplayNote>();
 		
 		this.dNotePositions = new ObjectHash<Int>();

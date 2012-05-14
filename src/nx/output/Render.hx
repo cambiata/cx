@@ -1,10 +1,14 @@
 package nx.output;
 import nme.display.Shape;
 import nme.display.Sprite;
+import nx.Constants;
+import nx.display.beam.IBeamGroup;
 import nx.display.DisplayNote;
+import nx.enums.EDirectionUD;
 import nx.enums.EHeadType;
 import nx.svg.SvgAssets;
 import nx.output.Scaling;
+import nx.display.beam.BeamGroupDimensions;
 
 /**
  * ...
@@ -231,6 +235,33 @@ class Render implements IRender
 			drawSign(x, y, sign.level, sign.position, sign.sign);			
 		}
 	}	
+	
+	public function beamGroup(noteX:Float, noteY:Float, lastNoteX:Float, bgd:BeamGroupDimensions) {
+		trace(this.scaling);
+		trace(bgd);
+		
+		var adjustX = bgd.adjustX * this.scaling.halfNoteWidth;		
+		var firstTopY = noteY + (bgd.firstStave.topY * scaling.halfSpace);
+		var lastTopY = noteY + (bgd.lastStave.topY * scaling.halfSpace); 
+		var firstBottomY = noteY + (bgd.firstStave.bottomY  * scaling.halfSpace);
+		var lastBottomY = noteY + (bgd.lastStave.bottomY * scaling.halfSpace); 
+		
+		if (bgd.direction == EDirectionUD.Up) {
+			this.target.graphics.drawCircle(noteX + adjustX, firstTopY , 3);
+			this.target.graphics.drawCircle(lastNoteX + adjustX, lastTopY , 3);
+			this.target.graphics.moveTo(noteX + adjustX, firstTopY);
+			this.target.graphics.lineTo(lastNoteX + adjustX, lastTopY);
+		} else {
+			this.target.graphics.drawCircle(noteX + adjustX, firstBottomY , 3);
+			this.target.graphics.drawCircle(lastNoteX + adjustX, lastBottomY , 3);		
+			this.target.graphics.moveTo(noteX + adjustX, firstBottomY);
+			this.target.graphics.lineTo(lastNoteX + adjustX, lastBottomY);						
+		}
+		
+		//trace([bgd.firstStave.topY, bgd.lastStave.topY]);
+		//trace([firstTopY, lastTopY]);
+		
+	}
 	
 	
 }

@@ -1,6 +1,7 @@
 package nx.display;
 import cx.ObjectHash;
 import nx.Constants;
+import nx.display.beam.IBeamingProcessor;
 import nx.element.Part;
 import nx.element.Voice;
 import nx.element.Note;
@@ -17,24 +18,24 @@ interface IDisplayPart {
 	function getDisplayVoices():Array<DisplayVoice>;
 	function getDisplayVoiceIndex(displayVoice:DisplayVoice):Int;
 	function getDisplayVoicesCount():Int;
-	
 	function getDisplayNotesMatrix():IntHash<Array<DisplayNote>>;
 	function getDisplayNotesSequence():Array<DisplayNote>;
 	function getPrevDisplayNotesInSequence(displayNote:DisplayNote):DisplayNote;
 	function getNextDisplayNotesInSequence(displayNote:DisplayNote):DisplayNote;
 	function getDisplayNoteDisplayVoice(displayNote:DisplayNote): DisplayVoice;
-	
 	function getDisplayNotePositionsXPositions():IntHash<Float>;
-	
 	function getValue():Int;
+	function getDisplayNoteAvoidVoiceXDistances(): ObjectHash<Float>;
+	function getDisplayNotePosition(displayNote:DisplayNote):Int;
+	function getDisplayNotePositionsArray(): Array<Int>;
+	function getDisplayNoteXDistances(): ObjectHash<Float>;
 }
 
 using Lambda;
 class DisplayPart implements IDisplayPart {
 	private var part:Part<Voice<Note<Head<Dynamic>>>>;
 	public function getPart():Part<Voice<Note<Head<Dynamic>>>> {
-		return this.part;
-		
+		return this.part;		
 	}
 	
 	private var displayNoteMatrix: IntHash<Array<DisplayNote>>;
@@ -50,8 +51,11 @@ class DisplayPart implements IDisplayPart {
 		return this.displayNotePositionsArray;
 	}	
 	
-	public function new(part:Part<Voice<Note<Head<Dynamic>>>>) {
+	private var beaming:IBeamingProcessor;
+	
+	public function new(part:Part<Voice<Note<Head<Dynamic>>>>, beaming:IBeamingProcessor=null) {
 		this.part = part;
+		this.beaming = beaming;
 		
 		this.displayVoices = new Array<DisplayVoice>();		
 		this.displayNoteMatrix = new IntHash<Array<DisplayNote>>(); 
@@ -59,7 +63,7 @@ class DisplayPart implements IDisplayPart {
 		this.displayNotePositionsArray = new Array<Int>();
 		
 		for (voice in part.children) {
-			var displayVoice = new DisplayVoice(voice);
+			var displayVoice = new DisplayVoice(voice, voice.getDirection(), this.beaming);
 			this.displayVoices.push(displayVoice);			
 			for (displayNote in displayVoice.getDisplayNotes()) {
 				var positionKey = displayVoice.getDisplayNotePosition(displayNote);

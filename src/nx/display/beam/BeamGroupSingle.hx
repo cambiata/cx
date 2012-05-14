@@ -47,6 +47,18 @@ class BeamGroupSingle implements IBeamGroup {
 	}
 	public function getLevelBottom():Int return levelBottom
 	
+
+	
+	public  function getTopHeadsLevels():Array<Int> {
+		var ret:Array<Int> = [this.getFirstNote().getLevelTop()];
+		return ret;
+	}
+	
+	public  function getBottomHeadsLevels():Array<Int> {
+		var ret:Array<Int> = [this.getFirstNote().getLevelBottom()];		
+		return ret;
+	}	
+	
 	
 	public function new() { }
 	

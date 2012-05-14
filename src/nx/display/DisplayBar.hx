@@ -2,6 +2,7 @@ package nx.display;
 import cx.ObjectHash;
 import cx.Tools;
 import nx.Constants;
+import nx.display.beam.IBeamingProcessor;
 import nx.element.Bar;
 import nx.element.Head;
 import nx.element.Note;
@@ -15,26 +16,42 @@ import nx.element.Voice;
 
 interface IDisplayBar {	
 	function getBar():Bar<Part<Voice<Note<Head<Dynamic>>>>>;	
-	function getDisplayParts(index:Int):DisplayPart;
+	function getDisplayParts():Array<DisplayPart>;
 	function getDisplayPart(index:Int):DisplayPart;
-	function getDisplayPartIndex(index:Int):DisplayPart;
-	function getDisplayPartsCount(index:Int):DisplayPart;
+	function getDisplayPartIndex(displayPart:DisplayPart):Int;
+	function getDisplayPartsCount():Int;
 	function getValue():Int;
+	
+	function getDisplayNoteDisplayPart(displayNote:DisplayNote):DisplayPart;
+	function getDisplayNoteDisplayVoice(displayNote:DisplayNote):DisplayVoice;
+	function getDisplayNotePosition(displayNote:DisplayNote):Int;
+	function getDisplayNotePositionsXPositions():IntHash<Float>;
+	function getValuesArray():Array<Int>;
+	function getExcessArray():Array<Float>;	
+	function getPositionsArray():Array<Int>;
+	function getDisplayNoteXPostitions(): ObjectHash<Float>;
+	function getDisplayNotesSequence():Array<DisplayNote>;
+	function getPrevDisplayNotesInSequence(displayNote:DisplayNote):DisplayNote;
+	function getEndXPosition():Float;
 }
 
 using Lambda;
 
-class DisplayBar {
+class DisplayBar implements IDisplayBar {
 	private var bar:Bar<Part<Voice<Note<Head<Dynamic>>>>>;
 	public function getBar():Bar<Part<Voice<Note<Head<Dynamic>>>>> {
 		return bar;
 	}
 	
 	private var displayParts:Array<DisplayPart>;
-	public function new(bar:Bar<Part<Voice<Note<Head<Dynamic>>>>>) {
+	
+	private var beaming:IBeamingProcessor;
+	
+	public function new(bar:Bar<Part<Voice<Note<Head<Dynamic>>>>>, beaming:IBeamingProcessor=null) {
 		this.bar = bar;
+		this.beaming = beaming;
 		this.displayParts = new Array<DisplayPart>();
-		for (child in bar.children) this.displayParts.push(new DisplayPart(child));
+		for (child in bar.children) this.displayParts.push(new DisplayPart(child, beaming));
 		
 		this.displayNoteDisplayPart = new ObjectHash<DisplayPart>();
 		this.displayNoteDisplayVocie = new ObjectHash<DisplayVoice>();
@@ -59,8 +76,8 @@ class DisplayBar {
 		return this.displayParts;
 	}
 	
-	public function getDisplayPartIndex(dPart:DisplayPart): Int {
-		return this.displayParts.indexOf(dPart);
+	public function getDisplayPartIndex(displayPart:DisplayPart): Int {
+		return this.displayParts.indexOf(displayPart);
 	}
 	
 	public function getDisplayPartsCount():Int {
@@ -92,38 +109,38 @@ class DisplayBar {
 	
 	//-----------------------------------------------------------------------------------------------------
 	
-	private var displayNotePositionsArray:Array<Int>;
-	public function getDisplayNotePositionsArray():Array<Int> {
-		if (this.displayNotePositionsArray != null) return this.displayNotePositionsArray;
+	private var positionsArray:Array<Int>;
+	public function getPositionsArray():Array<Int> {
+		if (this.positionsArray != null) return this.positionsArray;
 		var ret = new Array<Int>();
 		for (dp in this.displayParts) {
 			var pos = dp.getDisplayNotePositionsArray();	
 			ret = ret.concat(pos);
 		}
-		this.displayNotePositionsArray = Tools.arrayIntUnique(ret);
-		return this.displayNotePositionsArray ;
+		this.positionsArray = Tools.arrayIntUnique(ret);
+		return this.positionsArray ;
 	}
 	
-	private var displayNoteValuesArray:Array<Int>;
-	public function getDisplayNoteValuesArray():Array<Int> {
-		if (displayNoteValuesArray == null) this.getDisplayNotePositionsArray();
-		this.displayNoteValuesArray = new Array<Int>();
+	private var valuesArray:Array<Int>;
+	public function getValuesArray():Array<Int> {
+		if (valuesArray == null) this.getPositionsArray();
+		this.valuesArray = new Array<Int>();
 		var prevNp = 0;
-		trace(this.displayNotePositionsArray);
-		for (np in this.displayNotePositionsArray) {			
+		//trace(this.positionsArray);
+		for (np in this.positionsArray) {			
 			if (np == 0) continue;
 			var value = np - prevNp;			
-			this.displayNoteValuesArray.push(value);
+			this.valuesArray.push(value);
 			prevNp = np;
 		}
-		return this.displayNoteValuesArray;
+		return this.valuesArray;
 		
 	}
 	
-	private var displayNoteXOwingArray:Array<Float>; 
-	public function getDisplayNoteXOwingArray():Array<Float> {
-		if (displayNoteXOwingArray == null) this.getDisplayNotePositionsXPositions();
-		return this.displayNoteXOwingArray;
+	private var excessArray:Array<Float>; 
+	public function getExcessArray():Array<Float> {
+		if (excessArray == null) this.getDisplayNotePositionsXPositions();
+		return this.excessArray;
 	}
 	
 	
@@ -131,22 +148,23 @@ class DisplayBar {
 	public function getDisplayNotePositionsXPositions():IntHash<Float> {
 		if (this.displayNotePositionsXPositions != null) return this.displayNotePositionsXPositions;
 		this.displayNotePositionsXPositions = new IntHash<Float>();
-		this.displayNoteXOwingArray = new Array<Float>();
+		this.excessArray = new Array<Float>();
 		
 		var above:DisplayNote; 
 		var posX = 0.0;
-		for (pos in this.getDisplayNotePositionsArray()) {
+		for (pos in this.getPositionsArray()) {
 			this.displayNotePositionsXPositions.set(pos, posX);
 			posX += Constants.HEAD_WIDTH;
 		}
+		
 		// END POSITION!:
 		this.displayNotePositionsXPositions.set(this.getValue(), posX);
-		trace(this.displayNotePositionsXPositions);
+		//trace(this.displayNotePositionsXPositions);
 		for (part in this.getDisplayParts()) {			
 			var partPosXPos = part.getDisplayNotePositionsXPositions();
 		}
 		
-		var positions = this.getDisplayNotePositionsArray();
+		var positions = this.getPositionsArray();
 		positions.push(this.getValue());
 		for (pos in positions) {
 			var increaseDistance = 0.0;
@@ -168,20 +186,15 @@ class DisplayBar {
 				}
 			}
 			
-			this.displayNoteXOwingArray.push(increaseDistance);
+			this.excessArray.push(increaseDistance);
 		}
 	
 		this.endXPosition = this.displayNotePositionsXPositions.get(this.getValue());
-		this.displayNoteXOwingArray.shift();
+		this.excessArray.shift();
 		return this.displayNotePositionsXPositions;
 	}
 	
-	
-	
-	
-	
 	private var displayNoteXPositions: ObjectHash<Float>;
-	
 	public function getDisplayNoteXPostitions(): ObjectHash<Float> {
 		if (this.displayNoteXPositions != null) return this.displayNoteXPositions;		
 		this.displayNoteXPositions = new ObjectHash<Float>();
@@ -200,12 +213,11 @@ class DisplayBar {
 	}
 
 	private var displayNoteSequence: Array<DisplayNote>;
-	
 	public function getDisplayNotesSequence():Array<DisplayNote> {
 		if (this.displayNoteSequence != null) return this.displayNoteSequence;				
 		this.displayNoteSequence = new Array<DisplayNote>();		
 		this.displayNotePositions = new ObjectHash<Int>();
-		for (pos in this.getDisplayNotePositionsArray()) {
+		for (pos in this.getPositionsArray()) {
 			
 			for (dp in this.getDisplayParts()) {				
 				
@@ -227,19 +239,20 @@ class DisplayBar {
 		return null;
 	}	
 	
-	
 	private var displayNotePositions:ObjectHash<Int>;
 	public function getDisplayNotePosition(displayNote:DisplayNote):Int {		
 		if (this.displayNoteSequence == null) this.getDisplayNotesSequence();		
 		return this.displayNotePositions.get(displayNote);
 	}	
 	
-	
 	private var endXPosition:Float;
 	public function getEndXPosition():Float {
 		if (this.endXPosition == null) this.getDisplayNotePositionsXPositions();
 		return this.endXPosition;
 	}
+	
+	//-----------------------------------------------------------------------------------------------------
+	
 	
 	
 	

@@ -17,4 +17,9 @@ interface IBeamGroup {
 	function setLevelBottom(value:Int):Int;
 	function getLevelTop():Int;
 	function getLevelBottom():Int;
+	
+	function getTopHeadsLevels():Array<Int>;
+	function getBottomHeadsLevels():Array<Int>;
+	
+
 }

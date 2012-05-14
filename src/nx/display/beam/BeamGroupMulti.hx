@@ -46,7 +46,23 @@ class BeamGroupMulti implements IBeamGroup {
 		return levelBottom = value;
 	}
 	public function getLevelBottom():Int return levelBottom
+	
+	public  function getTopHeadsLevels():Array<Int> {
+		var ret = new Array<Int>();
+		for (n in this.getNotes()) {
+			ret.push(n.getLevelTop());			
+		}
+		return ret;
+	}
 
+	public  function getBottomHeadsLevels():Array<Int> {
+		var ret = new Array<Int>();
+		for (n in this.getNotes()) {
+			ret.push(n.getLevelBottom ());			
+		}
+		return ret;
+		
+	}
 	
 	//--------------------------------------------
 	public function toString():String {

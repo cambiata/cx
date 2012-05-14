@@ -1,6 +1,7 @@
 package nx.element;
 import nx.element.base.Node;
 import nx.enums.EDirectionUAD;
+import nx.display.beam.IBeamingProcessor;
 
 /**
  * ...
@@ -35,6 +36,8 @@ class Voice < T:Note<Head<Dynamic>> > extends Node<Note<Head<Dynamic>>>, impleme
 	public function getDirection():EDirectionUAD {
 		return this.direction;
 	}
+	
+
 	
 	override public function toString():String {
 		return super.toString() + '\t' + 'direction:' + this.getDirection();
