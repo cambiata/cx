@@ -239,23 +239,63 @@ class Render implements IRender
 	public function beamGroup(noteX:Float, noteY:Float, lastNoteX:Float, bgd:BeamGroupDimensions) {
 		trace(this.scaling);
 		trace(bgd);
-		
-		var adjustX = bgd.adjustX * this.scaling.halfNoteWidth;		
+		var adjustX = bgd.adjustX * this.scaling.halfNoteWidth;
 		var firstTopY = noteY + (bgd.firstStave.topY * scaling.halfSpace);
 		var lastTopY = noteY + (bgd.lastStave.topY * scaling.halfSpace); 
 		var firstBottomY = noteY + (bgd.firstStave.bottomY  * scaling.halfSpace);
-		var lastBottomY = noteY + (bgd.lastStave.bottomY * scaling.halfSpace); 
+		var lastBottomY = noteY + (bgd.lastStave.bottomY * scaling.halfSpace);
+
+		if (bgd.count == 1) {
+			
+			
+		}
 		
-		if (bgd.direction == EDirectionUD.Up) {
+		this.target.graphics.lineStyle(this.scaling.linesWidth, 0x000000);
+		
+		if (bgd.direction == EDirectionUD.Up) {			
 			this.target.graphics.drawCircle(noteX + adjustX, firstTopY , 3);
-			this.target.graphics.drawCircle(lastNoteX + adjustX, lastTopY , 3);
 			this.target.graphics.moveTo(noteX + adjustX, firstTopY);
-			this.target.graphics.lineTo(lastNoteX + adjustX, lastTopY);
+			this.target.graphics.lineTo(noteX + adjustX, firstBottomY);
+			
+			if (bgd.count > 1) {
+				
+				this.target.graphics.beginFill(0xFF0000);
+				this.target.graphics.moveTo(noteX 		+ adjustX, firstTopY);
+				this.target.graphics.lineTo(lastNoteX 	+ adjustX, lastTopY);
+				this.target.graphics.lineTo(lastNoteX 	+ adjustX, lastTopY - Constants.HEAD_HEIGHT);
+				this.target.graphics.lineTo(noteX 		+ adjustX, firstTopY - Constants.HEAD_HEIGHT);
+				this.target.graphics.lineTo(noteX 		+ adjustX, firstTopY);
+				this.target.graphics.endFill();
+				
+				this.target.graphics.drawCircle(lastNoteX + adjustX, lastTopY , 3);
+				this.target.graphics.moveTo(noteX + adjustX, firstTopY);
+				this.target.graphics.lineTo(lastNoteX + adjustX, lastTopY);
+				
+				this.target.graphics.moveTo(lastNoteX + adjustX, lastTopY);				
+				this.target.graphics.lineTo(lastNoteX + adjustX, lastBottomY);
+			}
 		} else {
 			this.target.graphics.drawCircle(noteX + adjustX, firstBottomY , 3);
-			this.target.graphics.drawCircle(lastNoteX + adjustX, lastBottomY , 3);		
 			this.target.graphics.moveTo(noteX + adjustX, firstBottomY);
-			this.target.graphics.lineTo(lastNoteX + adjustX, lastBottomY);						
+			this.target.graphics.lineTo(noteX + adjustX, firstTopY);			
+			
+			if (bgd.count > 1) {
+
+				this.target.graphics.beginFill(0xFF0000);
+				this.target.graphics.moveTo(noteX 		+ adjustX, firstBottomY);
+				this.target.graphics.lineTo(lastNoteX 	+ adjustX, lastBottomY);
+				this.target.graphics.lineTo(lastNoteX 	+ adjustX, lastBottomY + Constants.HEAD_HEIGHT);
+				this.target.graphics.lineTo(noteX 		+ adjustX, firstBottomY + Constants.HEAD_HEIGHT);
+				this.target.graphics.lineTo(noteX 		+ adjustX, firstBottomY);
+				this.target.graphics.endFill();								
+				
+				this.target.graphics.drawCircle(lastNoteX + adjustX, lastBottomY , 3);		
+				this.target.graphics.moveTo(noteX + adjustX, firstBottomY);
+				this.target.graphics.lineTo(lastNoteX + adjustX, lastBottomY);	
+				
+				this.target.graphics.moveTo(lastNoteX + adjustX, lastBottomY);				
+				this.target.graphics.lineTo(lastNoteX + adjustX, lastTopY);				
+			}
 		}
 		
 		//trace([bgd.firstStave.topY, bgd.lastStave.topY]);

@@ -31,7 +31,7 @@ class BeamingProcessorBase {
 	
 	
 	private function setDisplayNoteDirections():BeamingProcessorBase {
-		for (bg in dVoice.getBeamlist()) {
+		for (bg in dVoice.getBeamGroups()) {
 			if (Std.is(bg, BeamGroupSingle)) {
 				var dNote = bg.getFirstNote();
 				dNote.setDirection(bg.getDirection());
@@ -50,7 +50,7 @@ class BeamingProcessorBase {
 		var useDirection:EDirectionUAD = (this.forceDirection != null) ? this.forceDirection : this.dVoice.getDirection();
 		if (useDirection == null) useDirection = EDirectionUAD.Auto;
 		//trace('use direction:  ' + useDirection);		
-		for (bg in dVoice.getBeamlist()) {
+		for (bg in dVoice.getBeamGroups ()) {
 			if (useDirection == EDirectionUAD.Auto) {
 				var levelWeight = bg.getLevelTop() + bg.getLevelBottom();
 				var levelWeightDirection:EDirectionUD = (levelWeight > 0) ? EDirectionUD.Up : EDirectionUD.Down;
@@ -71,7 +71,7 @@ class BeamingProcessorBase {
 	
 	private function calcLevelWeight():BeamingProcessorBase { 
 		
-		for (bg in dVoice.getBeamlist()) {
+		for (bg in dVoice.getBeamGroups()) {
 			if (Std.is(bg, BeamGroupSingle)) {
 				bg.setLevelTop(bg.getFirstNote().getLevelTop());
 				bg.setLevelBottom(bg.getFirstNote().getLevelBottom());
@@ -91,7 +91,7 @@ class BeamingProcessorBase {
 		return this;
 	}
 	private function clearBeamlist():BeamingProcessorBase { 
-		this.dVoice.setBeamlist([]);
+		this.dVoice.setBeamGroups([]);
 		return this;
 	}
 	private function adjustPatternLength():BeamingProcessorBase { //(dVoice:DisplayVoice) {
@@ -197,14 +197,14 @@ class BeamingProcessorBase {
 				
 				// last group dNote
 				if (i == a[a.length -1]) {
-					dVoice.getBeamlist().push(this.bgm);
+					dVoice.getBeamGroups().push(this.bgm);
 					
 				}
 				
 			} else {
 				var bgs:BeamGroupSingle = new BeamGroupSingle();
 				bgs.dNote = dNote;				
-				dVoice.getBeamlist().push(bgs);
+				dVoice.getBeamGroups().push(bgs);
 			}
 		}
 		return this;

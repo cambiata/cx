@@ -5,6 +5,7 @@ import nx.enums.EDirectionUD;
  * @author Jonas Nyström
  */
 
+ 
 interface IBeamGroup {
 	function getNotes():Array<DisplayNote>;
 	function getFirstNote():DisplayNote;
@@ -20,6 +21,8 @@ interface IBeamGroup {
 	
 	function getTopHeadsLevels():Array<Int>;
 	function getBottomHeadsLevels():Array<Int>;
-	
-
 }
+
+
+
+

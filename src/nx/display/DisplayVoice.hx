@@ -1,5 +1,6 @@
 package nx.display;
 import cx.ObjectHash;
+import nx.display.beam.BeamGroups;
 import nx.display.beam.BeamTools;
 import nx.display.beam.IBeamingProcessor;
 import nx.element.Head;
@@ -106,12 +107,12 @@ class DisplayVoice implements IDisplayVoice
 		return this;
 	}
 	
-	private var beamlist:Array<IBeamGroup>;
-	public function getBeamlist():Array<IBeamGroup> {
-		return this.beamlist;
+	private var beamGroups:BeamGroups;
+	public function getBeamGroups():BeamGroups {
+		return this.beamGroups;
 	}
-	public function setBeamlist(beamlist:Array<IBeamGroup>) {
-		this.beamlist = beamlist;
+	public function setBeamGroups(beamGroups:BeamGroups) {
+		this.beamGroups = beamGroups;
 		return this;
 	}
 	

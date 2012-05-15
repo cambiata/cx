@@ -1,4 +1,4 @@
-package ka.admin;
+package ka.app.cli;
 
 import cx.CliBase;
 import cx.ExcelTools;
@@ -9,7 +9,11 @@ import cx.Tools;
 import cx.ValidationTools;
 import haxe.Serializer;
 import haxe.Unserializer;
+import ka.app.KalleConfig;
 import ka.tools.AdminGdata;
+import ka.tools.Integrity;
+import ka.tools.ScorxtillganglighetTools;
+import ka.types.Scorxtillgangligheter;
 import neko.FileSystem;
 import neko.io.File;
 import neko.Lib;
@@ -32,8 +36,9 @@ import systools.Dialogs;
  * @author Jonas Nyström
  */
 
-class Main {	
+class KalleMain {	
 	static function main() {
+		//var dirs = FileTools.getDirectories('D:/dropbox_scorxmedia/My Dropbox/smd/smdfiles/scorx');
 		new CliBase(AdminCli, AdminCli.cmds, ' Körakademins Administrationsverktg "KALLE" - version ');
 	}		
 }
@@ -44,13 +49,15 @@ using StringTools;
 using ka.tools.PersonFilter;
 
 class AdminCli extends CliBase {	
-	static var email = 'jonasnys';
-	static var passwd = '%gloria!';
-	static var sheetPersoner = '0Ar0dMoySp13UdFNOdXNjenRJd3pyLW9GWlFJTXdrX0E';
-	static var sheetData = '0Ar0dMoySp13UdDZuelAyRmFSektpOTZNeWhFeHVkbGc';
-	static var pageDataStudieterminer = 0;
-	static var pageDataAdmingrupper = 1;
-	static var pageDataKorer = 2;
+	
+	static var email = KalleConfig.email;
+	static var passwd = KalleConfig.passwd  ;
+	static var sheetPersoner = KalleConfig.sheetPersoner  ;
+	static var sheetData = KalleConfig.sheetData  ;
+	static var pageDataStudieterminer = KalleConfig.pageDataStudieterminer  ;
+	static var pageDataAdmingrupper = KalleConfig.pageDataAdmingrupper  ;
+	static var pageDataKorer = KalleConfig.pageDataKorer  ;
+	
 	
 	static public var cmds = [
 				'hämta personer', 
@@ -71,6 +78,7 @@ class AdminCli extends CliBase {
 	static public var dataStudieterminer:Studieterminer;
 	static public var dataStudieterminerExt:StudieterminerExt;
 	static public var dataAdmingrupper:Admingrupper;
+	static public var dataScorxtillgangligheter:Scorxtillgangligheter;
 	static public var dataKorer:Korer;
 	
 	static public var resultPersoner:Personer;
@@ -86,18 +94,28 @@ class AdminCli extends CliBase {
 	static private var filenameStudieterminerExt = 'temp/studieterminer-ext.data';
 	static private var filenameKorer = 'temp/korer.data';
 	static private var filenameAdmingrupper = 'temp/admingrupper.data';
+	static private var filenameScorxtillgangligheter = 'temp/scorxtillgangligheter.data';
+	
+	static private var useCache:Bool = false;
 	
 	static public function init() {
+		
+		//trace(Lambda.indexOf(Sys.args(), '-c'));
+		useCache = (Lambda.indexOf(Sys.args(), '-c') != -1);
+		if (useCache) Lib.println(' *** USING CACHE *** ');
+		
 		filterKorer = new Korer();
 		if (!FileSystem.exists('temp')) {
 			FileSystem.createDirectory('temp');
 		}
+		
 		//--------------------------------------------------------		
 		if (FileSystem.exists(filenameDataPersoner)) {
 			dataPersoner = Unserializer.run(File.getContent(filenameDataPersoner));
 			fieldsPerson = Unserializer.run(File.getContent(filenameFieldsPersoner));
 		} else {
-			__hamta_personer();
+			//__hamta_personer(false);
+			fetchPersoner();
 		}
 		
 		if (FileSystem.exists(filenameStudieterminerExt)) {
@@ -109,22 +127,35 @@ class AdminCli extends CliBase {
 		for (dse in dataStudieterminerExt) {
 			dataStudieterminer.push(dse.namn);
 		}
-		filterStudieterminer = dataStudieterminer.copy();
-		filterStudieterminer = setStudieterminerFiletToDate(Date.now());		
 
 		if (FileSystem.exists(filenameAdmingrupper)) {
 			dataAdmingrupper = Unserializer.run(File.getContent(filenameAdmingrupper));
 		} else {
 			fetchAdmingrupper();
 		}
-		filterAdmingrupper = new Admingrupper();
 
 		if (FileSystem.exists(filenameKorer)) {
 			dataKorer = Unserializer.run(File.getContent((filenameKorer)));
 		} else {
 			fetchKorer();
 		}
+		
+		if (FileSystem.exists(filenameScorxtillgangligheter)) {
+			dataScorxtillgangligheter = Unserializer.run(File.getContent((filenameScorxtillgangligheter)));
+		} else {
+			fetchScorxtillgangligheter();
+		}		
+		
+		filterStudieterminer = dataStudieterminer.copy();
+		filterStudieterminer = setStudieterminerFiletToDate(Date.now());
+		filterAdmingrupper = new Admingrupper();
 		filterKorer = new Korer();
+		
+		checkIntegrity();
+		
+		
+		//var tillg = ScorxtillganglighetTools.getTillganglighet(dataScorxtillgangligheter, 'deltagare', 'Renarna' );
+		
 	}		
 
 	static public function beforePrintAndWait() {		
@@ -137,21 +168,15 @@ class AdminCli extends CliBase {
 		if (filterKorer.length > 0) Lib.println(CliBase.decode('Filter körer: ') + filterKorer);		
 		if (filterAdmingrupper.length > 0) Lib.println(CliBase.decode('Filter admingrupper') + filterAdmingrupper);
 		
-		
 		// Antal
 		Lib.println(CliBase.decode('Antal personer : ' + resultPersoner.length + '/' + dataPersoner.length));
 
-		//if (filterKorer.length > 0) Lib.println(CliBase.decode('filter körer: ') + filterKorer);
-		//Lib.println(CliBase.DIVIDER2);
 	}	
 	
 	
 	static public function __hamta_personer() {
-		Lib.println(CliBase.decode('Hämtar personer...'));
-		dataPersoner = AdminGdata.getPersoner();
-		fieldsPerson = AdminGdata.getPersonerFields();
-		FileTools.putContent(filenameDataPersoner, Serializer.run(dataPersoner));
-		FileTools.putContent(filenameFieldsPersoner, Serializer.run(fieldsPerson));
+		fetchPersoner();
+		checkIntegrity();
 	}
 		
 
@@ -159,28 +184,71 @@ class AdminCli extends CliBase {
 		fetchStuditerminer();
 		fetchAdmingrupper();
 		fetchKorer();
+		fetchScorxtillgangligheter();
+		checkIntegrity();
+	}
+	
+	static public function checkIntegrity() {
+		var errors = Integrity.check(dataPersoner, dataStudieterminerExt, dataAdmingrupper, dataKorer);
+		//trace(errors);		
+		if (errors.length > 0) {
+			Lib.println(CliBase.DIVIDER2);
+			Lib.println('INTEGRITY ALERT! ' + errors.length + ' data integrity error(s):');			
+			Lib.println('');
+			Lib.println('   ' + Tools.fillString('type:', 32, ' ', '(null') + Tools.fillString('entity:', 40, ' ') + 'problem:');				
+			Lib.println('');
+			for (error in errors) {
+				var estr = ' - ' + Tools.fillString(error.type, 32, '.', '(null') + Tools.fillString(error.id, 40, '.') + error.msg;				
+				Lib.println (CliBase.decode(estr));
+			}
+			
+		} else {
+			Lib.println('Dataintegritet: OK! :-)');
+		}
 	}
 	
 	//--------------------------------------------------------------
+	
+	static public function fetchPersoner() {
+		Lib.println(CliBase.decode('Hämtar personer...'));
+		dataPersoner = AdminGdata.getPersoner();
+		fieldsPerson = AdminGdata.getPersonerFields();
+		
+		if (useCache) {
+			FileTools.putContent(filenameDataPersoner, Serializer.run(dataPersoner));
+			FileTools.putContent(filenameFieldsPersoner, Serializer.run(fieldsPerson));
+		}
+		
+	}
 	
 	static public function fetchStuditerminer() {
 		Lib.println(CliBase.decode('Hämtar studieterminer...'));
 		dataStudieterminerExt = AdminGdata.getStudieterminerExt();
 		dataStudieterminer = AdminGdata.getStudieterminer();
-		FileTools.putContent(filenameStudieterminerExt, Serializer.run(dataStudieterminerExt));	
+		
+		if (useCache) FileTools.putContent(filenameStudieterminerExt, Serializer.run(dataStudieterminerExt));	
 	}
 	
 	static public function fetchAdmingrupper() {
 		Lib.println(CliBase.decode('Hämtar administrativa grupper...'));
 		dataAdmingrupper = AdminGdata.getAdmingrupper();
-		FileTools.putContent(filenameAdmingrupper, Serializer.run(dataAdmingrupper));		
+		
+		if (useCache) FileTools.putContent(filenameAdmingrupper, Serializer.run(dataAdmingrupper));		
 	}	
 	
 	static public function fetchKorer() {
 		Lib.println(CliBase.decode('Hämtar körer...'));
 		dataKorer = AdminGdata.getKorer();
-		FileTools.putContent(filenameKorer, Serializer.run(dataKorer));		
+		
+		if (useCache) FileTools.putContent(filenameKorer, Serializer.run(dataKorer));		
 	}	
+	
+	static public function fetchScorxtillgangligheter() {
+		Lib.println(CliBase.decode('Hämtar scorxtillgängligheter...'));
+		dataScorxtillgangligheter = AdminGdata.getScorxtillgangligheter();		
+		if (useCache) FileTools.putContent(filenameScorxtillgangligheter, Serializer.run(dataScorxtillgangligheter));		
+		
+	}
 	
 	static public function setStudieterminerFiletToDate(date:Date) {		
 		var filterStudieterminer = new Studieterminer();
@@ -193,6 +261,9 @@ class AdminCli extends CliBase {
 		}
 		return filterStudieterminer;
 	}
+	
+	
+	
 	
 	static public function __filter_korer() {		
 		
@@ -390,11 +461,14 @@ class AdminCli extends CliBase {
 		Lib.println('');		
 	}		
 	
+	
+	
+	
 	//--------------------------------------------------------
 	// autentisering	
 	
 	static private function __exportera_autentiseringsfil() {
-		PersonerExport.toAuthfile('data/autentisering.dat', resultPersoner);
+		PersonerExport.toAuthfile('data/autentisering.dat', resultPersoner, dataScorxtillgangligheter);
 	}
 	
 }

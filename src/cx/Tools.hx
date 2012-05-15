@@ -120,6 +120,16 @@ class Tools
 		return ret;
 	}
 	
+	static public function arrayStringUnique(array:Array<String>, sort:Bool = true):Array<String> {
+		var ret = new Array<String>();
+		for (item in array) {
+			if (!Lambda.has(ret, item)) ret.push(item);
+		}
+		if (sort) ret.sort(function(a, b) { return Reflect.compare(a, b); } );
+		return ret;
+		
+		
+	}
 	
 	
 	

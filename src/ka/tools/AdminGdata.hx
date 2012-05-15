@@ -6,10 +6,14 @@ import ka.types.Kor;
 import ka.types.Korer;
 import ka.types.Person;
 import ka.types.Personer;
+import ka.types.Scorxtillganglighet;
+
+import ka.types.Scorxtillgangligheter;
 import ka.types.Studietermin;
 import ka.types.Studieterminer;
 import ka.types.StudieterminerExt;
 import ka.types.StudieterminExt;
+import ka.app.KalleConfig;
 
 /**
  * ...
@@ -18,6 +22,7 @@ import ka.types.StudieterminExt;
 using StringTools;
 class AdminGdata 
 {
+	/*
 	static var email = 'jonasnys';
 	static var passwd = '%gloria!';
 	static var sheetPersoner = '0Ar0dMoySp13UdFNOdXNjenRJd3pyLW9GWlFJTXdrX0E';
@@ -25,7 +30,16 @@ class AdminGdata
 	static var pageDataStudieterminer = 0;
 	static var pageDataAdmingrupper = 1;
 	static var pageDataKorer = 2;	
+	*/
 	
+	static var email = KalleConfig.email;
+	static var passwd = KalleConfig.passwd  ;
+	static var sheetPersoner = KalleConfig.sheetPersoner  ;
+	static var sheetData = KalleConfig.sheetData  ;
+	static var pageDataStudieterminer = KalleConfig.pageDataStudieterminer  ;
+	static var pageDataAdmingrupper = KalleConfig.pageDataAdmingrupper  ;
+	static var pageDataKorer = KalleConfig.pageDataKorer  ;	
+	static var pageDatagetScorxtillgangligheter = KalleConfig.pageScorxtillgangligheter;
 	
 	static private var studieterminer:Studieterminer;
 	
@@ -42,8 +56,18 @@ class AdminGdata
 		for (cell in cells) {
 			var studieterminExt:StudieterminExt = {namn:null, start:null, slut:null};
 			studieterminExt.namn = cell[0];
-			studieterminExt.start = (cell[1] != null) ? Date.fromString(cell[1]) : null;
-			studieterminExt.slut = (cell[1] != null) ? Date.fromString(cell[2]) : null;
+			try {
+				studieterminExt.start = (cell[1] != null) ? Date.fromString(cell[1]) : null;
+			} catch (e:Dynamic) {
+				studieterminExt.start = Date.fromString('2000-01-01');
+			}
+			
+			try {
+				studieterminExt.slut = (cell[1] != null) ? Date.fromString(cell[2]) : null;
+			} catch (e:Dynamic) {
+				studieterminExt.slut = Date.fromString('2000-01-01');
+			}
+
 			studieterminerExt.push(studieterminExt);
 		}
 		
@@ -83,6 +107,25 @@ class AdminGdata
 		}		
 		return korer;
 	}
+	
+	static public function getScorxtillgangligheter():Scorxtillgangligheter {
+		var g = new cx.GoogleTools.Spreadsheet(email, passwd, sheetData, pageDatagetScorxtillgangligheter);
+		var cells = g.getCells();				
+		var scorxtillgangligheter = new Scorxtillgangligheter();		
+		
+		for (cell in cells) {
+			if (cell[0].trim() == '') continue;		
+			var kat = cell[0];			
+			var mappar = cell[1];
+			//trace(kat);
+			//trace(mappar);			
+			var st:Scorxtillganglighet = { kategori:kat, mappar:mappar.split(',')};
+			scorxtillgangligheter.push(st);
+		}
+		//trace(scorxtillgangligheter);
+		return scorxtillgangligheter;
+	}
+	
 	
 	static var personerFields:Person;
 	

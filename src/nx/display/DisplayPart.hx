@@ -1,6 +1,8 @@
 package nx.display;
 import cx.ObjectHash;
 import nx.Constants;
+import nx.display.beam.BeamGroups;
+import nx.display.beam.BeamGroupSingle;
 import nx.display.beam.IBeamingProcessor;
 import nx.element.Part;
 import nx.element.Voice;
@@ -29,6 +31,8 @@ interface IDisplayPart {
 	function getDisplayNotePosition(displayNote:DisplayNote):Int;
 	function getDisplayNotePositionsArray(): Array<Int>;
 	function getDisplayNoteXDistances(): ObjectHash<Float>;
+	
+	function getBeamGroups(): BeamGroups;
 }
 
 using Lambda;
@@ -215,6 +219,17 @@ class DisplayPart implements IDisplayPart {
 		}				
 		//displayNotePositionsXPositions.set(this.getValue(), dnPosX + Constants.HEAD_WIDTH);
 		return this.displayNotePositionsXPositions;
+	}
+	
+	private var beamGroups:BeamGroups;
+	public function getBeamGroups(): BeamGroups {
+		if (this.beamGroups != null) return this.beamGroups;
+		this.beamGroups = new BeamGroups();
+		for (dv in this.getDisplayVoices()) {
+			this.beamGroups = this.beamGroups.concat(dv.getBeamGroups());			
+		}
+		trace(this.beamGroups.length);
+		return this.beamGroups;
 	}
 	
 	

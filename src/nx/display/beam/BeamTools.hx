@@ -39,8 +39,12 @@ class BeamTools
 		
 		var levels = (directionUp) ? beamGroup.getTopHeadsLevels() : beamGroup.getBottomHeadsLevels();
 		var count = levels.length;
-		var levelFirst = levels[0];
-		var levelLast = levels[count - 1];
+		var levelFirst:Float = levels[0];
+		var levelLast:Float = levels[count - 1];
+		
+		var levels2 = (directionUp) ? beamGroup.getBottomHeadsLevels () : beamGroup.getTopHeadsLevels ();
+		var level2First:Float = levels2[0];
+		var level2Last:Float = levels2[count - 1];
 		
 		var bd:BeamGroupDimensions = {			
 			direction:beamGroup.getDirection(),
@@ -58,11 +62,6 @@ class BeamTools
 		var slopeV:Float = levelLast - levelFirst;
 		
 		trace('slopeV 1: '+ slopeV);		
-		
-		
-		
-
-		
 		
 		var levelMin = Math.min(levelFirst, levelLast);
 		var levelMax = Math.max(levelFirst, levelLast);
@@ -107,9 +106,7 @@ class BeamTools
 			} else {
 				slopeV = Math.min(1, Math.max( -1, slopeV));			
 			}			
-			
 		}
-		
 		
 		trace('slopeV 2: '+ slopeV);		
 
@@ -128,8 +125,8 @@ class BeamTools
 				bLevelFirst = levelMin;	
 				bLevelLast = levelMin;
 			}			
-			bd.firstStave = {topY: bLevelFirst - Constants.STAVE_LENGTH, bottomY: 0.0};
-			bd.lastStave = { topY: bLevelLast - Constants.STAVE_LENGTH, bottomY: 0.0 };
+			bd.firstStave = {topY: bLevelFirst - Constants.STAVE_LENGTH, bottomY: level2First};
+			bd.lastStave = { topY: bLevelLast - Constants.STAVE_LENGTH, bottomY: level2Last };
 			
 		} else {
 			
@@ -143,8 +140,8 @@ class BeamTools
 				bLevelFirst = levelMax;	
 				bLevelLast = levelMax;
 			}			
-			bd.firstStave = {topY: 0.0 , bottomY: bLevelFirst + Constants.STAVE_LENGTH};
-			bd.lastStave = {topY: 0.0, bottomY: bLevelLast + Constants.STAVE_LENGTH};			
+			bd.firstStave = {topY: level2First , bottomY: bLevelFirst + Constants.STAVE_LENGTH};
+			bd.lastStave = {topY: level2Last, bottomY: bLevelLast + Constants.STAVE_LENGTH};			
 			
 		}
 		

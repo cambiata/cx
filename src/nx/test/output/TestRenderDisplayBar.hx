@@ -175,7 +175,6 @@ class TestRenderDisplayBar extends RenderBase
 			
 		var pMultiDown = Part.getNew([
 			Voice.getNew([
-
 				Note.getNew([Head.getNew(-0)], ENoteValue.Nv8),
 				Note.getNew([Head.getNew(-1)], ENoteValue.Nv8),
 				Note.getNew([Head.getNew(-8)], ENoteValue.Nv8),
@@ -198,14 +197,34 @@ class TestRenderDisplayBar extends RenderBase
 
 				Note.getNew([Head.getNew(-1)], ENoteValue.Nv8),				
 				Note.getNew([Head.getNew(-5)], ENoteValue.Nv8),
-				Note.getNew([Head.getNew(-2)], ENoteValue.Nv8),			
-				
+				Note.getNew([Head.getNew(-2)], ENoteValue.Nv8),							
 				])
 			]);				
+
+		var p16th = Part.getNew([
+			Voice.getNew([
+			
+				Note.getNew([Head.getNew(1), Head.getNew(3)], ENoteValue.Nv4),
+				Note.getNew([Head.getNew(1, ESign.Flat)], ENoteValue.Nv4),
+				Note.getNew([Head.getNew(-1), Head.getNew(-3)], ENoteValue.Nv4),
+				Note.getNew([Head.getNew(-1)], ENoteValue.Nv4),
+
+				
+				Note.getNew([Head.getNew(-0)], ENoteValue.Nv16),
+				Note.getNew([Head.getNew(-1)], ENoteValue.Nv16),
+				Note.getNew([Head.getNew(-3)], ENoteValue.Nv16),
+				Note.getNew([Head.getNew(-4)], ENoteValue.Nv16),
+				
+			])
+		]);					
 			
 			
-			
-		var db = new DisplayBar(Bar.getNew([pMultiUp, pMultiDown]), new BeamingProcessor_4dot());
+		var db = new DisplayBar(Bar.getNew([
+			//p0, 
+			//pMultiUp, 
+			//pMultiDown
+			p16th,
+		]), new BeamingProcessor_4());
 		
 		trace(db.getPositionsArray());
 		trace(db.getValuesArray());
@@ -232,25 +251,15 @@ class TestRenderDisplayBar extends RenderBase
 				render.note(x2, y, dn);
 				//render.noteRects(x2, y, dn);
 			}
+			
+			for (bg in dp.getBeamGroups()) {
+					var x1 = x + db.getDisplayNoteXPostitions().get(bg.getFirstNote()).scaleX(this.scaling);
+					var x2 = x + db.getDisplayNoteXPostitions().get(bg.getLastNote()).scaleX(this.scaling);
+					render.beamGroup(x1, y, x2, BeamTools.getDimensions(bg));										
+			}
+						
 			y += 200;
 		}		
-		
-		var y = 100;
-		trace(this.scaling);
-		trace(render.getScaling());
-		for (dp in db.getDisplayParts()) {
-			for (dv in dp.getDisplayVoices()) {
-				for (beamGroup in dv.getBeamlist()) {					
-					var x1 = x + db.getDisplayNoteXPostitions().get(beamGroup.getFirstNote()).scaleX(this.scaling);
-					var x2 = x + db.getDisplayNoteXPostitions().get(beamGroup.getLastNote()).scaleX(this.scaling);
-					render.beamGroup(x1, y, x2, BeamTools.getDimensions(beamGroup));					
-				}
-			}
-			y += 200;
-		}
-		
-		
-		
 		
 		//var v = db.getDisplayPart(1).getDisplayVoice(0);
 		//trace(v);
@@ -262,6 +271,8 @@ class TestRenderDisplayBar extends RenderBase
 		//BeamTools.getDimensions(v.getBeamlist()[0]);
 		//BeamTools.getDimensions(v.getBeamlist()[1]);
 		//BeamTools.getDimensions(v.getBeamlist()[2]);
+		
+		
 	}
 	
 }

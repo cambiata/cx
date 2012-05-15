@@ -5,6 +5,7 @@ import cx.FileTools;
 import cx.Tools;
 import ka.types.Person;
 import ka.types.Personer;
+import ka.types.Scorxtillgangligheter;
 
 /**
  * ...
@@ -26,10 +27,14 @@ class PersonerExport
 		ExcelTools.finish();		
 	}
 	
-	static public function toAuthfile(filename:String, personer:Personer) {
+	static public function toAuthfile(filename:String, personer:Personer, scorxTillg:Scorxtillgangligheter) {		
 		var f = neko.io.File.write(filename, false);
 		for (person in personer) {
-			var a = [person.epost, person.xpass, person.efternamn, person.fornamn, person.roll, cx.Tools.replaceNullString(person.kor)];
+			var tillg = ScorxtillganglighetTools.getTillganglighet(scorxTillg, person.roll, person.kor, person.personnr );
+			var tillgStr = tillg.join(',');
+			
+			var a = [person.epost, person.xpass, person.efternamn, person.fornamn, person.roll, cx.Tools.replaceNullString(person.kor), tillgStr];
+			
 			var str = a.join('|') + '\r';
 			f.writeString(str);			
 		}
