@@ -11,6 +11,7 @@ import ka.types.StudieterminerExt;
 import neko.Lib;
 import ka.tools.AdminGdata;
 import neko.Sys;
+import neko.Web;
 
 /**
  * ...
@@ -72,7 +73,7 @@ class KaServerAuth
 		for (p in resultPersoner) {
 			//Lib.println(EncodeTools.cliDecode(p.efternamn + ' ' + p.fornamn));			
 		}
-		PersonerExport.toAuthfile('auth/autentisering2.dat', resultPersoner, dataScorxtillgangligheter);
+		PersonerExport.toAuthfile(Web.getCwd() + 'auth/autentisering.dat', resultPersoner, dataScorxtillgangligheter);
 		Lib.println('authfile updated!');
 	}
 	

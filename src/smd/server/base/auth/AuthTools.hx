@@ -61,6 +61,6 @@ class AuthTools {
 	}
 	
 	static public function getUserNull():AuthUser {
-		return {success:false, user:null, pass:null, msg:null, person:null};
+		return {success:false, user:null, pass:null, msg:null, person:null, scorxids:null};
 	}
 }

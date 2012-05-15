@@ -17,6 +17,7 @@ class PersonTools
 		p.efternamn = a[2];
 		p.fornamn = a[3];
 		p.roll = a[4];	
+		
 		return p;
 	}
 	

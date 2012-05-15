@@ -25,6 +25,7 @@ class UserConfiguration extends AbstractServerConfiguration {
         this.addModule(new Site());	
 		
 		ConfigTools.loadConfig(Config, Web.getCwd() + 'conf/Config.txt');
+		//SiteState.messages.infos.push(Config.scorxroot);
 		SiteState.user = AuthTools.getCurrentUser(new KaAuth(Web.getCwd() + 'auth/autentisering.dat'));			
     }
 	

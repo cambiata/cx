@@ -1,4 +1,5 @@
 package smd.server.ka.auth;
+import cx.Tools;
 import ka.tools.PersonerTools;
 import ka.tools.PersonTools;
 import ka.types.Person;
@@ -7,6 +8,9 @@ import smd.server.base.auth.AuthTools;
 import smd.server.base.auth.AuthUser;
 import smd.server.base.auth.IAuth;
 import haxe.io.Eof; 
+import smd.server.base.SiteState;
+import smd.server.ka.config.Config;
+import sx.util.ScorxTools;
 /**
  * ...
  * @author Jonas Nyström
@@ -32,6 +36,15 @@ class KaAuth implements IAuth {
 						var p = PersonTools.getFromString(line);										
 						authUser.success = true;
 						authUser.person = p;
+						var scorxdirs = Tools.stringAfterLast(line, '|');
+						
+						//-----------------------------------------------------------------------------------------------------						
+						SiteState.messages.infos.push(scorxdirs);
+						SiteState.messages.infos.push(Config.scorxroot);
+						var ids = ScorxTools.getIdsInDirectory(Config.scorxroot, scorxdirs.split(','));
+						authUser.scorxids = ids.join(',');
+						SiteState.messages.infos.push(authUser.scorxids);
+						//-----------------------------------------------------------------------------------------------------
 						authUser.msg = 'Authentication success: User ' + p.epost + ' ok!';
 						return authUser;				
 						break;						

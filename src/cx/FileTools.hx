@@ -18,6 +18,11 @@ class FileTools
 		return 'test';
 	}
 
+	static public function exists(path:String) {
+		return FileSystem.exists(path);
+	}
+	
+	
 	static public function safeSlashes(path:String):String {
 		return StringTools.replace(path, '\\', '/');
 	}
