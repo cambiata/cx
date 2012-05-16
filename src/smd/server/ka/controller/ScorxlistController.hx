@@ -38,9 +38,12 @@ class ScorxlistController extends UserController
 			this.update();
 			SiteState.messages.infos.push('scorxlist updated!');
 		}
+		SiteState.messages.infos.push(Config.scorxroot);
+		SiteState.messages.infos.push(Config.scorxdirs);
 		return new ScorxResult(null, this.authUser, new TemplateResult('templates/scorx/sidebar.html').execute(), null);
 	}	
 	
+	//-----------------------------------------------------------------------------------------------------	
 	
 	private function update() {
 		var path = Config.scorxroot;
