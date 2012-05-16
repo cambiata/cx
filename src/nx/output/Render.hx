@@ -143,6 +143,14 @@ class Render implements IRender
 			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);	
 		}		
 		
+		// total
+		graphics.lineStyle(2, 0x000000);
+		var r = displayNote.getTotalRect();
+		if (r != null) {
+			var r = r.scaleRectangle(this.scaling);
+			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);	
+		}			
+		
 		
 	}
 	
@@ -237,8 +245,8 @@ class Render implements IRender
 	}	
 	
 	public function beamGroup(noteX:Float, noteY:Float, lastNoteX:Float, bgd:BeamGroupDimensions) {
-		trace(this.scaling);
-		trace(bgd);
+		//trace(this.scaling);
+		//trace(bgd);
 		var adjustX = bgd.adjustX * this.scaling.halfNoteWidth;
 		var firstTopY = noteY + (bgd.firstStave.topY * scaling.halfSpace);
 		var lastTopY = noteY + (bgd.lastStave.topY * scaling.halfSpace); 

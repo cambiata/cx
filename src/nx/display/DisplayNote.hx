@@ -418,21 +418,57 @@ class DisplayNote implements IDisplayNote, implements IDisplayElement
 	
 	//-----------------------------------------------------------------------------------------------------
 
+	private var totalRect:Rectangle;
+	public function getTotalRect():Rectangle {
+		if (this.totalRect == null) this.getArrayOfDisplayRects();
+		return this.totalRect;
+	}
+	
+	private var arrayOfDisplayRects:Array<Rectangle>;
 	public function getArrayOfDisplayRects(): Array<Rectangle> {		
+		if (this.arrayOfDisplayRects != null) return this.arrayOfDisplayRects;
 		var ret = new Array<Rectangle>();		
-		ret.push(this.getDisplayRect().clone());
+		
+		this.totalRect = this.getDisplayRect().clone();
+		
+		ret.push(this.getDisplayRect().clone());		
 		
 		if (this.hasStave()) ret.push(this.getDisplayRectStave());
-		if (this.hasSigns()) ret.push(this.getDisplayRectSigns());
-		if (this.hasDot()) ret.push(this.getDisplayRectDots());
-		if (this.hasTieFrom()) ret.push(this.getDisplayRectTieFrom());
 		
-		if (this.hasAppogiatura()) ret.push(this.getDisplayRectAppogiatura());
-		if (this.hasArpeggio()) ret.push(this.getDisplayRectArpeggio());
-		if (this.hasTieTo()) ret.push(this.getDisplayRectTieTo());
-		if (this.hasClef()) ret.push(this.getDisplayRectClef());
+		if (this.hasSigns()) {
+			trace(this.totalRect);
+			trace(this.getDisplayRectSigns());
+			ret.push(this.getDisplayRectSigns());
+			this.totalRect = this.totalRect.union(this.getDisplayRectSigns());
+		}
 		
-		return ret;
+		if (this.hasDot()) {
+			ret.push(this.getDisplayRectDots());
+			this.totalRect = this.totalRect.union(this.getDisplayRectDots());
+		}
+		if (this.hasTieFrom()) {
+			ret.push(this.getDisplayRectTieFrom());
+			this.totalRect = this.totalRect.union(this.getDisplayRectTieFrom());
+		}
+		
+		if (this.hasAppogiatura()) {
+			ret.push(this.getDisplayRectAppogiatura());
+			this.totalRect = this.totalRect.union(this.getDisplayRectAppogiatura());
+		}
+		if (this.hasArpeggio()) {
+			ret.push(this.getDisplayRectArpeggio());
+			this.totalRect = this.totalRect.union(this.getDisplayRectArpeggio());
+		}
+		if (this.hasTieTo()) {
+			ret.push(this.getDisplayRectTieTo());
+			this.totalRect = this.totalRect.union(this.getDisplayRectTieTo());
+		}
+		if (this.hasClef()) {
+			ret.push(this.getDisplayRectClef());
+			this.totalRect = this.totalRect.union(this.getDisplayRectClef());
+		}
+		this.arrayOfDisplayRects = ret;
+		return this.arrayOfDisplayRects;
 	}	
 	
 	public function getNoteDistanceX(nextDisplayNote:DisplayNote, includeNotesWidth:Bool=true):Float {		

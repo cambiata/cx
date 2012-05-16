@@ -190,7 +190,7 @@ class DisplayBar implements IDisplayBar {
 		}
 	
 		this.endXPosition = this.displayNotePositionsXPositions.get(this.getValue());
-		this.excessArray.shift();
+		//this.excessArray.shift();
 		return this.displayNotePositionsXPositions;
 	}
 	

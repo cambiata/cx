@@ -1,5 +1,6 @@
 package smd.server.ka.auth;
 import cx.Tools;
+import haxe.Firebug;
 import ka.tools.PersonerTools;
 import ka.tools.PersonTools;
 import ka.types.Person;
@@ -29,6 +30,7 @@ class KaAuth implements IAuth {
 		try {
 			while(true) {
 				var line = file.readLine().trim();
+				Firebug.trace(line);
 				if (line.startsWith(user)) {					
 					var checkPass = line.split('|')[1];
 					if (checkPass == pass) {
@@ -59,7 +61,12 @@ class KaAuth implements IAuth {
 		} catch (e:Dynamic) {
 			
 		}			
-		file.close();	
+		try {
+			file.close();	
+		} catch (e:Dynamic) {
+			Firebug.trace(e);
+		}
+		
 		authUser.msg = 'Authentication fail: User ' + user + ' not found!';
 		return authUser;
 	}

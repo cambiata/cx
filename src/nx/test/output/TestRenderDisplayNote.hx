@@ -19,16 +19,14 @@ class TestRenderDisplayNote extends RenderBase
 		super.init();
 	}
 	public function test0() {
+		assertTrue(true);
 		var dn = new DisplayNote(Note.getNew([Head.getNew( -2, ESign.Flat), Head.getNew(-1, ESign.None), Head.getNew(0, ESign.None), Head.getNew(1, ESign.Sharp), Head.getNew( 5, ESign.Natural)], ENoteValue.Nv4));		
 		
 		var y = RenderBase.Y100;
 		var x = 150;
-		render.note(x, y, dn);			
+		render.note(x, y, dn);	
+		render.noteRects(x, y, dn);
 	}
 	
-	public function test1() {
-		
-		
-	}
 	
 }

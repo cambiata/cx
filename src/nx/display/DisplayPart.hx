@@ -228,7 +228,7 @@ class DisplayPart implements IDisplayPart {
 		for (dv in this.getDisplayVoices()) {
 			this.beamGroups = this.beamGroups.concat(dv.getBeamGroups());			
 		}
-		trace(this.beamGroups.length);
+		//trace(this.beamGroups.length);
 		return this.beamGroups;
 	}
 	

@@ -29,7 +29,7 @@ class PersonerExport
 	
 	static public function toAuthfile(filename:String, personer:Personer, scorxTillg:Scorxtillgangligheter) {		
 		var f = neko.io.File.write(filename, false);
-		f.writeString('----------------------------------------------------------------------------\r');
+		//f.writeString('----------------------------------------------------------------------------\n');
 		for (person in personer) {
 			var tillg = ScorxtillganglighetTools.getTillganglighet(scorxTillg, person.roll, person.kor, person.personnr );
 			var tillgStr = tillg.join(',');

@@ -226,11 +226,13 @@ class TestRenderDisplayBar extends RenderBase
 			p16th,
 		]), new BeamingProcessor_4());
 		
+		/*
 		trace(db.getPositionsArray());
 		trace(db.getValuesArray());
 		trace(db.getExcessArray());
 		trace(db.getEndXPosition());
 		trace(db.getValue());
+		*/
 		
 		var x = 100;
 		var y = 100;
@@ -242,6 +244,8 @@ class TestRenderDisplayBar extends RenderBase
 			}
 			y += 200;
 		}	
+		
+		
 		
 		var x = 500;
 		var y = 100;

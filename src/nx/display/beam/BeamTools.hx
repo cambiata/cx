@@ -56,28 +56,30 @@ class BeamTools
 			slope:0.0,
 		};
 		
+		/*
 		trace(levels);
 		trace(levelFirst);
 		trace(levelLast);
+		*/
 		var slopeV:Float = levelLast - levelFirst;
 		
-		trace('slopeV 1: '+ slopeV);		
+		//trace('slopeV 1: '+ slopeV);		
 		
 		var levelMin = Math.min(levelFirst, levelLast);
 		var levelMax = Math.max(levelFirst, levelLast);
 		
 		if (directionUp) {
-			trace('STÄMMA UP');
+			//trace('STÄMMA UP');
 			if (count > 2) {
 				var innerLevels = levels.copy();
 				innerLevels.pop();
 				innerLevels.shift();
-				trace('innerLevels' + innerLevels);
+				//trace('innerLevels' + innerLevels);
 				var innerMin:Float = innerLevels[0];
 				for (il in innerLevels) {
 					innerMin = Math.min(il, innerMin);
 				}
-				trace('innerMin' + innerMin);
+				//trace('innerMin' + innerMin);
 				if (innerMin <= levelMin) {
 					trace('flat');
 					slopeV = 0;
@@ -87,17 +89,17 @@ class BeamTools
 				slopeV = Math.min(1, Math.max( -1, slopeV));			
 			}
 		} else {
-			trace('STÄMMA DOWN');
+			//trace('STÄMMA DOWN');
 			if (count > 2) {
 				var innerLevels = levels.copy();
 				innerLevels.pop();
 				innerLevels.shift();
-				trace('innerLevels' + innerLevels);
+				//trace('innerLevels' + innerLevels);
 				var innerMax:Float = innerLevels[0];
 				for (il in innerLevels) {
 					innerMax = Math.max(il, innerMax);
 				}
-				trace('innerMax' + innerMax);
+				//trace('innerMax' + innerMax);
 				if (innerMax >= levelMax) {
 					trace('flat');
 					slopeV = 0;
@@ -108,7 +110,7 @@ class BeamTools
 			}			
 		}
 		
-		trace('slopeV 2: '+ slopeV);		
+		//trace('slopeV 2: '+ slopeV);		
 
 		var bLevelLast = 0.0;
 		var bLevelFirst = 0.0;
