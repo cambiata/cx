@@ -436,8 +436,8 @@ class DisplayNote implements IDisplayNote, implements IDisplayElement
 		if (this.hasStave()) ret.push(this.getDisplayRectStave());
 		
 		if (this.hasSigns()) {
-			trace(this.totalRect);
-			trace(this.getDisplayRectSigns());
+			//trace(this.totalRect);
+			//trace(this.getDisplayRectSigns());
 			ret.push(this.getDisplayRectSigns());
 			this.totalRect = this.totalRect.union(this.getDisplayRectSigns());
 		}

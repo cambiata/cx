@@ -49,7 +49,7 @@ class Main
 		runner.add(new TestDisplayVoice());
 		runner.add(new TestDisplayPart());
 		runner.add(new TestDisplayBar());
-		runner.add(new TestRenderDisplayNote());
+		//runner.add(new TestRenderDisplayNote());
 		//runner.add(new TestRenderDisplayNote2());
 		//runner.add(new TestRenderDisplayNote3());
 		//runner.add(new TestRenderDisplayPart());

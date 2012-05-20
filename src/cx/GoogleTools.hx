@@ -17,10 +17,34 @@ class Main {
 	}		
 } 
 */
- 
+import haxe.Http; 
 class GoogleTools 
 {
-
+	private static var urlClientLogin = 'https://www.google.com/accounts/ClientLogin';
+	
+	static public function getAuthToken(email:String, password:String, ?service:String = 'wise'): String {
+		var authToken = '';
+		var http = new Http(urlClientLogin);
+		http.setParameter('Email', email);
+		http.setParameter('Passwd', password);
+		http.setParameter('accountType', 'HOSTED_OR_GOOGLE');
+		http.setParameter('source', 'service test');
+		http.setParameter('service', service);		
+		http.onError = function(msg:String) { trace(msg); }
+		http.onData = function (data:String) {
+			var a = data.split('Auth=');		
+			authToken = a.pop();						
+		}
+		http.request(false);
+		return authToken;
+	}
+	
+	static public function getAuthorizedHttp(authToken:String, url:String): Http {
+		var http = new Http(url);
+		var tokenHeader = 'GoogleLogin Auth=' + authToken;
+		http.setHeader('Authorization', tokenHeader);
+		return http;
+	}	
 	
 }
 
@@ -131,3 +155,98 @@ typedef WorksheetLinks = {
 }
 
 typedef WorksheetCells = Array<Array<String>>;
+
+
+class GoogleDocumentsTools  {
+	
+	
+	private var authToken:String;
+	private var email:String;
+	private var passwd:String;
+	
+	
+	public function new(email:String, passwd:String) {		
+		//var authToken = GoogleTools.getAuthToken('jonasnys', '%gloria!', 'writely');
+		this.email = email;
+		this.passwd = passwd;
+	}
+	
+	private function getAuthToken(email:String, passwd:String) {
+		if (this.authToken != null) return this.authToken;
+		this.authToken = GoogleTools.getAuthToken(email, passwd, 'writely');
+		return this.authToken;
+	}
+	
+	
+	private var documentEntries:Array<DocumentEntry>;
+	public function getDocumentEntries():Array<DocumentEntry> {
+		if (this.documentEntries != null) return this.documentEntries;
+		
+		var urlDocumentList:String = 'https://docs.google.com/feeds/documents/private/full';		
+		var http = GoogleTools.getAuthorizedHttp(this.getAuthToken(this.email, this.passwd), urlDocumentList);				
+		http.onError = function(msg:String) { trace(msg); }
+		http.onData = function(data:String) { 
+			this.documentEntries = _getDocumentEntries(data);
+		};
+		http.request(false);				
+		return this.documentEntries;
+	}
+	
+	
+	static private function _getDocumentEntries(xmlDocumentList:String):Array<DocumentEntry> {		
+		var ret = new Array<DocumentEntry>();		
+		var xml = Xml.parse(xmlDocumentList);		
+		var xmlFeed = xml.firstElement();		
+		var entries = xmlFeed.elementsNamed('entry');
+		//var i = 0;
+		for (entry in entries) {
+			//if (i > 5) break;
+			
+			var documentEntry:DocumentEntry = { id:null, title:null };
+			for (el in entry.elements()) {
+				if (el.nodeName == 'id') documentEntry.id = Tools.stringAfterLast(el.firstChild().toString(), '%3A');
+				if (el.nodeName == 'title') documentEntry.title = el.firstChild().toString();
+			}
+			ret.push(documentEntry);
+			//i++;			
+		}
+		return ret;		
+	}	
+	
+	public function getDownloadUrl(id:String, format:String) {
+		//var url = 'https://docs.google.com/feeds/download/documents/Export?docID=' + id + '&exportFormat=' + format;
+		var url = 'https://docs.google.com/feeds/download/documents/Export?exportFormat=' + format + '&id=' + id;
+		return url;
+	}
+	
+	public function getDocumentDownloadString(id:String, format:String):String {		
+		var url = getDownloadUrl(id, format);		
+		var ret:String = null;		
+		var http = GoogleTools.getAuthorizedHttp(this.getAuthToken(this.email, this.passwd), url);
+		http.onError = function(msg:String) { trace(msg); }
+		http.onData = function(data:String) { 
+			//trace(data.length);
+			ret = data;			
+		};
+		http.request(false);					
+		return ret;		
+	}
+	
+	public function saveDocumentToOdt(id:String, filename:String) {
+		var dataString = this.getDocumentDownloadString(id, 'odt');
+		FileTools.putBinaryContent(filename, dataString);		
+	}
+	
+	public function saveDocumentToHtml(id:String, filename:String) {
+		var string = this.getDocumentDownloadString(id, 'html');
+		FileTools.putContent(filename, string);
+	}
+	
+	
+}
+
+typedef DocumentEntry = {
+	id:String,
+	title:String,	
+}
+

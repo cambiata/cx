@@ -1,4 +1,5 @@
 package nx.test.output;
+
 import nx.display.beam.BeamingProcessor_4;
 import nx.display.beam.BeamingProcessor_4dot;
 import nx.display.beam.BeamTools;
@@ -244,6 +245,7 @@ class TestRenderDisplayBar extends RenderBase
 			}
 			y += 200;
 		}	
+
 		
 		
 		
@@ -265,6 +267,7 @@ class TestRenderDisplayBar extends RenderBase
 			y += 200;
 		}		
 		
+	
 		//var v = db.getDisplayPart(1).getDisplayVoice(0);
 		//trace(v);
 		/*

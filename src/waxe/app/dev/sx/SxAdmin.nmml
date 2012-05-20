@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+
+	<app
+		file="SxAdmin"
+		title="SxAdmin"
+		package="waxe.app.dev.basic.SxAdmin"
+		version="1.0"
+		company="waxe" 
+		main="SxAdmin"
+	/>
+
+	<window
+		width="800"
+		height="600"
+		orientation="landscape"
+		fps="24"
+		background="0xffffff"
+		resizeable="true"
+		hardware="true"
+	/>
+
+   <!--<icon name="../icon.svg" />-->
+
+	<classpath name="E:/_dev/cx/src" ></classpath>
+	
+	<haxelib name="waxe" />
+
+	<ndll name="waxe" haxelib="waxe" />
+	<ndll name="std" />
+	<ndll name="zlib" />
+	<ndll name="regexp" />
+
+</project>

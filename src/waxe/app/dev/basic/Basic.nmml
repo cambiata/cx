@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+
+	<app
+		file="Basic"
+		title="Basic"
+		package="waxe.app.dev.basic.Basic"
+		version="1.0"
+		company="waxe" 
+		main="Basic"
+	/>
+
+	<window
+		width="800"
+		height="600"
+		orientation="landscape"
+		fps="24"
+		background="0xffffff"
+		resizeable="true"
+		hardware="true"
+	/>
+
+   <!--<icon name="../icon.svg" />-->
+
+
+	<haxelib name="waxe" />
+
+	<ndll name="waxe" haxelib="waxe" />
+	<ndll name="std" />
+	<ndll name="zlib" />
+	<ndll name="regexp" />
+
+</project>

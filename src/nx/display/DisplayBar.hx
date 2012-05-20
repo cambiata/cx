@@ -1,6 +1,7 @@
 package nx.display;
 import cx.ObjectHash;
 import cx.Tools;
+import nme.geom.Rectangle;
 import nx.Constants;
 import nx.display.beam.IBeamingProcessor;
 import nx.element.Bar;
@@ -143,11 +144,19 @@ class DisplayBar implements IDisplayBar {
 		return this.excessArray;
 	}
 	
+	private var widthArray:Array<Float>; 
+	public function getWidthArray():Array<Float> {
+		if (this.widthArray == null) this.getDisplayNotePositionsXPositions();
+		return this.widthArray;
+	}
+	
 	
 	private var displayNotePositionsXPositions:IntHash<Float>;
 	public function getDisplayNotePositionsXPositions():IntHash<Float> {
 		if (this.displayNotePositionsXPositions != null) return this.displayNotePositionsXPositions;
 		this.displayNotePositionsXPositions = new IntHash<Float>();
+		
+		this.widthArray = new Array<Float>();
 		this.excessArray = new Array<Float>();
 		
 		var above:DisplayNote; 
@@ -165,6 +174,9 @@ class DisplayBar implements IDisplayBar {
 		}
 		
 		var positions = this.getPositionsArray();
+		
+
+		
 		positions.push(this.getValue());
 		for (pos in positions) {
 			var increaseDistance = 0.0;
@@ -187,10 +199,12 @@ class DisplayBar implements IDisplayBar {
 			}
 			
 			this.excessArray.push(increaseDistance);
+			this.widthArray.push(Constants.HEAD_WIDTH + increaseDistance);
 		}
 	
 		this.endXPosition = this.displayNotePositionsXPositions.get(this.getValue());
-		//this.excessArray.shift();
+		this.excessArray.shift();
+		this.widthArray.shift();
 		return this.displayNotePositionsXPositions;
 	}
 	
@@ -250,6 +264,46 @@ class DisplayBar implements IDisplayBar {
 		if (this.endXPosition == null) this.getDisplayNotePositionsXPositions();
 		return this.endXPosition;
 	}
+	
+	private var firstNoteLeftWidth:Float;
+	public function getFirstNoteLeftWidth():Float {
+		if (this.firstNoteLeftWidth != null) return firstNoteLeftWidth;		
+		var r:Rectangle = null;		
+		var pos = 0;
+		for (dp in this.getDisplayParts()) {		
+			if (dp.getDisplayNotesMatrix().exists(pos)) {
+				for (dn in dp.getDisplayNotesMatrix().get(pos)) {
+					trace(dn.getTotalRect());
+					r = (r == null) ? dn.getTotalRect() : r.union(dn.getTotalRect());
+				}
+			}			
+		}
+		this.firstNoteLeftWidth = -r.x;
+		return this.firstNoteLeftWidth;
+	}
+	
+	private var lastNoteRightWidth:Float;
+	public function getLastNoteRightWidth():Float {
+		if (this.lastNoteRightWidth != null) return lastNoteRightWidth;		
+		var r:Rectangle = null;		
+		var pos = this.getPositionsArray()[this.getPositionsArray().length - 2];
+		trace(pos);
+		for (dp in this.getDisplayParts()) {		
+			if (dp.getDisplayNotesMatrix().exists(pos)) {
+				for (dn in dp.getDisplayNotesMatrix().get(pos)) {
+					//trace(dn.getTotalRect());
+					r = (r == null) ? dn.getTotalRect() : r.union(dn.getTotalRect());
+				}
+			}			
+		}
+		this.lastNoteRightWidth = r.x + r.width;
+		return this.lastNoteRightWidth;				
+	}
+	
+	public function getContentWidth():Float {
+		return this.getFirstNoteLeftWidth() + this.getEndXPosition() + this.getLastNoteRightWidth();		
+	}
+	
 	
 	//-----------------------------------------------------------------------------------------------------
 	

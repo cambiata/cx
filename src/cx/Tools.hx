@@ -22,7 +22,7 @@ class Tools
 	}
 	
 	static public function stringAfterLast(str:String, char:String):String {
-		var idx = str.lastIndexOf(char) + 1;
+		var idx = str.lastIndexOf(char) + char.length;
 		return str.substr(idx);
 	}	
 	
@@ -37,7 +37,7 @@ class Tools
 	}
 
 	static public function stringIncludingFirst(str:String, char:String):String {
-		var idx = str.indexOf(char) + 1;
+		var idx = str.indexOf(char) + char.length;
 		return str.substr(0, idx);
 	}	
 	

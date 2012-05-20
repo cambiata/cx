@@ -48,6 +48,17 @@ class ScorxExamples
 		return this.files.get(id);
 	}
 	
+	public function getFilenames(stripDirectory:Bool=true) {
+		var ret = new Array<String>();
+		for (file in this.files) {
+			var filename = (stripDirectory) ? FileTools.getFilename(file) : file;
+			ret.push(filename);
+		}
+		ret.sort(function(a, b) { return Reflect.compare(a, b); } );
+		return ret;
+	}
+	
+	
 	public function getListExamples():TListExamples {
 		return this.listExamples;
 	}	

@@ -21,9 +21,13 @@ class LayoutBar
 		trace (displayBar.getDisplayNotePositionsXPositions());
 		trace(displayBar.getPositionsArray());
 		trace(displayBar.getValuesArray());
+		trace(displayBar.getWidthArray());
 		trace(displayBar.getExcessArray());
 		trace(displayBar.getEndXPosition());
 		trace(displayBar.getValue());
+		trace(displayBar.getFirstNoteLeftWidth());
+		trace(displayBar.getLastNoteRightWidth());
+		trace(displayBar.getContentWidth());
 	}
 	
 	public function stretch(stretchX:Float) {
