@@ -131,6 +131,12 @@ class Tools
 		
 	}
 	
+	static public function iteratorToArray<T>(it : Iterator<T>) : Array<T> {
+		var result = [];
+		for (v in it)
+			result.push(v);
+		return result;
+	}	
 	
 	
 }

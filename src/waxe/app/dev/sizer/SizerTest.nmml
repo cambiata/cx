@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	<app
+		file="SizerTest"
+		title="SizerTest"
+		package="any.thing.test"
+		version="1.0"
+		company="waxe" 
+		main="SizerTest"
+	/>
+
+	<window
+		width="600"
+		height="400"
+		orientation="landscape"
+		fps="24"
+		background="0xffffff"
+		resizeable="true"
+		hardware="true"
+	/>
+	
+	<haxelib name="waxe" />
+
+	<ndll name="waxe" haxelib="waxe" />
+	<ndll name="std" />
+	<ndll name="zlib" />
+	<ndll name="regexp" />
+
+</project>

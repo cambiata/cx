@@ -15,6 +15,7 @@ import smd.server.base.auth.AuthTools;
 import smd.server.base.SiteState;
 import smd.server.ka.auth.KaAuth;
 import smd.server.ka.config.Config;
+import smd.server.ka.data.Functions;
 import smd.server.ka.Site;
 
 
@@ -26,6 +27,8 @@ class UserConfiguration extends AbstractServerConfiguration {
 		
 		ConfigTools.loadConfig(Config, Web.getCwd() + 'conf/Config.txt');
 		//SiteState.messages.infos.push(Config.scorxroot);
+		new Functions();
+		
 		SiteState.user = AuthTools.getCurrentUser(new KaAuth(Web.getCwd() + 'auth/autentisering.dat'));			
     }
 	

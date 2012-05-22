@@ -18,6 +18,7 @@ class Main {
 } 
 */
 import haxe.Http; 
+import neko.io.Process;
 class GoogleTools 
 {
 	private static var urlClientLogin = 'https://www.google.com/accounts/ClientLogin';
@@ -38,6 +39,7 @@ class GoogleTools
 		http.request(false);
 		return authToken;
 	}
+	
 	
 	static public function getAuthorizedHttp(authToken:String, url:String): Http {
 		var http = new Http(url);
@@ -68,12 +70,18 @@ class Spreadsheet
 	public function new(email:String, passwd:String, key:String, ?pageNumber=0) {
 		this.key = key;		
 		this.pageNumber = pageNumber;
-		this.authToken = getAuthToken(email, passwd);
-		this.worksheetLinks = getWorksheetLinks(this.authToken, this.key, this.pageNumber);
+		this.authToken = GoogleTools.getAuthToken(email, passwd);
+		this.worksheetLinks = _getWorksheetLinks(this.authToken, this.key, this.pageNumber);
 	}
 	
 	private static var urlClientLogin = 'https://www.google.com/accounts/ClientLogin';
 	
+	public function getWorksheetLinks() {
+		return this.worksheetLinks;
+	}
+	
+	
+	/*
 	private function getAuthToken(email:String, password:String, ?service:String = 'wise'): String {
 		var authToken = '';
 		var http = new Http(urlClientLogin);
@@ -97,14 +105,27 @@ class Spreadsheet
 		http.setHeader('Authorization', tokenHeader);
 		return http;
 	}
+	*/
 	
-	private function getWorksheetLinks(authToken:String, key:String, pageNumber:Int=0): WorksheetLinks {
+	public function getAuthToken() {
+		return this.authToken;
+	}
+	
+	public function getAuthorizedHttp(url:String): Http {
+		var http = new Http(url);
+		var tokenHeader = 'GoogleLogin Auth=' + this.authToken;
+		http.setHeader('Authorization', tokenHeader);
+		return http;
+	}	
+	
+	
+	public function _getWorksheetLinks(authToken:String, key:String, pageNumber:Int=0): WorksheetLinks {
 		var urlWorksheet = 'https://spreadsheets.google.com/feeds/worksheets/KEY/private/full'.replace('KEY', key);
 		var worksheetLinks:WorksheetLinks = {
 			listLink:null,
 			cellLink:null,
 		}
-		var http = getAuthorizedHttp(authToken, urlWorksheet);
+		var http = GoogleTools.getAuthorizedHttp(authToken, urlWorksheet);
 		http.onError = function(msg:String) { trace(msg); }
 		http.onData = function(data:String) { 
 			
@@ -121,7 +142,7 @@ class Spreadsheet
 	
 	private function getWorksheetCells(authToken:String, cellLink:String): WorksheetCells {
 		var cells = new WorksheetCells();
-		var http = getAuthorizedHttp(authToken, cellLink);
+		var http = GoogleTools.getAuthorizedHttp(authToken, cellLink);
 		http.onError = function(msg:String) { trace(msg); }
 		http.onData = function(data:String) { 
 			var xmlListFeed = Xml.parse(data).firstElement();
@@ -143,7 +164,39 @@ class Spreadsheet
 	//-----------------------------------------------------------------
 	
 	public function getCells(): WorksheetCells {
-		return this.getWorksheetCells(this.authToken, this.worksheetLinks.cellLink);
+		return this.getWorksheetCells(this.authToken, this.worksheetLinks.cellLink);	
+	}
+	
+	
+	//-----------------------------------------------------------------------------------------------------
+	
+	public function addListRow() {
+		trace(this.authToken);
+		trace(this.worksheetLinks.listLink);
+		var post = '<entry xmlns="http://www.w3.org/2005/Atom" xmlns:gsx="http://schemas.google.com/spreadsheets/2006/extended"> <gsx:a>1</gsx:a> <gsx:b>1</gsx:b> </entry>';
+		
+		var proc = new Process('curl', 
+		[
+			'--header',
+			"Content-Type: application/atom+xml",
+			'--header',
+			//"Authorization: GoogleLogin auth=DQAAAMMAAAC3oSF9vqfh_M6o_bhCZ7XtrsSNnpM05Y8MLNeU7QppeoG57HwxYp2mE7OHCRe_FHNecytKIHXF7xPwLFn-TM12qXkknrr_AqtThQ4R0eJYEgZBg6TqOke1D2bpeYe2KZKrW87S2gZTnn9EcFi9t2fhdB9lpoqZPkGBoFo7A59Pw_ACTHoMOzihn_ATKSQrql_NwYQ559wCc2_EoCF2TTNHIsqBq8yYRqJTPwdyEsfjiV6q0SFtHkywrZZP0UshioaLStE1oAOTMX-AJNuug8Dy",
+			"Authorization: GoogleLogin auth=" + authToken,
+			//"https://spreadsheets.google.com/feeds/list/0Ar0dMoySp13UdEtNYTZpcFNzVkYwWmMtUXRiVUJXVVE/od6/private/full",
+			this.worksheetLinks.listLink,
+			'--data',
+			"<entry xmlns='http://www.w3.org/2005/Atom' xmlns:gsx='http://schemas.google.com/spreadsheets/2006/extended'> <gsx:a>1</gsx:a> <gsx:b>1</gsx:b> </entry>",
+			'-k'
+		]);
+		
+		try  {
+			while (true) {
+				var line = proc.stdout.readLine ();
+				trace(line);
+			}
+		} catch (e:Dynamic) { };
+		proc.close();			
+		
 		
 	}
 	
@@ -157,7 +210,7 @@ typedef WorksheetLinks = {
 typedef WorksheetCells = Array<Array<String>>;
 
 
-class GoogleDocumentsTools  {
+class Documents  {
 	
 	
 	private var authToken:String;
@@ -178,8 +231,8 @@ class GoogleDocumentsTools  {
 	}
 	
 	
-	private var documentEntries:Array<DocumentEntry>;
-	public function getDocumentEntries():Array<DocumentEntry> {
+	private var documentEntries:Hash<DocumentEntry>;
+	public function getDocumentEntries():Hash<DocumentEntry> {
 		if (this.documentEntries != null) return this.documentEntries;
 		
 		var urlDocumentList:String = 'https://docs.google.com/feeds/documents/private/full';		
@@ -192,9 +245,14 @@ class GoogleDocumentsTools  {
 		return this.documentEntries;
 	}
 	
+	public function getTitles(): Array<String> {
+		var ret = Tools.iteratorToArray(this.getDocumentEntries().keys());
+		ret.sort(function(a, b) { return Reflect.compare(a, b); } );
+		return ret;
+	}
 	
-	static private function _getDocumentEntries(xmlDocumentList:String):Array<DocumentEntry> {		
-		var ret = new Array<DocumentEntry>();		
+	static private function _getDocumentEntries(xmlDocumentList:String):Hash<DocumentEntry> {		
+		var ret = new Hash<DocumentEntry>();		
 		var xml = Xml.parse(xmlDocumentList);		
 		var xmlFeed = xml.firstElement();		
 		var entries = xmlFeed.elementsNamed('entry');
@@ -207,7 +265,7 @@ class GoogleDocumentsTools  {
 				if (el.nodeName == 'id') documentEntry.id = Tools.stringAfterLast(el.firstChild().toString(), '%3A');
 				if (el.nodeName == 'title') documentEntry.title = el.firstChild().toString();
 			}
-			ret.push(documentEntry);
+			ret.set(documentEntry.title, documentEntry);
 			//i++;			
 		}
 		return ret;		
