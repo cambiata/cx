@@ -7,6 +7,7 @@ package cx;
 
 class Tools 
 {
+	/*
 	static public function stringRepeater(count:Int, repString:String) {
 		var r = '';
 		for (i in 0...count) {
@@ -20,6 +21,8 @@ class Tools
 		var a2 = Lambda.array(Lambda.map(a, function(item) { return StringTools.trim(item); } ));
 		return a2;
 	}
+	*/
+	
 	
 	static public function stringAfterLast(str:String, char:String):String {
 		var idx = str.lastIndexOf(char) + char.length;
@@ -78,6 +81,7 @@ class Tools
 	static public function getComputername():String return neko.Sys.getEnv('COMPUTERNAME')
 	#end
 	
+	/*
 	static public function inRange(min:Float, value:Float, max:Float):Bool {
 		if (value < min) return false;
 		if (value > max) return false;
@@ -95,22 +99,26 @@ class Tools
 		if (value > max) return max;
 		return value;
 	}		
+	*/
 	
 	
-	
-	
+	/*
 	static public function arraysOverlap(array1:Array<Dynamic>, array2:Array<Dynamic>):Bool {		
 		for (item1 in array1) {
 			if (Lambda.has(array2, item1) == true) return true;
 		}
 		return false;
 	}
+	*/
 	
+	/*
 	static public function replaceNullString(str:String, with :String = '-'):String {
 		if (str == null) return with ;
 		return str;
 	}
+	*/
 	
+	/*
 	static public function arrayIntUnique(array:Array<Int>, sort:Bool = true):Array<Int> {
 		var ret = new Array<Int>();
 		for (item in array) {
@@ -127,9 +135,15 @@ class Tools
 		}
 		if (sort) ret.sort(function(a, b) { return Reflect.compare(a, b); } );
 		return ret;
-		
-		
 	}
+	
+	inline public static function add<T>(arr : Array<T>, value : T) : Array<T>
+	{
+		arr.push(value);
+		return arr;
+	}
+	
+
 	
 	static public function iteratorToArray<T>(it : Iterator<T>) : Array<T> {
 		var result = [];
@@ -137,7 +151,7 @@ class Tools
 			result.push(v);
 		return result;
 	}	
-	
+	*/
 	
 }
 
