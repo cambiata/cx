@@ -129,9 +129,7 @@ class Mixer
 		posCurrent = bufferPos / bufferEnd;
 		
 		if (posCurrent >= posStop) this.stopPlayback();
-
-		trace([posStart, posStop, posCurrent]);
-		
+		trace([posStart, posStop, posCurrent]);		
 	}
 	
 	public function startPlayback(posStart:Float=0, posStop:Float=1) {
@@ -153,8 +151,7 @@ class Mixer
 	
 	public function setMainVolume(volume:Float) {	
 		volumeTransform.volume = volume;
-		this.outputChannel.soundTransform = volumeTransform;
-		
+		this.outputChannel.soundTransform = volumeTransform;		
 	}
 } 
  
