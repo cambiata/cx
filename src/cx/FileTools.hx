@@ -22,12 +22,11 @@ class FileTools
 		return FileSystem.exists(path);
 	}
 	
-	
-	static public function safeSlashes(path:String):String {
-		return StringTools.replace(path, '\\', '/');
+	static public function safeSlashes(path:String, endSlash:Bool=true):String {
+		path = StringTools.replace(path, '\\', '/');
+		if (endSlash) path = (StringTools.endsWith(path, '/')) ? path : path + '/';
+		return path;
 	}
-	
-	
 	
 	static public function putContent(filename:String, content:String) {
 		var f = neko.io.File.write(filename, false);
@@ -38,14 +37,6 @@ class FileTools
 	static public function getContent(filename:String):String {
 		return File.getContent(filename);
 	}
-	
-	/*
-	static public function putContentBinary(filename:String, content:String) {
-		var f = neko.io.File.write(filename, true);
-		f.writeString(content);
-		f.close();		
-	}
-	*/
 	
 	static public function getFilesNamesInDirectory(dir:String, ?ext=''):Array<String> {
 		var filenames = neko.FileSystem.readDirectory(dir);
@@ -107,8 +98,7 @@ class FileTools
 	
 	static public function getFileDataBytesInDirectory(dir:String, ?ext=''):List<BytesData> {
 		var list = new List<BytesData>();		
-		dir = StringTools.replace(dir, '\\', '/');
-		if (!StringTools.endsWith(dir, '/')) dir = dir + '/';
+		dir = safeSlashes(dir);
 		var filenames = getFilesNamesInDirectory(dir, ext);
 		
 		for (filename in filenames) { 
@@ -120,6 +110,22 @@ class FileTools
 		}
 		return list;
 	}
+	
+	static public function getFileBytesInDirectory(dir:String, ?ext=''):List<Bytes> {
+		var list = new List<Bytes>();		
+		dir = safeSlashes(dir);
+		var filenames = getFilesNamesInDirectory(dir, ext);		
+		for (filename in filenames) { 			
+			var bytes = File.getBytes(dir + filename);			
+			//var bytesData:BytesData = BytesData.ofString(bytes.toString());
+			//list.add(bytesData);
+			list.add(bytes);
+		}
+		return list;
+	}
+	
+	
+	
 	
 	static public function getBytes(filename:String): Bytes {		
 		return File.getBytes(filename);		

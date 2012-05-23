@@ -1,5 +1,6 @@
 package cx;
 import haxe.io.BytesData;
+import haxe.io.Bytes;
 
 /**
  * ...
@@ -8,6 +9,7 @@ import haxe.io.BytesData;
 
 	
 class BytesTools {	
+	
 	//----------------------------------------------------------------------------------------------------------
 	/*
 	static public function filesegmentsTest() {
@@ -24,7 +26,12 @@ class BytesTools {
 		}	
 	}	
 	*/
-	public static function join(bytesList:List<haxe.io.Bytes>, ?segmentLength:Int = 4):haxe.io.Bytes {
+	
+	static var SEGMENT_LENGTH:Int = 128;
+	
+	
+	public static function join(bytesList:List<haxe.io.Bytes>, ?segmentLength:Int=0):haxe.io.Bytes {
+		if (segmentLength == 0) segmentLength = SEGMENT_LENGTH;
 		bytesList = fillUp(bytesList, segmentLength);
 		var channelsLength:Int = bytesList.length;
 		var bytesLength = bytesList.first().length;
@@ -41,8 +48,9 @@ class BytesTools {
 		return return resultBB.getBytes();
 	}
 	
-	public static function joinBytesDataList(bytesList:List<BytesData>, ?segmentLength:Int = 4):BytesData {
-		
+	
+	/*
+	public static function joinBytesDataList(bytesList:List<BytesData>, ?segmentLength:Int = 4):BytesData {		
 		bytesList = fillUpByteDatas(bytesList, segmentLength);
 		var channelsLength:Int = bytesList.length;
 		var bytesLength = BytesData.length(bytesList.first());
@@ -57,11 +65,7 @@ class BytesTools {
 		for (pos in 0...totalIterations) {
 			for (bytes in bytesList) {
 				trace(BytesData.toString(bytes));
-				/*
-				var sub = bytes.sub(pos * segmentLength, segmentLength);
-				resultBB.add(sub);
-				*/
-				
+
 				var seg = BytesData.toString(bytes).substr(pos * segmentLength, segmentLength);
 				
 				resultString += seg; // BytesData.toString(seg);
@@ -69,12 +73,16 @@ class BytesTools {
 		}		
 		return return BytesData.ofString(resultString);
 	}
+	*/
 
-	public static function fillUp(bytesList:List<haxe.io.Bytes>, ?segmentLength:Int = 4):List<haxe.io.Bytes> {
+	
+	
+	public static function fillUp(bytesList:List<Bytes>, ?segmentsLength:Int=0):List<Bytes> {
+		if (segmentsLength == 0) segmentsLength = SEGMENT_LENGTH;
 		var longest:Float = 0;			
-		bytesList.map(function(bytes:haxe.io.Bytes):Void { longest = Math.max(bytes.length, longest); } ); 
-		var nrOfSegments  = Math.ceil(longest / segmentLength);
-		var filledBytesLength = nrOfSegments * segmentLength;
+		bytesList.map(function(bytes:Bytes):Void { longest = Math.max(bytes.length, longest); } ); 
+		var nrOfSegments  = Math.ceil(longest / segmentsLength);
+		var filledBytesLength = nrOfSegments * segmentsLength;
 		var result = new List<haxe.io.Bytes>();
 		for (bytes in bytesList) {
 			var fillCount = filledBytesLength - bytes.length;
@@ -88,6 +96,7 @@ class BytesTools {
 		return result;
 	}	
 	
+	/*
 	public static function fillUpByteDatas(bytesList:List<BytesData>, ?segmentLength:Int = 4):List<haxe.io.BytesData> {
 		var longest:Float = 0;			
 		bytesList.map(function(bytes:haxe.io.BytesData):Void { longest = Math.max(BytesData.length(bytes), longest); } ); 
@@ -105,9 +114,11 @@ class BytesTools {
 		}
 		return result;
 	}	
+	*/
 	
 	
-	static public function split(bytes:haxe.io.Bytes, nrOfChannels:Int, segmentsLength:Int=4):List<haxe.io.Bytes> {
+	static public function split(bytes:haxe.io.Bytes, nrOfChannels:Int, segmentsLength:Int=0):List<haxe.io.Bytes> {
+		if (segmentsLength == 0) segmentsLength = SEGMENT_LENGTH;
 		var iterations = Std.int(bytes.length / (segmentsLength * nrOfChannels));
 		var bbList = new Array<haxe.io.BytesBuffer>();
 		for (ch in 0...nrOfChannels) {
@@ -128,6 +139,8 @@ class BytesTools {
 		return ret;
 	}
 	
+	
+	/*
 	static public function splitBytesData(bytes:BytesData, nrOfChannels:Int, segmentsLength:Int = 4): List<BytesData> {
 		var bytesStr = BytesData.toString(bytes);
 		
@@ -148,10 +161,13 @@ class BytesTools {
 		for (ch in 0...nrOfChannels) res.add(BytesData.ofString(strs[ch]));
 		return res;
 	}
+	*/
 
 	//-----------------------------------------------------------------------------------------------------------------------
-	#if flash 
-	static public function splitByteArray(bytes:flash.utils.ByteArray, nrOfChannels:Int, segmentsLength:Int=4):Array<flash.utils.ByteArray> {
+	
+#if flash 
+	static public function splitByteArray(bytes:flash.utils.ByteArray, nrOfChannels:Int, segmentsLength:Int=0):Array<flash.utils.ByteArray> {
+		if (segmentsLength == 0) segmentsLength = SEGMENT_LENGTH;
 		var iterations = Std.int(bytes.length / (segmentsLength * nrOfChannels));
 		var bbList = new Array<flash.utils.ByteArray>();
 		for (ch in 0...nrOfChannels) {
@@ -165,7 +181,7 @@ class BytesTools {
 		}
 		return bbList;		
 	}		
-	#end 
+#end 
 	
 	
 }
