@@ -30,4 +30,105 @@ class StrTools
 		return (str == null) ? with : str;
 	}	
 	
+	static public function similarity(strA:String, strB:String):Float {
+		//if (strA == strB) return 1;
+		function sim(strA:String, strB:String) {
+			var lengthA = strA.length;
+			var lengthB = strB.length;
+			var i = 0;
+			var segmentCount = 0;
+			var segmentsInfos = new Array<SegmentInfo>();
+			var segment = '';
+			while (i < lengthA) {
+				var char = strA.charAt(i);
+				if (strB.indexOf(char) > -1) {
+					segment += char;
+					if (strB.indexOf(segment) > -1) {
+						var segmentPosA = i - segment.length + 1;
+						var segmentPosB = strB.indexOf(segment);
+						var positionDiff = Math.abs(segmentPosA - segmentPosB);
+						var posFactor = (lengthA - positionDiff) / lengthB;
+						var lengthFactor = segment.length / lengthA;
+						segmentsInfos[segmentCount] = { segment:segment, score:posFactor * lengthFactor };
+					} else {
+						segment = '';
+						segmentCount++;
+						i--;
+					}
+				} else {
+					segment = '';
+					segmentCount++;
+				}
+				i++;
+			}
+			
+			var usedSegmentsCount = -2;
+			var totalScore = 0.0;
+			//trace(segmentsInfos);
+			for (si in segmentsInfos) {
+				if (si != null) {
+					totalScore += si.score;
+					usedSegmentsCount++;
+				}
+			}
+			totalScore = totalScore - (Math.max(usedSegmentsCount, 0) * 0.02);
+			return Math.max(0, Math.min(totalScore, 1));
+		}
+		var score = sim(strA, strB);
+		if (strA.length != strB.length) score = (score + sim(strB, strA)) / 2;
+		trace(strA + '\t' + strB + '\t' + score);
+		return score;
+	}
+	
+}
+
+/*
+static public function string_compare($str_a, $str_b)
+{
+    $length = strlen($str_a);
+    $length_b = strlen($str_b);
+
+<code>    $i = 0;
+    $segmentcount = 0;
+    $segmentsinfo = array();
+    $segment = '';
+    while ($i < $length)
+    {
+        $char = substr($str_a, $i, 1);
+        if (strpos($str_b, $char) !== FALSE)
+        {
+            $segment = $segment.$char;
+            if (strpos($str_b, $segment) !== FALSE)
+            {
+                $segmentpos_a = $i - strlen($segment) + 1;
+                $segmentpos_b = strpos($str_b, $segment);
+                $positiondiff = abs($segmentpos_a - $segmentpos_b);
+                $posfactor = ($length - $positiondiff) / $length_b; // <-- ?
+                $lengthfactor = strlen($segment)/$length;
+                $segmentsinfo[$segmentcount] = array( 'segment' => $segment, 'score' => ($posfactor * $lengthfactor));
+            }
+            else
+            {
+                 $segment = '';
+                 $i--;
+                 $segmentcount++;
+             }
+         }
+         else
+         {
+             $segment = '';
+            $segmentcount++;
+         }
+         $i++;
+     }
+
+     // PHP 5.3 lambda in array_map
+     $totalscore = array_sum(array_map(function($v) { return $v['score'];  }, $segmentsinfo));
+     return $totalscore;
+}
+*/
+
+typedef SegmentInfo = {
+	segment:String,
+	score:Float
 }
