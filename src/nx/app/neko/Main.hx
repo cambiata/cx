@@ -49,11 +49,11 @@ class Main
 		runner.add(new TestDisplayVoice());
 		runner.add(new TestDisplayPart());
 		runner.add(new TestDisplayBar());
-		//runner.add(new TestRenderDisplayNote());
-		//runner.add(new TestRenderDisplayNote2());
-		//runner.add(new TestRenderDisplayNote3());
-		//runner.add(new TestRenderDisplayPart());
-		//runner.add(new TestRenderDisplayBar());
+		runner.add(new TestRenderDisplayNote());
+		runner.add(new TestRenderDisplayNote2());
+		runner.add(new TestRenderDisplayNote3());
+		runner.add(new TestRenderDisplayPart());
+		runner.add(new TestRenderDisplayBar());
 		runner.add(new TestAllotment());
 		runner.add(new TestLayoutBar());
 		runner.add(new TestXml());

@@ -10,6 +10,9 @@ class ArrayTools
 	static public function unique<T>(arr: Array<T>): Array<T> {
 		var result = new Array<T>();
 		for (item in arr) if (!Lambda.has(result, item)) result.push(item);		
+		
+		result.sort(function(a, b) { return Reflect.compare(a, b); } );
+		
 		return result;
 	}
 	

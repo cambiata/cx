@@ -1,4 +1,5 @@
 package nx.display;
+import cx.ArrayTools;
 import cx.ObjectHash;
 import nx.Constants;
 import nx.display.beam.BeamGroups;
@@ -106,7 +107,7 @@ class DisplayPart implements IDisplayPart {
 		if (this.displayNoteSequence != null) return this.displayNoteSequence;
 		this.displayNoteSequence = new Array<DisplayNote>();
 		
-		var keys = Iterators.array(this.displayNoteMatrix.keys());
+		var keys = ArrayTools.fromIterator(this.displayNoteMatrix.keys());
 		keys.sort(function(a, b) { return Reflect.compare(a, b); } );
 		for (key in keys) {
 			var dna = this.displayNoteMatrix.get(key);

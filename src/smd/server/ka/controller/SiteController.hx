@@ -13,6 +13,14 @@ import smd.server.ka.result.IndexResult;
 class SiteController extends UserController
 {
 
+	@URL("/page/([a-zA-Z]+)", "g")
+	public function page(param : String='default') {						
+		var content = null;
+		if (param.toLowerCase() != 'default') content = new TemplateResult('_docs/page/' + param.toLowerCase() + '.html').execute();
+		return  new IndexResult(null, this.authUser, null, content );		
+	}		
+	
+	
 	@URL("/doc/([a-zA-Z]+)", "g")
 	public function doc(param : String='default') {						
 		var content = null;

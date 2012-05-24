@@ -1,4 +1,5 @@
 package nx.display;
+import cx.MathTools;
 import nme.geom.Rectangle;
 import nx.Constants;
 import nx.element.Head;
@@ -31,7 +32,7 @@ class DisplayHead implements IDisplayHead, implements IDisplayElement
 
 	private var position:Int;
 	public  function setPosition(value:Int):IDisplayHead {
-		this.position = cx.Tools.intRange( -1, value, 1); // Std.int(Math.min(Math.max( -1, value), 1));
+		this.position = MathTools.intRange( -1, value, 1); // Std.int(Math.min(Math.max( -1, value), 1));
 		return this;
 	}	
 	public function getPosition():Int {

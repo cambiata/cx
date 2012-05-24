@@ -46,7 +46,7 @@ class Head < T:Node<Dynamic> > extends Node<Dynamic>, implements IHead {
 	
 	private var level:Int;
 	public function setLevel(value:Int):IHead {
-		this.level = Tools.intRange( -Constants.HEAD_MAX_LEVEL, value, Constants.HEAD_MAX_LEVEL); 
+		this.level = cx.MathTools.intRange( -Constants.HEAD_MAX_LEVEL, value, Constants.HEAD_MAX_LEVEL); 
 		return this;
 	}
 	public function getLevel():Int {

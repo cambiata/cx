@@ -1,4 +1,5 @@
 package nx.display;
+import cx.ArrayTools;
 import cx.ObjectHash;
 import cx.Tools;
 import nme.geom.Rectangle;
@@ -118,7 +119,7 @@ class DisplayBar implements IDisplayBar {
 			var pos = dp.getDisplayNotePositionsArray();	
 			ret = ret.concat(pos);
 		}
-		this.positionsArray = Tools.arrayIntUnique(ret);
+		this.positionsArray = ArrayTools.unique(ret);
 		return this.positionsArray ;
 	}
 	
