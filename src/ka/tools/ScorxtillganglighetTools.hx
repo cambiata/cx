@@ -1,4 +1,5 @@
 package ka.tools;
+import cx.ArrayTools;
 import cx.Tools;
 import ka.types.Scorxtillgangligheter;
 
@@ -26,7 +27,10 @@ class ScorxtillganglighetTools
 				uniqueTillg = uniqueTillg.concat(till.mappar);								
 			}
 		}
-		return Tools.arrayStringUnique(uniqueTillg, true);
+		
+		uniqueTillg = ArrayTools.unique(uniqueTillg);
+		uniqueTillg.sort(function(a, b) { return Reflect.compare(a, b); } );
+		return uniqueTillg;
 	}
 	
 	

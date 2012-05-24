@@ -130,9 +130,9 @@ class Spreadsheet
 		http.onData = function(data:String) { 
 			
 			var xmlFeed = Xml.parse(data).firstElement();
-			var xmlFirstEntry = Iterators.array(xmlFeed.elementsNamed('entry'))[pageNumber];
+			var xmlFirstEntry = ArrayTools.fromIterator(xmlFeed.elementsNamed('entry'))[pageNumber];
 			
-			var xmlEntryLinks = Iterators.array(xmlFirstEntry.elementsNamed('link'));
+			var xmlEntryLinks = ArrayTools.fromIterator(xmlFirstEntry.elementsNamed('link'));
 			worksheetLinks.listLink =  xmlEntryLinks[0].get('href');
 			worksheetLinks.cellLink =  xmlEntryLinks[1].get('href');
 		};
@@ -146,9 +146,9 @@ class Spreadsheet
 		http.onError = function(msg:String) { trace(msg); }
 		http.onData = function(data:String) { 
 			var xmlListFeed = Xml.parse(data).firstElement();
-			var xmlEntries = Iterators.array(xmlListFeed.elementsNamed('entry'));
+			var xmlEntries = ArrayTools.fromIterator(xmlListFeed.elementsNamed('entry'));
 			for (entry in xmlEntries) {
-				var cell = Iterators.array(entry.elementsNamed('gs:cell'))[0];
+				var cell = ArrayTools.fromIterator(entry.elementsNamed('gs:cell'))[0];
 				var text = cell.get('inputValue');
 				var row = Std.parseInt(cell.get('row'))-1;
 				var col = Std.parseInt(cell.get('col'))-1;
@@ -246,7 +246,7 @@ class Documents  {
 	}
 	
 	public function getTitles(): Array<String> {
-		var ret = Tools.iteratorToArray(this.getDocumentEntries().keys());
+		var ret = ArrayTools.fromIterator(this.getDocumentEntries().keys());
 		ret.sort(function(a, b) { return Reflect.compare(a, b); } );
 		return ret;
 	}

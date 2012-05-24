@@ -2,6 +2,7 @@ package ka.tools;
 import cx.EncodeTools;
 import cx.ExcelTools;
 import cx.FileTools;
+import cx.StrTools;
 import cx.Tools;
 import ka.types.Person;
 import ka.types.Personer;
@@ -34,7 +35,7 @@ class PersonerExport
 			var tillg = ScorxtillganglighetTools.getTillganglighet(scorxTillg, person.roll, person.kor, person.personnr );
 			var tillgStr = tillg.join(',');
 			
-			var a = [person.epost, person.xpass, person.efternamn, person.fornamn, person.roll, cx.Tools.replaceNullString(person.kor), tillgStr];
+			var a = [person.epost, person.xpass, person.efternamn, person.fornamn, person.roll, StrTools.replaceNull(person.kor), tillgStr];
 			
 			var str = a.join('|') + '\n';
 			f.writeString(str);			

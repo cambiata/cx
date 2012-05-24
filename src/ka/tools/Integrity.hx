@@ -1,4 +1,5 @@
 package ka.tools;
+import cx.ReflectTools;
 import cx.Tools;
 import ka.types.Admingrupper;
 import ka.types.Korer;
@@ -11,6 +12,7 @@ import ka.types.StudieterminerExt;
  * @author Jonas Nyström
  */
 
+using StringTools;
 class Integrity 
 {
 	static private var aLan = [
@@ -47,9 +49,12 @@ class Integrity
 	
 	static private var errors:IntegrityErrors;
 	
-	static public function check(personer:Personer, studieterminerExt:StudieterminerExt, admingrupper:Admingrupper, korer:Korer) {			
+	static public function check(personer:Personer, studieterminerExt:StudieterminerExt=null, admingrupper:Admingrupper=null, korer:Korer=null, fieldsPerson:Person=null) {			
 		
-		errors = new IntegrityErrors();				
+		errors = new IntegrityErrors();			
+		
+		if (fieldsPerson != null) checkFieldsPerson(fieldsPerson);
+		
 		if (personer != null) checkPersoner(personer);		
 		if (studieterminerExt != null) checkStudieterminerExt(studieterminerExt);
 		if (admingrupper != null) checkAdmingrupper(admingrupper);
@@ -103,8 +108,10 @@ class Integrity
 	static private function checkPersoner(prs:Personer) {
 		for (p in prs) {
 			var id = p.efternamn + ', ' + p.fornamn + ' (' + p.personnr + ')';
+			validBlankEnds('Person/fornamn/blanksteg', id, p.fornamn);
 			validStringLength('Person/Fornamn/Length', id, 		p.fornamn, 2);			
 			validFirstUppercase('Person/Fornamn/Uppercase', id, p.fornamn);
+			validBlankEnds('Person/efternamn/blanksteg', id, p.efternamn );
 			validStringLength('Person/Efternamn/Length', id, 	p.efternamn, 2);
 			validFirstUppercase('Person/Efternamn/Uppercase', id, p.efternamn, 'von ,de la ,af ');
 			validEmail('Person/Email/Valid', id, 				p.epost);
@@ -176,6 +183,14 @@ class Integrity
 	
 	//-----------------------------------------------------------------------------------------------------
 	
+	static private function validBlankEnds(type:String, id:String, str:String) {
+		if (str != str.trim()) addError(type, id, 'The string >' + str + '< begins or ends with a blank space!');		
+	}
+	
+	static private function validStringSame(type:String, id:String, strA:String, strB:String) {
+		if (strA != strB) addError(type, id, strA + ' is not equal as ' + strB);
+	}
+	
 	static private function validStringLength(type:String, id:String,  checkString:String, length:Int) {
 		if (checkString.length < length) addError(type, id, checkString  + ' is shorter than ' + length + ' chars');
 	}
@@ -246,6 +261,22 @@ class Integrity
 		//if (Lambda.indexOf(items, item) < 0) addError(type, id, item + ' finns inte bland alternativen ' + items.join(','));
 		
 	}	
+	
+	static public function checkFieldsPerson(fieldsPerson:Person) {		
+		var fields = ReflectTools.getObjectFields(fieldsPerson);
+		trace(fields);
+		for (field in fields) {
+			var value = Reflect.field(fieldsPerson, field);
+			if (Std.is(value, Array)) {
+				value = Std.string(value).replace('[', '').replace(']', '' );
+			}
+			switch(field) {
+				case 'sheetrow': {}	
+				default:
+					validStringSame('Kontroller persontabell-headers', 'Persontabell', field, value);
+			}
+		}
+	}
 	
 	
 	

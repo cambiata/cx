@@ -1,4 +1,5 @@
 package ka.tools;
+import cx.StrTools;
 import cx.Tools;
 import ka.types.Person;
 import ka.types.Personer;
@@ -7,7 +8,7 @@ import ka.types.Personer;
  * ...
  * @author Jonas Nyström
  */
-
+using cx.StrTools;
 class PersonerTools 
 {
 	static public function getPersonerEmails(personer:Personer):Array<String> {
@@ -40,13 +41,13 @@ class PersonerTools
 		for (person in personer) {
 			html += '<tr>';
 			html += '<td valign="top">';
-			html += '<p class="name">' + Tools.replaceNullString(person.efternamn) + ', ' + Tools.replaceNullString(person.fornamn) + '</p>';
+			html += '<p class="name">' + person.efternamn.replaceNull() + ', ' + person.fornamn.replaceNull() + '</p>';
 			html += '</p>';
 			html += '</td>';			
 			html += '<td valign="top">';
-			html += '<p>' + Tools.replaceNullString(person.personnr) + '</p>';
-			html += '<p>' + Tools.replaceNullString(person.epost) + '</p>';
-			html += '<p>' + Tools.replaceNullString(person.gatuadr) + ', ' + Tools.replaceNullString(person.postnr) + ' ' + Tools.replaceNullString(person.postadr) + '</p>';
+			html += '<p>' + person.personnr.replaceNull() + '</p>';
+			html += '<p>' + person.epost.replaceNull() + '</p>';
+			html += '<p>' + person.gatuadr.replaceNull() + ', ' + person.postnr.replaceNull() + ' ' + person.postadr.replaceNull() + '</p>';
 			html += '</td>';
 
 			html += '<td valign="top" align="right">';
@@ -58,10 +59,10 @@ class PersonerTools
 			
 			
 			html += '<td valign="top">';
-			html += '<p>' + Tools.replaceNullString(person.studieterminer.join(', ')) + '</p>';
-			html += '<p>' + Tools.replaceNullString(person.kor) + '</p>';
-			html += '<p>' + Tools.replaceNullString(person.roll) + '</p>';
-			html += '<p>' + Tools.replaceNullString(person.admgrupp) + '</p>';
+			html += '<p>' + person.studieterminer.join(', ') + '</p>';
+			html += '<p>' + person.kor.replaceNull()  + '</p>';
+			html += '<p>' + person.roll.replaceNull() + '</p>';
+			html += '<p>' + person.admgrupp.replaceNull() + '</p>';
 			html += '</td>';
 			
 			

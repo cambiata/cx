@@ -30,5 +30,43 @@ class ArrayTools
 		return false;
 	}	
 	
+	static public function first<T>(array:Array<T>): T {
+		return array[0];
+	}
+
+	static public function last<T>(array:Array<T>): T {
+		return array[array.length-1];
+	}
+	
+	public static function shuffle<T>(a : Array<T>) : Array<T> {
+		var t = range(a.length);
+		var arr = [];
+		while (t.length > 0)
+		{
+			var pos = Std.random(t.length),
+				index = t[pos];
+			t.splice(pos, 1);
+			arr.push(a[index]);
+		}
+		return arr;
+	}	
+
+	//-----------------------------------------------------------------------------------------------------
+	
+	public static function range(start : Int, ?stop : Int, step = 1) : Array<Int>
+	{
+		if (null == stop)
+		{
+			stop = start;
+			start = 0;
+		}
+		if ((stop - start) / step == Math.POSITIVE_INFINITY) throw "infinite range";
+		var range = [], i = -1, j;
+		if (step < 0)
+			while ((j = start + step * ++i) > stop) range.push(j);
+		else
+			while ((j = start + step * ++i) < stop) range.push(j);
+		return range;
+	}	
 	
 }

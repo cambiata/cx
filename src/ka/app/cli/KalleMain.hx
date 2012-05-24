@@ -5,6 +5,7 @@ import cx.ExcelTools;
 import cx.FileTools;
 import cx.GoogleTools;
 import cx.HtmlTools;
+import cx.MathTools;
 import cx.Tools;
 import cx.ValidationTools;
 import haxe.Serializer;
@@ -250,11 +251,11 @@ class AdminCli extends CliBase {
 		
 	}
 	
-	static public function setStudieterminerFiletToDate(date:Date) {		
+	static public function setStudieterminerFiletToDate(date:Date) {
 		var filterStudieterminer = new Studieterminer();
 		for (se in dataStudieterminerExt) {
 			if (se.start != null) {				
-				if (Tools.inRange(se.start.getTime(), date.getTime(), se.slut.getTime())) {
+				if (MathTools.inRange(se.start.getTime(), date.getTime(), se.slut.getTime())) {
 					filterStudieterminer.push(se.namn);	
 				}			
 			}

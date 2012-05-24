@@ -29,7 +29,13 @@ class ReflectTools
 		return Reflect.fields(getClass(object));
 	}	
 	
+	static public function getObjectFields(object:Dynamic) {
+		return Reflect.fields(object);
+	}
+	
 	static public function getStaticField(object:Dynamic, fieldName:String) {
 		return Reflect.field(getClass(object), fieldName);
 	}
+	
+	
 }

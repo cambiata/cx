@@ -25,6 +25,7 @@ class AuthTools {
 				authUser = getUserNull();
 				authUser.msg = 'Logged out';
 				SiteState.messages.infos.push('User logged out!');
+				
 			} else if (user != '' && pass != '') {
 				// try to log in...
 				

@@ -37,6 +37,14 @@ class StrTools
 		return (str == null) ? with : str;
 	}	
 	
+	static public function afterLast(str:String, char:String, includeChar:Bool=false):String {
+		var idx = str.lastIndexOf(char);
+		if (!includeChar) idx += char.length;
+		return str.substr(idx);
+	}		
+	
+	
+	
 	static public function similarityCaseIgnore(strA:String, strB:String):Float {
 		return similarity(strA.toLowerCase(), strB.toLowerCase());
 	}

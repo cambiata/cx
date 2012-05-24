@@ -14,18 +14,19 @@ class DataFunctions
 	static public var params:Hash<String>;
 	
 	public function new() {
+
 		params = Web.getParams();
-		var keys = Web.getParams().keys();
-		var classFields = ReflectTools.getFields(this);
+		if (!params.keys().hasNext()) return;
+		Firebug.trace('hehe');
 		
+		var keys = Web.getParams().keys();
+		var classMethods = ReflectTools.getMethods(this);		
 		for (key in keys) {
 			var value = params.get(key);
 			var funcname = "__" + key + "_" + value;
-			if (Lambda.has(classFields, funcname)) {
-				var field = ReflectTools.getField(this, funcname);
-				if (field != null) field();
+			if (Lambda.has(classMethods, funcname)) {
+				ReflectTools.callMethod(this, funcname, []);
 			}			
 		}
 	}
-	
 }

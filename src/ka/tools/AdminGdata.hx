@@ -1,4 +1,6 @@
 package ka.tools;
+import cx.google.Goo;
+import cx.StrTools;
 import cx.Tools;
 import ka.types.Admingrupp;
 import ka.types.Admingrupper;
@@ -20,6 +22,7 @@ import ka.app.KalleConfig;
  * @author Jonas Nyström
  */
 using StringTools;
+using cx.ArrayTools;
 class AdminGdata 
 {
 	/*
@@ -87,7 +90,7 @@ class AdminGdata
 		for (cell in cells) {
 			if (cell[0].trim() == '') continue;
 			var gruppnamn = cell[0];
-			var studieterminer:Studieterminer = cx.Tools.splitTrim(cell[1]);			
+			var studieterminer:Studieterminer = cx.StrTools.splitTrim(cell[1]);			
 			var grupp:Admingrupp = { gruppnamn:gruppnamn, studieterminer:studieterminer };
 			admingrupper.push(grupp);
 		}
@@ -101,7 +104,7 @@ class AdminGdata
 		for (cell in cells) {
 			if (cell[0].trim() == '') continue;
 			var namn = cell[0];			
-			var studieterminer:Studieterminer = Tools.splitTrim(cell[1]);			
+			var studieterminer:Studieterminer = StrTools.splitTrim(cell[1]);			
 			var kor:Kor = { namn:namn, studieterminer:studieterminer };
 			korer.push(kor);
 		}		
@@ -138,9 +141,11 @@ class AdminGdata
 		var g = new cx.GoogleTools.Spreadsheet(email, passwd, sheetPersoner);
 		var cells = g.getCells();		
 		//fieldsPersoner = cells.shift();		
+		var rowNr = 1;
 		var dataPersoner = new Personer();		
 		for (cell in cells) {			
 			var p:Person = {
+				sheetrow:rowNr,
 				personnr:cell[0],
 				fornamn:cell[1],
 				efternamn:cell[2],
@@ -152,7 +157,7 @@ class AdminGdata
 				roll:cell[8],
 				kor:cell[9],
 				admgrupp:cell[10],
-				studieterminer:Tools.splitTrim(cell[11], ',') ,
+				studieterminer:StrTools.splitTrim(cell[11], ',') ,
 				studiestart:cell[12],
 				studieavslut:cell[13],
 				loggstudier:cell[14],
@@ -161,6 +166,7 @@ class AdminGdata
 				xpass:cell[17],
 			}
 			dataPersoner.push(p);			
+			rowNr++;
 		}
 		
 		personerFields = dataPersoner.shift();
@@ -173,5 +179,23 @@ class AdminGdata
 		
 		return dataPersoner;
 		
+	}
+	
+	static public function setPersonData(row:Int, col:Int, value:String) {
+		var authToken = Goo.getAuthToken(email, passwd);
+		trace(authToken);		
+		var xmlWorksheet = Goo.getXmlWorksheet(authToken, sheetPersoner);
+		var sheetsInfo = Goo.getSheetsInfo(xmlWorksheet, sheetPersoner);
+		var firstSheet = sheetsInfo.first();
+		trace(firstSheet);
+		
+		var cellEntry = Goo.getCellChangeEntry(sheetPersoner, firstSheet.id, row, col, value);
+		var cellUrl = Goo.getCellFeedUrl(sheetPersoner, firstSheet.id, row, col);
+		
+		trace(cellUrl);
+		trace(cellEntry);
+		
+		var result = Goo.updateCell(authToken, cellUrl, cellEntry);
+		trace(result);
 	}
 }
