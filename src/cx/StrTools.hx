@@ -30,9 +30,21 @@ class StrTools
 		return (str == null) ? with : str;
 	}	
 	
-	static public function similarity(strA:String, strB:String):Float {
-		//if (strA == strB) return 1;
-		function sim(strA:String, strB:String) {
+	static public var SIM_CASE_EQUAL = 'simCaseEqual';
+	static public var SIM_CASE_BALANCE = 'simCaseBalance';
+	static public var SIM_CASE_UNEQUAL = 'simCaseUnequal';
+	
+	static public function similarity(strA:String, strB:String, caseMode:String = null):Float {
+		if (strA == strB) return 1;
+		
+		if (caseMode == null) caseMode = SIM_CASE_UNEQUAL;
+		
+		if (caseMode == SIM_CASE_EQUAL) {
+			strA = strA.toLowerCase();
+			strB = strB.toLowerCase();
+		}
+
+		function core(strA:String, strB:String) {
 			var lengthA = strA.length;
 			var lengthB = strB.length;
 			var i = 0;
@@ -74,9 +86,24 @@ class StrTools
 			totalScore = totalScore - (Math.max(usedSegmentsCount, 0) * 0.02);
 			return Math.max(0, Math.min(totalScore, 1));
 		}
+		
+		function sim(strA:String, strB:String) {
+			var score = core(strA, strB);
+			// if different length, swap and run a second pass...	
+			if (strA.length != strB.length) score = (score + core(strB, strA)) / 2;
+			return score;
+		}
+		
+		// first pass
 		var score = sim(strA, strB);
-		if (strA.length != strB.length) score = (score + sim(strB, strA)) / 2;
-		trace(strA + '\t' + strB + '\t' + score);
+		
+		
+		// if balance, run a second pass with alts set to lowercase and combine the scores...
+		if (caseMode == SIM_CASE_BALANCE) score = (score + sim(strA.toLowerCase(), strB.toLowerCase())) / 2;
+		
+		// debug...
+		trace(strA + '\t' + strB + '\t' + caseMode + '\t' + score);
+		
 		return score;
 	}
 	
