@@ -7,14 +7,21 @@ package cx;
 
 class StrTools 
 {
+	static public function tab(str:String) {
+		return str + '\t';
+	}
 
-	static public function stringRepeater(repString:String, count:Int) {
+	static public function newline(str:String) {
+		return str + '\n';
+	}
+	
+	static public function repeat(repeatString:String, count:Int) {
 		var result = '';
-		for (i in 0...count) result += repString;
+		for (i in 0...count) result += repeatString;
 		return result;
 	}
 	
-	static public function fillString(str:String, toLength:Int = 32, ?with :String = ' ', ?replaceNull:String='-') {
+	static public function fill(str:String, toLength:Int = 32, with:String=' ', replaceNull:String='-') {
 		if (str == null) str = replaceNull;
 		do { str += with; } while (str.length < toLength);
 		return str.substr(0, toLength);
@@ -30,26 +37,23 @@ class StrTools
 		return (str == null) ? with : str;
 	}	
 	
-	static public var SIM_CASE_EQUAL = 'simCaseEqual';
-	static public var SIM_CASE_BALANCE = 'simCaseBalance';
-	static public var SIM_CASE_UNEQUAL = 'simCaseUnequal';
+	static public function similarityCaseIgnore(strA:String, strB:String):Float {
+		return similarity(strA.toLowerCase(), strB.toLowerCase());
+	}
 	
-	static public function similarity(strA:String, strB:String, caseMode:String = null):Float {
+	static public function similarityCaseBalance(strA:String, strB:String):Float {
+		return (similarity(strA, strB) + similarity(strA.toLowerCase(), strB.toLowerCase())) / 2;
+	}
+	
+	static public function similarity(strA:String, strB:String):Float {
 		if (strA == strB) return 1;
 		
-		if (caseMode == null) caseMode = SIM_CASE_UNEQUAL;
-		
-		if (caseMode == SIM_CASE_EQUAL) {
-			strA = strA.toLowerCase();
-			strB = strB.toLowerCase();
-		}
-
 		function core(strA:String, strB:String) {
 			var lengthA = strA.length;
 			var lengthB = strB.length;
 			var i = 0;
 			var segmentCount = 0;
-			var segmentsInfos = new Array<SegmentInfo>();
+			var segmentsInfos = new Array<SimilaritySegment>();
 			var segment = '';
 			while (i < lengthA) {
 				var char = strA.charAt(i);
@@ -76,13 +80,13 @@ class StrTools
 			
 			var usedSegmentsCount = -2;
 			var totalScore = 0.0;
-			//trace(segmentsInfos);
 			for (si in segmentsInfos) {
 				if (si != null) {
 					totalScore += si.score;
 					usedSegmentsCount++;
 				}
 			}
+			// every used segment more than 2 gives a tiny score minus
 			totalScore = totalScore - (Math.max(usedSegmentsCount, 0) * 0.02);
 			return Math.max(0, Math.min(totalScore, 1));
 		}
@@ -94,68 +98,12 @@ class StrTools
 			return score;
 		}
 		
-		// first pass
-		var score = sim(strA, strB);
-		
-		
-		// if balance, run a second pass with alts set to lowercase and combine the scores...
-		if (caseMode == SIM_CASE_BALANCE) score = (score + sim(strA.toLowerCase(), strB.toLowerCase())) / 2;
-		
-		// debug...
-		trace(strA + '\t' + strB + '\t' + caseMode + '\t' + score);
-		
+		var score =  sim(strA, strB);
 		return score;
 	}
-	
 }
 
-/*
-static public function string_compare($str_a, $str_b)
-{
-    $length = strlen($str_a);
-    $length_b = strlen($str_b);
-
-<code>    $i = 0;
-    $segmentcount = 0;
-    $segmentsinfo = array();
-    $segment = '';
-    while ($i < $length)
-    {
-        $char = substr($str_a, $i, 1);
-        if (strpos($str_b, $char) !== FALSE)
-        {
-            $segment = $segment.$char;
-            if (strpos($str_b, $segment) !== FALSE)
-            {
-                $segmentpos_a = $i - strlen($segment) + 1;
-                $segmentpos_b = strpos($str_b, $segment);
-                $positiondiff = abs($segmentpos_a - $segmentpos_b);
-                $posfactor = ($length - $positiondiff) / $length_b; // <-- ?
-                $lengthfactor = strlen($segment)/$length;
-                $segmentsinfo[$segmentcount] = array( 'segment' => $segment, 'score' => ($posfactor * $lengthfactor));
-            }
-            else
-            {
-                 $segment = '';
-                 $i--;
-                 $segmentcount++;
-             }
-         }
-         else
-         {
-             $segment = '';
-            $segmentcount++;
-         }
-         $i++;
-     }
-
-     // PHP 5.3 lambda in array_map
-     $totalscore = array_sum(array_map(function($v) { return $v['score'];  }, $segmentsinfo));
-     return $totalscore;
-}
-*/
-
-typedef SegmentInfo = {
+typedef SimilaritySegment = {
 	segment:String,
 	score:Float
 }
