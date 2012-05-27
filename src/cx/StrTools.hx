@@ -43,8 +43,6 @@ class StrTools
 		return str.substr(idx);
 	}		
 	
-	
-	
 	static public function similarityCaseIgnore(strA:String, strB:String):Float {
 		return similarity(strA.toLowerCase(), strB.toLowerCase());
 	}
@@ -55,60 +53,63 @@ class StrTools
 	
 	static public function similarity(strA:String, strB:String):Float {
 		if (strA == strB) return 1;
-		
-		function core(strA:String, strB:String) {
-			var lengthA = strA.length;
-			var lengthB = strB.length;
-			var i = 0;
-			var segmentCount = 0;
-			var segmentsInfos = new Array<SimilaritySegment>();
-			var segment = '';
-			while (i < lengthA) {
-				var char = strA.charAt(i);
-				if (strB.indexOf(char) > -1) {
-					segment += char;
-					if (strB.indexOf(segment) > -1) {
-						var segmentPosA = i - segment.length + 1;
-						var segmentPosB = strB.indexOf(segment);
-						var positionDiff = Math.abs(segmentPosA - segmentPosB);
-						var posFactor = (lengthA - positionDiff) / lengthB;
-						var lengthFactor = segment.length / lengthA;
-						segmentsInfos[segmentCount] = { segment:segment, score:posFactor * lengthFactor };
-					} else {
-						segment = '';
-						segmentCount++;
-						i--;
-					}
-				} else {
-					segment = '';
-					segmentCount++;
-				}
-				i++;
-			}
-			
-			var usedSegmentsCount = -2;
-			var totalScore = 0.0;
-			for (si in segmentsInfos) {
-				if (si != null) {
-					totalScore += si.score;
-					usedSegmentsCount++;
-				}
-			}
-			// every used segment more than 2 gives a tiny score minus
-			totalScore = totalScore - (Math.max(usedSegmentsCount, 0) * 0.02);
-			return Math.max(0, Math.min(totalScore, 1));
-		}
-		
 		function sim(strA:String, strB:String) {
 			var score = core(strA, strB);
 			// if different length, swap and run a second pass...	
 			if (strA.length != strB.length) score = (score + core(strB, strA)) / 2;
 			return score;
 		}
-		
-		var score =  sim(strA, strB);
-		return score;
+		return sim(strA, strB);
 	}
+	
+	static public function similarityAssymetric(strShorter:String, strShorter:String):Float {
+		if (strShorter == strLonger) return 1;
+		return  _similarity(strShorter, strShorter);
+	}
+	
+	static public function _similarity(strA:String, strB:String) {
+		var lengthA = strA.length;
+		var lengthB = strB.length;
+		var i = 0;
+		var segmentCount = 0;
+		var segmentsInfos = new Array<SimilaritySegment>();
+		var segment = '';
+		while (i < lengthA) {
+			var char = strA.charAt(i);
+			if (strB.indexOf(char) > -1) {
+				segment += char;
+				if (strB.indexOf(segment) > -1) {
+					var segmentPosA = i - segment.length + 1;
+					var segmentPosB = strB.indexOf(segment);
+					var positionDiff = Math.abs(segmentPosA - segmentPosB);
+					var posFactor = (lengthA - positionDiff) / lengthB;
+					var lengthFactor = segment.length / lengthA;
+					segmentsInfos[segmentCount] = { segment:segment, score:posFactor * lengthFactor };
+				} else {
+					segment = '';
+					segmentCount++;
+					i--;
+				}
+			} else {
+				segment = '';
+				segmentCount++;
+			}
+			i++;
+		}
+		
+		var usedSegmentsCount = -2;
+		var totalScore = 0.0;
+		for (si in segmentsInfos) {
+			if (si != null) {
+				totalScore += si.score;
+				usedSegmentsCount++;
+			}
+		}
+		// every used segment more than 2 gives a tiny score minus
+		totalScore = totalScore - (Math.max(usedSegmentsCount, 0) * 0.02);
+		return Math.max(0, Math.min(totalScore, 1));
+	}
+	
 }
 
 typedef SimilaritySegment = {
