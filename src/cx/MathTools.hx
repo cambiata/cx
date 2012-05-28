@@ -24,6 +24,12 @@ class MathTools
 		if (value < min) return min;
 		if (value > max) return max;
 		return value;
-	}		
+	}	
+	
+	static public function round2(number:Float, precision:Int=2): Float {
+		number = number * Math.pow(10, precision);
+		number = Math.round( number ) / Math.pow(10, precision);
+		return number;
+	}
 	
 }
