@@ -11,6 +11,12 @@ class XmlTools
 		return entry.elementsNamed(elementName).next().firstChild().toString();	
 	}
 	
+	static public function getFirstElement(entry:Xml, elementName:String):Xml {
+		return entry.elementsNamed(elementName).next();	
+	}
+		
+	
+	
 	static public function getElementAttrValue(entry:Xml, elementName:String, attribute:String): String {
 		return entry.elementsNamed(elementName).next().get(attribute);		
 	}

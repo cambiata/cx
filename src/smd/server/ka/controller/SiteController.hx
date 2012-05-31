@@ -1,5 +1,6 @@
 package smd.server.ka.controller;
 import smd.server.base.controller.UserController;
+import smd.server.base.result.HtmlWrappedResult;
 import smd.server.base.result.OdtResult;
 import smd.server.base.result.ScorxResult;
 import smd.server.base.result.TemplateResult;
@@ -40,7 +41,10 @@ class SiteController extends UserController
 	@URL("/info/([a-zA-Z]+)", "g")
 	public function info(param : String='default') {						
 		var content = null;
-		if (param.toLowerCase() != 'default') content = new OdtResult('_docs/info/' + param.toLowerCase() + '.odt', { }, '_docs/info/doc_' + param.toLowerCase() + '.html' ).execute();
+		if (param.toLowerCase() != 'default') {
+			//content = new OdtResult('_docs/info/' + param.toLowerCase() + '.odt', { }, '_docs/info/doc_' + param.toLowerCase() + '.html' ).execute();
+			content = new HtmlWrappedResult('_docs/info/' + param.toLowerCase() + '.html', { }, '_docs/info/doc_' + param.toLowerCase() + '.html' ).execute();
+		}
 		return  new IndexResult(null, this.authUser, null, content );		
 	}	
 	

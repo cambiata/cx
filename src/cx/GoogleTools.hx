@@ -279,14 +279,21 @@ class Documents  {
 	
 	public function getDocumentDownloadString(id:String, format:String):String {		
 		var url = getDownloadUrl(id, format);		
-		var ret:String = null;		
+		//trace(this.authToken);
+		//trace(url);
+		//var url = "https://docs.google.com/feeds/download/documents/Export?exportFormat=html&id=1GE6UfrAPNMikaFfBJHIBoLg2yNM4Dke3EwBkF9ZMlSk";
+		//trace(url);
+		var ret:String = null;
+		
 		var http = GoogleTools.getAuthorizedHttp(this.getAuthToken(this.email, this.passwd), url);
 		http.onError = function(msg:String) { trace(msg); }
 		http.onData = function(data:String) { 
 			//trace(data.length);
-			ret = data;			
+			ret = data;		
+			//FileTools.putContent('link.txt', ret);
 		};
 		http.request(false);					
+		
 		return ret;		
 	}
 	
@@ -300,6 +307,43 @@ class Documents  {
 		FileTools.putContent(filename, string);
 	}
 	
+	public function getEntryForTitle(titleSearch:String):DocumentEntry {		
+		var entries = this.getDocumentEntries();
+		for (entry in entries) {
+			if (entry.title.toLowerCase().indexOf(titleSearch.toLowerCase()) > -1) return entry;			
+		}
+		return null;
+	}
+	
+	public  function getCleanHtml(content:String): String {
+		
+		content = RegexTools.closeImageTags(content);
+		content = RegexTools.closeHrTags(content);
+		
+		var xml = Xml.parse(content).firstElement();
+		var bodyXml = XmlTools.getFirstElement (xml, 'body');
+		bodyXml.remove('class');		
+		var elements = bodyXml.elements();
+		for (element in elements) {
+			element.remove('class');	
+			for (el in element.elements()) {
+				el.remove('class');
+			}
+			if (element.nodeName == 'table') {
+				element.set('width', '100%');
+			}
+		}
+		var bodyString = bodyXml.toString();
+		bodyString = StringTools.replace(bodyString, '<span>', '');
+		bodyString = StringTools.replace(bodyString, '</span>', '');
+		bodyString = StringTools.replace(bodyString, '<hr>', '<hr/>');
+		bodyString = StringTools.replace(bodyString, '**', '<b>');
+		bodyString = StringTools.replace(bodyString, '##', '<i>');
+		bodyString = StringTools.replace(bodyString, '/*', '</b>');
+		bodyString = StringTools.replace(bodyString, '/#', '</i>');
+		
+		return bodyString;
+	}
 	
 }
 

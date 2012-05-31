@@ -17,7 +17,6 @@ class DataFunctions
 
 		params = Web.getParams();
 		if (!params.keys().hasNext()) return;
-		Firebug.trace('hehe');
 		
 		var keys = Web.getParams().keys();
 		var classMethods = ReflectTools.getMethods(this);		
