@@ -341,6 +341,7 @@ class Documents  {
 		bodyString = StringTools.replace(bodyString, '##', '<i>');
 		bodyString = StringTools.replace(bodyString, '/*', '</b>');
 		bodyString = StringTools.replace(bodyString, '/#', '</i>');
+		bodyString = StringTools.replace(bodyString, 'http://', '');
 		
 		return bodyString;
 	}

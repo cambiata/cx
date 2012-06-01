@@ -29,7 +29,6 @@ class SiteController extends UserController
 		return  new IndexResult(null, this.authUser, null, content );		
 	}	
 	
-	
 	/*
 	@URL("/info/([a-zA-Z]+)", "g")
 	public function info(param : String='default') {						
@@ -38,6 +37,7 @@ class SiteController extends UserController
 		return  new IndexResult(null, this.authUser, null, content );		
 	}
 	*/
+	
 	@URL("/info/([a-zA-Z]+)", "g")
 	public function info(param : String='default') {						
 		var content = null;
@@ -48,7 +48,15 @@ class SiteController extends UserController
 		return  new IndexResult(null, this.authUser, null, content );		
 	}	
 	
-	
+	@URL("/kurs/([a-zA-Z]+)", "g")
+	public function kurs(param : String='default') {						
+		var content = null;
+		if (param.toLowerCase() != 'default') {
+			//content = new OdtResult('_docs/info/' + param.toLowerCase() + '.odt', { }, '_docs/info/doc_' + param.toLowerCase() + '.html' ).execute();
+			content = new HtmlWrappedResult('_docs/kurs/' + param.toLowerCase() + '.html', { }, '_docs/kurs/doc_' + param.toLowerCase() + '.html' ).execute();
+		}
+		return  new IndexResult(null, this.authUser, null, content );		
+	}		
 	
 	
 	@URL("/contact")
