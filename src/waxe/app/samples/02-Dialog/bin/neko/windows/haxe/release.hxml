@@ -1,0 +1,8 @@
+-main ApplicationMain 
+-D nme_install_tool
+-lib waxe
+-D desktop
+-cp bin/neko/windows/haxe
+-cp bin/neko/haxe
+-neko bin/neko/windows/obj/ApplicationMain.n
+--remap flash:nme

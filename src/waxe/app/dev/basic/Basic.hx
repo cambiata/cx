@@ -47,6 +47,17 @@ class Basic
 		
 		sizer.add(boxSizer,0, Sizer.BORDER_ALL, 10);
 		
+		var listBox = ListBox.create(winPanel, null, null, null, ['alt 1', 'alt 2']);
+		sizer.add(listBox, 0, Sizer.EXPAND);
+		
+		listBox.setString(0, 'hello');
+		listBox.setString(1, null);
+		//listBox.
+		
+		var comboBox = ComboBox.create(winPanel, null, 'hello', null, null, ['alt a', 'alt b']);
+		sizer.add(comboBox, 0, Sizer.EXPAND);
+		
+		
 		/*
 		sizer.add(btnClose);
 		var staticText = StaticText.create(winPanel, null, "TextCtrl");
