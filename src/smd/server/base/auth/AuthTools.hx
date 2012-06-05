@@ -13,9 +13,12 @@ import smd.server.ka.auth.KaAuth;
 
 class AuthTools {	
 	
-	static public function getCurrentUser(auth:IAuth):AuthUser {
+	static public function getCurrentUser(auth:IAuth, sessionDir:String):AuthUser {
 		var authUser:AuthUser = getUserNull();
-		NekoSession.setSavePath(neko.Web.getCwd() + 'session/');		
+		
+		NekoSession.setSavePath(sessionDir);		
+		//NekoSession.setSavePath(neko.Web.getCwd() + 'session/');		
+		
 		// logga in eller logga ut...
 		if (Web.getMethod() == 'POST') {						
 			var user = Web.getParams().get('user');

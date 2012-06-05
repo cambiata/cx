@@ -1,6 +1,7 @@
 package smd.server.base.result;
 import cx.FileTools;
 import neko.Web;
+import smd.server.base.SiteState;
 
 /**
  * ...
@@ -12,11 +13,23 @@ class HtmlWrappedResult extends ActionResult
 	private var data:Dynamic;
 	private var docTemplate:String;
 	private var htmlFile:String;
+	static private var template:String = 'templates/content/document.html';
+	
 	public function new(htmlFile:String, ?data:Dynamic=null, docTemplate:String = 'templates/content/document.html') {
-		this.htmlFile = cx.Web.getCwd() + '/' + htmlFile;
 		this.data = data;
-		this.docTemplate = FileTools.exists(Web.getCwd() +  docTemplate) ? docTemplate : 'templates/content/document.html';
-		if (!neko.FileSystem.exists(this.htmlFile)) throw new harfang.exceptions.Exception("Can''t find odt file " + htmlFile);		
+		this.htmlFile = (FileTools.exists(htmlFile)) ? htmlFile : cx.Web.getCwd() + '/' + htmlFile;
+		
+		this.docTemplate = FileTools.exists(docTemplate) ? docTemplate : Web.getCwd() + '/' + docTemplate;
+		//this.docTemplate = docTemplate;
+	
+		//trace(this.docTemplate);
+		if (!FileTools.exists(this.docTemplate))
+		this.docTemplate = FileTools.exists(template) ? template : Web.getCwd() + '/' + template;
+		//SiteState.messages.infos.push(this.docTemplate);
+		
+		
+		if (!neko.FileSystem.exists(this.htmlFile)) throw new harfang.exceptions.Exception("Can''t find html file " + this.htmlFile);		
+		if (!neko.FileSystem.exists(this.docTemplate)) throw new harfang.exceptions.Exception("Can''t find template file " + this.docTemplate);		
 	}
 	
 	override public function execute() {	
@@ -30,6 +43,7 @@ class HtmlWrappedResult extends ActionResult
 		//var xmlParts = OdtTools.getXmlParts(z);
 		//var html = OdtTools.getMeta() + OdtTools.getHtmlFromContent(xmlParts, z, 40);
 		var html = FileTools.getContent(this.htmlFile);
+		
 		
 		return new TemplateResult(this.docTemplate , { document:html }).execute() ;
 		

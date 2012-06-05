@@ -26,10 +26,9 @@ class UserConfiguration extends AbstractServerConfiguration {
         this.addModule(new Site());	
 		
 		ConfigTools.loadConfig(Config, Web.getCwd() + 'conf/Config.txt');
-		//SiteState.messages.infos.push(Config.scorxroot);
 		new Functions();
 		
-		SiteState.user = AuthTools.getCurrentUser(new KaAuth(Web.getCwd() + 'auth/autentisering.dat'));			
+		SiteState.user = AuthTools.getCurrentUser(new KaAuth(Config.authDir + 'autentisering.dat'), Config.sessionDir);			
     }
 	
 	override public function onHTTPError(error : HTTPException) : Void {

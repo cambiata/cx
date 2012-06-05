@@ -4,6 +4,8 @@ import haxe.Firebug;
 import ka.tools.PersonerTools;
 import ka.tools.PersonTools;
 import ka.types.Person;
+import neko.io.File;
+import neko.io.FileInput;
 import smd.server.base.auth.AuthResult;
 import smd.server.base.auth.AuthTools;
 import smd.server.base.auth.AuthUser;
@@ -26,7 +28,16 @@ class KaAuth implements IAuth {
 	
 	public function check(user:String, pass:String):AuthUser {		
 		var authUser:AuthUser = AuthTools.getUserNull();
-		var file = neko.io.File.read(this.authFilename, false);				
+		
+		var file:FileInput = null;
+		try {
+			file = neko.io.File.read(this.authFilename, false);			
+		} catch (e:Dynamic) {
+			SiteState.messages.infos.push("Can't read auth file " + this.authFilename);
+			return authUser;			
+		}
+		
+		
 		try {
 			while(true) {
 				var line = file.readLine().trim();

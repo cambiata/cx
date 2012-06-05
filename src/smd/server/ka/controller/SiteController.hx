@@ -4,6 +4,8 @@ import smd.server.base.result.HtmlWrappedResult;
 import smd.server.base.result.OdtResult;
 import smd.server.base.result.ScorxResult;
 import smd.server.base.result.TemplateResult;
+import smd.server.base.SiteState;
+import smd.server.ka.config.Config;
 import smd.server.ka.result.IndexResult;
 
 /**
@@ -14,10 +16,12 @@ import smd.server.ka.result.IndexResult;
 class SiteController extends UserController
 {
 
+	
 	@URL("/page/([a-zA-Z]+)", "g")
 	public function page(param : String='default') {						
 		var content = null;
-		if (param.toLowerCase() != 'default') content = new TemplateResult('_docs/page/' + param.toLowerCase() + '.html').execute();
+		var dir = Config.docsDir + 'page/';
+		if (param.toLowerCase() != 'default') content = new TemplateResult(dir + param.toLowerCase() + '.html').execute();
 		return  new IndexResult(null, this.authUser, null, content );		
 	}		
 	
@@ -25,25 +29,17 @@ class SiteController extends UserController
 	@URL("/doc/([a-zA-Z]+)", "g")
 	public function doc(param : String='default') {						
 		var content = null;
-		if (param.toLowerCase() != 'default') content = new OdtResult('_docs/' + param.toLowerCase() + '.odt', { } ).execute();
+		var dir = Config.docsDir;
+		if (param.toLowerCase() != 'default') content = new OdtResult(Config.docsDir + param.toLowerCase() + '.odt', { } ).execute();
 		return  new IndexResult(null, this.authUser, null, content );		
 	}	
 	
-	/*
 	@URL("/info/([a-zA-Z]+)", "g")
 	public function info(param : String='default') {						
 		var content = null;
-		if (param.toLowerCase() != 'default') content = new TemplateResult('templates/info/' + param.toLowerCase() + '.html').execute();
-		return  new IndexResult(null, this.authUser, null, content );		
-	}
-	*/
-	
-	@URL("/info/([a-zA-Z]+)", "g")
-	public function info(param : String='default') {						
-		var content = null;
+		var dir = Config.docsDir + 'info/';
 		if (param.toLowerCase() != 'default') {
-			//content = new OdtResult('_docs/info/' + param.toLowerCase() + '.odt', { }, '_docs/info/doc_' + param.toLowerCase() + '.html' ).execute();
-			content = new HtmlWrappedResult('_docs/info/' + param.toLowerCase() + '.html', { }, '_docs/info/doc_' + param.toLowerCase() + '.html' ).execute();
+			content = new HtmlWrappedResult(dir + param.toLowerCase() + '.html', { }, dir + 'doc_' + param.toLowerCase() + '.html' ).execute();
 		}
 		return  new IndexResult(null, this.authUser, null, content );		
 	}	
@@ -51,9 +47,9 @@ class SiteController extends UserController
 	@URL("/kurs/([a-zA-Z]+)", "g")
 	public function kurs(param : String='default') {						
 		var content = null;
+		var dir = Config.docsDir + 'kurs/';
 		if (param.toLowerCase() != 'default') {
-			//content = new OdtResult('_docs/info/' + param.toLowerCase() + '.odt', { }, '_docs/info/doc_' + param.toLowerCase() + '.html' ).execute();
-			content = new HtmlWrappedResult('_docs/kurs/' + param.toLowerCase() + '.html', { }, '_docs/kurs/doc_' + param.toLowerCase() + '.html' ).execute();
+			content = new HtmlWrappedResult(dir + param.toLowerCase() + '.html', { }, dir + 'doc_' + param.toLowerCase() + '.html' ).execute();
 		}
 		return  new IndexResult(null, this.authUser, null, content );		
 	}		
@@ -61,13 +57,12 @@ class SiteController extends UserController
 	@URL("/form/([a-zA-Z]+)", "g")
 	public function form(param : String='default') {						
 		var content = null;
+		var dir = Config.docsDir + 'form/';
 		if (param.toLowerCase() != 'default') {
-			//content = new OdtResult('_docs/info/' + param.toLowerCase() + '.odt', { }, '_docs/info/doc_' + param.toLowerCase() + '.html' ).execute();
-			content = new HtmlWrappedResult('_docs/form/' + param.toLowerCase() + '.html', { }, '_docs/form/doc_' + param.toLowerCase() + '.html' ).execute();
+			content = new HtmlWrappedResult(dir + param.toLowerCase() + '.html', { }, dir + 'doc_' + param.toLowerCase() + '.html' ).execute();
 		}
 		return  new IndexResult(null, this.authUser, null, content );		
 	}		
-	
 	
 	
 	@URL("/contact")

@@ -1,4 +1,5 @@
 package smd.server.base.result;
+import cx.FileTools;
 
 
 /**
@@ -11,9 +12,11 @@ class TemplateResult extends ActionResult
 	private var templateFile:String;
 	private var data:Dynamic;
 	public function new(templateFile:String, ?data:Dynamic=null) {
-		this.templateFile = cx.Web.getCwd() + '/' + templateFile;
+		this.templateFile = (FileTools.exists(templateFile)) ? templateFile : cx.Web.getCwd() + '/' + templateFile;
+		//this.templateFile = templateFile;
+		
 		this.data = data;
-		if (!neko.FileSystem.exists(this.templateFile)) throw new harfang.exceptions.Exception("Can''t find templateFile " + templateFile);		
+		if (!neko.FileSystem.exists(this.templateFile)) throw new harfang.exceptions.Exception("Can't find templateFile " + templateFile);		
 	}
 	
 	override public function execute() {		
