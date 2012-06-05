@@ -58,6 +58,17 @@ class SiteController extends UserController
 		return  new IndexResult(null, this.authUser, null, content );		
 	}		
 	
+	@URL("/form/([a-zA-Z]+)", "g")
+	public function form(param : String='default') {						
+		var content = null;
+		if (param.toLowerCase() != 'default') {
+			//content = new OdtResult('_docs/info/' + param.toLowerCase() + '.odt', { }, '_docs/info/doc_' + param.toLowerCase() + '.html' ).execute();
+			content = new HtmlWrappedResult('_docs/form/' + param.toLowerCase() + '.html', { }, '_docs/form/doc_' + param.toLowerCase() + '.html' ).execute();
+		}
+		return  new IndexResult(null, this.authUser, null, content );		
+	}		
+	
+	
 	
 	@URL("/contact")
 	public function contact() {						

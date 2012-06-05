@@ -13,5 +13,6 @@ typedef AuthUser = {
 	msg:String,	
 	person:Person,
 	scorxids:String,
+	role:String,
 }
 

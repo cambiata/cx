@@ -60,20 +60,36 @@ class Functions extends DataFunctions
 	}
 	
 	public function __func_update() {
-		var uri = Web.getURI();
-		var doc = 'ka-sitedoc-' + uri.substr(1).replace('/', '_');
-		var d = new cx.GoogleTools.Documents(KalleConfig.email, KalleConfig.passwd);
-		var entries = d.getDocumentEntries();
-		var entry = d.getEntryForTitle(doc);
-		if (entry == null) {
-			SiteState.messages.errors.push("Can't find document entry " + doc);
-			return;
+		
+		var entry:DocumentEntry = null;
+		var content:String = null;
+		
+		try {
+			
+			var uri = Web.getURI();
+			var doc = 'ka-sitedoc-' + uri.substr(1).replace('/', '_');
+			var d = new cx.GoogleTools.Documents(KalleConfig.email, KalleConfig.passwd);
+			var entries = d.getDocumentEntries();
+			
+			entry = d.getEntryForTitle(doc);
+			if (entry == null) {
+				SiteState.messages.errors.push("Can't find document entry " + doc);
+				return;
+			}
+			
+			content = d.getDocumentDownloadString(entry.id, 'html');
+			content = d.getCleanHtml(content);		
+		} catch (e:Dynamic) {
+			SiteState.messages.errors.push('Can not load remote document!');
 		}
-		var content = d.getDocumentDownloadString(entry.id, 'html');
-		content = d.getCleanHtml(content);		
-		var filename = entry.title.replace('ka-sitedoc-', '');
-		filename = filename.replace('_', '/');
-		FileTools.putContent(Web.getCwd() + '/_docs/' + filename + '.html', content);		
+		
+		try {
+			var filename = entry.title.replace('ka-sitedoc-', '');
+			filename = filename.replace('_', '/');
+			FileTools.putContent(Web.getCwd() + '/_docs/' + filename + '.html', content);
+		} catch (e:Dynamic) {
+			SiteState.messages.errors.push('Can not save document!');
+		}
 	}
 	
 }

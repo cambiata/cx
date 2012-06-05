@@ -38,14 +38,15 @@ class KaAuth implements IAuth {
 						var p = PersonTools.getFromString(line);										
 						authUser.success = true;
 						authUser.person = p;
+						authUser.role = p.roll;
 						var scorxdirs = Tools.stringAfterLast(line, '|');
 						
 						//-----------------------------------------------------------------------------------------------------						
-						SiteState.messages.infos.push(scorxdirs);
-						SiteState.messages.infos.push(Config.scorxroot);
+						//SiteState.messages.infos.push(scorxdirs);
+						//SiteState.messages.infos.push(Config.scorxroot);
 						var ids = ScorxTools.getIdsInDirectory(Config.scorxroot, scorxdirs.split(','));
 						authUser.scorxids = ids.join(',');
-						SiteState.messages.infos.push(authUser.scorxids);
+						//SiteState.messages.infos.push(authUser.role);
 						//-----------------------------------------------------------------------------------------------------
 						authUser.msg = 'Authentication success: User ' + p.epost + ' ok!';
 						return authUser;				

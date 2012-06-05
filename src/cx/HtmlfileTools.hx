@@ -35,6 +35,15 @@ class HtmlfileTools
 		return null;
 	}
 	
+	static public function main() {
+		trace(RegexTools.closeImageTags('<img src="123456">'));
+		trace(RegexTools.closeImageTags('<img>'));
+		trace(RegexTools.closeHrTags('<hr x="123">'));
+		trace(RegexTools.closeHrTags('<hr>'));
+		
+	}
+	
+	
 }
 
 typedef HtmlItem = {

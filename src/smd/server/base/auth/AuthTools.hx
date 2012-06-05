@@ -32,11 +32,12 @@ class AuthTools {
 				//var authResult:AuthResult = new KaAuth(Web.getCwd() + 'autentisering.dat').check(user, pass);
 				
 				var authResult:AuthResult = auth.check(user, pass);
-				
+				//SiteState.messages.infos.push(Std.string(authResult));
 				if (authResult.success) {					
 					//if (true) {					
 					authUser.user = authResult.person.fornamn + ' ' + authResult.person.efternamn;
 					authUser.pass = authResult.person.xpass;
+					authUser.role = authResult.person.roll;
 					authUser.msg = 'Login ok';
 					SiteState.messages.success.push('Login ok');
 					
@@ -62,6 +63,6 @@ class AuthTools {
 	}
 	
 	static public function getUserNull():AuthUser {
-		return {success:false, user:null, pass:null, msg:null, person:null, scorxids:null};
+		return {success:false, user:null, pass:null, msg:null, person:null, scorxids:null, role:null};
 	}
 }
