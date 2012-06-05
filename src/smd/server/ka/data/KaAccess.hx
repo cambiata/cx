@@ -15,6 +15,7 @@ import neko.Lib;
 import ka.tools.AdminGdata;
 import neko.Sys;
 import neko.Web;
+import smd.server.ka.config.Config;
 
 
 /**
@@ -62,11 +63,15 @@ class KaAccess
 			
 			resultPersoner = applyFilters(dataPersoner);
 			
-	
+			/*
 			for (p in resultPersoner) {
 				//Lib.println(EncodeTools.cliDecode(p.efternamn + ' ' + p.fornamn));			
 			}
-			PersonerExport.toAuthfile(Web.getCwd() + 'auth/autentisering.dat', resultPersoner, dataScorxtillgangligheter);
+			*/
+			
+			var authFilename = Config.authDir + 'autentisering.dat';
+			
+			PersonerExport.toAuthfile(authFilename, resultPersoner, dataScorxtillgangligheter);
 	
 			if (logCallback != null) logCallback('Finished updating authfile...');
 			

@@ -25,7 +25,7 @@ class Functions extends DataFunctions
 		Firebug.trace('Update Scorx!');
 	}
 	*/
-	/*
+
 	public function __func_access() {		
 		//Firebug.trace('Access update');
 		KaAccess.update(function(msg:String) {
@@ -33,7 +33,7 @@ class Functions extends DataFunctions
 			SiteState.messages.infos.push(msg);
 		});
 	}
-	*/
+
 	
 	public function __func_update() {
 		

@@ -41,7 +41,7 @@ class KaAuth implements IAuth {
 		try {
 			while(true) {
 				var line = file.readLine().trim();
-				Firebug.trace(line);
+				//Firebug.trace(line);
 				if (line.startsWith(user)) {					
 					var checkPass = line.split('|')[1];
 					if (checkPass == pass) {
@@ -76,7 +76,7 @@ class KaAuth implements IAuth {
 		try {
 			file.close();	
 		} catch (e:Dynamic) {
-			Firebug.trace(e);
+			//Firebug.trace(e);
 		}
 		
 		authUser.msg = 'Authentication fail: User ' + user + ' not found!';
