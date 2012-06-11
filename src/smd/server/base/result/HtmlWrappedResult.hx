@@ -18,6 +18,7 @@ class HtmlWrappedResult extends ActionResult
 	public function new(htmlFile:String, ?data:Dynamic=null, docTemplate:String = 'templates/content/document.html') {
 		this.data = data;
 		this.htmlFile = (FileTools.exists(htmlFile)) ? htmlFile : cx.Web.getCwd() + '/' + htmlFile;
+		//this.htmlFile =  htmlFile ;
 		
 		this.docTemplate = FileTools.exists(docTemplate) ? docTemplate : Web.getCwd() + '/' + docTemplate;
 		//this.docTemplate = docTemplate;
