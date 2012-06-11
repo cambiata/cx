@@ -4,7 +4,7 @@ package cx;
  * ...
  * @author Jonas Nyström
  */
-
+using StringTools;
 class StrTools 
 {
 	static public function tab(str:String) {
@@ -29,13 +29,28 @@ class StrTools
 	
 	static public function splitTrim(str:String, delimiter:String=','):Array<String> {
 		var a = str.split(delimiter);
-		var a2 = Lambda.array(Lambda.map(a, function(item) { return StringTools.trim(item); } ));
+		var a2 = new Array<String>();
+		for (part in a) {
+			var part2 = StringTools.trim(part);
+			if (part.length > 0) a2.push(part);
+		}
 		return a2;
+		/*
+		var a2 = Lambda.array(Lambda.map(a, function(item) { 
+			var part = StringTools.trim(item); 
+			if (part.length > 0) return part;			
+			} ));
+		return a2;
+		*/
 	}	
 	
 	static public function replaceNull(str:String, with:String = '-'):String {
 		return (str == null) ? with : str;
 	}	
+	
+	static public function firstUpperCase(str:String):String {
+		return str.substr(0, 1).toUpperCase() + str.substr(1).toLowerCase();
+	}
 	
 	static public function afterLast(str:String, char:String, includeChar:Bool=false):String {
 		var idx = str.lastIndexOf(char);

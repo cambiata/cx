@@ -14,7 +14,7 @@ class ReflectTools
 	static public function callMethod(object:Dynamic, methodName:String, args:Array<Dynamic>=null) {		
 		if (!Lambda.has(getMethods(object), methodName)) throw "Method " + methodName + " doesn't exist!";
 		if (args == null) args = [];
-		Reflect.callMethod(object, Reflect.field(object, methodName), args);
+		return Reflect.callMethod(object, Reflect.field(object, methodName), args);
 	}
 	
 	static public function getClass(object:Dynamic) {

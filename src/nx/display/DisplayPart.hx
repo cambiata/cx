@@ -31,13 +31,15 @@ interface IDisplayPart {
 	function getDisplayNoteAvoidVoiceXDistances(): ObjectHash<Float>;
 	function getDisplayNotePosition(displayNote:DisplayNote):Int;
 	function getDisplayNotePositionsArray(): Array<Int>;
-	function getDisplayNoteXDistances(): ObjectHash<Float>;
-	
+	function getDisplayNoteXDistances(): ObjectHash<Float>;	
 	function getBeamGroups(): BeamGroups;
 }
 
 using Lambda;
 class DisplayPart implements IDisplayPart {
+	
+	public var displayClusters:IntHash<DisplayCluster>;
+	
 	private var part:Part<Voice<Note<Head<Dynamic>>>>;
 	public function getPart():Part<Voice<Note<Head<Dynamic>>>> {
 		return this.part;		
@@ -66,6 +68,8 @@ class DisplayPart implements IDisplayPart {
 		this.displayNoteMatrix = new IntHash<Array<DisplayNote>>(); 
 		this.dNotePositions = new ObjectHash<Int>();
 		this.displayNotePositionsArray = new Array<Int>();
+
+		this.displayClusters = new IntHash<DisplayCluster>();
 		
 		for (voice in part.children) {
 			var displayVoice = new DisplayVoice(voice, voice.getDirection(), this.beaming);
@@ -162,7 +166,6 @@ class DisplayPart implements IDisplayPart {
 		return this.displayNoteXDistances;	
 	}
 	
-	
 	private var displayNoteXPostitions: ObjectHash<Float>;
 	public function getDisplayNoteXPostitions(): ObjectHash<Float> {
 		if (this.displayNoteXPostitions != null) return this.displayNoteXPostitions;		
@@ -218,7 +221,6 @@ class DisplayPart implements IDisplayPart {
 			var pos = this.getDisplayNotePosition(dn);			
 			if (!this.displayNotePositionsXPositions.exists(pos)) this.displayNotePositionsXPositions.set(pos, dnPosX);
 		}				
-		//displayNotePositionsXPositions.set(this.getValue(), dnPosX + Constants.HEAD_WIDTH);
 		return this.displayNotePositionsXPositions;
 	}
 	
@@ -229,10 +231,8 @@ class DisplayPart implements IDisplayPart {
 		for (dv in this.getDisplayVoices()) {
 			this.beamGroups = this.beamGroups.concat(dv.getBeamGroups());			
 		}
-		//trace(this.beamGroups.length);
 		return this.beamGroups;
 	}
-	
 	
 	//-----------------------------------------------------------------------------------
 	public function toString() {

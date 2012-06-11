@@ -42,21 +42,31 @@ class Main
 		runner.add(new TestHead());
 		runner.add(new TestDisplayHead());		
 		runner.add(new TestNote());
+		
 		runner.add(new TestDisplayNote());	
+		
+		
 		runner.add(new TestVoice());
 		runner.add(new TestPart());
 		runner.add(new TestBar());
 		runner.add(new TestDisplayVoice());
 		runner.add(new TestDisplayPart());
-		runner.add(new TestDisplayBar());
+		//runner.add(new TestDisplayBar());
+		
+		
+		/*
 		runner.add(new TestRenderDisplayNote());
 		runner.add(new TestRenderDisplayNote2());
 		runner.add(new TestRenderDisplayNote3());
 		runner.add(new TestRenderDisplayPart());
-		runner.add(new TestRenderDisplayBar());
+		*/
+		//runner.add(new TestRenderDisplayBar());
+		/*
 		runner.add(new TestAllotment());
 		runner.add(new TestLayoutBar());
 		runner.add(new TestXml());
+		*/
+		
 		runner.run();
 	}
 }

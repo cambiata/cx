@@ -1,4 +1,5 @@
 package nx.display;
+import cx.geom.IPolyRect;
 import cx.NmeTools;
 import nme.geom.Rectangle;
 import nx.Constants;
@@ -23,31 +24,26 @@ interface IDisplayNote {
 	function getDisplayHeadPositions(): Array<Int>;
 	function getDisplayHeadBottom():DisplayHead;
 	function getDisplayHeadTop():DisplayHead;
-	function getDisplayHeadsDisplayRects():Array<Rectangle>;
-	
+	function getDisplayHeadsDisplayRects():Array<Rectangle>;	
 	function getValue():ENoteValue;
 	function getLevel():Int;	
-
 	function getDirection():EDirectionUD;
-	function setDirection(direction:EDirectionUD):IDisplayNote;
-	
+	function setDirection(direction:EDirectionUD):IDisplayNote;	
 	function getDisplayRect():Rectangle;
-	function getDisplayRectStave():Rectangle;
-	
+	function getDisplayRectStave():Rectangle;	
 	function getDisplayRectSigns():Rectangle;
 	function getDisplayRectAppogiatura():Rectangle;
 	function getDisplayRectTieTo():Rectangle;
 	function getDisplayRectArpeggio():Rectangle;
 	function getDisplayRectDots():Rectangle;
 	function getDisplayRectTieFrom():Rectangle;
-	function getDisplayRectClef():Rectangle;
-	
+	function getDisplayRectClef():Rectangle;	
 }
  
  
 using DisplayNote.SignsUtil; 
 using cx.NmeTools;
-class DisplayNote implements IDisplayNote, implements IDisplayElement
+class DisplayNote implements IDisplayNote, implements IDisplayElement, implements IPolyRect
 {
 
 	private var _hasTieFrom:Bool;
@@ -538,6 +534,15 @@ class DisplayNote implements IDisplayNote, implements IDisplayElement
 	}
 	
 	//-----------------------------------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------------------------------
+	
+	/* INTERFACE cx.geom.IPolyRect */
+	
+	public function getRects():Array<Rectangle> 
+	{
+		return null;
+	}	
+	
 	
 	
 }
@@ -620,5 +625,9 @@ class SignsUtil {
 		
 		return resultRect;
 	}
+	
+
+
+	
 }
 

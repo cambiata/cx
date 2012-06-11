@@ -64,44 +64,13 @@ class TestRenderDisplayBar extends RenderBase
 		var p1 = Part.getNew([
 			Voice.getNew([
 
-				Note.getNew([Head.getNew(1)], ENoteValue.Nv8),
-				Note.getNew([Head.getNew(1)], ENoteValue.Nv8),
-				Note.getNew([Head.getNew(1)], ENoteValue.Nv8),
-
-				Note.getNew([Head.getNew(5)], ENoteValue.Nv8),				
-				Note.getNew([Head.getNew(1)], ENoteValue.Nv8),
-				Note.getNew([Head.getNew(1)], ENoteValue.Nv8),
 				
-				Note.getNew([Head.getNew(1)], ENoteValue.Nv8),				
-				Note.getNew([Head.getNew(1)], ENoteValue.Nv8),
-				Note.getNew([Head.getNew(5)], ENoteValue.Nv8),
-				
-				Note.getNew([Head.getNew(5)], ENoteValue.Nv8),				
-				Note.getNew([Head.getNew(3)], ENoteValue.Nv8),
-				Note.getNew([Head.getNew(1)], ENoteValue.Nv8),
-				
-				Note.getNew([Head.getNew(1)], ENoteValue.Nv8),				
-				Note.getNew([Head.getNew(3)], ENoteValue.Nv8),
-				Note.getNew([Head.getNew(5)], ENoteValue.Nv8),
-
-				Note.getNew([Head.getNew(1)], ENoteValue.Nv8),				
-				Note.getNew([Head.getNew(5)], ENoteValue.Nv8),
-				Note.getNew([Head.getNew(1)], ENoteValue.Nv8),
-				
-				
-				
-				
-				/*
-				Note.getNew([Head.getNew(1)], ENoteValue.Nv8),
-				Note.getNew([Head.getNew(1)], ENoteValue.Nv8),
-				*/
-				/*
-				Note.getNew([Head.getNew(0)]),
+			Note.getNew([Head.getNew(0)]),
+			Note.getNew([Head.getNew(-3)]),
 				Note.getNew([Head.getNew(-1)], ENoteValue.Nv8),
 				Note.getNew([Head.getNew(-1)], ENoteValue.Nv8),
 				Note.getNew([Head.getNew(-1)]),
-				Note.getNew([Head.getNew(-1)]),
-				*/
+
 				//Note.getNew([Head.getNew(-1)]),
 				//Note.getNew([Head.getNew(-1)], ENoteValue.Nv8dot),
 				])/*.setDirection(EDirectionUAD.Up)*/, 
@@ -210,7 +179,6 @@ class TestRenderDisplayBar extends RenderBase
 				Note.getNew([Head.getNew(-1), Head.getNew(-3)], ENoteValue.Nv4),
 				Note.getNew([Head.getNew(-1)], ENoteValue.Nv4),
 
-				
 				Note.getNew([Head.getNew(-0)], ENoteValue.Nv16),
 				Note.getNew([Head.getNew(-1)], ENoteValue.Nv16),
 				Note.getNew([Head.getNew(-3)], ENoteValue.Nv16),
@@ -221,10 +189,11 @@ class TestRenderDisplayBar extends RenderBase
 			
 			
 		var db = new DisplayBar(Bar.getNew([
-			//p0, 
+			p0, 
+			p1,
 			//pMultiUp, 
 			//pMultiDown
-			p16th,
+			//p16th,
 		]), new BeamingProcessor_4());
 		
 		/*

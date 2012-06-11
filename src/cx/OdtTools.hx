@@ -1,4 +1,8 @@
 package cx;
+import cx.docs.IndexTools;
+import cx.docs.IndexTools.Index;
+import cx.docs.IndexTools.IndexItem;
+import cx.docs.IndexTools.IndexParser;
 
 /**
  * ...
@@ -12,18 +16,7 @@ class OdtTools
 		
 		var html = getMeta() + getHtmlFromOdt(odtFileName);
 		FileTools.putContent(odtFileName+'.html', html);	
-		
-		/*
-		var es = odtGetZipEntries(odtFileName);
-		for (e in es) {
-			trace(e.fileName);
-		}
-		var xmlStr = odtGetBodyTextXmlStr(es);
-		trace(xmlStr);
-		
-		var html = odtContentToHtml(xmlStr);
-		FileTools.putContent('test.odt.xml', html);
-		*/
+
 	}
 	
 	static public function getXmlParts(zipEntries:List<format.zip.Data.Entry>):OdtXmlParts {	
@@ -222,15 +215,10 @@ class OdtTools
 		return ret;
 	}
 
+	/*
 	static public function getIndexes(xmlStr:String, refFilename:String='') {
 		
-		/*
-		var starttag = '<tag name="text:alphabetical-index-mark-start';
-		var endtag = '<tag name="text:alphabetical-index-mark-end';
-		xmlStr = StringTools.replace(xmlStr, starttag, '<b>' + starttag);
-		xmlStr = StringTools.replace(xmlStr, endtag, '</b>' + endtag);
-		*/
-		
+
 		var ret = new Array<OdtIndex>();
 		var r = ~/(<text:alphabetical-index-mark-start[^<]+?>)([^<]*)(<text:alphabetical-index-mark-end[^<]+?>)/gm;
 		while (r.match(xmlStr)) {			
@@ -249,13 +237,48 @@ class OdtTools
 			var key2 = startXml.firstElement().get('text:key2');
 			
 			for (key in keys) {
-				ret.push( { id:id, content:content, pos:pos, len:len, key:key /*, key2:key2*/, filename:refFilename, filekey:EncodeTools.base64Encode(refFilename) } );
+				ret.push( { id:id, content:content, pos:pos, len:len, key:key , filename:refFilename, filekey:EncodeTools.base64Encode(refFilename) } );
 			}
 			
 			
 			xmlStr = r.matchedRight();			
 		}		
 		return ret;
+	}
+	*/
+	
+	static public function getIndex(xmlStr:String, refFilename:String = '') {
+		
+		/*
+		var ret = new Index();
+		var regex = ~/<a[ .]*href="idx:\/\/([^"]*)"[.]*>([a-zA-Z0-9]*)[.]*<\/a>/igm;
+		while (regex.match(xmlStr)) {
+			var indexWordsInfo = regex.matched(1);
+			var textWord = regex.matched(2);
+
+			var pos = regex.matchedPos().pos;
+			var length = regex.matchedPos().len;
+			xmlStr = regex.matchedRight();
+
+			var indexWords = StrTools.splitTrim(indexWordsInfo, ';');
+			
+			for (indexWord in indexWords) {
+				trace(indexWord);
+					var index:OdtIndexItem = {
+							text:textWord,
+							id:null,
+							keyword:indexWord,	
+							pos:pos,
+							length:length,
+							filename:refFilename,
+							filekey:null,
+					}
+					ret.push(index);
+			}
+		}
+		return ret;
+		*/
+		return IndexParser.parse(xmlStr);
 	}
 	
 	static public function getTOC(xmlStr:String, refFilename:String = '') {
@@ -414,20 +437,49 @@ typedef OdtBookmark = {
 	filekey:String,
 }
 
-typedef OdtIndex = {
-	content:String,
-	id:String,
-	key:String,	
-	pos:Int,
-	len:Int,
-	filename:String,
-	filekey:String,
-	//key2:String,
-}
-
 typedef OdtTOC = {
 	type:String,
 	content:String,
 	filename:String,
 	filekey:String,
 }
+
+
+/*
+typedef OdtIndex = Array<OdtIndexItem>;
+
+typedef OdtIndexItem = {
+	text:String,
+	id:String,
+	keyword:String,	
+	pos:Int,
+	length:Int,
+	filename:String,
+	filekey:String,
+	//key2:String,
+}
+
+
+
+class OdtIndexTool {	
+	private var index:OdtIndex;
+	public function new(indexes:Iterable<OdtIndex>) {
+		this.index = new OdtIndex();
+		for (index in indexes) {
+			this.index = this.index.concat(index);
+		}
+		trace(this.index);
+	}	
+	
+	public function getKeywordIndex():Hash<OdtIndex> {
+		var ret = new Hash<OdtIndex>();
+		for (indexItem in this.index) {			
+			if (!ret.exists(indexItem.keyword)) ret.set(indexItem.keyword, new OdtIndex());
+			ret.get(indexItem.keyword).push(indexItem);
+		}
+		return ret;
+	}
+	
+	
+}
+*/
