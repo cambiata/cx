@@ -8,8 +8,7 @@ import haxe.Unserializer;
  */
 
 class TokenTools 
-{
-	
+{	
 	static public function getToken(user:TokenUser):String {
 		var userSerialized = Serializer.run(user);		
 		return CryptTools.teaCrypt(userSerialized);
@@ -18,14 +17,8 @@ class TokenTools
 	static public function getUser(token:String):TokenUser {		
 		var userUnserialized = Unserializer.run(CryptTools.teaUncrypt(token));
 		return userUnserialized;
-	}
-	
-	
-
-
-	
+	}	
 }
-
 
 typedef TokenUser = {	
 	u:String,
