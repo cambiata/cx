@@ -1,11 +1,6 @@
-package cx.display;
-#if flash
+package cx.nme.display;
 import nme.events.Event;
 import nme.geom.Rectangle;
-# else
-import flash.events.Event;
-import flash.geom.Rectangle;
-# end
 
 /**
  * ...

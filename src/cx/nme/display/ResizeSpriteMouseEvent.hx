@@ -1,9 +1,5 @@
-package cx.display;
-#if flash
-import nme.events.Event;
-# else
+package cx.nme.display;
 import flash.events.Event;
-# end
 
 /**
  * ...

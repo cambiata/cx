@@ -1,10 +1,21 @@
-package cx.display;
+package cx.nme.display;
+
+#if flash
 import flash.display.Graphics;
 import flash.display.Sprite;
 import flash.events.Event;
 import flash.events.MouseEvent;
 import flash.geom.Rectangle;
 import flash.Lib;
+#else
+import nme.display.Graphics;
+import nme.display.Sprite;
+import nme.events.Event;
+import nme.events.MouseEvent;
+import nme.geom.Rectangle;
+import nme.Lib;
+#end
+
 /**
  * ...
  * @author Jonas Nyström
@@ -33,7 +44,7 @@ class ResizeSprite extends Sprite
 		this.x = x;
 		this.y = y;
 		target.addChild(this);
-		this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown, false, 0, true);
+		this.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 	}
 	
 	private function onMouseDown(e:MouseEvent):Void 
@@ -41,12 +52,13 @@ class ResizeSprite extends Sprite
 		if (!Std.is(e.target, ResizeSprite)) return;
 		var x = e.localX;
 		var y = e.localY;
+		trace([x, y]);
 		this.dispatchEvent(new ResizeSpriteMouseEvent(ResizeSpriteMouseEvent.RESIZE_MOUSE_DOWN, x, y, x/ this._width, y/ this._height));
 	}
 	
 	private function drawGrip(graphics:Graphics) {
 		graphics.lineStyle(1, 0x000000, 0.3);
-		graphics.beginFill(0xFFFFFF, 0);
+		graphics.beginFill(0xFFFFFF, 0.1);
 		graphics.drawRect( -GRIP_SIZE/2, -GRIP_SIZE/2, GRIP_SIZE, GRIP_SIZE); 		
 	}
 	
@@ -56,7 +68,7 @@ class ResizeSprite extends Sprite
 		gripRightTop.graphics.endFill();
 		gripRightTop.buttonMode = true;
 		this.addChild(gripRightTop);
-		gripRightTop.addEventListener(MouseEvent.MOUSE_DOWN, onDragRightTop, false, 0, true);		
+		gripRightTop.addEventListener(MouseEvent.MOUSE_DOWN, onDragRightTop);		
 		
 		gripRightBottom = new Sprite();
 		this.drawGrip(gripRightBottom.graphics);
@@ -64,28 +76,28 @@ class ResizeSprite extends Sprite
 		gripRightBottom.graphics.endFill();
 		gripRightBottom.buttonMode = true;
 		this.addChild(gripRightBottom);
-		gripRightBottom.addEventListener(MouseEvent.MOUSE_DOWN, onDragRightBottom, false, 0, true);				
+		gripRightBottom.addEventListener(MouseEvent.MOUSE_DOWN, onDragRightBottom);				
 		
 		gripMiddle = new Sprite();
 		this.drawGrip(gripMiddle.graphics);
 		gripMiddle.graphics.endFill();
 		gripMiddle.buttonMode = true;
 		this.addChild(gripMiddle);		
-		gripMiddle.addEventListener(MouseEvent.MOUSE_DOWN, onDragMiddle, false, 0, true);			
+		gripMiddle.addEventListener(MouseEvent.MOUSE_DOWN, onDragMiddle);			
 		
 		gripLeftBottom = new Sprite();
 		this.drawGrip(gripLeftBottom.graphics);
 		gripLeftBottom.graphics.endFill();
 		gripLeftBottom.buttonMode = true;
 		this.addChild(gripLeftBottom);		
-		gripLeftBottom.addEventListener(MouseEvent.MOUSE_DOWN, onDragLeftBottom, false, 0, true);	
+		gripLeftBottom.addEventListener(MouseEvent.MOUSE_DOWN, onDragLeftBottom);	
 		
 		gripLeftTop = new Sprite();
 		this.drawGrip(gripLeftTop.graphics);
 		gripLeftTop.graphics.endFill();
 		gripLeftTop.buttonMode = true;
 		this.addChild(gripLeftTop);		
-		gripLeftTop.addEventListener(MouseEvent.MOUSE_DOWN, onDragLeftTop, false, 0, true);				
+		gripLeftTop.addEventListener(MouseEvent.MOUSE_DOWN, onDragLeftTop);				
 	}
 	
 	public function draw() {
@@ -94,7 +106,7 @@ class ResizeSprite extends Sprite
 		this._height = Math.max(20, this._height);
 		
 		this.graphics.clear();
-		this.graphics.beginFill(0xFF0000, 0.2);
+		this.graphics.beginFill(0x0000FF, 0.1);
 		this.graphics.drawRect(0, 0, this._width, this._height);		
 		
 		gripRightTop.x = this._width;
@@ -117,8 +129,8 @@ class ResizeSprite extends Sprite
 	
 	private function onDragLeftTop(e:MouseEvent):Void 
 	{
-		Lib.current.stage.addEventListener(MouseEvent.MOUSE_MOVE, moveLeftTop, false, 0, true);
-		Lib.current.stage.addEventListener(MouseEvent.MOUSE_UP, releaseLeftTop, false, 0, true);					
+		Lib.current.stage.addEventListener(MouseEvent.MOUSE_MOVE, moveLeftTop);
+		Lib.current.stage.addEventListener(MouseEvent.MOUSE_UP, releaseLeftTop);					
 	}
 	
 	private function releaseLeftTop(e:MouseEvent):Void 
@@ -142,8 +154,8 @@ class ResizeSprite extends Sprite
 	
 	private function onDragLeftBottom(e:MouseEvent):Void 
 	{
-		Lib.current.stage.addEventListener(MouseEvent.MOUSE_MOVE, moveLeftBottom, false, 0, true);
-		Lib.current.stage.addEventListener(MouseEvent.MOUSE_UP, releaseLeftBottom, false, 0, true);				
+		Lib.current.stage.addEventListener(MouseEvent.MOUSE_MOVE, moveLeftBottom);
+		Lib.current.stage.addEventListener(MouseEvent.MOUSE_UP, releaseLeftBottom);				
 	}
 	
 	private function releaseLeftBottom(e:MouseEvent):Void 
@@ -169,8 +181,8 @@ class ResizeSprite extends Sprite
 	
 	private function onDragMiddle(e:MouseEvent):Void 
 	{
-		Lib.current.stage.addEventListener(MouseEvent.MOUSE_MOVE, moveMiddle, false, 0, true);
-		Lib.current.stage.addEventListener(MouseEvent.MOUSE_UP, releaseMiddle, false, 0, true);			
+		Lib.current.stage.addEventListener(MouseEvent.MOUSE_MOVE, moveMiddle);
+		Lib.current.stage.addEventListener(MouseEvent.MOUSE_UP, releaseMiddle);			
 	}
 	
 	private function releaseMiddle(e:MouseEvent):Void 
@@ -190,8 +202,8 @@ class ResizeSprite extends Sprite
 //-----------------------------------------------------------------------------------------------------
 	
 	private function onDragRightBottom(e:MouseEvent) {
-		Lib.current.stage.addEventListener(MouseEvent.MOUSE_MOVE, moveRigthBottom, false, 0, true);
-		Lib.current.stage.addEventListener(MouseEvent.MOUSE_UP, releaseRightBottom, false, 0, true);				
+		Lib.current.stage.addEventListener(MouseEvent.MOUSE_MOVE, moveRigthBottom);
+		Lib.current.stage.addEventListener(MouseEvent.MOUSE_UP, releaseRightBottom);				
 	}
 	
 	private function releaseRightBottom(e:MouseEvent):Void 
@@ -210,8 +222,8 @@ class ResizeSprite extends Sprite
 	
 	//---------------------------------------------------------------------------------------------------------------------------------------
 	private function onDragRightTop(e:MouseEvent) {
-		Lib.current.stage.addEventListener(MouseEvent.MOUSE_MOVE, moveRigthTop, false, 0, true);
-		Lib.current.stage.addEventListener(MouseEvent.MOUSE_UP, releaseRightTop, false, 0, true);		
+		Lib.current.stage.addEventListener(MouseEvent.MOUSE_MOVE, moveRigthTop);
+		Lib.current.stage.addEventListener(MouseEvent.MOUSE_UP, releaseRightTop);		
 	}
 	
 	private function releaseRightTop(e:MouseEvent) {

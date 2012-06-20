@@ -1,4 +1,4 @@
-package cx.display;
+package cx.nme.display;
 #if flash
 import nme.events.Event;
 import nme.geom.Rectangle;
@@ -6,6 +6,7 @@ import nme.geom.Rectangle;
 import flash.events.Event;
 import flash.geom.Rectangle;
 # end
+
 
 /**
  * ...
@@ -22,6 +23,5 @@ class ResizeSpriteEvent extends Event
 	{
 		this.rect = rect;
 		super(type);
-	}
-	
+	}	
 }
