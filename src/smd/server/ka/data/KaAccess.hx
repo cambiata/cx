@@ -6,6 +6,7 @@ import cx.MathTools;
 import cx.Tools;
 import ka.app.KalleConfig;
 import ka.tools.PersonerExport;
+import ka.tools.ScorxtillganglighetTools;
 import ka.types.Person;
 import ka.types.Personer;
 import ka.types.Scorxtillgangligheter;
@@ -45,7 +46,7 @@ class KaAccess
 	
 	
 	
-	static public function update(logCallback:String->Void=null) 
+	static public function update(authFilename:String, logCallback:String->Void=null) 
 	{
 		if (logCallback != null) logCallback('Start updating authfile...');
 		
@@ -55,12 +56,8 @@ class KaAccess
 			dataPersoner = AdminGdata.getPersoner();
 			fieldsPerson = AdminGdata.getPersonerFields();	
 			dataScorxtillgangligheter = AdminGdata.getScorxtillgangligheter();
-	
 			dataStudieterminerExt = AdminGdata.getStudieterminerExt();		
-	
 			filterStudieterminer = setStudieterminerFiletToDate(filterdate);
-			
-			
 			resultPersoner = applyFilters(dataPersoner);
 			
 			/*
@@ -69,9 +66,13 @@ class KaAccess
 			}
 			*/
 			
-			var authFilename = Config.authDir + 'autentisering.dat';
-			
-			PersonerExport.toAuthfile(authFilename, resultPersoner, dataScorxtillgangligheter);
+			//var authFilename = configFile.authDir + configFile.authFilename;
+			try {
+				ScorxtillganglighetTools.toAuthfile(authFilename, resultPersoner, dataScorxtillgangligheter);
+			} catch (e:Dynamic) {
+				if (logCallback != null) logCallback('Can not write to authfile ' + authFilename);
+				return;
+			}
 	
 			if (logCallback != null) logCallback('Finished updating authfile...');
 			

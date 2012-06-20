@@ -12,7 +12,8 @@ typedef AuthUser = {
 	pass:String,
 	msg:String,	
 	person:Person,
-	scorxids:String,
+	scorxids:Array<Int>,
+	scorxdirs:Array<String>,
 	role:String,
 }
 

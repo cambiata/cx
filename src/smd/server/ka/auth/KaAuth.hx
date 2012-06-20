@@ -12,7 +12,7 @@ import smd.server.base.auth.AuthUser;
 import smd.server.base.auth.IAuth;
 import haxe.io.Eof; 
 import smd.server.base.SiteState;
-import smd.server.ka.config.Config;
+//import smd.server.ka.config.Config;
 import sx.util.ScorxTools;
 /**
  * ...
@@ -22,8 +22,10 @@ using StringTools;
 
 class KaAuth implements IAuth {
 	private var authFilename:String;
-	public function new(authFilename:String) {
+	private var scorxroot:String;
+	public function new(authFilename:String, scorxroot:String) {
 		this.authFilename = authFilename;
+		this.scorxroot = scorxroot;
 	}
 	
 	public function check(user:String, pass:String):AuthUser {		
@@ -50,13 +52,14 @@ class KaAuth implements IAuth {
 						authUser.success = true;
 						authUser.person = p;
 						authUser.role = p.roll;
-						var scorxdirs = Tools.stringAfterLast(line, '|');
+						var scorxdirsStr = Tools.stringAfterLast(line, '|');
 						
 						//-----------------------------------------------------------------------------------------------------						
-						//SiteState.messages.infos.push(scorxdirs);
-						//SiteState.messages.infos.push(Config.scorxroot);
-						var ids = ScorxTools.getIdsInDirectory(Config.scorxroot, scorxdirs.split(','));
-						authUser.scorxids = ids.join(',');
+						var scorxdirs = scorxdirsStr.split(',');
+						var ids = ScorxTools.getIdsInDirectory(scorxroot, scorxdirs);
+						
+						authUser.scorxdirs = scorxdirs;						
+						authUser.scorxids = ids; // ids.join(',');
 						//SiteState.messages.infos.push(authUser.role);
 						//-----------------------------------------------------------------------------------------------------
 						authUser.msg = 'Authentication success: User ' + p.epost + ' ok!';

@@ -14,6 +14,7 @@ class Config
 	static public var cacheDir:String = 'cache/';
 	static public var sessionDir:String = 'session/';
 	static public var authDir:String = 'auth/';
+	static public var authFilename:String = 'autentisering.dat';
 	static public var docsDir:String = '_docs/';
 	
 }

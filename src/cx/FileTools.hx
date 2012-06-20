@@ -22,7 +22,7 @@ class FileTools
 		return FileSystem.exists(path);
 	}
 	
-	static public function safeSlashes(path:String, endSlash:Bool=true):String {
+	static public function safeSlashes(path:String, endSlash:Bool=false):String {
 		path = StringTools.replace(path, '\\', '/');
 		if (endSlash) path = (StringTools.endsWith(path, '/')) ? path : path + '/';
 		return path;

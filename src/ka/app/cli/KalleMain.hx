@@ -469,7 +469,8 @@ class AdminCli extends CliBase {
 	// autentisering	
 	
 	static private function __exportera_autentiseringsfil() {
-		PersonerExport.toAuthfile('data/autentisering.dat', resultPersoner, dataScorxtillgangligheter);
+		ScorxtillganglighetTools.toAuthfile('data/autentisering.dat', resultPersoner, dataScorxtillgangligheter);
+		
 	}
 	
 }

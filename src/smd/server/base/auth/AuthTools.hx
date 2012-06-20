@@ -5,6 +5,7 @@ import cx.neko.NekoSession;
 import cx.Web;
 import smd.server.base.SiteState;
 import smd.server.ka.auth.KaAuth;
+import smd.server.ka.config.Config;
 
 /**
  * ...
@@ -61,11 +62,11 @@ class AuthTools {
 	}
 	
 	static public function getUserAuth(user:String, pass:String):Bool {
-		var authResult:AuthResult = new KaAuth('autentisering.dat').check(user, pass);		
+		var authResult:AuthResult = new KaAuth(Config.authDir + Config.authFilename,  Config.scorxroot).check(user, pass);		
 		return authResult.success;
 	}
 	
 	static public function getUserNull():AuthUser {
-		return {success:false, user:null, pass:null, msg:null, person:null, scorxids:null, role:null};
+		return {success:false, user:null, pass:null, msg:null, person:null, scorxids:[], scorxdirs:[], role:null};
 	}
 }

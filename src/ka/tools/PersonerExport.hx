@@ -28,6 +28,7 @@ class PersonerExport
 		ExcelTools.finish();		
 	}
 	
+	/*
 	static public function toAuthfile(filename:String, personer:Personer, scorxTillg:Scorxtillgangligheter) {		
 		var f = neko.io.File.write(filename, false);
 		//f.writeString('----------------------------------------------------------------------------\n');
@@ -42,6 +43,7 @@ class PersonerExport
 		}
 		f.close();			
 	}
+	*/
 	
 	static public function toEmailList(filename:String, personer:Personer) {
 		var emails = PersonerTools.getPersonerEmails(personer);
