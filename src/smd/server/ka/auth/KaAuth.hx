@@ -52,6 +52,9 @@ class KaAuth implements IAuth {
 						authUser.success = true;
 						authUser.person = p;
 						authUser.role = p.roll;
+						authUser.user = p.fornamn + ' ' + p.efternamn;
+						authUser.pass = p.xpass;
+						
 						var scorxdirsStr = Tools.stringAfterLast(line, '|');
 						
 						//-----------------------------------------------------------------------------------------------------						

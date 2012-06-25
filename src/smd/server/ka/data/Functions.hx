@@ -28,7 +28,7 @@ class Functions extends DataFunctions
 
 	public function __func_access() {		
 		//Firebug.trace('Access update');
-		KaAccess.update(function(msg:String) {
+		KaAccess.update(Config.authDir + Config.authFilename, function(msg:String) {
 			//Firebug.trace(msg);
 			SiteState.messages.infos.push(msg);
 		});

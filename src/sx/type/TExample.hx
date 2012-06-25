@@ -9,4 +9,5 @@ typedef TExample = {
 	information:TInformation,
 	originatorItems:TOriginatorItems,
 	categories:TAlternatives,	
+	subdir:String,
 }

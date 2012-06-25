@@ -1,4 +1,5 @@
 package smd.server.base.auth;
+import haxe.Firebug;
 import smd.server.base.auth.AuthResult;
 import smd.server.base.auth.IAuth;
 import cx.neko.NekoSession;
@@ -29,31 +30,45 @@ class AuthTools {
 				authUser = getUserNull();
 				authUser.msg = 'Logged out';
 				SiteState.messages.infos.push('User logged out!');
-				
 			} else if (user != '' && pass != '') {
 				// try to log in...
-				
 				//var authResult:AuthResult = new KaAuth(Web.getCwd() + 'autentisering.dat').check(user, pass);
-				
-				var authResult:AuthResult = auth.check(user, pass);
+				//var authResult:AuthResult = auth.check(user, pass);
+				authUser = auth.check(user, pass);
 				//SiteState.messages.infos.push(Std.string(authResult));
-				if (authResult.success) {					
+				if (authUser.success) {					
 					//if (true) {					
-					authUser.user = authResult.person.fornamn + ' ' + authResult.person.efternamn;
-					authUser.pass = authResult.person.xpass;
-					authUser.role = authResult.person.roll;
+					//authUser.user = authResult.person.fornamn + ' ' + authResult.person.efternamn;
+					//authUser.pass = authResult.person.xpass;
+					//authUser.role = authResult.person.roll;
+					//authUser.person = authResult.person;
+					//authUser.scorxdirs = authResult.person.
+					//authUser.scorxdirs = 
 					authUser.msg = 'Login ok';
 					SiteState.messages.success.push('Login ok');
-					
+	
+					/*
+					NekoSession.set('authUser', authUser);
+					NekoSession.close();			
+					return authUser;
+					*/
 				} else {
-					authUser = getUserNull();
+					//authUser = getUserNull();
 					authUser.msg = 'Login fail!';
 					SiteState.messages.errors.push('Login fail!');
+					/*
+					NekoSession.set('authUser', authUser);
+					NekoSession.close();			
+					return authUser;										
+					*/
 				}
 			}
+			
 			NekoSession.set('authUser', authUser);
-			NekoSession.close();
-			return authUser;
+			NekoSession.close();			
+			//Firebug.trace(authUser);
+			//return authUser;			
+			
 		}
 		
 		// Hämta användare från session...

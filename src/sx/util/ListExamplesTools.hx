@@ -91,6 +91,15 @@ class ListExamplesTools
 		return searchvaluesIds;
 	}		
 	
+	static public function getInSubdirs(listExamples:TListExamples, subdirs:Array<String>): TListExamples {
+		var ret = new TListExamples();
+		for (le in listExamples) {
+			if (Lambda.has(subdirs, le.subdir)) ret.set(le.id, le);
+			//trace(le.id);
+		}
+		return ret;
+	}
+	
 	
 	
 	

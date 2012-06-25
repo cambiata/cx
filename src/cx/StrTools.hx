@@ -28,6 +28,7 @@ class StrTools
 	}	
 	
 	static public function splitTrim(str:String, delimiter:String=','):Array<String> {
+		if (str == null) return [];
 		var a = str.split(delimiter);
 		var a2 = new Array<String>();
 		for (part in a) {

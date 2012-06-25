@@ -37,7 +37,8 @@ class AdminGdata
 	
 	static var email = KalleConfig.email;
 	static var passwd = KalleConfig.passwd  ;
-	static var sheetPersoner = KalleConfig.sheetPersoner  ;
+	//static var sheetPersoner = KalleConfig.sheetPersoner  ;
+	static var sheetPersoner2 = KalleConfig.sheetPersoner2;
 	static var sheetData = KalleConfig.sheetData  ;
 	static var pageDataStudieterminer = KalleConfig.pageDataStudieterminer  ;
 	static var pageDataAdmingrupper = KalleConfig.pageDataAdmingrupper  ;
@@ -135,8 +136,8 @@ class AdminGdata
 	static public function getPersonerFields():Person {
 		return personerFields;
 	}
-	
-	static public function getPersoner():Personer {
+	/*
+	static public function getPersonerX():Personer {
 		
 		var g = new cx.GoogleTools.Spreadsheet(email, passwd, sheetPersoner);
 		var cells = g.getCells();		
@@ -180,8 +181,11 @@ class AdminGdata
 		return dataPersoner;
 		
 	}
+	*/
 	
 	static public function setPersonData(row:Int, col:Int, value:String) {
+		
+		/*
 		var authToken = Goo.getAuthToken(email, passwd);
 		trace(authToken);		
 		var xmlWorksheet = Goo.getXmlWorksheet(authToken, sheetPersoner);
@@ -197,5 +201,43 @@ class AdminGdata
 		
 		var result = Goo.updateCell(authToken, cellUrl, cellEntry);
 		trace(result);
+		*/
 	}
+	
+	static public function getPersoner():Personer {		
+		var g = new cx.GoogleTools.Spreadsheet(email, passwd, sheetPersoner2);
+		var cells = g.getCells();				
+		var rowNr = 1;
+		var dataPersoner = new Personer();		
+		for (cell in cells) {			
+			var p:Person = PersonTools.getPersonNull();
+			
+			p.xpass = cell[3];
+			p.roll = cell[4];
+			p.kor = cell[5];
+			p.studieterminer = StrTools.splitTrim(cell[6], ',');			
+			p.efternamn = cell[7];
+			p.fornamn = cell[8];
+			p.gatuadr = cell[11];
+			p.postnr = cell[12];
+			p.postadr = cell[13];
+			p.personnr = cell[14];
+			p.epost = cell[17];
+			
+			if ((p.xpass == null)||(p.xpass == '')) {
+				if (p.personnr != null) p.xpass = p.personnr.substr(-4);				
+			}		
+			
+			//trace(p);
+			
+			dataPersoner.push(p);			
+			rowNr++;
+		}
+		
+		personerFields = dataPersoner.shift();
+		
+		return dataPersoner;
+	}
+	
+	
 }

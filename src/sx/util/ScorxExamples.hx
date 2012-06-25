@@ -78,6 +78,8 @@ class ScorxExamples
 	
 	public function loadListExamples(filename:String) {
 		var sl:TScorxExamples = Unserializer.run(FileTools.getContent(filename));
+		
+		
 		this.listExamples = sl.listExamples;
 		this.files = sl.files;
 		this.ids = sl.ids;

@@ -1,4 +1,5 @@
 package sx.util;
+import cx.FileTools;
 import cx.SqliteTools;
 import neko.db.Sqlite;
 import neko.FileSystem;
@@ -274,10 +275,19 @@ class ScorxDb {
 		var r:TExample = {
 			information:getInformation(filename),
 			originatorItems:getOriginatorItems(filename),
-			categories:getCategoriesAll(filename),			
+			categories:getCategoriesAll(filename),	
+			subdir:getSubdir(filename),
 		}			
 		return r;		
 	}
+	
+	static public function getSubdir(filename:String):String {
+		var a = FileTools.safeSlashes(filename).split('/');
+		a.pop();
+		var subdir = a.pop();
+		return subdir;
+	}
+	
 	
 	static public function getInformation(filename:String): TInformation {
 		

@@ -16,5 +16,6 @@ class Config
 	static public var authDir:String = 'auth/';
 	static public var authFilename:String = 'autentisering.dat';
 	static public var docsDir:String = '_docs/';
+	static public var scorxlistFilename:String = 'scorxlist.dat';
 	
 }

@@ -25,6 +25,8 @@ class ExampleTools
 			originatorItems:example.originatorItems,
 			categories:example.categories,				
 			
+			subdir:example.subdir,
+			
 			state: Std.string(TSupplyState.Locked),
 			start:Date.fromString('2012-01-01').toString(),
 			stop:Date.fromString('2016-01-01').toString(),			

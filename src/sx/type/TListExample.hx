@@ -16,6 +16,7 @@ typedef TListExample = {
 	introd:String,
 	originatorItems:TOriginatorItems,
 	categories:TAlternatives,
+	subdir:String,
 	
 	state:String,
 	start:String,
