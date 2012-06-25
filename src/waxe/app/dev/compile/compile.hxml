@@ -1,0 +1,4 @@
+-neko WaxeApp.n
+-main Main
+-lib waxe
+-lib nme
