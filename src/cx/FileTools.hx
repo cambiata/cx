@@ -1,5 +1,6 @@
 package cx;
 import haxe.io.BytesData;
+import haxe.io.Eof;
 import neko.FileSystem;
 import neko.io.File;
 import haxe.io.Bytes;
@@ -197,6 +198,18 @@ class FileTools
 		return Tools.stringAfterLast(FileTools.safeSlashes(fullfilename), '/');
 	}
 	
-
+	static public function getArrayFromItemsFile(filename:String) {
+		
+		var ret = new Array<String>();
+		var file = File.read(filename, false);		
+		try {
+			while(true) {
+				var line = file.readLine().trim();
+				ret.push(line);
+			}
+		} catch(e : Eof){}			
+		
+		return ret;
+	}
 
 }

@@ -2,6 +2,7 @@ package nx.output;
 import nme.display.Shape;
 import nme.display.Sprite;
 import nx.Constants;
+import nx.core.display.DNote;
 import nx.display.beam.IBeamGroup;
 import nx.display.DisplayNote;
 import nx.enums.EDirectionUD;
@@ -311,5 +312,10 @@ class Render implements IRender
 		
 	}
 	
+	public function dnote(x:Float, y:Float, dnote:DNote) {
+		
+		
+		
+	}
 	
 }
