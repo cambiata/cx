@@ -1,10 +1,14 @@
 package cx;
 import haxe.io.BytesData;
 import haxe.io.Eof;
-import neko.FileSystem;
-import neko.io.File;
+//import neko.FileSystem;
+//import neko.io.File;
 import haxe.io.Bytes;
-import neko.Sys;
+//import neko.Sys;
+
+
+import sys.FileSystem;
+import sys.io.File;
 
 using StringTools;
 /**
@@ -30,7 +34,7 @@ class FileTools
 	}
 	
 	static public function putContent(filename:String, content:String) {
-		var f = neko.io.File.write(filename, false);
+		var f = File.write(filename, false);
 		f.writeString(content);
 		f.close();		
 	}
@@ -40,7 +44,7 @@ class FileTools
 	}
 	
 	static public function getFilesNamesInDirectory(dir:String, ?ext=''):Array<String> {
-		var filenames = neko.FileSystem.readDirectory(dir);
+		var filenames = FileSystem.readDirectory(dir);
 		
 		var validFilenames = new Array<String>();		
 		if (ext != '') {
@@ -55,7 +59,7 @@ class FileTools
 	}
 	
 	static public function getDirectories(dir:String, includeFiles:Bool=false, dirs:Array<String>=null) {
-		var items = neko.FileSystem.readDirectory(dir);
+		var items = FileSystem.readDirectory(dir);
 		for (item in items) {
 			var testdir = dir + '/' + item;
 			if (FileSystem.isDirectory(testdir)) {
@@ -73,7 +77,7 @@ class FileTools
 	
 	static public function getFilesInDirectories(dir:String, ?ext = '', ?recursive = true, dirs:Array<String> = null) {
 		if (dirs == null) dirs = new Array<String>();
-		var items = neko.FileSystem.readDirectory(dir);
+		var items = FileSystem.readDirectory(dir);
 		for (item in items) {
 			var testdir = dir + '/' + item;
 			if (FileSystem.isDirectory(testdir)) {				
@@ -97,6 +101,7 @@ class FileTools
 	}	
 	*/
 	
+	/*
 	static public function getFileDataBytesInDirectory(dir:String, ?ext=''):List<BytesData> {
 		var list = new List<BytesData>();		
 		dir = safeSlashes(dir);
@@ -124,7 +129,7 @@ class FileTools
 		}
 		return list;
 	}
-	
+	*/
 	
 	
 	
@@ -133,13 +138,13 @@ class FileTools
 	}
 	
 	static public function putBytes(filename:String, bytes:Bytes) {
-		var f = neko.io.File.write(filename, true);
+		var f = File.write(filename, true);
 		f.write(bytes);
 		f.close();		
 	}
 	
 	static public function putBinaryContent(filename:String, content:String) {
-		var f = neko.io.File.write(filename, true);
+		var f = File.write(filename, true);
 		f.writeString(content);
 		f.close();			
 	}
@@ -148,7 +153,7 @@ class FileTools
 	
 	static public function executeFile(filename:String) {
 	
-		if (!neko.FileSystem.exists(filename)) throw "Can't find file: " + filename;
+		if (!FileSystem.exists(filename)) throw "Can't find file: " + filename;
 		var command:String;
 		command = '"' + Sys.getCwd() + filename + '"';
 		command = command.replace("/", "\\");
