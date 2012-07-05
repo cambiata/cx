@@ -33,7 +33,7 @@ class StrTools
 		var a2 = new Array<String>();
 		for (part in a) {
 			var part2 = StringTools.trim(part);
-			if (part.length > 0) a2.push(part);
+			if (part2.length > 0) a2.push(part2);
 		}
 		return a2;
 		/*

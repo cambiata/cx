@@ -8,7 +8,6 @@ import nx.enums.ESign;
  * @author Jonas Nyström
  */
 
-
  using nx.enums.utils.ESignTools;
  
 class DHead 

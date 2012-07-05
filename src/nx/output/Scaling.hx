@@ -7,7 +7,7 @@ import nme.geom.Rectangle;
 
 class Scaling  {
 
-	static public function getBig():TScaling {
+	static public function getBig():TScaling  {
 		return {
 			linesWidth:		1.5,
 			space:			16.0,
@@ -81,7 +81,6 @@ class Scaling  {
 			svgX:				0.0,
 			svgY:				0.0,
 		}		
-		
 		
 	}
 	

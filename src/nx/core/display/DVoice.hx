@@ -1,6 +1,8 @@
 package nx.core.display;
 import nx.core.element.Voice;
+import nx.display.beam.IBeamingProcessor;
 import nx.enums.EDirectionUAD;
+import nx.enums.utils.EDirectionTools;
 
 /**
  * ...
@@ -14,9 +16,10 @@ class DVoice
 	private var direction(default, null):EDirectionUAD;
 	private var value(default, null):Int;
 
-	public function new(voice:Voice, direction:EDirectionUAD=null) 
+	public function new(voice:Voice, direction:EDirectionUAD=null, beamingProcessor:IBeamingProcessor=null) 
 	{
-			this.voice = voice;			
+			this.voice = voice;		
+			this._beamingProcessor = beamingProcessor;
 			
 			if (direction == null) {
 				this.direction = this.voice.direction;
@@ -26,14 +29,24 @@ class DVoice
 			
 			this.dnotes = [];
 			for (note in this.voice.notes) {
-				this.dnotes.push(new DNote(note));
+				this.dnotes.push(new DNote(note, EDirectionTools.UADtoUD(this.direction)));
 			}	
 			
 			this.value = 0;
 			for (note in this.voice.notes) {
-				trace(note.notevalue.value);
 				this.value += note.notevalue.value;
 			}
+			
+			this._adjustBeaming();
+	}
+	
+	//-----------------------------------------------------------------------------------------------------
+	
+	private var _beamingProcessor:IBeamingProcessor;
+	private function _adjustBeaming()  {
+		if (this._beamingProcessor != null) {			
+			this._beamingProcessor.doBeaming(this, this.direction);
+		}		
 	}
 	
 }

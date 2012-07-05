@@ -23,21 +23,26 @@ class UserConfiguration extends AbstractServerConfiguration {
 
     public function new() {
         super();
-        this.addModule(new Site());	
-		
-		ConfigTools.loadConfig(Config, Web.getCwd() + 'conf/Config.txt');
-		new Functions();
-		
-		SiteState.user = AuthTools.getCurrentUser(new KaAuth(Config.authDir + Config.authFilename, Config.scorxroot), Config.sessionDir);			
-		
+		this.addModule(new Site());				
+		try {
+			ConfigTools.loadConfig(Config, Web.getCwd() + Config.configFile);
+			new Functions();
+			SiteState.user = AuthTools.getCurrentUser(new KaAuth(Config.authFile, Config.scorxroot), Config.sessionDir);						
+		} catch (e:String) {
+			SiteState.messages.errors.push(e);
+		}
     }
 	
 	override public function onHTTPError(error : HTTPException) : Void {
+		Lib.println('onHttpError');
 		Lib.println(JSON.encode(error));
 	}
 	
 	override public function onError(exception : Exception) : Void {
+		Lib.println('onError');
 		Lib.println(exception);
 	}
+	
+	
 	
 }

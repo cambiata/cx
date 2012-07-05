@@ -48,25 +48,27 @@ class KaAccess
 	
 	static public function update(authFilename:String, logCallback:String->Void=null) 
 	{
-		if (logCallback != null) logCallback('Start updating authfile...');
+		if (logCallback != null) logCallback('Start updating authfile... :' + authFilename);
 		
 		try {
-			
-			var filterdate:Date = Date.now();
+
 			dataPersoner = AdminGdata.getPersoner();
 			fieldsPerson = AdminGdata.getPersonerFields();	
 			dataScorxtillgangligheter = AdminGdata.getScorxtillgangligheter();
 			dataStudieterminerExt = AdminGdata.getStudieterminerExt();		
+			
+			var filterdate:Date = Date.now();
 			filterStudieterminer = setStudieterminerFiletToDate(filterdate);
+			
 			resultPersoner = applyFilters(dataPersoner);
 			
 			/*
 			for (p in resultPersoner) {
 				//Lib.println(EncodeTools.cliDecode(p.efternamn + ' ' + p.fornamn));			
 			}
-			*/
-			
+			*/			
 			//var authFilename = configFile.authDir + configFile.authFilename;
+			
 			try {
 				ScorxtillganglighetTools.toAuthfile(authFilename, resultPersoner, dataScorxtillgangligheter);
 			} catch (e:Dynamic) {
@@ -100,6 +102,9 @@ class KaAccess
 	static public function applyFilters(dataPersoner:Personer) {
 		var tempPersoner:Personer = dataPersoner.copy();
 		if (filterStudieterminer != null) if (filterStudieterminer.length > 0) tempPersoner = tempPersoner.filterStudieterminer(filterStudieterminer);
+		
+		
+		
 		//if (filterKorer != null) if (filterKorer.length > 0) tempPersoner = tempPersoner.filterKorer(filterKorer);
 		//if (filterAdmingrupper != null) if (filterAdmingrupper.length > 0) tempPersoner = tempPersoner.filterAdmingrupper(filterAdmingrupper);
 		

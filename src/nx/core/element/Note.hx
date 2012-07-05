@@ -25,4 +25,6 @@ class Note
 	private function _sortHeads()  {
 		this.heads.sort(function(a, b) { return Reflect.compare(a.level, b.level); } );
 	}
+	
+	
 }

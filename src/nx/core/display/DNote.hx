@@ -3,6 +3,7 @@ import nx.core.element.Note;
 import nx.core.type.TSigns;
 import nx.core.util.SignsUtil;
 import nx.enums.EDirectionUD;
+import nx.enums.ENoteValue;
 
 /**
  * ...
@@ -14,6 +15,7 @@ class DNote
 	public function new(note:Note, forceDirection:EDirectionUD=null) 
 	{
 		this.note = note;		
+		this.notevalue = this.note.notevalue;
 		this.headsCount = this.note.heads.length;
 		this.levelTop = this.note.heads[0].level;
 		this.levelBottom = this.note.heads[this.headsCount-1].level;		
@@ -26,6 +28,7 @@ class DNote
 	}
 	
 	public var note(default, null):Note;
+	public var notevalue(default, null):ENoteValue;
 	public var dheads(default, null):Array<DHead>;
 	public var headsCount(default, null):Int;
 	public var levelTop(default, null):Int;

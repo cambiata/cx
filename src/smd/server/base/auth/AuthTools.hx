@@ -77,7 +77,7 @@ class AuthTools {
 	}
 	
 	static public function getUserAuth(user:String, pass:String):Bool {
-		var authResult:AuthResult = new KaAuth(Config.authDir + Config.authFilename,  Config.scorxroot).check(user, pass);		
+		var authResult:AuthResult = new KaAuth(Config.authFile,  Config.scorxroot).check(user, pass);		
 		return authResult.success;
 	}
 	
