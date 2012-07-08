@@ -1,6 +1,7 @@
 package sx.util;
 import cx.FileTools;
 import cx.SqliteTools;
+import haxe.io.Bytes;
 import neko.db.Sqlite;
 import neko.FileSystem;
 import neko.Utf8;
@@ -8,16 +9,24 @@ import sx.type.TAlternative;
 import sx.type.TAlternatives;
 import sx.type.TCategories;
 import sx.type.TCategory;
+import sx.type.TChannel;
 import sx.type.TChannelBase;
+import sx.type.TChannels;
 import sx.type.TChannelsBase;
 import sx.type.TExample;
+import sx.type.TGrid;
+import sx.type.TGridItem;
 import sx.type.TInformation;
 import sx.type.TOriginator;
 import sx.type.TOriginatorItem;
 import sx.type.TOriginatorItems;
 import sx.type.TOriginators;
+import sx.type.TPage;
 import sx.type.TPageBase;
+import sx.type.TPages;
 import sx.type.TPagesBase;
+import sx.type.TQuickstart;
+import sx.type.TQuickstarts;
 import sx.util.ScorxTools;
 
 /**
@@ -48,7 +57,7 @@ class ScorxDb {
 		SqliteTools.execute(filename, "INSERT INTO 'information' VALUES('added','')   ");
 	}
 	
-	static public function getChannels(filename:String):TChannelsBase {
+	static public function getChannelsBase(filename:String):TChannelsBase {
 		var sql = 'SELECT * FROM channels ORDER BY id';
 		var cnx = Sqlite.open(filename);	
 		var items = cnx.request(sql).results();
@@ -60,8 +69,42 @@ class ScorxDb {
 		}
 		return datas;
 	}
+
+	static public function getChannels(filename:String):TChannels {
+		var sql = 'SELECT * FROM channels ORDER BY id';
+		var cnx = Sqlite.open(filename);	
+		var items = cnx.request(sql).results();
+		cnx.close();				
+		var datas = new TChannels();
+		for (item in items) {
+			var data:TChannel = {
+				id : item.id,
+				name : item.name,
+				data : Bytes.ofString(item.data.toString()),
+			}
+			datas.push(data);
+		}
+		return datas;
+	}
 	
-	static public function getPages(filename:String):TPagesBase {
+	static public function getPages(filename:String):TPages {
+		var sql = 'SELECT * FROM pages ORDER BY id';
+		var cnx = Sqlite.open(filename);	
+		var items = cnx.request(sql).results();
+		cnx.close();		
+		var datas = new TPages();
+		for (item in items) {
+			var data:TPage = {
+				id : item.id,
+				data : Bytes.ofString(item.data.toString()),
+			}			
+			datas.push(data);
+		}
+		return datas;
+	}	
+	
+	
+	static public function getPagesBase(filename:String):TPagesBase {
 		var sql = 'SELECT * FROM pages ORDER BY id';
 		var cnx = Sqlite.open(filename);	
 		var items = cnx.request(sql).results();
@@ -74,6 +117,22 @@ class ScorxDb {
 		}
 		return datas;
 	}	
+	
+	static public function getQuickstarts(filename:String):TQuickstarts {
+		var sql = 'SELECT * FROM quickstarts ORDER BY start';
+		var cnx = Sqlite.open(filename);	
+		var items = cnx.request(sql).results();
+		cnx.close();		
+		
+		var datas = new TQuickstarts();
+		for (item in items) {
+			var data:TQuickstart = item;
+			datas.push(data);
+		}
+		return datas;
+	}		
+	
+	
 	
 	static public function getCategories(filename:String):TAlternatives {
 		var sql = 'SELECT * FROM categories';
@@ -356,5 +415,19 @@ class ScorxDb {
 		}
 		return r;
 	}		
+	
+	static public function getGrid(filename:String):TGrid {
+		var sql = 'SELECT * FROM grid order by rowid';
+		var cnx = Sqlite.open(filename);	
+		var items = cnx.request(sql).results();
+		var datas = new TGrid();
+		for (item in items) {
+			var data:TGridItem = item;			
+			datas.push(data);
+		}
+		cnx.close();		
+		return datas;				
+	}
+	
 	
 }

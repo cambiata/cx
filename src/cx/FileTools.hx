@@ -43,6 +43,8 @@ class FileTools
 		return File.getContent(filename);
 	}
 	
+	
+	
 	static public function getFilesNamesInDirectory(dir:String, ?ext=''):Array<String> {
 		var filenames = FileSystem.readDirectory(dir);
 		
@@ -91,6 +93,7 @@ class FileTools
 		}
 		return dirs;
 	}
+	
 	
 	/*
 	static public function filesBytesInDirectory(dir:String):List<haxe.io.Bytes> {
@@ -175,17 +178,21 @@ class FileTools
 		executeFile(filename);
 	}
 	
+	
+#if !cpp
 	static public function stripPath(filename:String):String {
 		filename = StringTools.replace(filename, '\\', '/');
 		return filename.substr(filename.lastIndexOf('/')+1);		
 	}
+	
 	
 	static public function getFirstFilenameSegment(filename:String):String {
 		filename = stripPath(filename);
 		var segments = filename.split('.');
 		return return segments[0];
 	}
-	
+#end
+
 	static public function getFileAgeSeconds(filename:String) {
 		if (FileSystem.exists(filename)) {
 			var stat = FileSystem.stat(filename);
@@ -203,8 +210,7 @@ class FileTools
 		return Tools.stringAfterLast(FileTools.safeSlashes(fullfilename), '/');
 	}
 	
-	static public function getArrayFromItemsFile(filename:String) {
-		
+	static public function getArrayFromItemsFile(filename:String) {		
 		var ret = new Array<String>();
 		var file = File.read(filename, false);		
 		try {
@@ -216,5 +222,4 @@ class FileTools
 		
 		return ret;
 	}
-
 }
