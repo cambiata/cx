@@ -14,6 +14,7 @@ import nme.events.Event;
 import nme.events.KeyboardEvent;
 import nme.events.MouseEvent;
 import nme.geom.Point;
+import nme.geom.Rectangle;
 import nme.Lib;
 import nme.net.URLRequest;
 import nme.utils.ByteArray;
@@ -235,9 +236,11 @@ class Main extends Sprite
 			
 		}
 		*/
+
+		var sRect = new Rectangle(this.scrollPane.x, this.scrollPane.y, this.scrollPane.width, this.scrollPane.height);
+		trace(sRect.contains(this.scrollPane.mouseX, this.scrollPane.mouseY));
+		/*
 		trace(this.editGrid.getGridRects());
-		trace([]);
-		
 		var point = new Point(this.pages.mouseX, this.pages.mouseY);
 		var nr = 0;
 		for (rect in this.editGrid.getGridRects()) {
@@ -246,7 +249,7 @@ class Main extends Sprite
 			}
 			nr++;
 		}
-		
+		*/
 		
 		
 	}
