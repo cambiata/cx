@@ -1,4 +1,5 @@
 package cx.nme.layout;
+import nme.display.DisplayObject;
 import nme.display.Sprite;
 import nme.display.Stage;
 import nme.events.Event;
@@ -10,7 +11,7 @@ import nme.Lib;
  */
 
 class StageLayoutBehavior {
-	private var target:Sprite;
+	private var target:DisplayObject;
 	private var stage:Stage;
 	private var alignHorizontal:AlignHorizontal;
 	private var alignVertical:AlignVertical;
@@ -19,7 +20,7 @@ class StageLayoutBehavior {
 	private var marginRight:Float;
 	private var marginBottom:Float;
 	
-	public function new(target:Sprite, alignHorizontal:AlignHorizontal=null, alignVertical:AlignVertical=null, marginLeft=0.0, marginTop=0.0, marginRight=0.0, marginBottom=0.0) {
+	public function new(target:DisplayObject, alignHorizontal:AlignHorizontal=null, alignVertical:AlignVertical=null, marginLeft=0.0, marginTop=0.0, marginRight=0.0, marginBottom=0.0) {
 		this.target = target;
 		this.stage = Lib.current.stage;
 		this.stage.addEventListener(Event.RESIZE, onStageResize);

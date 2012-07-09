@@ -93,11 +93,12 @@ class ScorxDb {
 		var items = cnx.request(sql).results();
 		cnx.close();		
 		var datas = new TPages();
-		for (item in items) {
+		for (item in items) {			
 			var data:TPage = {
 				id : item.id,
-				data : Bytes.ofString(item.data.toString()),
-			}			
+				data : Bytes.ofString(item.data),
+			}	
+			
 			datas.push(data);
 		}
 		return datas;

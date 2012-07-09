@@ -1,17 +1,6 @@
 package sx.util;
 
-#if !flash
-import cx.FileTools;
-#else
-import flash.net.URLLoader;
-import flash.net.URLLoaderDataFormat;
-import flash.net.URLRequest;
-import flash.events.Event;
-import flash.utils.ByteArray;
-import flash.events.EventDispatcher;
-
-#end
-
+import cx.StrTools;
 import cx.ZipTools;
 import format.tools.CRC32;
 import format.zip.Data;
@@ -20,10 +9,23 @@ import haxe.io.Bytes;
 import haxe.Serializer;
 import haxe.Unserializer;
 import sx.type.TChannels;
+import sx.type.TChannel;
 import sx.type.TExample;
 import sx.type.TGrid;
+import sx.type.TPage;
 import sx.type.TPages;
 import sx.type.TQuickstarts;
+
+#if flash
+import flash.net.URLLoader;
+import flash.net.URLLoaderDataFormat;
+import flash.net.URLRequest;
+import flash.events.Event;
+import flash.utils.ByteArray;
+#else
+import cx.FileTools;
+#end
+
 
 /**
  * ...
@@ -31,42 +33,55 @@ import sx.type.TQuickstarts;
  */
 
 using StringTools;
+using cx.StrTools;
 
-#if !flash
-class ScorxZip 
-#else
-class ScorxZip extends EventDispatcher
-#end
-
+class ScorxZip
 {
 	private var _filename:String;
 	private var _fileExists:Bool;
-	
 	private var _exampleEntry:Entry;
 	private var _gridEntry:Entry;
 	private var _quickstartsEntry:Entry;
 	private var _channelEntries:List<Entry>;
 	private var _pagesEntries:List<Entry>;
+	private var _loadedCallback:Void -> Void;
 	
 	public function new(filename:String) 
 	{
 		this._filename = filename;
-		
-		
-		
-#if !flash		
-		this._fileExists = FileTools.exists(this._filename);		
-		if (this._fileExists) this._loadZip(this._filename);		
-#else		
-		super();
-		var ul = new URLLoader();
-		ul.dataFormat = URLLoaderDataFormat.BINARY;
-		ul.addEventListener(Event.COMPLETE, onFlashZipLoaded);
-		ul.load(new URLRequest(this._filename));
-#end
-		
-		
 	}
+	
+	public function loadZip(loadedCallback:Void->Void) {
+		this._loadedCallback = loadedCallback;
+		#if flash
+			var ul = new URLLoader();
+			ul.dataFormat = URLLoaderDataFormat.BINARY;
+			ul.addEventListener(Event.COMPLETE, onFlashZipLoaded);
+			ul.load(new URLRequest(this._filename));
+		#else		
+			this._fileExists = FileTools.exists(this._filename);		
+			if (this._fileExists) this._loadZip(this._filename);
+		#end
+	}
+	
+	
+	#if flash
+	private function onFlashZipLoaded(e:Event) {
+		var byteArray:ByteArray = cast(e.target, URLLoader).data;
+		trace(byteArray.length);
+		var bytes:Bytes = Bytes.ofData(byteArray);  
+		var entries = ZipTools.getEntriesFromBytes(bytes);
+		this._getScorxEntries(entries);
+	}
+	#else 
+	private function _loadZip(filename:String) {
+		var entries = ZipTools.getEntries(filename);		
+		this._getScorxEntries(entries);
+	}
+	#end
+	
+	///-----------------------------------------------------------------------------------------------------
+	/// IF NOT FLASH:
 	
 #if !flash	
 	public function setExample(example:TExample) {		
@@ -103,44 +118,26 @@ class ScorxZip extends EventDispatcher
 	}	
 	
 	public function saveZip(filename:String=null) {
-		
 		var saveFilename = (filename != null) ? filename : this._filename;
-		
 		var entries = new List<Entry>();		
-		
 		if (this._gridEntry != null) entries.push(this._gridEntry);
 		if (this._exampleEntry != null) entries.push(this._exampleEntry);
+		if (this._quickstartsEntry != null) entries.push(this._quickstartsEntry);
 		if (this._channelEntries != null) for (entry in this._channelEntries) entries.push(entry);
 		if (this._pagesEntries != null) for (entry in this._pagesEntries) entries.push(entry);
-		
 		ZipTools.saveZipEntries(saveFilename, entries);
-		
 	}
-	
-	private function _loadZip(filename:String) {
-		var entries = ZipTools.getEntries(filename);		
-		this._getScorxEntries(entries);
-	}
-
 #end	
+	///
+	///-----------------------------------------------------------------------------------------------------
 
-#if flash
-	private function onFlashZipLoaded(e:Event) {
-			trace('loaded');
-			
-			var byteArray:ByteArray = cast(e.target, URLLoader).data;
-			trace(byteArray.length);
-			var bytes:Bytes = Bytes.ofData(byteArray);  
-			var entries = ZipTools.getEntriesFromBytes(bytes);
-			this._getScorxEntries(entries);
-			
-		}
-#end
 
 	private function _getScorxEntries(entries:List<Entry>) {
 		for (entry in entries) {
+			//trace(entry.fileName);
 			if (entry.fileName.startsWith('example.data')) this._exampleEntry = entry;
 			if (entry.fileName.startsWith('grid.data')) this._gridEntry = entry;
+			if (entry.fileName.startsWith('quickstarts.data')) this._quickstartsEntry = entry;
 			if (entry.fileName.startsWith('channels/')) {
 				if (this._channelEntries == null) this._channelEntries = new List<Entry>();
 				this._channelEntries.push(entry);
@@ -150,21 +147,60 @@ class ScorxZip extends EventDispatcher
 				this._pagesEntries.push(entry);
 			}
 		}		
-		trace(this._channelEntries.length);
-		trace(this._pagesEntries.length);	
-	
-		
-#if flash
-		trace('dispatch');	
-		this.dispatchEvent(new Event(Event.COMPLETE));
-#end
-		
+		if (this._loadedCallback != null) this._loadedCallback();		
 	}
+	
+	//-----------------------------------------------------------------------------------------------------
 
 	public function getExample(): TExample {
 		if (this._exampleEntry == null) throw "No valid TExample data";
-		var example:TExample = Unserializer.run(this._exampleEntry.data.toString());
-		return example;		
+		var data:TExample = Unserializer.run(this._exampleEntry.data.toString());
+		return data;		
+	}	
+	
+	public function getGrid(): TGrid {
+		if (this._gridEntry == null) throw "No valid TGrid data";
+		var data:TGrid = Unserializer.run(this._gridEntry.data.toString());
+		return data;		
 	}
+
+	public function getQuickstarts(): TQuickstarts {
+		if (this._quickstartsEntry == null) throw "No valid TQuickstarts data";
+		var data:TQuickstarts = Unserializer.run(this._quickstartsEntry.data.toString());
+		return data;		
+	}
+	
+	public function getPages(): TPages {
+		if (this._pagesEntries == null) throw "No valid Pages entries data";
+		
+		var items = new TPages();
+		for (entry in this._pagesEntries) {
+			var item:TPage = {
+				id: entry.fileName.afterLast('/'),
+				data: entry.data,				
+			}
+			items.push(item);
+		}
+		items.sort(function(a, b) { return Reflect.compare(a.id, b.id); } );
+		return items;		
+	}	
+	
+	public function getChannels(): TChannels {
+		if (this._pagesEntries == null) throw "No valid Channels entries data";
+		
+		var items = new TChannels();
+		for (entry in this._channelEntries) {			
+			var item:TChannel = {				
+				id: entry.fileName.afterLast('/'),
+				name: entry.fileName,
+				data: entry.data,				
+			}
+			items.push(item);
+		}
+		//var data:TExample = Unserializer.run(this._exampleEntry.data.toString());
+		items.sort(function(a, b) { return Reflect.compare(a.id, b.id); } );
+		return items;		
+	}			
+	
 	
 }

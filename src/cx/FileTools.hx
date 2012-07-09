@@ -22,7 +22,26 @@ class FileTools
 	static public function test() {
 		return 'test';
 	}
+	
+	static public function deleteFile(path:String) {
+		FileSystem.deleteFile(path);
+	}
+	
+	static public function deleteDirectory(dir:String) {
+		if (!FileSystem.exists(dir)) return;
+		var files = FileTools.getFilesInDirectories('pages/');
+		for (file in files) {
+			FileTools.deleteFile(file);
+		}	
 
+		FileSystem.deleteDirectory(dir);
+	}
+
+	static public function createDirectory(dir:String) {
+		if (FileSystem.exists(dir)) return;
+		FileSystem.createDirectory(dir);
+	}
+	
 	static public function exists(path:String) {
 		return FileSystem.exists(path);
 	}

@@ -1,5 +1,6 @@
 package cx.nme.display.behavior;
 
+import cx.nme.display.enums.DragMode;
 import cx.nme.display.ResizeSpriteEvent;
 import nme.display.DisplayObject;
 import nme.display.Graphics;
@@ -14,17 +15,7 @@ import nme.Lib;
  * @author Jonas Nyström
  */
 
-enum DragMode {
-	None;
-	LeftTop;
-	RightTop;
-	LeftBottom;
-	RightBottom;
-	Top;
-	Bottom;
-	Left;
-	Right;
-}
+
 
 class ResizeBehavior extends AbstractSpriteBehavior {
 	private var _width:Float;
@@ -153,7 +144,7 @@ class ResizeBehavior extends AbstractSpriteBehavior {
 		this._width = Math.max(20, this._width);
 		this._height = Math.max(20, this._height);		
 		this.gripLayer.graphics.clear();		
-		this.gripLayer.graphics.lineStyle(1, 0x0000FF, 0.2);
+		this.gripLayer.graphics.lineStyle(2, 0x0000FF, 0.5);
 		this.gripLayer.graphics.beginFill(0x0000FF, 0.05);
 		this.gripLayer.graphics.drawRect(0, 0, this._width, this._height);		
 	}		
