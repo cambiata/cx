@@ -139,6 +139,7 @@ class SXEditGrid extends Sprite
 	}
 	
 	public function getGridRects():Array<Rectangle> {
+		/*
 		var ret = new Array<Rectangle>();
 		
 		for (i in 0...this._systemsLayer.numChildren) {
@@ -147,7 +148,8 @@ class SXEditGrid extends Sprite
 			ret.push(rect);
 		}		
 		return ret;
-		
+		*/
+		return null;
 		
 	}
 	
