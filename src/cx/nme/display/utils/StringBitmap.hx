@@ -5,9 +5,7 @@ import nme.display.BitmapData;
 import nme.display.Sprite;
 import nme.text.TextField;
 import nme.text.TextFormat;
-#if neko
-import nme.display.BitmapInt32;
-#end
+
 
 /**
  * ...
@@ -39,9 +37,9 @@ class StringBitmap
 		this.t.text = string;
 
 		#if neko
-			var color:BitmapInt32 = { rgb:0xFFFFFF, a:0 };
+			var color = { rgb:0xFFFFFF, a:0 };
 		#else
-			var color:Int = 0xFFFFFF;
+			var color = 0xFFFFFF;
 		#end
 		
 		var bmd = new BitmapData(Std.int(t.textWidth + 1), Std.int(t.textHeight + 1), true, color);
