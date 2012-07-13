@@ -1,6 +1,7 @@
 package cx;
 import nme.display.BitmapData;
 import nme.display.DisplayObject;
+import nme.display.Sprite;
 import nme.geom.Point;
 import nme.geom.Rectangle;
 
@@ -135,6 +136,17 @@ class NmeTools {
 		return move;
 	}	
 	
+	static public function getSpriteRect(parent:Sprite, x = 0.0, y = 0.0, width = 50.0, height = 50.0, color = 0x0000FF) {
+		var s = new Sprite();
+		s.graphics.beginFill(color);
+		s.graphics.drawRect(x, y, width, height);
+		s.x = x;
+		s.y = y;
+		s.width = width;
+		s.height = height;
+		if (parent != null) parent.addChild(s);
+		return s;
+	}
 	
 }	
 
