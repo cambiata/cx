@@ -1,0 +1,13 @@
+$(BlankLine)
+/** 
+ *   Public getter and setter for $(Member):$(Type)
+  */
+private function get_$(Name)():$(Type) {
+	return $(Member)$(EntryPoint);
+}
+private function set_$(Name)(value:$(Type)):$(Type) {
+	return $(Member) = value;
+}
+$(Modifiers) var $(Name)(get_$(Name), set_$(Name)):$(Type);
+$(BlankLine)
+$(BlankLine)

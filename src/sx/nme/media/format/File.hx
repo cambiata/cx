@@ -113,7 +113,7 @@ class File implements IFile {
 		if (ready() < 0) return; // Do not operate on error
 		var avail = bytes.bytesAvailable;
 		if (avail > 65536) avail = 65536;
-		trace("Pushing "+avail+" bytes...");
+		//trace("Pushing "+avail+" bytes...");
 		if (avail == 0) return;
 		bytes.readBytes(Buffer, bufsize, avail);
 		bufsize += avail;
@@ -136,9 +136,11 @@ class File implements IFile {
 		Readed = i;
 		last = (Readed-dataOff+chunkSize >= dataSize);
 		
+		/*
 		if (chk > 0) {
 			trace("Read "+chk+" chunks, last="+last+"; Readed="+Readed+"; dataSize="+dataSize+"; dataOff="+dataOff+"; chunkSize="+chunkSize);
 		}
+		*/
 	}
 
 	// Rewind on input stream to Pos, and return real pos we have seeked, or seeking to

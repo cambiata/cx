@@ -1,27 +1,16 @@
-package sx.app.sxsound;
+package $(PackageName);
 
-import com.bit101.components.ProgressBar;
-import haxe.io.Bytes;
-import haxe.io.BytesData;
 import nme.display.Sprite;
 import nme.events.Event;
 import nme.events.MouseEvent;
 import nme.Lib;
 import com.bit101.components.HBox;
 import com.bit101.components.PushButton;
-import nme.media.Sound;
-import nme.net.URLLoader;
-import nme.net.URLRequest;
-import nme.utils.ByteArray;
-import sx.nme.media.extract.WavDataExtractor;
-import sx.nme.media.format.File;
-import sx.nme.media.format.FileWav;
-import sx.nme.media.SXSound;
 
 /**
- * ...
- * @author Jonas Nyström
- */
+$(CBI)* ...
+$(CBI)* @author $(DefaultUser)
+$(CBI)*/
 
 class Main extends Sprite
 {
@@ -43,10 +32,6 @@ class Main extends Sprite
 	private var hbox:HBox;
 	private var button1:PushButton;
 	private var button2:PushButton;
-	private var _s:SXSound;
-	private var progressBar:ProgressBar;
-	
-	
 	
 	/*
 	 * *********************************************************
@@ -69,42 +54,19 @@ class Main extends Sprite
 
 	private function init(e) {
 		_createUI();
-		var fw:FileWav = new FileWav();
-		_s = new SXSound();
+		
 	}
 	
 	private function _createUI() {
 		hbox = new HBox(Lib.current.stage, 0, 0);		
+		
 		button1 = new PushButton(hbox, 0, 0, 'Button 1', function(e:MouseEvent) {			
-			var urlLoader:URLLoader = new URLLoader();
-			urlLoader.dataFormat = nme.net.URLLoaderDataFormat.BINARY;
-			urlLoader.addEventListener(Event.COMPLETE, function(e:Event) {
-				
-				var ba:ByteArray  = cast(e.target, URLLoader).data;
-				var wde:WavDataExtractor = new WavDataExtractor(ba);
-				
-				wde.onProgress = function(bytesLoaded:Int, bytesTotal:Int) {
-					var value = bytesLoaded / bytesTotal;
-					this.progressBar.setValue(value);
-				}				
-				
-				var buffer = wde.getSoundData();				
-				_s.setSoundData(buffer);
-				_s.testPlay();
-				
-			});
-			urlLoader.load(new URLRequest('rain_loop.wav'));			
+			trace('button1 pressed');
 		});
 		
 		button2 = new PushButton(hbox, 0, 0, 'Button 2', function(e:MouseEvent) {			
-			_s.testStop();			
-			var s = new Sound();
-			
+			trace('button2 pressed');
 		});
-		
-		progressBar = new ProgressBar(hbox, 0, 0);
-		progressBar.maximum = 1;
-		
 	}
 	
 	/*
@@ -114,6 +76,9 @@ class Main extends Sprite
 	 *
 	*/	
 		
+	
+	
+	
 	
 }
 

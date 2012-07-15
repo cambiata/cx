@@ -52,8 +52,8 @@ class FileWav extends File {
 		
 		var i = Readed;
 		while (i < bufsize) {
-			trace('- - - - - ');
-			trace([i, bufsize]);
+			//trace('- - - - - ');
+			//trace([i, bufsize]);
 			
 			switch (State) {
 			  case 0: // Read RIFF header
@@ -66,24 +66,24 @@ class FileWav extends File {
 					
 					switch( i ) {
 					  case 0:
-						/*
+						#if !neko
 						 if (DW != 0x46464952) {
 							trace("Wrong RIFF magic! Got "+DW+" instead of 0x46464952");
 							Readed = -1;
 							return;
 						}
-						*/
+						#end
 					  case 4:
 						dataSize = Std.int(DW);
 						trace("dataSize = "+dataSize);
 					  case 8:
-						/*
+						#if !neko
 						  if (DW != 0x45564157) {
 							trace("Wrong WAVE magic! Got "+DW+" instead of 0x45564157");
 							Readed = -1;
 							return;
 						}
-						*/
+						#end
 					}
 					
 					i += 4;
@@ -204,11 +204,16 @@ class FileWav extends File {
 					var DW = Buffer[i+3]*16777216+Buffer[i+2]*65536+Buffer[i+1]*256+Buffer[i];
 					switch( i-dataOff ) {
 					  case 0:
-						//if (DW == 0x61746164) {
+						
+						#if !neko  
+						if (DW == 0x61746164) {
 							trace("Data block!");
 							State++;
-						//} else
-						//	trace("Unknown block, skipping ("+DW+")");
+						} else
+						trace("Unknown block, skipping (" + DW + ")");
+						#else
+							State++;
+						#end
 					  case 4:
 						dataSize = DW;
 						trace("dataSize3 = "+dataSize);
@@ -233,13 +238,13 @@ class FileWav extends File {
 					var DW = Buffer[i+3]*16777216+Buffer[i+2]*65536+Buffer[i+1]*256+Buffer[i];
 					switch( i-dataOff ) {
 					  case 0:
-						/*
+						#if !neko
 						  if (DW != 0x61746164) {
 							trace("Wrong 'data' magic! Got "+DW+" instead of 0x61746164");
 							Readed = -1;
 							return;
 						}
-						*/
+						#end
 					  case 4:
 						dataSize = DW;
 						trace("dataSize(data) = "+dataSize);

@@ -14,6 +14,12 @@ class WavDataExtractor implements ISXSoundDataExtractor
 	private var _decodedByteArray:ByteArray;
 	private var _loadedByteArray:ByteArray;
 	
+	public var onStart: Void -> Void;
+	public var onProgress: Int->Int->Void;
+	public var onComplete: Int->Void;
+	
+	
+	
 	/*
 	 * *********************************************************
 	 * CONSTRUCTOR
@@ -41,28 +47,28 @@ class WavDataExtractor implements ISXSoundDataExtractor
 	}
 		
 	private function _readLoop() {
-		
+		notifyProgress();
 		while (_loadedByteArray.position < _loadedByteArray.length) {
+			notifyProgress();
 			_fmtWave.push( _loadedByteArray, false );
 			_fmtWave.populate(44100);
 			
-			
 			if (_fmtWave.samplesAvailable()>0) {
 				var samples = _fmtWave.getSamples();
-				trace(samples.length);
-				
 				var ind = new Array<Int>(); 
 				ind[0] = 0;
 				var cnt = samples[0].length;
 				this.writeDecodedData(samples, ind, cnt, _fmtWave.last);
-				
 			}	
-			
 		}
+		notifyProgress();
+	}
+	
+	private function notifyProgress() {
+		if (this.onProgress != null) this.onProgress(_loadedByteArray.position, _loadedByteArray.length);
 	}
 		
     private function writeDecodedData(pcm : Array<Array<Float>>, index : Array<Int>, samples : Int, last : Bool = false) : Void {		
-        
 		var i : Int;
         var end : Int;
 		var c1 = pcm[0];
@@ -77,26 +83,17 @@ class WavDataExtractor implements ISXSoundDataExtractor
 		
 		while (i < end) {
 			var left:Float = c1[i];
-			var right:Float = c2[i2++];
+			var right:Float = c2[i2++];			
 			_decodedByteArray.writeFloat(left);
 			_decodedByteArray.writeFloat(right);
-			//_decodedByteArray.writeFloat(c1[i]);
-			//_decodedByteArray.writeFloat(c2[i2++]);
 			i++;
 		}
 		
-		
-		
     }		
 	
-	/* INTERFACE sx.nme.media.extract.ISXSoundDataExtractor */
-	
+	/* INTERFACE sx.nme.media.extract.ISXSoundDataExtractor */	
 	public function getSoundData():ByteArray {
 		return decodeWav(_loadedByteArray);
 	}
-	
-	
-	
-	
 	
 }
