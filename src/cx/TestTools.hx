@@ -9,47 +9,22 @@ import haxe.unit.TestRunner;
  */
 class TestTools 
 {
-	static public function runTests(cases:Iterable<TestCase>) {
-		if (cases == null) return;
+	static var output:String;
+	
+	static public function runTests(cases:Iterable<TestCase>):String {
+		if (cases == null) return 'No tests to run';
+		output = '';
 		var cases = Lambda.array(cases);
-		
-		//TestRunner.print = myPrint;
-		
+		TestRunner.print = myPrint;
 		var r:TestRunner = new TestRunner();
 		for (c in cases) {
 			r.add(c);
 		}
 		r.run();
+		return output;
 	}	
 	
 	static public  function myPrint(v:Dynamic)  {
-		trace('myPrint');
+		output += Std.string(v);
 	}
-	
 }
-
-/*
-import haxe.unit.TestRunner;
-class TestRunnerExt extends TestRunner {
-	
-	private var resultString:String;
-	
-	public function new() {
-		super();
-		TestRunner.print = printExt;	
-	}
-	
-
-	
-	public function getResult():String {
-		this.run();
-		return this.resultString;		
-	}
-	
-	public static function printExt(v:Dynamic) {
-		trace('printExt ' + Std.string(v));
-	}
-	
-	
-}
-*/
