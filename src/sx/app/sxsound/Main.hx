@@ -1,6 +1,7 @@
 package sx.app.sxsound;
 
 import com.bit101.components.ProgressBar;
+import cx.NmeTools;
 import haxe.io.Bytes;
 import haxe.io.BytesData;
 import nme.display.Sprite;
@@ -17,6 +18,7 @@ import sx.nme.media.extract.WavDataExtractor;
 import sx.nme.media.format.File;
 import sx.nme.media.format.FileWav;
 import sx.nme.media.SXSound;
+import sx.nme.media.SXSoundMulti;
 
 /**
  * ...
@@ -45,6 +47,18 @@ class Main extends Sprite
 	private var button2:PushButton;
 	private var _s:SXSound;
 	private var progressBar:ProgressBar;
+	private var _sm:SXSoundMulti;
+	private var sound1:ByteArray;
+	private var sound2:ByteArray;
+	private var fyyr:ByteArray;
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
@@ -71,34 +85,72 @@ class Main extends Sprite
 		_createUI();
 		var fw:FileWav = new FileWav();
 		_s = new SXSound();
+		_sm = new SXSoundMulti();
 	}
 	
 	private function _createUI() {
 		hbox = new HBox(Lib.current.stage, 0, 0);		
 		button1 = new PushButton(hbox, 0, 0, 'Button 1', function(e:MouseEvent) {			
+			if (sound1 != null ) {
+				_sm.addSoundData(sound1);		
+				return;				
+			}
+			
+			
 			var urlLoader:URLLoader = new URLLoader();
 			urlLoader.dataFormat = nme.net.URLLoaderDataFormat.BINARY;
 			urlLoader.addEventListener(Event.COMPLETE, function(e:Event) {
 				
-				var ba:ByteArray  = cast(e.target, URLLoader).data;
-				var wde:WavDataExtractor = new WavDataExtractor(ba);
+				var wde:WavDataExtractor = new WavDataExtractor(cast(e.target, URLLoader).data);
 				
 				wde.onProgress = function(bytesLoaded:Int, bytesTotal:Int) {
 					var value = bytesLoaded / bytesTotal;
 					this.progressBar.setValue(value);
 				}				
 				
-				var buffer = wde.getSoundData();				
-				_s.setSoundData(buffer);
-				_s.testPlay();
+				sound1 = wde.getSoundData();				
+				//_s.setSoundData(soundData);
+				//_s.testPlay();
+				fyyr  = _sm.addSoundData((sound1));	
+				//_sm.testPlay();
 				
 			});
-			urlLoader.load(new URLRequest('rain_loop.wav'));			
+			urlLoader.load(new URLRequest('6.wav'));			
 		});
 		
 		button2 = new PushButton(hbox, 0, 0, 'Button 2', function(e:MouseEvent) {			
-			_s.testStop();			
-			var s = new Sound();
+			
+			/*
+			if (sound2 != null ) {
+				_sm.addSoundData((sound2));		
+				return;				
+			}
+			*/
+			
+			
+			var urlLoader:URLLoader = new URLLoader();
+			urlLoader.dataFormat = nme.net.URLLoaderDataFormat.BINARY;
+			urlLoader.addEventListener(Event.COMPLETE, function(e:Event) {
+				
+				var wde:WavDataExtractor = new WavDataExtractor(cast(e.target, URLLoader).data);
+				
+				wde.onProgress = function(bytesLoaded:Int, bytesTotal:Int) {
+					var value = bytesLoaded / bytesTotal;
+					this.progressBar.setValue(value);
+				}				
+				
+				sound2 = wde.getSoundData();				
+				//_s.setSoundData(soundData);
+				//_s.testPlay();
+				//_sm.addSoundData((sound2));		
+				
+				_sm.replaceSoundData(fyyr, sound2);
+				
+				
+				//_sm.testPlay();
+				
+			});
+			urlLoader.load(new URLRequest('6b.wav'));	
 			
 		});
 		

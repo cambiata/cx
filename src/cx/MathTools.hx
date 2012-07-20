@@ -43,9 +43,7 @@ class MathTools
 	}
 	
 	 static public function ipol(a:Float, b:Float, delta:Float) {
-		
 		return delta * (b - a) + a;
-		
 	}
 	
 	

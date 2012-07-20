@@ -1,4 +1,5 @@
 package sx.nme.media;
+import cx.NmeTools;
 import nme.events.SampleDataEvent;
 import nme.media.Sound;
 import nme.media.SoundChannel;
@@ -9,7 +10,7 @@ import nme.utils.ByteArray;
  * @author Jonas Nyström
  */
 
-class SXSound 
+class SXSoundMulti 
 {
 		
 	/*
@@ -25,6 +26,9 @@ class SXSound
 	private var _bufferLenght:Int;
 	private var _pos:Int;
 	
+	private var _soundDatas:Array<ByteArray>;
+	
+	
 	/*
 	 * *********************************************************
 	 * CONSTRUCTOR
@@ -39,6 +43,9 @@ class SXSound
 		_soundData = soundData;
 		_bufferLenght = 2048 * 4 * 2;
 		_pos = 0;
+		
+		_soundDatas = new Array<ByteArray>();
+		testPlay();
 	}
 	
 	
@@ -50,9 +57,29 @@ class SXSound
 	*/	
 	
 	private function onSampleData(e:SampleDataEvent):Void {
-		trace([_soundData.position, _soundData.length]);
-		_pos = _soundData.position;
+		for (soundData in _soundDatas) {		
+			_pos = soundData.position;
+			if (_pos >= soundData.length - _bufferLenght) {
+				_soundDatas.remove(soundData);
+				soundData = null;				
+			}			
+		}
 		
+		for (i in 0...2048) {					
+			var left:Float = 0.0;
+			var right:Float = 0.0;
+			for (soundData in _soundDatas) {
+				left += soundData.readFloat();
+				right += soundData.readFloat();
+			}
+			e.data.writeFloat(left);
+			e.data.writeFloat(right);			
+		}
+		
+		trace(_soundDatas.length);
+		/*
+		trace([_soundData.position, _soundData.length]);
+		_pos = _soundData.position;		
 		if (_pos < _soundData.length - _bufferLenght) {
 			for (i in 0...2048) {		
 				var left:Float = _soundData.readFloat();
@@ -67,6 +94,7 @@ class SXSound
 			e.data.writeFloat(0);
 			e.data.writeFloat(0);
 		}	
+		*/
 	}
 	
 	
@@ -91,5 +119,34 @@ class SXSound
 		_soundChannel.stop();
 	}
 	
+
+	public function addSoundData(soundData:ByteArray) {
+		var sd = NmeTools.byteArrayCopy(soundData);
+		sd.position = 0;
+		this._soundDatas.push(sd);		
+		trace(this._soundDatas.length);
+		return sd;
+	}
+	
+	public function replaceSoundData(oldData:ByteArray, newData:ByteArray) {
+		
+		var idx = 0;
+		for (soundData in _soundDatas) {
+			idx++;
+			if (soundData == oldData) {
+				trace('FOUND');
+			}			
+		}
+
+		if (idx > 0) {
+			trace('YKKAS');
+			var soundData = NmeTools.byteArrayCopy(newData);
+			soundData.position = 0;
+			_soundDatas[idx - 1] = soundData;
+
+		}
+		
+		
+	}
 	
 }

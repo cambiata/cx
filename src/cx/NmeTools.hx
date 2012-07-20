@@ -4,6 +4,7 @@ import nme.display.DisplayObject;
 import nme.display.Sprite;
 import nme.geom.Point;
 import nme.geom.Rectangle;
+import nme.utils.ByteArray;
 
 #if neko
 import cx.FileTools;
@@ -147,6 +148,13 @@ class NmeTools {
 		return s;
 	}
 	
+	static public function byteArrayCopy(source:ByteArray):ByteArray {				
+		var copy:ByteArray = new ByteArray();
+		source.position = 0;
+		source.readBytes(copy, 0, source.length);
+		copy.position = 0;
+		return copy;
+	}
 }	
 
 //-------------------------------------------------------------------------------------------------
