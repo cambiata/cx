@@ -13,9 +13,9 @@ class _RunTests
 {
 	static public function runTests() {		
 		var ret = TestTools.runTests([
-			new _TestElement(),
+			//new _TestElement(),
 			new _TestDisplay(),
-			new _TestRender(),
+			//new _TestRender(),
 		]);
 		
 		return ret;

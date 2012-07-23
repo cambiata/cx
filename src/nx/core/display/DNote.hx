@@ -1,4 +1,5 @@
 package nx.core.display;
+import nme.geom.Rectangle;
 import nx.core.element.Note;
 import nx.core.type.TSigns;
 import nx.core.util.SignsUtil;
@@ -53,11 +54,16 @@ class DNote
 	//--------------------------------------
 	
 	public var direction(get_direction, set_direction):EDirectionUD;
+	
+	
+	
 	private var _direction:EDirectionUD;
 	private function get_direction():EDirectionUD {
 		return _direction;
 	}
 	private function set_direction(value:EDirectionUD):EDirectionUD {
+		this._rectHeads = null;
+		
 		this._direction = value;
 		this.headPositions = this._calcHeadPositions(this._direction);
 		this.signs = this._calcSigns();
@@ -120,6 +126,29 @@ class DNote
 		}		
 		return SignsUtil.adjustPositions(ret);
 	}	
+	
+	//-----------------------------------------------------------------------------------------------------
+	
+	private var _rectHeads:Rectangle;
+	public var rectHeads(get_rectHeads, null):Rectangle;	
+	private function get_rectHeads():Rectangle {
+		if (this._rectHeads != null) return this._rectHeads;
+		this._rectHeads = this.dheads[0].rect;
+		this._rectHeads.offset(this.headPositions[0]*2, 0);
+		
+		
+		if (this.dheads.length > 1) {
+			for (i in 1...this.dheads.length) {
+				
+				var headRect = this.dheads[i].rect;
+				headRect.offset(this.headPositions[i]*2, 0);
+				
+				this._rectHeads = this._rectHeads.union(headRect);
+			}
+		}
+		return _rectHeads;
+	}
+	
 	
 	
 }

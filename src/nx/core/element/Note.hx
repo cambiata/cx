@@ -1,4 +1,4 @@
-za	package nx.core.element;
+package nx.core.element;
 import nx.enums.EDirectionUAD;
 import nx.enums.ENoteValue;
 

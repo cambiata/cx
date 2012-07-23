@@ -1,4 +1,5 @@
 package nx.core.display;
+import nx.enums.EDirectionUAD;
 
 /**
  * ...
@@ -7,24 +8,13 @@ package nx.core.display;
 
 class DPlex 
 {
-	public var posiiton(default, null):Int;
-	public var count(default, null): Int;
-	
-
-	public function new(position:Int)  {
-		this.posiiton = position;
-		this.dnotes = [];
-		this.count = 0;
+	public function new(dnotes:Iterable<DNote>)  {
+		this.dnotes = Lambda.array(dnotes);
+		if (this.dnotes.length > 1) {
+			trace(this.dnotes[0].rectHeads);
+			trace(this.dnotes[1].rectHeads);
+		}
 	}
 	
 	public var dnotes(default, null):Array<DNote>;
-
-	public function addDNote(dnote:DNote) {
-		this.dnotes.push(dnote);
-		this.count = this.dnotes.length;
-	}
-	
-	
-	
-	
 }

@@ -14,7 +14,7 @@ class DHead
 {
 	public function new(head:Head) {
 		this.head = head;
-		this.rect = new Rectangle( -2, this.head.level - 1, 2, 4);
+		this.rect = new Rectangle( -2, this.head.level - 1, 4, 2);
 		this.signRect = this.head.sign.getSignRect();
 	}
 	
