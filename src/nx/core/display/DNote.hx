@@ -2,8 +2,10 @@ package nx.core.display;
 import nx.core.element.Note;
 import nx.core.type.TSigns;
 import nx.core.util.SignsUtil;
+import nx.enums.EDirectionUAD;
 import nx.enums.EDirectionUD;
 import nx.enums.ENoteValue;
+import nx.enums.utils.EDirectionTools;
 
 /**
  * ...
@@ -24,7 +26,19 @@ class DNote
 			this.dheads.push(new DHead(head));
 		}
 		this.signs = this._calcSigns();
+		
+		/*
 		this.direction = (forceDirection != null) ? forceDirection : this._calcDirection();		
+		*/
+		
+		if (forceDirection != null) {
+			this.set_direction(forceDirection);
+		} else if (note.direction != EDirectionUAD.Auto) {
+			this.direction = EDirectionTools.UADtoUD(note.direction);
+		} else {
+			this.direction = this._calcDirection();
+		}
+		
 	}
 	
 	public var note(default, null):Note;

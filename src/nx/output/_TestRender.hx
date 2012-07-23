@@ -34,7 +34,9 @@ class _TestRender extends TestCase
 	
 	public function testDNoteOutput() {
 		assertTrue(true);
-		render.dnote(0, 0, _TO.dNoteSimple0);		
+		render.dnote(200, 100, _TO.dNoteSimple0);		
+		render.dnote(300, 100, _TO.dNote2Heads0);		
+		render.dnote(400, 100, _TO.dNote2Heads1);		
 		_output();
 	}
 	
