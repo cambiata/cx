@@ -15,7 +15,7 @@ class _RunTests
 		var ret = TestTools.runTests([
 			//new _TestElement(),
 			new _TestDisplay(),
-			//new _TestRender(),
+			new _TestRender(),
 		]);
 		
 		return ret;

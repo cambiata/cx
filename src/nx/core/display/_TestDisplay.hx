@@ -44,7 +44,7 @@ class _TestDisplay extends TestCase
 
 	public function testDPlex() {
 		assertTrue(true);
-		var dp = new DPlex([_TO.dNoteNv4_1_m1_UP, _TO.dNoteNv4_1_p1]);
+		var dp = new DPlex([_TO.dNoteNv4_1_m1_UP, _TO.dNoteNv4_1_p1_DN]);
 	}
 	
 	

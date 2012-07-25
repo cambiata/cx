@@ -3,6 +3,7 @@ import nme.display.Shape;
 import nme.display.Sprite;
 import nx.Constants;
 import nx.core.display.DNote;
+import nx.core.display.DPlex;
 import nx.display.beam.IBeamGroup;
 import nx.display.DisplayNote;
 import nx.enums.EDirectionUD;
@@ -313,13 +314,12 @@ class Render implements IRender
 	}
 	
 	public function dnote(x:Float, y:Float, dnote:DNote) {
+		trace('dnote ' + x + ' ' + y);
+		/*
 		function drawHead(x:Float, y:Float, level:Int, position:Int, headType:EHeadType) {
 			var headY = y + (level * scaling.halfSpace);
 			var headX = x + position * scaling.noteWidth;
-			var shape:Shape; // = SvgAssets.getSvgShape("noteBlack", scaling);
-			//if (headType == EHeadType.Whole) shape = SvgAssets.getSvgShape("noteWhole", scaling);
-			//if (headType == EHeadType.White) shape = SvgAssets.getSvgShape("noteWhite", scaling);
-			
+			var shape:Shape; // = SvgAssets.getSvgShape("noteBlack", scaling);			
 			switch(headType) {
 				case EHeadType.Whole:
 					shape = SvgAssets.getSvgShape("snoteWhole", scaling);
@@ -332,16 +332,40 @@ class Render implements IRender
 			shape.x = headX + scaling.svgX;  
 			shape.y = headY + scaling.svgY;
 			target.addChild(shape);	  			
-		}		
-
+		}	
+		*/
 		var positions = dnote.headPositions.copy();
 		for (dhead in dnote.dheads) {
 			var position = positions.shift();
-			drawHead(x, y, dhead.level, position, dnote.notevalue.headType);
+			this._drawHead(x, y, dhead.level, position, dnote.notevalue.headType);
 		}		
-		
-		
-		
 	}
+	
+	public function dplex(x:Float, y:Float, dplex:DPlex) {
+		for (dnote in dplex.dnotes) {
+			trace('dnote render');
+			this.dnote(x, y, dnote);
+		}
+	}
+
+	private function _drawHead(x:Float, y:Float, level:Int, position:Int, headType:EHeadType) {
+		var headY = y + (level * scaling.halfSpace);
+		var headX = x + position * scaling.noteWidth;
+		var shape:Shape; // = SvgAssets.getSvgShape("noteBlack", scaling);			
+		switch(headType) {
+			case EHeadType.Whole:
+				shape = SvgAssets.getSvgShape("snoteWhole", scaling);
+			case EHeadType.White:
+				shape = SvgAssets.getSvgShape("noteWhite", scaling);
+			default:
+				shape = SvgAssets.getSvgShape("noteBlack", scaling);
+		}
+		
+		shape.x = headX + scaling.svgX;  
+		shape.y = headY + scaling.svgY;
+		target.addChild(shape);	  			
+	}		
+	
+	
 	
 }
