@@ -6,7 +6,7 @@ import nx.enums.EDirectionUAD;
  * @author Jonas Nyström
  */
 
-class DPlex 
+class DPlex
 {
 	public function new(dnotes:Iterable<DNote>)  {
 		this.dnotes = Lambda.array(dnotes);
