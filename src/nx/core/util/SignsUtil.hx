@@ -74,7 +74,8 @@ class SignsUtil {
 				resultRect = resultRect.union(signRect);
 			}
 		}	
-		if (resultRect != null) resultRect.offset(-resultRect.left, 0);		
+		if (resultRect == null) resultRect = new Rectangle( 0.0, 0.0, 0.0, 0.0 );		
+		resultRect.offset(-resultRect.left, 0) ;		
 		return resultRect;
 	}
 	

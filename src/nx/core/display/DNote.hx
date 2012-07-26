@@ -1,5 +1,6 @@
 package nx.core.display;
 import nme.geom.Rectangle;
+import nx.Constants;
 import nx.core.element.Note;
 import nx.core.type.TSigns;
 import nx.core.util.SignsUtil;
@@ -17,16 +18,18 @@ class DNote
 {
 	public function new(note:Note, forceDirection:EDirectionUD=null) 
 	{
-		this.note = note;		
-		this.notevalue = this.note.notevalue;
-		this.headsCount = this.note.heads.length;
-		this.levelTop = this.note.heads[0].level;
-		this.levelBottom = this.note.heads[this.headsCount-1].level;		
-		this.dheads = [];
+		this.note 				= note;		
+		this.notevalue 		= this.note.notevalue;
+		this.headsCount 		= this.note.heads.length;
+		this.levelTop 			= this.note.heads[0].level;
+		this.levelBottom 	= this.note.heads[this.headsCount-1].level;		
+		this.dheads 			= [];
+		
 		for (head in this.note.heads) {
 			this.dheads.push(new DHead(head));
 		}
-		this.signs = this._calcSigns();
+		
+		this.signs 				= this._calcSigns();
 		
 		/*
 		this.direction = (forceDirection != null) ? forceDirection : this._calcDirection();		
@@ -51,12 +54,15 @@ class DNote
 	public var headPositions(default, null):Array<Int>;
 	public var signs(default, null):TSigns;	
 	
+	
+	public function dhead(idx:Int) {
+		return this.dheads[idx];
+	}
+	
+	
 	//--------------------------------------
 	
 	public var direction(get_direction, set_direction):EDirectionUD;
-	
-	
-	
 	private var _direction:EDirectionUD;
 	private function get_direction():EDirectionUD {
 		return _direction;
@@ -134,14 +140,14 @@ class DNote
 	private function get_rectHeads():Rectangle {
 		if (this._rectHeads != null) return this._rectHeads;
 		this._rectHeads = this.dheads[0].rect;
-		this._rectHeads.offset(this.headPositions[0]*2, 0);
+		this._rectHeads.offset(this.headPositions[0]*Constants.HEAD_WIDTH, 0);
 		
 		
 		if (this.dheads.length > 1) {
 			for (i in 1...this.dheads.length) {
 				
 				var headRect = this.dheads[i].rect;
-				headRect.offset(this.headPositions[i]*2, 0);
+				headRect.offset(this.headPositions[i]*Constants.HEAD_WIDTH, 0);
 				
 				this._rectHeads = this._rectHeads.union(headRect);
 			}

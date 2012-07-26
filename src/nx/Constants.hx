@@ -20,6 +20,7 @@ class Constants {
 	static public var HEAD_MAX_LEVEL:Int = 10;
 	static public var HEAD_WIDTH:Int = 4;
 	static public var HEAD_HALFWIDTH:Int = 2;
+	static public var HEAD_QUARTERWIDTH:Int = 1;
 	static public var HEAD_HEIGHT:Int = 2;
 	static public var STAVE_LENGTH:Int = 7;
 	

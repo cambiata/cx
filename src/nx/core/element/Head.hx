@@ -10,8 +10,10 @@ class Head
 {
 	
 	public function new(level:Int=0, sign:ESign=null)  {
+		//trace(sign);
 		this.level = level;
 		this.sign = (sign == null) ? ESign.None : sign;
+		//trace(this.sign);
 	}
 	
 	public var level(default, null):Int;

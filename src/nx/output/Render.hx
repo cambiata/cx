@@ -1,4 +1,6 @@
 package nx.output;
+import nme.display.GradientType;
+import nme.display.Graphics;
 import nme.display.Shape;
 import nme.display.Sprite;
 import nx.Constants;
@@ -26,12 +28,16 @@ class Render implements IRender
 	
 	private var target:Sprite;
 	private var scaling:TScaling;
+	private var gr:Graphics;
+	
+	
 	public function getScaling():TScaling {
 		return this.scaling;
 	}
 	
 	public function new(target:Sprite, scaling:TScaling) {
 		this.target = target;
+		this.gr = target.graphics;
 		this.scaling = scaling;
 	}
 	
@@ -307,45 +313,41 @@ class Render implements IRender
 				this.target.graphics.lineTo(lastNoteX + adjustX, lastTopY);				
 			}
 		}
-		
-		//trace([bgd.firstStave.topY, bgd.lastStave.topY]);
-		//trace([firstTopY, lastTopY]);
-		
 	}
 	
+	//-----------------------------------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------------------------------
+	
 	public function dnote(x:Float, y:Float, dnote:DNote) {
-		trace('dnote ' + x + ' ' + y);
-		/*
-		function drawHead(x:Float, y:Float, level:Int, position:Int, headType:EHeadType) {
-			var headY = y + (level * scaling.halfSpace);
-			var headX = x + position * scaling.noteWidth;
-			var shape:Shape; // = SvgAssets.getSvgShape("noteBlack", scaling);			
-			switch(headType) {
-				case EHeadType.Whole:
-					shape = SvgAssets.getSvgShape("snoteWhole", scaling);
-				case EHeadType.White:
-					shape = SvgAssets.getSvgShape("noteWhite", scaling);
-				default:
-					shape = SvgAssets.getSvgShape("noteBlack", scaling);
-			}
-			
-			shape.x = headX + scaling.svgX;  
-			shape.y = headY + scaling.svgY;
-			target.addChild(shape);	  			
-		}	
-		*/
 		var positions = dnote.headPositions.copy();
 		for (dhead in dnote.dheads) {
 			var position = positions.shift();
 			this._drawHead(x, y, dhead.level, position, dnote.notevalue.headType);
-		}		
+		}	
+		
+		this.gr.lineStyle(1, 0x0000FF);		
+		var r = Scaling.scaleRectangle(dnote.rectHeads, this.scaling);
+		r.offset(x, y);
+		this.gr.drawRect(r.x, r.y, r.width, r.height);		
 	}
 	
-	public function dplex(x:Float, y:Float, dplex:DPlex) {
-		for (dnote in dplex.dnotes) {
-			trace('dnote render');
-			this.dnote(x, y, dnote);
+	public function dplex(x:Float, y:Float, dplex:DPlex) {		
+		for (i in 0...dplex.dnotes.length) {
+			this.dnote(x + dplex.dnoteX(i) * scaling.quarterNoteWidth, y, dplex.dnote(i));	
 		}
+		
+		this.signs(dplex.signs, x, y);
+		
+		this.gr.lineStyle(1, 0xFF0000);
+		var r = Scaling.scaleRectangle(dplex.rectHeads, this.scaling);
+		r.offset(x, y);
+		r.inflate(2, 2);
+		this.gr.drawRect(r.x, r.y, r.width, r.height);		
+		
+		this.gr.lineStyle(2, 0x00FF00);		
+		var r = Scaling.scaleRectangle(dplex.rectSigns, this.scaling);
+		r.offset(x, y);
+		this.gr.drawRect(r.x, r.y, r.width, r.height);
 	}
 
 	private function _drawHead(x:Float, y:Float, level:Int, position:Int, headType:EHeadType) {
