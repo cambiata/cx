@@ -49,7 +49,7 @@ class Scaling  {
 			signPosWidth:	8.0,
 			svgScale:		.175,
 			svgX:			-5.0,
-			svgY:			-39.0,
+			svgY:			-40.0,
 		}
 	}
 	

@@ -24,6 +24,30 @@ class Head
 	public function toString():String {
 		return '- Head:' + this.level + ':' + this.sign;
 	}
+	
+	/************************************************************************
+	 * XML functions
+	 * 
+	 ************************************************************************/
+
+	public function toXml():Xml {		
+		var xml:Xml = Xml.createElement('head');		
+		xml.set('level', Std.string(this.level));
+		xml.set('sign', Std.string(this.sign));				
+		return xml;
+	}
+	
+	static public function fromXmlStr(xmlStr:String) {		
+		var xml = Xml.parse(xmlStr).firstElement();		
+		var level:Int = 0;
+		try level = Std.parseInt(xml.get('level'));			
+		
+		var sign:ESign = null;
+		var signStr = xml.get('sign');
+		if (signStr != null) try { sign = Type.createEnum(ESign, signStr); }		
+		var head = new Head(level, sign);		
+		return head;
+	}	 
 		
 }
 

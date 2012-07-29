@@ -27,12 +27,10 @@ class _TestRender extends TestCase
 	private var target:Sprite;
 	private var rect:Bool;
 	
-	
-	
 	override public function setup() {
 		this.target = new Sprite();
 		this.render = new Render(this.target, Scaling.getBig());
-		this.rect = true;		
+		this.rect = false;		
 	}
 	
 	/*
@@ -282,8 +280,8 @@ class _TestRender extends TestCase
 			new DNote(new Note([new Head(4)], null, EDirectionUAD.Down)),
 		]);				
 		var distanceX = dp.distanceX(dpNext);
-		render.dplex(1000, y, dp, true);	
-		render.dplex(1000, y, dpNext, true, distanceX);			
+		render.dplex(1000, y, dp, rect);	
+		render.dplex(1000, y, dpNext, rect, distanceX);			
 		trace('');
 		trace(distanceX);
 	}
@@ -293,14 +291,13 @@ class _TestRender extends TestCase
 		var y = 650; 
 		render.lines(0, y, 1200);	
 		
-		/*
+		
 		var da = new DPart(new Part([Voice._test2Up(), Voice._test0Down()]));
 		render.dpart(100, y, da, rect);
-		*/
+		
 		
 		var da = new DPart(new Part([Voice._test3Up(), Voice._test2Down()]));
-		render.dpart(400, y, da, true);
-		trace(da.distancesX);
+		render.dpart(400, y, da, rect);
 				
 	}
 	

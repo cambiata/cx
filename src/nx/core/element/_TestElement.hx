@@ -1,5 +1,6 @@
 package nx.core.element;
 import haxe.unit.TestCase;
+import nx.enums.EDirectionUAD;
 import nx.enums.ENoteType;
 import nx.enums.ENoteValue;
 import nx.enums.ESign;
@@ -36,6 +37,18 @@ class _TestElement extends TestCase
 		var n = new Note([new Head()]);
 		assertEquals(n.heads.length, 1);
 		assertEquals(n.notevalue, ENoteValue.Nv4);
+		
+		
+		var n = new Note([new Head( -3, ESign.Flat), new Head( -1), new Head(3, ESign.Natural)], ENoteValue.Nv16dot, EDirectionUAD.Down);
+		var xml = n.toXml().toString();
+		trace(xml);
+		var n2 = Note.fromXmlStr(xml);
+		//trace(n2);
+		
+		//assertEquals(n.toXml().toString(), n2.toXml().toString());
+		
+		
+		
 	}
 
 	

@@ -31,4 +31,59 @@ class Note
 		this.heads.sort(function(a, b) { return Reflect.compare(a.level, b.level); } );
 	}
 	
+	/************************************************************************
+	 * XML functions
+	 * 
+	 ************************************************************************/
+	
+	public function toXml():Xml {		
+		
+		var xml:Xml = Xml.createElement('note');				
+		
+		for (head in this.heads) {
+			var headXml = head.toXml();
+			xml.addChild(headXml);
+		}
+		
+		xml.set('value', Std.string(this.notevalue.value));
+		//xml.set('type', Std.string(this.));			
+		//xml.set('text', Std.string(this.));			
+		
+		return xml;
+	}
+	
+	static public function fromXmlStr(xmlStr:String):Note {
+		
+		var xml = Xml.parse(xmlStr).firstElement();
+		
+		var heads:Array<Head> = [];
+		
+		for (h in xml.elementsNamed('head')) {
+			var head = Head.fromXmlStr(h.toString());
+			heads.push(head);
+		}
+
+		/*
+		var text:String;
+		try text = xml.get('text');			
+		*/
+		
+		var value:ENoteValue= null;
+		var int = Std.parseInt(xml.get('value'));
+		trace(int);
+		if (int != null) {
+			value = ENoteValue.getFromValue(int);		
+		}
+		
+		/*
+		var type:ENoteType = null;
+		var str = xml.get('type');
+		if (str != null) try type = Type.createEnum(ENoteType, str);
+		*/
+		
+		var note = new Note(heads, value);
+		
+		return note;
+	}		 
+	 
 }

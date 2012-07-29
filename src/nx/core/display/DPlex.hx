@@ -162,7 +162,7 @@ class DPlex
 		var plexDistanceX = GeomUtils.arrayOverlapX(thisRects, nextRects);
 		
 		//return plexDistanceX;
-		var minDistanceX = /*this.rectHeads.x + */this.rectHeads.width + Constants.HEAD_QUARTERWIDTH;
+		var minDistanceX = /*this.rectHeads.x + */this.rectHeads.width /*+ Constants.HEAD_QUARTERWIDTH*/;
 		var distanceX = Math.max(plexDistanceX + Constants.HEAD_QUARTERWIDTH, minDistanceX); // Constants.HEAD_WIDTH + Constants.HEAD_QUARTERWIDTH);
 		
 		return distanceX;
