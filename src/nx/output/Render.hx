@@ -207,7 +207,7 @@ class Render implements IRender
 		var signsDisplayRect = displayNote.getDisplayRectSigns();
 		if (signsDisplayRect != null) {
 			var r = Scaling.scaleRectangle(signsDisplayRect, scaling); 
-			signs(displayNote.getSigns(), noteX + r.left, noteY);			
+			xsigns(displayNote.getSigns(), noteX + r.left, noteY);			
 		}
 		
 		/*
@@ -218,7 +218,8 @@ class Render implements IRender
 
 	}	
 	
-	public function signs(signs:TSigns, x:Float, y:Float) {
+	
+	public function xsigns(signs:TSigns, x:Float, y:Float) {
 		var gr = target.graphics;
 		var posSpace = scaling.signPosWidth;
 		
@@ -249,6 +250,46 @@ class Render implements IRender
 		
 		for (sign in signs) {
 			drawSign(x, y, sign.level, sign.position, sign.sign);			
+		}
+	}	
+	
+	public function signs(dplex:DPlex, x:Float, y:Float) {
+		var gr = target.graphics;
+		var posSpace = scaling.signPosWidth;
+		
+		
+		if (dplex.rectSigns == null) return;
+		
+		var signs = dplex.signs;
+		var xShift = Scaling.scaleX(dplex.rectSigns.x, this.scaling);
+		
+		var maxPos = 0;
+		for (sign in signs) {
+			//trace(sign.position);
+			maxPos = Std.int(Math.max(maxPos, sign.position));
+		}
+		//trace(maxPos);
+		var xOffset = (maxPos * scaling.signPosWidth) + scaling.halfNoteWidth;
+		
+		
+		function drawSign(x:Float, y:Float, level:Int, position:Int, sign:nx.enums.ESign) {		
+			//trace('drawSign x:' + x);
+			var shape:Shape;			
+			switch(sign) {
+				case ESign.Sharp: shape = SvgAssets.getSvgShape('signSharp', scaling);
+				case ESign.Flat: shape = SvgAssets.getSvgShape('signFlat', scaling);
+				default: shape = SvgAssets.getSvgShape('signNatural', scaling);
+			}
+			y = y + (scaling.halfSpace * level);
+			x = x - (position * scaling.signPosWidth) + xOffset;
+			shape.x = x + scaling.svgX;  
+			shape.y = y + scaling.svgY;
+
+			target.addChild(shape);	  			
+		}
+		
+		for (sign in signs) {
+			drawSign(x + xShift, y, sign.level, sign.position, sign.sign);			
 		}
 	}	
 	
@@ -318,36 +359,53 @@ class Render implements IRender
 	//-----------------------------------------------------------------------------------------------------
 	//-----------------------------------------------------------------------------------------------------
 	
-	public function dnote(x:Float, y:Float, dnote:DNote) {
+	public function dnote(x:Float, y:Float, dnote:DNote, rects:Bool=false) {
 		var positions = dnote.headPositions.copy();
 		for (dhead in dnote.dheads) {
 			var position = positions.shift();
 			this._drawHead(x, y, dhead.level, position, dnote.notevalue.headType);
 		}	
+
+		this.dnoteStave(x, y, dnote, rects);
 		
-		this.gr.lineStyle(1, 0x0000FF);		
-		var r = Scaling.scaleRectangle(dnote.rectHeads, this.scaling);
-		r.offset(x, y);
-		this.gr.drawRect(r.x, r.y, r.width, r.height);		
+		this.dnoteDots(x, y, dnote, rects);
+		
+		
+		if (rects) {
+			this.gr.lineStyle(1, 0x0000FF);		
+			var r = Scaling.scaleRectangle(dnote.rectHeads, this.scaling);
+			r.offset(x, y);
+			this.gr.drawRect(r.x, r.y, r.width, r.height);		
+		}
 	}
 	
-	public function dplex(x:Float, y:Float, dplex:DPlex) {		
-		for (i in 0...dplex.dnotes.length) {
-			this.dnote(x + dplex.dnoteX(i) * scaling.quarterNoteWidth, y, dplex.dnote(i));	
-		}
+	private function dnoteDots(x:Float, y:Float, dnote:DNote, rects:Bool) {
+		if (dnote.rectDots == null) return;
+		if (rects) {
+			this.gr.lineStyle(1, 0x00FFFF);		
+			var r = Scaling.scaleRectangle(dnote.rectDots, this.scaling);
+			r.offset(x, y);
+			this.gr.drawRect(r.x, r.y, r.width, r.height);		
+		}		
 		
-		this.signs(dplex.signs, x, y);
+	}
+	
+	private function dnoteStave(x:Float, y:Float, dnote:DNote, rects:Bool) {		
+		if (dnote.rectStave == null) return;
 		
-		this.gr.lineStyle(1, 0xFF0000);
-		var r = Scaling.scaleRectangle(dplex.rectHeads, this.scaling);
+		var r = Scaling.scaleRectangle(dnote.rectStave, this.scaling);
 		r.offset(x, y);
-		r.inflate(2, 2);
-		this.gr.drawRect(r.x, r.y, r.width, r.height);		
+
+		if (rects) {
+			this.gr.lineStyle(1, 0xFF0000);					
+			this.gr.drawRect(r.x, r.y, r.width, r.height);		
+		}				
 		
-		this.gr.lineStyle(2, 0x00FF00);		
-		var r = Scaling.scaleRectangle(dplex.rectSigns, this.scaling);
-		r.offset(x, y);
-		this.gr.drawRect(r.x, r.y, r.width, r.height);
+		
+		this.gr.lineStyle(this.scaling.linesWidth, 0x000000);
+		this.gr.moveTo(r.x, r.y);
+		this.gr.lineTo(r.x, r.y + r.height);
+
 	}
 
 	private function _drawHead(x:Float, y:Float, level:Int, position:Int, headType:EHeadType) {
@@ -367,6 +425,44 @@ class Render implements IRender
 		shape.y = headY + scaling.svgY;
 		target.addChild(shape);	  			
 	}		
+	
+	public function dplex(x:Float, y:Float, dplex:DPlex, rects:Bool=true, moveX:Float=0) {		
+		
+		if (moveX != 0) x += Scaling.scaleX(moveX, this.scaling);
+		
+		if (rects) {
+			this.gr.lineStyle(1, 0xaaaaaa);
+			this.gr.moveTo(x, y + -60);
+			this.gr.lineTo(x, y + 60);
+		}
+
+		
+		for (i in 0...dplex.dnotes.length) {
+			this.dnote(x + dplex.dnoteXshift(i) * scaling.quarterNoteWidth, y, dplex.dnote(i), rects);	
+			this.dnoteStave(x + dplex.dnoteXshift(i) * scaling.quarterNoteWidth, y, dplex.dnote(i), rects);
+		}
+		this.signs(dplex, x, y);
+
+		if (rects) {
+			
+			this.gr.lineStyle(1, 0xFF0000);
+			var r = Scaling.scaleRectangle(dplex.rectHeads, this.scaling);
+			r.offset(x, y);
+			r.inflate(2, 2);		
+			
+			this.gr.drawRect(r.x, r.y, r.width, r.height);
+			
+			if (dplex.rectSigns != null) {
+				this.gr.lineStyle(1, 0x00FF00);		
+				var r = Scaling.scaleRectangle(dplex.rectSigns, this.scaling);
+				r.offset(x, y);
+				this.gr.drawRect(r.x, r.y, r.width, r.height);
+			}
+		}		
+		
+	}
+	
+	
 	
 	
 	

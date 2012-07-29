@@ -7,8 +7,8 @@ package nx.core.element;
 
 class Part 
 {
-	public function new(voices:Array<Voice>) {
-		this.voices = Lambda.array(voices);
+	public function new(voices:Array<Voice>=null) {
+		this.voices = (voices != null) ? Lambda.array(voices) : [new Voice()];
 	}
 	
 	public var voices(default, null):Array<Voice>;

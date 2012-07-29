@@ -10,7 +10,7 @@ import nx.enums.ESign;
 
 class SignsUtil {
 	
-	static var BREAKPOINT:Int = 6;
+	static var BREAKPOINT:Int = 5;
 	
 	static public function adjustPositions(signs:TSigns):TSigns {
 		signs = removeNones(signs);
@@ -67,15 +67,20 @@ class SignsUtil {
 	static public function getDisplayRectSigns(signs:TSigns):Rectangle {
 		var resultRect:Rectangle = null;
 		for (sign in signs) {
-			var signRect = new Rectangle(sign.position * -3, sign.level - 3, 3, 6);
+			var signRect = new Rectangle(sign.position * -3.5, sign.level - 3, 3, 6);
 			if (resultRect == null) {
 				resultRect = signRect.clone();
 			} else {
 				resultRect = resultRect.union(signRect);
 			}
 		}	
-		if (resultRect == null) resultRect = new Rectangle( 0.0, 0.0, 0.0, 0.0 );		
-		resultRect.offset(-resultRect.left, 0) ;		
+		
+		if (resultRect != null) {
+			resultRect.offset(-resultRect.left, 0) ;
+		} else {
+			resultRect = null;
+		}
+		
 		return resultRect;
 	}
 	

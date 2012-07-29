@@ -3,6 +3,7 @@ import nme.geom.Rectangle;
 import nx.Constants;
 import nx.core.element.Note;
 import nx.core.type.TSigns;
+import nx.core.util.GeomUtils;
 import nx.core.util.SignsUtil;
 import nx.enums.EDirectionUAD;
 import nx.enums.EDirectionUD;
@@ -16,9 +17,12 @@ import nx.enums.utils.EDirectionTools;
 
 class DNote 
 {
+	
+	static var DEFAULT_STAVE_LENGTH = 6.0;
+	
 	public function new(note:Note, forceDirection:EDirectionUD=null) 
 	{
-		this.note 				= note;		
+		this.note 				= (note != null) ? note : new Note();		
 		this.notevalue 		= this.note.notevalue;
 		this.headsCount 		= this.note.heads.length;
 		this.levelTop 			= this.note.heads[0].level;
@@ -53,7 +57,6 @@ class DNote
 	public var levelBottom(default, null):Int;
 	public var headPositions(default, null):Array<Int>;
 	public var signs(default, null):TSigns;	
-	
 	
 	public function dhead(idx:Int) {
 		return this.dheads[idx];
@@ -141,20 +144,46 @@ class DNote
 		if (this._rectHeads != null) return this._rectHeads;
 		this._rectHeads = this.dheads[0].rect;
 		this._rectHeads.offset(this.headPositions[0]*Constants.HEAD_WIDTH, 0);
-		
-		
 		if (this.dheads.length > 1) {
 			for (i in 1...this.dheads.length) {
-				
 				var headRect = this.dheads[i].rect;
 				headRect.offset(this.headPositions[i]*Constants.HEAD_WIDTH, 0);
-				
 				this._rectHeads = this._rectHeads.union(headRect);
 			}
 		}
-		return _rectHeads;
+		return this._rectHeads;
 	}
 	
+	private var _rectStave:Rectangle;
+	public var rectStave(get_rectStave, null):Rectangle;
+	private function get_rectStave():Rectangle {
+		if (this.notevalue.stavingLevel == 0) return null;
+		if (this._rectStave != null) return this._rectStave;		
+		var r = this.rectHeads.clone();		
+		if (this.direction == EDirectionUD.Up) {
+			r.x = Constants.HEAD_HALFWIDTH;
+			r.width = Constants.HEAD_HALFWIDTH;			
+			this._rectStave = GeomUtils.stretchUp(r, DEFAULT_STAVE_LENGTH);
+			this._rectStave = GeomUtils.stretchDown(r, -Constants.STAVE_OFFSET);
+		} else {
+			r.x = -Constants.HEAD_HALFWIDTH;
+			r.width = Constants.HEAD_HALFWIDTH;			
+			this._rectStave = GeomUtils.stretchDown(r, DEFAULT_STAVE_LENGTH);
+			this._rectStave = GeomUtils.stretchUp(r, -Constants.STAVE_OFFSET);
+		}		
+		return this._rectStave;
+	}
 	
+	private var _rectDots:Rectangle;
+	public var rectDots(get_rectDots, null):Rectangle;
+	private function get_rectDots():Rectangle {
+		if (this._rectDots != null) return this._rectDots;		
+		if (this.notevalue.dotLevel == 0) return null;		
+		var r = this.rectHeads.clone();		
+		r.offset(r.width+ Constants.HEAD_QUARTERWIDTH, 0) ;
+		r.width = Constants.HEAD_HALFWIDTH * this.notevalue.dotLevel;
+		this._rectDots = r;
+		return this._rectDots;
+	}
 	
 }
