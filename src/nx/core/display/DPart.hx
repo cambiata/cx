@@ -98,8 +98,9 @@ class DPart
 		this._distancesX.push(0);
 		for (i in 0...length-1) {
 			var plex = this._dplexs[i];
-			var plexNext = this._dplexs[i + 1];			
-			this._distancesX.push(plex.distanceX(plexNext));
+			var plexNext = this._dplexs[i + 1];	
+			var distanceX = plex.distanceX(plexNext);
+			this._distancesX.push(distanceX);
 		}
 		
 		return this._distancesX;

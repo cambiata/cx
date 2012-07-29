@@ -58,10 +58,10 @@ class Voice
 	
 	static public function _test2Down() {
 		return new Voice([
-				new Note([new Head(0)]),
+				new Note([new Head(3)]),
+				new Note([new Head(4)]),
 				new Note([new Head(2)]),
-				new Note([new Head(-1)]),
-				new Note([new Head(-0)]),
+				new Note([new Head(2)]),
 			], EDirectionUAD.Down);
 	}		
 	
@@ -86,6 +86,18 @@ class Voice
 				new Note([new Head(0)], ENoteValue.Nv4),
 			]);
 	}
+	
+	static public function _test3Up() {
+		return new Voice([
+				new Note([new Head(1)], ENoteValue.Nv4dot),
+				new Note([new Head(-2)], ENoteValue.Nv16),
+				new Note([new Head(-2, ESign.Sharp)], ENoteValue.Nv16),
+				new Note([new Head(-2)], ENoteValue.Nv8),
+				new Note([new Head(-2, ESign.Flat)], ENoteValue.Nv16),
+				new Note([new Head(-2)], ENoteValue.Nv16),
+				new Note([new Head(-2)], ENoteValue.Nv4),
+			], EDirectionUAD.Up);
+	}	
 
 		
 			

@@ -160,9 +160,11 @@ class DPlex
 		var thisRects = this.rectsAll;
 		var nextRects = next.rectsAll;
 		var plexDistanceX = GeomUtils.arrayOverlapX(thisRects, nextRects);
-		//return plexDistanceX;
 		
-		var distanceX = Math.max(plexDistanceX + Constants.HEAD_QUARTERWIDTH, Constants.HEAD_WIDTH + Constants.HEAD_QUARTERWIDTH);
+		//return plexDistanceX;
+		var minDistanceX = /*this.rectHeads.x + */this.rectHeads.width + Constants.HEAD_QUARTERWIDTH;
+		var distanceX = Math.max(plexDistanceX + Constants.HEAD_QUARTERWIDTH, minDistanceX); // Constants.HEAD_WIDTH + Constants.HEAD_QUARTERWIDTH);
+		
 		return distanceX;
 		
 		//return 0.0;

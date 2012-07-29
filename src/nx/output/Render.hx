@@ -5,6 +5,7 @@ import nme.display.Shape;
 import nme.display.Sprite;
 import nx.Constants;
 import nx.core.display.DNote;
+import nx.core.display.DPart;
 import nx.core.display.DPlex;
 import nx.display.beam.IBeamGroup;
 import nx.display.DisplayNote;
@@ -443,8 +444,7 @@ class Render implements IRender
 		}
 		this.signs(dplex, x, y);
 
-		if (rects) {
-			
+		if (rects) {			
 			this.gr.lineStyle(1, 0xFF0000);
 			var r = Scaling.scaleRectangle(dplex.rectHeads, this.scaling);
 			r.offset(x, y);
@@ -460,6 +460,16 @@ class Render implements IRender
 			}
 		}		
 		
+	}
+	
+	public function dpart(x:Float, y:Float, dpart:DPart, rects:Bool = true) {		
+		var i = 0;
+		var xpos = 0.0;
+		for (dplex in dpart.dplexs) {
+			xpos += dpart.distancesX[i];
+			this.dplex(x, y, dplex, rects, xpos);						
+			i++;
+		}		
 	}
 	
 	

@@ -162,12 +162,12 @@ class DNote
 		var r = this.rectHeads.clone();		
 		if (this.direction == EDirectionUD.Up) {
 			r.x = Constants.HEAD_HALFWIDTH;
-			r.width = Constants.HEAD_HALFWIDTH;			
+			r.width = Constants.HEAD_QUARTERWIDTH;			
 			this._rectStave = GeomUtils.stretchUp(r, DEFAULT_STAVE_LENGTH);
 			this._rectStave = GeomUtils.stretchDown(r, -Constants.STAVE_OFFSET);
 		} else {
 			r.x = -Constants.HEAD_HALFWIDTH;
-			r.width = Constants.HEAD_HALFWIDTH;			
+			r.width = Constants.HEAD_QUARTERWIDTH;			
 			this._rectStave = GeomUtils.stretchDown(r, DEFAULT_STAVE_LENGTH);
 			this._rectStave = GeomUtils.stretchUp(r, -Constants.STAVE_OFFSET);
 		}		

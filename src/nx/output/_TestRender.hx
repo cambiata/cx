@@ -32,7 +32,7 @@ class _TestRender extends TestCase
 	override public function setup() {
 		this.target = new Sprite();
 		this.render = new Render(this.target, Scaling.getBig());
-		this.rect = false;		
+		this.rect = true;		
 	}
 	
 	/*
@@ -273,6 +273,19 @@ class _TestRender extends TestCase
 		render.dplex(900, y, dp, rect);	
 		render.dplex(900, y, dpNext, rect, distanceX);			
 		
+		var dp = new DPlex([
+			new DNote(new Note([new Head(1)], ENoteValue.Nv4dot)),
+			new DNote(new Note([new Head(2)], null, EDirectionUAD.Down)),
+			
+		]);			
+		var dpNext = new DPlex([
+			new DNote(new Note([new Head(4)], null, EDirectionUAD.Down)),
+		]);				
+		var distanceX = dp.distanceX(dpNext);
+		render.dplex(1000, y, dp, true);	
+		render.dplex(1000, y, dpNext, true, distanceX);			
+		trace('');
+		trace(distanceX);
 	}
 	
 	public function testDPart() {
@@ -280,27 +293,15 @@ class _TestRender extends TestCase
 		var y = 650; 
 		render.lines(0, y, 1200);	
 		
+		/*
 		var da = new DPart(new Part([Voice._test2Up(), Voice._test0Down()]));
+		render.dpart(100, y, da, rect);
+		*/
 		
-		
-		var i = 0;
-		var xpos = 0.0;
-		for (dplex in da.dplexs) {
-			xpos += da.distancesX[i];
-			render.dplex(100, y, dplex, rect, xpos);						
-			i++;
-		}
-		
-		
-		var dp = da.dplex(0);
-		var dpNext = new DPlex([
-			new DNote(new Note([new Head(4, ESign.Sharp)], ENoteValue.Nv4, EDirectionUAD.Up)),
-		]);					
-		
-		var distanceX = dp.distanceX(dpNext);
-		render.dplex(900, y, dp, rect);			
-		//render.dplex(900, y, dpNext, rect, distanceX);			
-		
+		var da = new DPart(new Part([Voice._test3Up(), Voice._test2Down()]));
+		render.dpart(400, y, da, true);
+		trace(da.distancesX);
+				
 	}
 	
 	
