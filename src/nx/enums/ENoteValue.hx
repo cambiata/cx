@@ -56,21 +56,22 @@ class ENoteValue {
 	
 	static public function getFromValue(value:Int):ENoteValue {
 		//trace (Reflect.fields(ENoteValue));
-		trace('get..');
+		//trace('get..');
 		
-		trace(Reflect.fields(ENoteValue));
 		for (f in Reflect.fields(ENoteValue)) {
 			
-			trace(f);
 			if (StringTools.startsWith(f, 'Nv')) {
-				/*
-				var val = (Reflect.field(ENoteValue, f));
-				trace([val.value, value]);
+
+				//trace(f);
+				
+				var val = cast((Reflect.field(ENoteValue, f)), ENoteValue);
+				//trace([val.value, value]);
+				
 				if (val.value == value) {
-					return cast(val, ENoteValue);
+					return val; // cast(val, ENoteValue);
 					break;
 				}
-				*/
+				
 			}
 			
 		}

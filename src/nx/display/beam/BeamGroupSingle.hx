@@ -1,25 +1,25 @@
 package nx.display.beam;
+import nx.core.display.DNote;
 import nx.enums.EDirectionUD;
 /**
  * ...
  * @author Jonas Nyström
  */
-
 class BeamGroupSingle implements IBeamGroup {
-	public var dNote:DisplayNote;
+	public var dNote:DNote;
 
-	public function getNotes():Array<DisplayNote> {
+	public function getNotes():Array<DNote> {
 		return [this.dNote];
 	}
 	
-	public function getFirstNote():DisplayNote {		
+	public function getFirstNote():DNote {		
 		return dNote;
 	}
-	public function getLastNote():DisplayNote {		
+	public function getLastNote():DNote {		
 		return dNote;
 	}
 
-	public function getNote(index:Int):DisplayNote {
+	public function getNote(index:Int):DNote {
 		return dNote;
 	}
 	
@@ -50,12 +50,12 @@ class BeamGroupSingle implements IBeamGroup {
 
 	
 	public  function getTopHeadsLevels():Array<Int> {
-		var ret:Array<Int> = [this.getFirstNote().getLevelTop()];
+		var ret:Array<Int> = [this.getFirstNote().levelTop];
 		return ret;
 	}
 	
 	public  function getBottomHeadsLevels():Array<Int> {
-		var ret:Array<Int> = [this.getFirstNote().getLevelBottom()];		
+		var ret:Array<Int> = [this.getFirstNote().levelBottom];		
 		return ret;
 	}	
 	

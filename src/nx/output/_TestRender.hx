@@ -282,8 +282,6 @@ class _TestRender extends TestCase
 		var distanceX = dp.distanceX(dpNext);
 		render.dplex(1000, y, dp, rect);	
 		render.dplex(1000, y, dpNext, rect, distanceX);			
-		trace('');
-		trace(distanceX);
 	}
 	
 	public function testDPart() {

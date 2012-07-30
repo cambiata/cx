@@ -7,7 +7,7 @@ package nx.core.element;
 
 class Part 
 {
-	public function new(voices:Array<Voice>=null) {
+	public function new(voices:Iterable<Voice>=null) {
 		this.voices = (voices != null) ? Lambda.array(voices) : [new Voice()];
 	}
 	

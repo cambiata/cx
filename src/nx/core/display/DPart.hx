@@ -76,8 +76,6 @@ class DPart
 		return this.dplexs[idx];
 	}
 	
-	
-	
 	public var positions(get_positions, null):Array<Int>;
 	private function get_positions():Array<Int> 	{
 		if (this._positions != null ) return this._positions;

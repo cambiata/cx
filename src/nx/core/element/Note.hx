@@ -46,6 +46,7 @@ class Note
 		}
 		
 		xml.set('value', Std.string(this.notevalue.value));
+		xml.set('direction', Std.string(this.direction));
 		//xml.set('type', Std.string(this.));			
 		//xml.set('text', Std.string(this.));			
 		
@@ -70,10 +71,14 @@ class Note
 		
 		var value:ENoteValue= null;
 		var int = Std.parseInt(xml.get('value'));
-		trace(int);
 		if (int != null) {
 			value = ENoteValue.getFromValue(int);		
 		}
+		
+		var direction:EDirectionUAD = null;
+		var str = xml.get('direction');
+		if (str != null) try { direction = Type.createEnum(EDirectionUAD, str); }				
+		
 		
 		/*
 		var type:ENoteType = null;
@@ -81,7 +86,7 @@ class Note
 		if (str != null) try type = Type.createEnum(ENoteType, str);
 		*/
 		
-		var note = new Note(heads, value);
+		var note = new Note(heads, value, direction);
 		
 		return note;
 	}		 

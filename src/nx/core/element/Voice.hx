@@ -18,6 +18,48 @@ class Voice
 	public var notes(default, null):Array<Note>;
 	public var direction(default, null):EDirectionUAD;
 	
+	/*************************************************************
+	 * XML functions
+	 */
+	public function toXml():Xml {		
+		
+		var xml:Xml = Xml.createElement('voice');				
+		
+		for (note in this.notes) {
+			var itemXml = note.toXml();
+			xml.addChild(itemXml);
+		}
+		
+		xml.set('direction', Std.string(this.direction));
+		
+		return xml;
+	}
+	
+	static public function fromXmlStr(xmlStr:String):Voice {	
+		
+		var xml = Xml.parse(xmlStr).firstElement();
+		
+		var notes:Array<Note> = [];
+		
+		for (itemXml in xml.elementsNamed('note')) {
+			var item = Note.fromXmlStr(itemXml.toString());
+			notes.push(item);
+		}	
+		
+		var direction:EDirectionUAD = null;
+		var str = xml.get('direction');
+		if (str != null) try { direction = Type.createEnum(EDirectionUAD, str); }				
+				
+		return new Voice(notes, direction);
+		
+	}
+	
+	
+	
+	/*************************************************************
+	 * Test functions
+	 */
+	
 	static public function _test0() {
 		return new Voice([
 				new Note([new Head(3)], ENoteValue.Nv2),

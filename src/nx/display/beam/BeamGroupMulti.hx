@@ -1,4 +1,5 @@
 package nx.display.beam;
+import nx.core.display.DNote;
 import nx.enums.EDirectionUD;
 /**
  * ...
@@ -7,20 +8,20 @@ import nx.enums.EDirectionUD;
 
 class BeamGroupMulti implements IBeamGroup {	
 	public function new() {
-		this.dNotes = new Array<DisplayNote>();
+		this.dNotes = new Array<DNote>();
 	}
-	public var dNotes:Array<DisplayNote>;
+	public var dNotes:Array<DNote>;
 
-	public function getNotes():Array<DisplayNote> {
+	public function getNotes():Array<DNote> {
 		return this.dNotes;
 	}
-	public function getFirstNote():DisplayNote {		
+	public function getFirstNote():DNote {		
 		return dNotes[0];
 	}
-	public function getLastNote():DisplayNote {		
+	public function getLastNote():DNote {		
 		return dNotes[dNotes.length-1];
 	}
-	public function getNote(index:Int):DisplayNote {
+	public function getNote(index:Int):DNote {
 		return dNotes[index];
 	}
 	public function count():Int {	
@@ -50,7 +51,7 @@ class BeamGroupMulti implements IBeamGroup {
 	public  function getTopHeadsLevels():Array<Int> {
 		var ret = new Array<Int>();
 		for (n in this.getNotes()) {
-			ret.push(n.getLevelTop());			
+			ret.push(n.levelTop);			
 		}
 		return ret;
 	}
@@ -58,7 +59,7 @@ class BeamGroupMulti implements IBeamGroup {
 	public  function getBottomHeadsLevels():Array<Int> {
 		var ret = new Array<Int>();
 		for (n in this.getNotes()) {
-			ret.push(n.getLevelBottom ());			
+			ret.push(n.levelBottom);	
 		}
 		return ret;
 		

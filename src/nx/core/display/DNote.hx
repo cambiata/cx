@@ -5,6 +5,7 @@ import nx.core.element.Note;
 import nx.core.type.TSigns;
 import nx.core.util.GeomUtils;
 import nx.core.util.SignsUtil;
+import nx.display.beam.IBeamGroup;
 import nx.enums.EDirectionUAD;
 import nx.enums.EDirectionUD;
 import nx.enums.ENoteValue;
@@ -135,6 +136,13 @@ class DNote
 		}		
 		return SignsUtil.adjustPositions(ret);
 	}	
+	
+	
+	
+	//-----------------------------------------------------------------------------------------------------
+	
+	public var beamGroup:IBeamGroup;
+	public var beamTemp:Int;	
 	
 	//-----------------------------------------------------------------------------------------------------
 	
