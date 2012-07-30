@@ -53,7 +53,6 @@ class DVoice
 				this.dnotes.push(new DNote(note, EDirectionTools.UADtoUD(this.direction)));
 			}	
 			
-			
 			this.dnotePosition = new ObjectHash<DNote, Int>();
 			this.dnotePositionEnd = new ObjectHash<DNote, Int>();
 			
@@ -63,8 +62,6 @@ class DVoice
 				this.value += dnote.notevalue.value;
 				this.dnotePositionEnd.set(dnote, value);
 			}
-			
-			
 			this._adjustBeaming();
 	}
 	
@@ -72,7 +69,6 @@ class DVoice
 	
 	private var _beamingProcessor:IBeamingProcessor;
 	private function _adjustBeaming()  {
-		trace('_adjustBeaming');
 		if (this._beamingProcessor != null) {			
 			this._beamingProcessor.doBeaming(this, this.direction);
 		}		

@@ -1,6 +1,7 @@
 package nx.core.display;
 import haxe.unit.TestCase;
 import nx.core._TO;
+import nx.core.element.Bar;
 import nx.core.element.Head;
 import nx.core.element.Note;
 import nx.core.element.Part;
@@ -76,6 +77,32 @@ class _TestDisplay extends TestCase
 		var dp = new DPart(new Part([Voice._test0(), Voice._test2()]));
 		//trace(dp.positions);
 		//race(dp.dplexs);
+	}
+	
+	public function testDBar() {
+		assertTrue(true);
+		
+		var db = new DBar(new Bar([
+			new Part([new Voice([
+				new Note() ,
+				new Note() ,
+				new Note() ,
+				new Note() ,
+			])]),
+			new Part([new Voice([
+				new Note(null, ENoteValue.Nv2) ,
+				new Note(null, ENoteValue.Nv2) ,
+			])]),		
+			/*
+			new Part([new Voice([
+				new Note(null, ENoteValue.Nv2dot) ,
+				new Note() ,
+			])]),
+			*/
+		]));
+		
+		assertEquals(db.dparts.length, 2);
+		
 	}
 
 	public function testDPlex() {

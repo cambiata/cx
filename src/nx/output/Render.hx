@@ -1,4 +1,5 @@
 package nx.output;
+import cx.ArrayTools;
 import nme.display.GradientType;
 import nme.display.Graphics;
 import nme.display.Shape;
@@ -463,12 +464,11 @@ class Render implements IRender
 	}
 	
 	public function dpart(x:Float, y:Float, dpart:DPart, rects:Bool = true) {		
-		var i = 0;
 		var xpos = 0.0;
 		for (dplex in dpart.dplexs) {
-			xpos += dpart.distancesX[i];
-			this.dplex(x, y, dplex, rects, xpos);						
-			i++;
+			var dist = dpart.dplexDistance.get(dplex);
+			xpos += dist;			
+			this.dplex(x, y, dplex, rects, xpos);	
 		}		
 	}
 	
