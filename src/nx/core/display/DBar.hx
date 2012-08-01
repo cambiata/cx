@@ -2,7 +2,6 @@ package nx.core.display;
 import cx.ArrayTools;
 import nme.geom.Rectangle;
 import nx.core.element.Bar;
-import nx.geom.HPlane;
 import nme.ObjectHash;
 
 /**
@@ -50,7 +49,6 @@ class DBar
 		}	
 		this.positions = ArrayTools.unique(this.positions);
 		this.positions.sort(function(a, b) { return Reflect.compare(a, b); } );
-		trace(this.positions);
 	}
 	
 	private function _calcColumns() {		
@@ -65,7 +63,6 @@ class DBar
 			}			
 			this.columns.push(column);			
 		}
-		trace(this.columns.length);
 	}	
 	
 	private function _calcDnotesColumns() {
@@ -109,7 +106,6 @@ class DBar
 				if (dplex != null) {
 					var dplexRectsAll = dplex.rectsAll;
 					var distanceX = Complex.dplexDistanceX(testRectsAll, testRectHeadW, dplexRectsAll);
-					trace(distanceX);
 					maxDistanceX = Math.max(maxDistanceX, distanceX);
 				} else {
 					
