@@ -46,9 +46,9 @@ class Scaling  {
 			noteWidth:				11.0,
 			halfNoteWidth:		5.5,
 			quarterNoteWidth: 	2.75,
-			signPosWidth:		8.0,
+			signPosWidth:		9.5,
 			svgScale:				.175,
-			svgX:					-5.0,
+			svgX:					-6.0,
 			svgY:					-40.0,
 		}
 	}
@@ -63,7 +63,7 @@ class Scaling  {
 			quarterNoteWidth: 	2.0,
 			signPosWidth:		7.0,
 			svgScale:				.14,
-			svgX:					-4.0,
+			svgX:					-5.0,
 			svgY:					-32.0,
 		}
 	}
@@ -78,7 +78,7 @@ class Scaling  {
 			quarterNoteWidth: 	10.0,
 			signPosWidth:		0.0,
 			svgScale:				0.0,
-			svgX:					0.0,
+			svgX:					-2.0,
 			svgY:					0.0,
 		}		
 		
