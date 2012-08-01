@@ -4,9 +4,11 @@ import haxe.unit.TestCase;
 import nme.display.Sprite;
 import nme.Lib;
 import nx.core._TO;
+import nx.core.display.DBar;
 import nx.core.display.DNote;
 import nx.core.display.DPart;
-import nx.core.display.DPlex;
+import nx.core.display.Complex;
+import nx.core.element.Bar;
 import nx.core.element.Head;
 import nx.core.element.Note;
 import nx.core.element.Part;
@@ -54,89 +56,88 @@ class _TestRender extends TestCase
 		var y = 50; 
 		render.lines(0, y, 1200);		
 		
-		var dp = new DPlex([
+		var dp = new Complex([
 			new DNote(new Note([new Head( 0, null)], null, null)),
 		]);				
-		render.dplex(100, y, dp, rect);				
+		render.complex(100, y, dp, rect);				
 		
-		var dp = new DPlex([
+		var dp = new Complex([
 			new DNote(new Note([new Head( 0, null)], null, EDirectionUAD.Up)),
 		]);				
-		render.dplex(200, y, dp, rect);				
+		render.complex(200, y, dp, rect);				
 		
-		var dp = new DPlex([
+		var dp = new Complex([
 			new DNote(new Note([new Head( 0, null)], null, EDirectionUAD.Down)),
 		]);				
-		render.dplex(300, y, dp, rect);				
+		render.complex(300, y, dp, rect);				
 	}
 	
-	public function testDPlexOutput() {
+	public function testComplexOutput() {
 		assertTrue(true);
 		var y = 200; 
-		render.lines(0, y, 1200);
-		rect = true;
+		render.lines(0, y, 1200);		
 		
-		var dp = new DPlex([
+		var dp = new Complex([
 			new DNote(new Note([new Head( -3, null)], null, EDirectionUAD.Up)),
 			new DNote(new Note([new Head( 2, null)], null, EDirectionUAD.Down)),
 		]);				
-		render.dplex(200, y, dp, rect);		
+		render.complex(200, y, dp, rect);		
 
-		var dp = new DPlex([
+		var dp = new Complex([
 			new DNote(new Note([new Head(-1)], null, EDirectionUAD.Up)), 
 			new DNote(new Note([new Head()], null, EDirectionUAD.Down)),
 			]);
-		render.dplex(300, y, dp, rect);		
+		render.complex(300, y, dp, rect);		
 		
-		var dp = new DPlex([
+		var dp = new Complex([
 			new DNote(new Note([new Head()], null, EDirectionUAD.Up)), 
 			new DNote(new Note([new Head()], null, EDirectionUAD.Down)),
 			]);
-		render.dplex(400, y, dp, rect);
+		render.complex(400, y, dp, rect);
 		
-		var dp = new DPlex([
+		var dp = new Complex([
 			new DNote(new Note([new Head( -1, null), new Head( -2, ESign.Flat)], null, EDirectionUAD.Up)),
 			new DNote(new Note([new Head(2, null), new Head(4, ESign.Flat)], null, EDirectionUAD.Down)),
 		]);
-		render.dplex(500, y, dp, rect);			
+		render.complex(500, y, dp, rect);			
 		
-		var dp = new DPlex([
+		var dp = new Complex([
 			new DNote(new Note([new Head( -1, null), new Head( -2, ESign.Flat)], null, EDirectionUAD.Down)),
 			new DNote(new Note([new Head(2, null), new Head(4, ESign.Flat)], null, EDirectionUAD.Down)),
 		]);
-		render.dplex(600, y, dp, rect);		
+		render.complex(600, y, dp, rect);		
 		
 		
 		
-		var dp = new DPlex([
+		var dp = new Complex([
 			new DNote(new Note([new Head( -1), new Head( -2)], null, EDirectionUAD.Down)),
 			new DNote(new Note([new Head(-1)], null, EDirectionUAD.Down)),
 		]);
-		render.dplex(700, y, dp, rect);		
+		render.complex(700, y, dp, rect);		
 		
-		var dp = new DPlex([
+		var dp = new Complex([
 			new DNote(new Note([new Head( -1, null)], null, EDirectionUAD.Up)),
 			new DNote(new Note([new Head(0, null)], null, EDirectionUAD.Down)),
 		]);
-		render.dplex(780, y, dp, rect);			
+		render.complex(780, y, dp, rect);			
 		
-		var dp = new DPlex([
+		var dp = new Complex([
 			new DNote(new Note([new Head( -1, null)], ENoteValue.Nv4dot, EDirectionUAD.Up)),
 			new DNote(new Note([new Head(0, null)], null, EDirectionUAD.Down)),
 		]);
-		render.dplex(860, y, dp, rect);				
+		render.complex(860, y, dp, rect);				
 		
-		var dp = new DPlex([
+		var dp = new Complex([
 			new DNote(new Note([new Head( -1, null)], ENoteValue.Nv4ddot, EDirectionUAD.Up)),
 			new DNote(new Note([new Head(0, null)], null, EDirectionUAD.Down)),
 		]);
-		render.dplex(940, y, dp, rect);			
+		render.complex(940, y, dp, rect);			
 		
-		var dp = new DPlex([
+		var dp = new Complex([
 			new DNote(new Note([new Head( -1, null)], ENoteValue.Nv4dot, EDirectionUAD.Up)),
 			new DNote(new Note([new Head(1, null)], null, EDirectionUAD.Down)),
 		]);
-		render.dplex(1020, y, dp, rect);				
+		render.complex(1020, y, dp, rect);				
 	}
 	
 	public function testDPlexOutputSigns() {
@@ -144,35 +145,35 @@ class _TestRender extends TestCase
 		var y = 350; 
 		render.lines(0, y, 1200);
 		
-		var dp = new DPlex([
+		var dp = new Complex([
 			new DNote(new Note([new Head( -3, ESign.Flat)], null, EDirectionUAD.Up)),
 			new DNote(new Note([new Head( 2, ESign.Sharp)], null, EDirectionUAD.Down)),
 		]);				
-		render.dplex(200, y, dp, rect);		
+		render.complex(200, y, dp, rect);		
 		
-		var dp = new DPlex([
+		var dp = new Complex([
 			new DNote(new Note([new Head( -1, ESign.Sharp), new Head( -2, ESign.Flat)], null, EDirectionUAD.Up)),
 			new DNote(new Note([new Head(2, ESign.Sharp), new Head(4, ESign.Flat)], null, EDirectionUAD.Down)),
 		]);
-		render.dplex(400, y, dp, rect);			
+		render.complex(400, y, dp, rect);			
 		
-		var dp = new DPlex([
+		var dp = new Complex([
 			new DNote(new Note([new Head( -1, ESign.Sharp), new Head( -2, ESign.Flat)], null, EDirectionUAD.Down)),
 			new DNote(new Note([new Head(2, ESign.Sharp), new Head(4, ESign.Flat)], null, EDirectionUAD.Down)),
 		]);
-		render.dplex(600, y, dp, rect);		
+		render.complex(600, y, dp, rect);		
 		
-		var dp = new DPlex([
+		var dp = new Complex([
 			new DNote(new Note([new Head( -1), new Head( -2)], null, EDirectionUAD.Down)),
 			new DNote(new Note([new Head(-1)], null, EDirectionUAD.Down)),
 		]);
-		render.dplex(800, y, dp, rect);		
+		render.complex(800, y, dp, rect);		
 		
-		var dp = new DPlex([
+		var dp = new Complex([
 			new DNote(new Note([new Head( -1, ESign.Sharp)], null, EDirectionUAD.Up)),
 			new DNote(new Note([new Head(0, ESign.Flat)], null, EDirectionUAD.Down)),
 		]);
-		render.dplex(1000, y, dp, rect);				
+		render.complex(1000, y, dp, rect);				
 	}	
 	
 	public function testDPlexOutputSpacing() {
@@ -181,109 +182,110 @@ class _TestRender extends TestCase
 		var y = 500; 
 		render.lines(0, y, 1200);	
 		
-		var dp = new DPlex([
+		var dp = new Complex([
 			new DNote(new Note([new Head(0, ESign.None)], ENoteValue.Nv4, EDirectionUAD.Down)),
 		]);				
-		var dpNext = new DPlex([
-			new DNote(new Note([new Head(0, ESign.None)], ENoteValue.Nv4, EDirectionUAD.Down)),
-		]);		
-		var distanceX = dp.distanceX(dpNext);
-		render.dplex(100, y, dp, rect);				
-		render.dplex(100, y, dpNext, rect, distanceX);				
-		
-		var dp = new DPlex([
-			new DNote(new Note([new Head(0, ESign.None)], ENoteValue.Nv4, EDirectionUAD.Up)),
-		]);				
-		var dpNext = new DPlex([
+		var dpNext = new Complex([
 			new DNote(new Note([new Head(0, ESign.None)], ENoteValue.Nv4, EDirectionUAD.Down)),
 		]);		
 		var distanceX = dp.distanceX(dpNext);
-		render.dplex(200, y, dp, rect);				
-		render.dplex(200, y, dpNext, rect, distanceX);				
+		render.complex(100, y, dp, rect);				
+		render.complex(100, y, dpNext, rect, distanceX);				
 		
-		var dp = new DPlex([
+		var dp = new Complex([
 			new DNote(new Note([new Head(0, ESign.None)], ENoteValue.Nv4, EDirectionUAD.Up)),
 		]);				
-		var dpNext = new DPlex([
+		var dpNext = new Complex([
+			new DNote(new Note([new Head(0, ESign.None)], ENoteValue.Nv4, EDirectionUAD.Down)),
+		]);		
+		var distanceX = dp.distanceX(dpNext);
+		render.complex(200, y, dp, rect);				
+		render.complex(200, y, dpNext, rect, distanceX);				
+		
+		var dp = new Complex([
+			new DNote(new Note([new Head(0, ESign.None)], ENoteValue.Nv4, EDirectionUAD.Up)),
+		]);				
+		var dpNext = new Complex([
 			new DNote(new Note([new Head(1, ESign.None)], ENoteValue.Nv4, EDirectionUAD.Down)),
 		]);		
 		var distanceX = dp.distanceX(dpNext);
-		render.dplex(300, y, dp, rect);				
-		render.dplex(300, y, dpNext, rect, distanceX);			
+		render.complex(300, y, dp, rect);				
+		render.complex(300, y, dpNext, rect, distanceX);			
 		
-		var dp = new DPlex([
+		var dp = new Complex([
 			new DNote(new Note([new Head(0, ESign.None)], ENoteValue.Nv4, EDirectionUAD.Up)),
 		]);				
-		var dpNext = new DPlex([
+		var dpNext = new Complex([
 			new DNote(new Note([new Head(1, ESign.Sharp)], ENoteValue.Nv4, EDirectionUAD.Up)),
 		]);		
 		var distanceX = dp.distanceX(dpNext);
-		render.dplex(400, y, dp, rect);				
-		render.dplex(400, y, dpNext, rect, distanceX);			
+		render.complex(400, y, dp, rect);				
+		render.complex(400, y, dpNext, rect, distanceX);			
 		
-		var dp = new DPlex([
+		var dp = new Complex([
 			new DNote(new Note([new Head(-2, ESign.None)], ENoteValue.Nv4, EDirectionUAD.Up)),
 		]);				
-		var dpNext = new DPlex([
+		var dpNext = new Complex([
 			new DNote(new Note([new Head(1, ESign.Sharp)], ENoteValue.Nv4, EDirectionUAD.Up)),
 		]);		
 		var distanceX = dp.distanceX(dpNext);
-		render.dplex(500, y, dp, rect);				
-		render.dplex(500, y, dpNext, rect, distanceX);				
+		render.complex(500, y, dp, rect);				
+		render.complex(500, y, dpNext, rect, distanceX);				
 		
-		var dp = new DPlex([
+		var dp = new Complex([
 			new DNote(new Note([new Head(-2, ESign.None)], ENoteValue.Nv4, EDirectionUAD.Up)),
 		]);				
-		var dpNext = new DPlex([
+		var dpNext = new Complex([
 			new DNote(new Note([new Head(3, ESign.Sharp)], ENoteValue.Nv4, EDirectionUAD.Up)),
 		]);		
 		var distanceX = dp.distanceX(dpNext);
-		render.dplex(600, y, dp, rect);				
-		render.dplex(600, y, dpNext, rect, distanceX);				
+		render.complex(600, y, dp, rect);				
+		render.complex(600, y, dpNext, rect, distanceX);				
 		
-		var dp = new DPlex([
+		var dp = new Complex([
 			new DNote(new Note([new Head(-1, ESign.None)], ENoteValue.Nv4dot, EDirectionUAD.Up)),
 		]);			
-		var dpNext = new DPlex([
+		var dpNext = new Complex([
 			new DNote(new Note([new Head(1, ESign.Sharp)], ENoteValue.Nv4, EDirectionUAD.Up)),
 		]);				
 		var distanceX = dp.distanceX(dpNext);
-		render.dplex(700, y, dp, rect);	
-		render.dplex(700, y, dpNext, rect, distanceX);			
+		render.complex(700, y, dp, rect);	
+		render.complex(700, y, dpNext, rect, distanceX);			
 		
-		var dp = new DPlex([
+		var dp = new Complex([
 			new DNote(new Note([new Head(-1, ESign.None)], ENoteValue.Nv4ddot, EDirectionUAD.Up)),
 		]);			
-		var dpNext = new DPlex([
+		var dpNext = new Complex([
 			new DNote(new Note([new Head(1, ESign.Sharp)], ENoteValue.Nv4, EDirectionUAD.Up)),
 		]);				
 		var distanceX = dp.distanceX(dpNext);
-		render.dplex(800, y, dp, rect);	
-		render.dplex(800, y, dpNext, rect, distanceX);	
+		render.complex(800, y, dp, rect);	
+		render.complex(800, y, dpNext, rect, distanceX);	
 		
-		var dp = new DPlex([
+		var dp = new Complex([
 			new DNote(new Note([new Head(-1, ESign.None)], ENoteValue.Nv4ddot, EDirectionUAD.Up)),
 		]);			
-		var dpNext = new DPlex([
+		var dpNext = new Complex([
 			new DNote(new Note([new Head(4, ESign.Sharp)], ENoteValue.Nv4, EDirectionUAD.Up)),
 		]);				
 		var distanceX = dp.distanceX(dpNext);
-		render.dplex(900, y, dp, rect);	
-		render.dplex(900, y, dpNext, rect, distanceX);			
+		render.complex(900, y, dp, rect);	
+		render.complex(900, y, dpNext, rect, distanceX);			
 		
-		var dp = new DPlex([
+		var dp = new Complex([
 			new DNote(new Note([new Head(1)], ENoteValue.Nv4dot)),
 			new DNote(new Note([new Head(2)], null, EDirectionUAD.Down)),
 			
 		]);			
-		var dpNext = new DPlex([
+		var dpNext = new Complex([
 			new DNote(new Note([new Head(4)], null, EDirectionUAD.Down)),
 		]);				
 		var distanceX = dp.distanceX(dpNext);
-		render.dplex(1000, y, dp, rect);	
-		render.dplex(1000, y, dpNext, rect, distanceX);			
+		render.complex(1000, y, dp, rect);	
+		render.complex(1000, y, dpNext, rect, distanceX);			
 	}
 	
+	/*
 	public function testDPart() {
 		assertTrue(true);		
 		var y = 650; 
@@ -298,6 +300,79 @@ class _TestRender extends TestCase
 		render.dpart(400, y, da, rect);
 				
 	}
+	*/
+	
+	public function testDBar() {
+		assertTrue(true);
+		var y = 700; 
+		
+		var db = new DBar(new Bar([
+			
+		/*
+			new Part([new Voice([
+				new Note() ,
+				new Note() ,
+				new Note([new Head(0,ESign.Sharp)]) ,
+				new Note() ,
+			])]),
+
+			new Part([new Voice([
+				new Note() ,
+				new Note([new Head(0,ESign.Flat)]) ,
+				new Note() ,
+				new Note() ,
+			])]),			
+		*/	
+			
+			new Part([
+				new Voice([
+					new Note() ,
+					new Note([new Head(1, ESign.Sharp)]) ,
+					new Note(null, ENoteValue.Nv8tri) ,
+					new Note(null, ENoteValue.Nv8tri) ,
+					new Note(null, ENoteValue.Nv8tri) ,
+					new Note() ,
+				], EDirectionUAD.Up), 
+				new Voice([
+					new Note([new Head(3)], ENoteValue.Nv4dot),
+					new Note([new Head(4, ESign.Natural)], ENoteValue.Nv8),
+					new Note([new Head(3)], ENoteValue.Nv16),
+					new Note([new Head(3)], ENoteValue.Nv16),
+					new Note([new Head(3, ESign.Natural)], ENoteValue.Nv16),
+					new Note([new Head(3)], ENoteValue.Nv16),
+					new Note([new Head(3)]) ,
+				], EDirectionUAD.Down),
+			]),
+		
+			new Part([
+				new Voice([
+					new Note([new Head(), new Head(1)], ENoteValue.Nv4) ,
+					new Note([new Head(7, ESign.Flat)],  	ENoteValue.Nv8) ,
+					new Note([new Head(7, ESign.None)],  	ENoteValue.Nv8) ,
+					new Note() ,
+					new Note() ,
+				])
+			]),
+			
+			/*
+			new Part([new Voice([
+				new Note([new Head(0, ESign.Flat)], ENoteValue.Nv2) ,
+				new Note(null, ENoteValue.Nv2) ,
+			])]),		
+			*/
+			/*
+			new Part([new Voice([
+				new Note(null, ENoteValue.Nv2dot) ,
+				new Note() ,
+			])]),
+			*/			
+			
+		]));
+		
+		render.dbar(100, y, db, rect);
+		
+	}
+	
 	
 	
 	override public function tearDown() {

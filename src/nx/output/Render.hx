@@ -4,10 +4,12 @@ import nme.display.GradientType;
 import nme.display.Graphics;
 import nme.display.Shape;
 import nme.display.Sprite;
+import nme.geom.Rectangle;
 import nx.Constants;
+import nx.core.display.DBar;
 import nx.core.display.DNote;
 import nx.core.display.DPart;
-import nx.core.display.DPlex;
+import nx.core.display.Complex;
 import nx.display.beam.IBeamGroup;
 import nx.display.DisplayNote;
 import nx.enums.EDirectionUD;
@@ -56,8 +58,7 @@ class Render implements IRender
 		var shape = nx.svg.SvgAssets.getSvgShape('clefG', scaling);
 		shape.x = x + scaling.svgX + scaling.space;  
 		shape.y = y + scaling.svgY + scaling.space;
-		target.addChild(shape);	  		
-		
+		target.addChild(shape);	  				
 	}
 	
 	public function noteARects(noteX:Float, noteY:Float, displayNote:DisplayNote, color:Int=0xFF0000) {
@@ -255,7 +256,7 @@ class Render implements IRender
 		}
 	}	
 	
-	public function signs(dplex:DPlex, x:Float, y:Float) {
+	public function signs(dplex:Complex, x:Float, y:Float) {
 		var gr = target.graphics;
 		var posSpace = scaling.signPosWidth;
 		
@@ -286,7 +287,7 @@ class Render implements IRender
 			x = x - (position * scaling.signPosWidth) + xOffset;
 			shape.x = x + scaling.svgX;  
 			shape.y = y + scaling.svgY;
-
+			
 			target.addChild(shape);	  			
 		}
 		
@@ -296,18 +297,11 @@ class Render implements IRender
 	}	
 	
 	public function beamGroup(noteX:Float, noteY:Float, lastNoteX:Float, bgd:BeamGroupDimensions) {
-		//trace(this.scaling);
-		//trace(bgd);
 		var adjustX = bgd.adjustX * this.scaling.halfNoteWidth;
 		var firstTopY = noteY + (bgd.firstStave.topY * scaling.halfSpace);
 		var lastTopY = noteY + (bgd.lastStave.topY * scaling.halfSpace); 
 		var firstBottomY = noteY + (bgd.firstStave.bottomY  * scaling.halfSpace);
 		var lastBottomY = noteY + (bgd.lastStave.bottomY * scaling.halfSpace);
-
-		if (bgd.count == 1) {
-			
-			
-		}
 		
 		this.target.graphics.lineStyle(this.scaling.linesWidth, 0x000000);
 		
@@ -317,7 +311,6 @@ class Render implements IRender
 			this.target.graphics.lineTo(noteX + adjustX, firstBottomY);
 			
 			if (bgd.count > 1) {
-				
 				this.target.graphics.beginFill(0xFF0000);
 				this.target.graphics.moveTo(noteX 		+ adjustX, firstTopY);
 				this.target.graphics.lineTo(lastNoteX 	+ adjustX, lastTopY);
@@ -428,8 +421,7 @@ class Render implements IRender
 		target.addChild(shape);	  			
 	}		
 	
-	public function dplex(x:Float, y:Float, dplex:DPlex, rects:Bool=true, moveX:Float=0) {		
-		
+	public function complex(x:Float, y:Float, dplex:Complex, rects:Bool=true, moveX:Float=0) {		
 		if (moveX != 0) x += Scaling.scaleX(moveX, this.scaling);
 		
 		if (rects) {
@@ -437,7 +429,6 @@ class Render implements IRender
 			this.gr.moveTo(x, y + -60);
 			this.gr.lineTo(x, y + 60);
 		}
-
 		
 		for (i in 0...dplex.dnotes.length) {
 			this.dnote(x + dplex.dnoteXshift(i) * scaling.quarterNoteWidth, y, dplex.dnote(i), rects);	
@@ -459,17 +450,48 @@ class Render implements IRender
 				r.offset(x, y);
 				this.gr.drawRect(r.x, r.y, r.width, r.height);
 			}
+			
+			this.gr.lineStyle(1, 0x0000FF);
+			var r = Scaling.scaleRectangle(dplex.rectFull, this.scaling);
+			r.offset(x, y);
+			r.inflate(2, 2);
+			this.gr.drawRect(r.x, r.y, r.width, r.height);
 		}		
-		
 	}
 	
 	public function dpart(x:Float, y:Float, dpart:DPart, rects:Bool = true) {		
 		var xpos = 0.0;
-		for (dplex in dpart.dplexs) {
-			var dist = dpart.dplexDistance.get(dplex);
+		for (dplex in dpart.complexes) {
+			var dist = dpart.complexDistance.get(dplex);
 			xpos += dist;			
-			this.dplex(x, y, dplex, rects, xpos);	
+			this.complex(x, y, dplex, rects, xpos);	
 		}		
+	}
+	
+	public function dbar(x:Float, y:Float, dbar:DBar, rects:Bool = true) {
+		
+		var x2:Float;
+		var y2:Float;
+		
+		for (column in dbar.columns) {
+			var y2 = y;			
+			x2 = x + Scaling.scaleX(column.positionX, this.scaling);
+			for (complex in column.complexes) {
+				if (complex != null) {
+					this.complex(x2, y2, complex, rects);
+				}
+				y2 += 140;
+			}
+		}
+		
+		if (rects) {			
+			var r = Scaling.scaleRectangle(dbar.columnsRectAll, this.scaling);
+			r.y = -100;
+			r.height = 360;
+			r.offset(x, y);
+			this.gr.lineStyle(2, 0x00FF00);
+			this.gr.drawRect(r.x, r.y, r.width, r.height);			
+		}
 	}
 	
 	

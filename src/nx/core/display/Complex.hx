@@ -13,7 +13,7 @@ import nx.enums.EDirectionUAD;
  * @author Jonas Nyström
  */
 
-class DPlex
+class Complex
 {
 	/**************************************************************************
 	 * Private vars
@@ -151,23 +151,47 @@ class DPlex
 		return this._rectsAll;
 	}
 	
+	public function getRectsAllCopy():Array<Rectangle> {
+		var ret : Array<Rectangle> = [];		
+		for (rect in this.rectsAll) {			
+			ret.push(new Rectangle(rect.x, rect.y, rect.width, rect.height));			
+		}		
+		return ret;
+	}
+	
+	
+	private var _rectFull:Rectangle;
+	public var rectFull(get_rectFull, null):Rectangle;	
+	private function get_rectFull():Rectangle {
+		if (this._rectFull != null) return this._rectFull;
+		
+		for (r in this.rectsAll) {
+			this._rectFull = (this._rectFull == null) ? r.clone() : this._rectFull.union(r);			
+		}
+		
+		return this._rectFull;
+	}
+	
+	
 	/**************************************************************************
 	 * Public methods
 	 * 
 	 **************************************************************************/		
 	
-	public function distanceX(next:DPlex):Float {	
+	public function distanceX(next:Complex):Float {	
 		var thisRects = this.rectsAll;
+		var thisRectsHeadsWidth = this.rectHeads.width;
 		var nextRects = next.rectsAll;
-		var plexDistanceX = GeomUtils.arrayOverlapX(thisRects, nextRects);
 		
-		//return plexDistanceX;
-		var minDistanceX = /*this.rectHeads.x + */this.rectHeads.width /*+ Constants.HEAD_QUARTERWIDTH*/;
-		var distanceX = Math.max(plexDistanceX + Constants.HEAD_QUARTERWIDTH, minDistanceX); // Constants.HEAD_WIDTH + Constants.HEAD_QUARTERWIDTH);
-		
+		var distanceX = dplexDistanceX(thisRects, thisRectsHeadsWidth, nextRects);
 		return distanceX;
-		
-		//return 0.0;
+	}
+	
+	static public function dplexDistanceX(firstRects:Array<Rectangle>, firstRectHeadsWidth:Float, nextRects:Array<Rectangle>):Float {
+		var plexDistanceX = GeomUtils.arrayOverlapX(firstRects, nextRects);
+		var minDistanceX =firstRectHeadsWidth ;
+		var distanceX = Math.max(plexDistanceX + Constants.HEAD_QUARTERWIDTH, minDistanceX); // Constants.HEAD_WIDTH + Constants.HEAD_QUARTERWIDTH);
+		return distanceX;
 	}
 	
 }

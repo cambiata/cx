@@ -110,7 +110,7 @@ class _TestDisplay extends TestCase
 		assertEquals(_TO.dplex_2_m1_UP_p1_DN.dnoteXshift(1), 0);
 		assertEquals(_TO.dplex_2_m1_UP_p0_DN.dnoteXshift(1), 3);
 		assertEquals(_TO.dplex_2_p0_UP_p0_DN.dnoteXshift(1), 4);
-		assertEquals(new DPlex([new DNote(new Note([new Head(0, ESign.Sharp)]))]).dnote(0).dhead(0).sign, ESign.Sharp);
+		assertEquals(new Complex([new DNote(new Note([new Head(0, ESign.Sharp)]))]).dnote(0).dhead(0).sign, ESign.Sharp);
 	}
 	
 	

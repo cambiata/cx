@@ -1,6 +1,6 @@
 package nx.core;
 import nx.core.display.DNote;
-import nx.core.display.DPlex;
+import nx.core.display.Complex;
 import nx.core.element.Head;
 import nx.core.element.Note;
 import nx.enums.EDirectionUAD;
@@ -37,8 +37,8 @@ class _TO
 	static public var dNoteNv4_2_m1p0_UP 	= new DNote(new Note([new Head( -1), new Head(0)], null, EDirectionUAD.Up));
 	
 	
-	static public var dplex_2_m1_UP_p1_DN = new DPlex([_TO.dNoteNv4_1_m1_UP, _TO.dNoteNv4_1_p1_DN]);
-	static public var dplex_2_m1_UP_p0_DN = new DPlex([_TO.dNoteNv4_1_m1_UP, _TO.dNoteNv4_1_p0_DN]);
-	static public var dplex_2_p0_UP_p0_DN = new DPlex([_TO.dNoteNv4_1_p0_UP, _TO.dNoteNv4_1_p0_DN]);
+	static public var dplex_2_m1_UP_p1_DN = new Complex([_TO.dNoteNv4_1_m1_UP, _TO.dNoteNv4_1_p1_DN]);
+	static public var dplex_2_m1_UP_p0_DN = new Complex([_TO.dNoteNv4_1_m1_UP, _TO.dNoteNv4_1_p0_DN]);
+	static public var dplex_2_p0_UP_p0_DN = new Complex([_TO.dNoteNv4_1_p0_UP, _TO.dNoteNv4_1_p0_DN]);
 	
 }

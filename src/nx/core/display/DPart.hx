@@ -14,13 +14,13 @@ class DPart
 
 	public var part			(default, null)		:Part;
 	public var dvoices		(default, null)		:Array<DVoice>;
-	public var dplexs			(default, null)		:Array<DPlex>;	
+	public var complexes	(default, null)		:Array<Complex>;	
 	public var positions		(default, null)		:Array<Int>;
-	public var dplexPosition(default, null)		:ObjectHash<DPlex, Int>;
-	public var dplexDistance(default, null)	:ObjectHash<DPlex, Float>;
-	public var positionDplex(default, null)	:IntHash<DPlex>;
+	public var complexPosition(default, null)		:ObjectHash<Complex, Int>;
+	public var complexDistance(default, null)	:ObjectHash<Complex, Float>;
+	public var positionComplex(default, null)	:IntHash<Complex>;
 	
-	public function dplex(idx:Int)  return this.dplexs[idx]
+	public function dplex(idx:Int)  return this.complexes[idx]
 	
 	public function new(part:Part=null) {		
 		this.part = (part != null) ? part : new Part();		
@@ -31,7 +31,7 @@ class DPart
 		}
 
 		this._calcPositions();
-		this._calcDPlexs();
+		this._calcDComplexs();
 		this._calcDistances();
 	}
 	
@@ -55,30 +55,30 @@ class DPart
 		this.positions.sort(function(a, b) { return Reflect.compare(a, b); } );		
 	}
 
-	private function _calcDPlexs() {
-		this.dplexs = [];
-		this.dplexPosition = new ObjectHash<DPlex, Int>();
-		this.positionDplex = new IntHash<DPlex>();
+	private function _calcDComplexs() {
+		this.complexes = [];
+		this.complexPosition = new ObjectHash<Complex, Int>();
+		this.positionComplex = new IntHash<Complex>();
 		
 		for (pos in this.positions) {
 			var dnotes = this._posDNotes.get(pos);
-			var dplex = new DPlex(dnotes);
-			this.dplexs.push(dplex);			
-			this.dplexPosition.set(dplex, pos);
-			this.positionDplex.set(pos, dplex);
+			var dplex = new Complex(dnotes);
+			this.complexes.push(dplex);			
+			this.complexPosition.set(dplex, pos);
+			this.positionComplex.set(pos, dplex);
 		}								
 	}
 	
 	private function _calcDistances() {
-		this.dplexDistance = new ObjectHash<DPlex, Float>();
-		var length = this.dplexs.length;
+		this.complexDistance = new ObjectHash<Complex, Float>();
+		var length = this.complexes.length;
 		
-		this.dplexDistance.set(this.dplex(0), 0);
+		this.complexDistance.set(this.dplex(0), 0);
 		for (i in 0...length-1) {
-			var plex = this.dplexs[i];
-			var plexNext = this.dplexs[i + 1];	
+			var plex = this.complexes[i];
+			var plexNext = this.complexes[i + 1];	
 			var distanceX = plex.distanceX(plexNext);
-			this.dplexDistance.set(plexNext, distanceX);
+			this.complexDistance.set(plexNext, distanceX);
 		}			
 	}
 }
