@@ -40,6 +40,12 @@ class ArrayTools
 	static public function last<T>(array:Array<T>): T {
 		return array[array.length-1];
 	}
+
+	static public function index<T>(array:Array<T>, item:T) {
+		return Lambda.indexOf(array, item);
+	}
+	
+	
 	
 	public static function shuffle<T>(a : Array<T>) : Array<T> {
 		var t = range(a.length);

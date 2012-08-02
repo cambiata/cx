@@ -10,6 +10,7 @@ import nx.core.display.DBar;
 import nx.core.display.DNote;
 import nx.core.display.DPart;
 import nx.core.display.Complex;
+import nx.display.beam.BeamTools;
 import nx.display.beam.IBeamGroup;
 import nx.display.DisplayNote;
 import nx.enums.EDirectionUD;
@@ -483,6 +484,19 @@ class Render implements IRender
 				y2 += 140;
 			}
 		}
+		
+		for (dpart in dbar.dparts) {
+			for (dvoice in dpart.dvoices) {
+				var voiceIdx = ArrayTools.index(dpart.dvoices, dvoice);
+				trace(voiceIdx);
+				for (beamgroup in dvoice.beamGroups) {
+					//var bgd = BeamTools.getDimensions(beamGroup);
+					//this.beamGroup(x, y, 20, bgd);
+				}
+			}
+		}
+		
+		
 		
 		if (rects) {			
 			var r = Scaling.scaleRectangle(dbar.columnsRectAll, this.scaling);

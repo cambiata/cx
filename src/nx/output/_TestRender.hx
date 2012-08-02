@@ -31,8 +31,8 @@ class _TestRender extends TestCase
 	
 	override public function setup() {
 		this.target = new Sprite();
-		this.render = new Render(this.target, Scaling.getNormal());
-		this.rect = false;		
+		this.render = new Render(this.target, Scaling.getBig());
+		this.rect = true;		
 	}
 	
 	/*
@@ -51,7 +51,7 @@ class _TestRender extends TestCase
 		render.dnote(500, 100, new DNote(new Note([new Head( -1), new Head(0), new Head(1)])));
 	}
 	
-	public function testDPlexOutputStaves() {
+	public function XtestDPlexOutputStaves() {
 		assertTrue(true);
 		var y = 50; 
 		render.lines(0, y, 1200);		
@@ -72,7 +72,7 @@ class _TestRender extends TestCase
 		render.complex(300, y, dp, rect);				
 	}
 	
-	public function testComplexOutput() {
+	public function XtestComplexOutput() {
 		assertTrue(true);
 		var y = 200; 
 		render.lines(0, y, 1200);		
@@ -142,7 +142,7 @@ class _TestRender extends TestCase
 	
 	public function testDPlexOutputSigns() {
 		assertTrue(true);
-		var y = 350; 
+		var y = 50; 
 		render.lines(0, y, 1200);
 		
 		var dp = new Complex([
@@ -179,7 +179,7 @@ class _TestRender extends TestCase
 	public function testDPlexOutputSpacing() {
 		assertTrue(true);
 		
-		var y = 500; 
+		var y = 200; 
 		render.lines(0, y, 1200);	
 		
 		var dp = new Complex([
@@ -304,7 +304,7 @@ class _TestRender extends TestCase
 	
 	public function testDBar() {
 		assertTrue(true);
-		var y = 700; 
+		var y = 350; 
 		
 		var db = new DBar(new Bar([
 			
