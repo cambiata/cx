@@ -22,6 +22,7 @@ class DBar
 	public var columnsRectAll		(default, null) 	:Rectangle;
 	
 	public var dnoteColumn		(default, null)		:ObjectHash<DNote, Column>;
+	public var dnoteComplexXadjust		(default, null)		:ObjectHash<DNote, Float>;
 	
 	public function new(bar:Bar=null) {				
 		this.bar = (bar != null) ? bar : new Bar();				
@@ -32,10 +33,12 @@ class DBar
 		this._calcPositions();
 		this._calcColumns();
 		this._calcDnotesColumns();
+		this._calcDnotesComplexXadjust();
 		this._calcColumnsDistancesX();
 		this._calcColumnsPositionsX();
 		this._calcColumnsWidthX();
 	}
+	
 
 	/************************************************************************
 	 * Private methods
@@ -75,6 +78,22 @@ class DBar
 			}
 		}
 	}	
+	
+	private function _calcDnotesComplexXadjust() {
+		this.dnoteComplexXadjust = new ObjectHash<DNote, Float>();
+		for (column in this.columns) {
+			for (complex in column.complexes) {
+				if (complex == null) continue;
+				var idx = 0;
+				for (dnote in complex.dnotes) {
+					var adjustX = complex.dnoteXshift(idx);
+					this.dnoteComplexXadjust.set(dnote, adjustX);
+					idx++;
+				}
+			}
+		}		
+	}
+	
 	
 	private function _calcColumnsDistancesX() {
 		var testPB:TPosComplex = { position:0, rectsAll:[], rectsHeadW:[] };

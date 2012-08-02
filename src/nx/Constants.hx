@@ -25,5 +25,7 @@ class Constants {
 	static public inline var STAVE_LENGTH:Int = 7;
 	static public inline var STAVE_OFFSET:Float = 1.4;
 	static public inline var STAVE_WIDTH:Float = 0.2;
+	static public inline var STAVE_HEADADJUST:Float = 0.4;
+	
 	
 }

@@ -31,6 +31,8 @@ class _TestRender extends TestCase
 	
 	override public function setup() {
 		this.target = new Sprite();
+		this.target.width = 1000;
+		this.target.height = 1000;
 		this.render = new Render(this.target, Scaling.getBig());
 		this.rect = true;		
 	}
@@ -324,6 +326,7 @@ class _TestRender extends TestCase
 			])]),			
 		*/	
 			
+			
 			new Part([
 				new Voice([
 					new Note() ,
@@ -337,20 +340,22 @@ class _TestRender extends TestCase
 					new Note([new Head(3)], ENoteValue.Nv4dot),
 					new Note([new Head(4, ESign.Natural)], ENoteValue.Nv8),
 					new Note([new Head(3)], ENoteValue.Nv16),
-					new Note([new Head(3)], ENoteValue.Nv16),
+					new Note([new Head(8)], ENoteValue.Nv16),
 					new Note([new Head(3, ESign.Natural)], ENoteValue.Nv16),
 					new Note([new Head(3)], ENoteValue.Nv16),
-					new Note([new Head(3)]) ,
+					new Note([new Head(1)]) ,
 				], EDirectionUAD.Down),
 			]),
-		
+			
+			
 			new Part([
 				new Voice([
-					new Note([new Head(), new Head(1)], ENoteValue.Nv4) ,
-					new Note([new Head(7, ESign.Flat)],  	ENoteValue.Nv8) ,
-					new Note([new Head(7, ESign.None)],  	ENoteValue.Nv8) ,
-					new Note() ,
-					new Note() ,
+					new Note([new Head(), new Head(1)], 	ENoteValue.Nv4) ,
+					new Note([new Head(1, ESign.Flat)],  		ENoteValue.Nv8) ,
+					new Note([new Head(4, ESign.None)],  	ENoteValue.Nv8) ,
+					new Note([new Head(1, ESign.Sharp), new Head(2, ESign.Flat)],  		ENoteValue.Nv8) ,
+					new Note([new Head(-3, ESign.None)],  	ENoteValue.Nv8) ,
+					new Note([new Head(1)]) ,
 				])
 			]),
 			
@@ -360,6 +365,7 @@ class _TestRender extends TestCase
 				new Note(null, ENoteValue.Nv2) ,
 			])]),		
 			*/
+			
 			/*
 			new Part([new Voice([
 				new Note(null, ENoteValue.Nv2dot) ,
@@ -369,7 +375,7 @@ class _TestRender extends TestCase
 			
 		]));
 		
-		render.dbar(100, y, db, rect);
+		render.dbar(100, y, db, false);
 		
 	}
 	

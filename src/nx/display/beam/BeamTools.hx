@@ -33,7 +33,11 @@ class BeamTools
 		return 0;
 	}
 	
-	static public function getDimensions(beamGroup:IBeamGroup):BeamGroupDimensions {
+	static public function test(beamGroup:IBeamGroup):BeamGroupFrame {
+		return null;
+	}
+	
+	static public function getDimensions(beamGroup:IBeamGroup):BeamGroupFrame {
 		
 		var directionUp:Bool = (beamGroup.getDirection() == EDirectionUD.Up);
 		
@@ -46,7 +50,7 @@ class BeamTools
 		var level2First:Float = levels2[0];
 		var level2Last:Float = levels2[count - 1];
 		
-		var bd:BeamGroupDimensions = {			
+		var frame:BeamGroupFrame = {			
 			direction:beamGroup.getDirection(),
 			adjustX: (directionUp) ? 1.0 : -1.0,
 			count:count,
@@ -127,8 +131,8 @@ class BeamTools
 				bLevelFirst = levelMin;	
 				bLevelLast = levelMin;
 			}			
-			bd.firstStave = {topY: bLevelFirst - Constants.STAVE_LENGTH, bottomY: level2First};
-			bd.lastStave = { topY: bLevelLast - Constants.STAVE_LENGTH, bottomY: level2Last };
+			frame.firstStave = {topY: bLevelFirst - Constants.STAVE_LENGTH, bottomY: level2First - Constants.STAVE_HEADADJUST };
+			frame.lastStave = { topY: bLevelLast - Constants.STAVE_LENGTH, bottomY: level2Last - Constants.STAVE_HEADADJUST };
 			
 		} else {
 			
@@ -142,8 +146,8 @@ class BeamTools
 				bLevelFirst = levelMax;	
 				bLevelLast = levelMax;
 			}			
-			bd.firstStave = {topY: level2First , bottomY: bLevelFirst + Constants.STAVE_LENGTH};
-			bd.lastStave = {topY: level2Last, bottomY: bLevelLast + Constants.STAVE_LENGTH};			
+			frame.firstStave = {topY: level2First + Constants.STAVE_HEADADJUST , bottomY: bLevelFirst + Constants.STAVE_LENGTH - Constants.STAVE_HEADADJUST};
+			frame.lastStave = {topY: level2Last + Constants.STAVE_HEADADJUST, bottomY: bLevelLast + Constants.STAVE_LENGTH - Constants.STAVE_HEADADJUST};			
 			
 		}
 		
@@ -159,7 +163,7 @@ class BeamTools
 		}
 		*/
 		
-		return bd;
+		return frame;
 	}
 	
 }

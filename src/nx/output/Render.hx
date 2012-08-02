@@ -17,14 +17,14 @@ import nx.enums.EDirectionUD;
 import nx.enums.EHeadType;
 import nx.svg.SvgAssets;
 import nx.output.Scaling;
-import nx.display.beam.BeamGroupDimensions;
+import nx.display.beam.BeamGroupFrame;
 
 /**
  * ...
  * @author Jonas Nyström
  */
 using nx.output.Scaling;
-
+using cx.ArrayTools;
 
 
 class Render implements IRender
@@ -297,57 +297,61 @@ class Render implements IRender
 		}
 	}	
 	
-	public function beamGroup(noteX:Float, noteY:Float, lastNoteX:Float, bgd:BeamGroupDimensions) {
-		var adjustX = bgd.adjustX * this.scaling.halfNoteWidth;
-		var firstTopY = noteY + (bgd.firstStave.topY * scaling.halfSpace);
-		var lastTopY = noteY + (bgd.lastStave.topY * scaling.halfSpace); 
-		var firstBottomY = noteY + (bgd.firstStave.bottomY  * scaling.halfSpace);
-		var lastBottomY = noteY + (bgd.lastStave.bottomY * scaling.halfSpace);
+	public function beamGroup(xpos:Float, y:Float, frame:BeamGroupFrame, dnotePositionsX:Array<Float>) {
+		
+		var firstX = xpos + dnotePositionsX.first();
+		var lastX = xpos + dnotePositionsX.last();
+		
+		var adjustX = 0; // this.scaling.halfNoteWidth; // frame.adjustX * this.scaling.halfNoteWidth;
+		var firstTopY = y + (frame.firstStave.topY * scaling.halfSpace);
+		var lastTopY = y + (frame.lastStave.topY * scaling.halfSpace); 
+		var firstBottomY = y + (frame.firstStave.bottomY  * scaling.halfSpace);
+		var lastBottomY = y + (frame.lastStave.bottomY * scaling.halfSpace);
 		
 		this.target.graphics.lineStyle(this.scaling.linesWidth, 0x000000);
 		
-		if (bgd.direction == EDirectionUD.Up) {			
-			this.target.graphics.drawCircle(noteX + adjustX, firstTopY , 3);
-			this.target.graphics.moveTo(noteX + adjustX, firstTopY);
-			this.target.graphics.lineTo(noteX + adjustX, firstBottomY);
+		if (frame.direction == EDirectionUD.Up) {			
+			this.target.graphics.drawCircle(firstX , firstTopY , 3);
+			this.target.graphics.moveTo(firstX , firstTopY);
+			this.target.graphics.lineTo(firstX , firstBottomY);
 			
-			if (bgd.count > 1) {
+			if (frame.count > 1) {
 				this.target.graphics.beginFill(0xFF0000);
-				this.target.graphics.moveTo(noteX 		+ adjustX, firstTopY);
-				this.target.graphics.lineTo(lastNoteX 	+ adjustX, lastTopY);
-				this.target.graphics.lineTo(lastNoteX 	+ adjustX, lastTopY - Constants.HEAD_HEIGHT);
-				this.target.graphics.lineTo(noteX 		+ adjustX, firstTopY - Constants.HEAD_HEIGHT);
-				this.target.graphics.lineTo(noteX 		+ adjustX, firstTopY);
+				this.target.graphics.moveTo(firstX		, firstTopY);
+				this.target.graphics.lineTo(lastX 	, lastTopY);
+				this.target.graphics.lineTo(lastX 	, lastTopY - Constants.HEAD_HEIGHT);
+				this.target.graphics.lineTo(firstX 		, firstTopY - Constants.HEAD_HEIGHT);
+				this.target.graphics.lineTo(firstX 		, firstTopY);
 				this.target.graphics.endFill();
 				
-				this.target.graphics.drawCircle(lastNoteX + adjustX, lastTopY , 3);
-				this.target.graphics.moveTo(noteX + adjustX, firstTopY);
-				this.target.graphics.lineTo(lastNoteX + adjustX, lastTopY);
+				this.target.graphics.drawCircle(lastX , lastTopY , 3);
+				this.target.graphics.moveTo(firstX , firstTopY);
+				this.target.graphics.lineTo(lastX , lastTopY);
 				
-				this.target.graphics.moveTo(lastNoteX + adjustX, lastTopY);				
-				this.target.graphics.lineTo(lastNoteX + adjustX, lastBottomY);
+				this.target.graphics.moveTo(lastX , lastTopY);				
+				this.target.graphics.lineTo(lastX , lastBottomY);
 			}
 		} else {
-			this.target.graphics.drawCircle(noteX + adjustX, firstBottomY , 3);
-			this.target.graphics.moveTo(noteX + adjustX, firstBottomY);
-			this.target.graphics.lineTo(noteX + adjustX, firstTopY);			
+			this.target.graphics.drawCircle(firstX , firstBottomY , 3);
+			this.target.graphics.moveTo(firstX , firstBottomY);
+			this.target.graphics.lineTo(firstX , firstTopY);			
 			
-			if (bgd.count > 1) {
+			if (frame.count > 1) {
 
 				this.target.graphics.beginFill(0xFF0000);
-				this.target.graphics.moveTo(noteX 		+ adjustX, firstBottomY);
-				this.target.graphics.lineTo(lastNoteX 	+ adjustX, lastBottomY);
-				this.target.graphics.lineTo(lastNoteX 	+ adjustX, lastBottomY + Constants.HEAD_HEIGHT);
-				this.target.graphics.lineTo(noteX 		+ adjustX, firstBottomY + Constants.HEAD_HEIGHT);
-				this.target.graphics.lineTo(noteX 		+ adjustX, firstBottomY);
+				this.target.graphics.moveTo(firstX 		, firstBottomY);
+				this.target.graphics.lineTo(lastX 	, lastBottomY);
+				this.target.graphics.lineTo(lastX 	, lastBottomY + Constants.HEAD_HEIGHT);
+				this.target.graphics.lineTo(firstX		, firstBottomY + Constants.HEAD_HEIGHT);
+				this.target.graphics.lineTo(firstX 		, firstBottomY);
 				this.target.graphics.endFill();								
 				
-				this.target.graphics.drawCircle(lastNoteX + adjustX, lastBottomY , 3);		
-				this.target.graphics.moveTo(noteX + adjustX, firstBottomY);
-				this.target.graphics.lineTo(lastNoteX + adjustX, lastBottomY);	
+				this.target.graphics.drawCircle(lastX , lastBottomY , 3);		
+				this.target.graphics.moveTo(firstX , firstBottomY);
+				this.target.graphics.lineTo(lastX , lastBottomY);	
 				
-				this.target.graphics.moveTo(lastNoteX + adjustX, lastBottomY);				
-				this.target.graphics.lineTo(lastNoteX + adjustX, lastTopY);				
+				this.target.graphics.moveTo(lastX , lastBottomY);				
+				this.target.graphics.lineTo(lastX , lastTopY);				
 			}
 		}
 	}
@@ -355,14 +359,14 @@ class Render implements IRender
 	//-----------------------------------------------------------------------------------------------------
 	//-----------------------------------------------------------------------------------------------------
 	
-	public function dnote(x:Float, y:Float, dnote:DNote, rects:Bool=false) {
+	public function dnote(x:Float, y:Float, dnote:DNote, rects:Bool=false, teststave:Bool=true) {
 		var positions = dnote.headPositions.copy();
 		for (dhead in dnote.dheads) {
 			var position = positions.shift();
 			this._drawHead(x, y, dhead.level, position, dnote.notevalue.headType);
 		}	
 
-		this.dnoteStave(x, y, dnote, rects);
+		if (teststave) this.dnoteStave(x, y, dnote, rects);
 		
 		this.dnoteDots(x, y, dnote, rects);
 		
@@ -422,7 +426,7 @@ class Render implements IRender
 		target.addChild(shape);	  			
 	}		
 	
-	public function complex(x:Float, y:Float, dplex:Complex, rects:Bool=true, moveX:Float=0) {		
+	public function complex(x:Float, y:Float, dplex:Complex, rects:Bool=true, moveX:Float=0, teststaves:Bool=true) {		
 		if (moveX != 0) x += Scaling.scaleX(moveX, this.scaling);
 		
 		if (rects) {
@@ -432,9 +436,9 @@ class Render implements IRender
 		}
 		
 		for (i in 0...dplex.dnotes.length) {
-			this.dnote(x + dplex.dnoteXshift(i) * scaling.quarterNoteWidth, y, dplex.dnote(i), rects);	
-			this.dnoteStave(x + dplex.dnoteXshift(i) * scaling.quarterNoteWidth, y, dplex.dnote(i), rects);
-		}
+			this.dnote(x + dplex.dnoteXshift(i) * scaling.quarterNoteWidth, y, dplex.dnote(i), rects, teststaves);	
+		}		
+		
 		this.signs(dplex, x, y);
 
 		if (rects) {			
@@ -474,36 +478,48 @@ class Render implements IRender
 		var x2:Float;
 		var y2:Float;
 		
+		// Draw complexes...
+		
 		for (column in dbar.columns) {
 			var y2 = y;			
 			x2 = x + Scaling.scaleX(column.positionX, this.scaling);
 			for (complex in column.complexes) {
 				if (complex != null) {
-					this.complex(x2, y2, complex, rects);
+					this.complex(x2, y2, complex, rects, 0, false);
 				}
 				y2 += 140;
 			}
 		}
 		
+		// Draw beams...
+		
+		var y2 = y;			
 		for (dpart in dbar.dparts) {
 			for (dvoice in dpart.dvoices) {
 				var voiceIdx = ArrayTools.index(dpart.dvoices, dvoice);
 				trace(voiceIdx);
 				for (beamgroup in dvoice.beamGroups) {
-					//var bgd = BeamTools.getDimensions(beamGroup);
-					//this.beamGroup(x, y, 20, bgd);
+					var frame = BeamTools.getDimensions(beamgroup);
+					var dnotes = beamgroup.getNotes();
+					var dnotesPositionsX:Array<Float> = [];
+					for (dnote in dnotes) {
+						var adjustX = dbar.dnoteComplexXadjust.get(dnote); // justera för sekundkrockar etc...
+						var posX = Scaling.scaleX(dbar.dnoteColumn.get(dnote).positionX + dnote.rectStave.x + adjustX, this.scaling);
+						dnotesPositionsX.push(posX);
+					}
+					this.beamGroup(x, y2, frame, dnotesPositionsX);
 				}
 			}
+			y2 += 140;
 		}
-		
-		
 		
 		if (rects) {			
 			var r = Scaling.scaleRectangle(dbar.columnsRectAll, this.scaling);
 			r.y = -100;
 			r.height = 360;
 			r.offset(x, y);
-			this.gr.lineStyle(2, 0x00FF00);
+			r.inflate(3, 3);
+			this.gr.lineStyle(1, 0x00FF00);
 			this.gr.drawRect(r.x, r.y, r.width, r.height);			
 		}
 	}

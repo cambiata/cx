@@ -6,7 +6,7 @@ import nx.enums.EDirectionUD;
  * @author Jonas Nyström
  */
 
-typedef BeamGroupDimensions =
+typedef BeamGroupFrame =
 {
 	direction:EDirectionUD,
 	adjustX:Float,
