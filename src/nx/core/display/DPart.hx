@@ -20,6 +20,8 @@ class DPart
 	public var complexDistance(default, null)	:ObjectHash<Complex, Float>;
 	public var positionComplex(default, null)	:IntHash<Complex>;
 	
+
+	
 	public function dplex(idx:Int)  return this.complexes[idx]
 	
 	public function new(part:Part=null) {		
@@ -35,6 +37,18 @@ class DPart
 		this._calcDistances();
 	}
 	
+	
+	private var _value:Int;
+	public var value(get_value, null):Int;
+	private function get_value():Int 
+	{
+		if (this._value != null) return this._value;
+		this._value = 0;
+		for (dvoice in this.dvoices) {
+			this._value = Std.int(Math.max(this._value, dvoice.value));
+		}
+		return this._value;
+	}
 
 	/************************************************************************
 	 * Private methods

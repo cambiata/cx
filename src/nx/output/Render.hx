@@ -488,7 +488,8 @@ class Render implements IRender
 		
 		for (column in dbar.columns) {
 			var y2 = y;			
-			x2 = x + Scaling.scaleX(column.positionX, this.scaling);
+			
+			x2 = x + Scaling.scaleX(column.sPositionX, this.scaling);
 			for (complex in column.complexes) {
 				if (complex != null) {
 					this.complex(x2, y2, complex, rects, 0, false);
@@ -512,7 +513,7 @@ class Render implements IRender
 						var column = dbar.dnoteColumn.get(dnote);						
 						var adjustX = dbar.dnoteComplexXadjust.get(dnote); // justera för sekundkrockar etc...						
 						
-						var posX = Scaling.scaleX(column.positionX + dnote.rectStave.x + adjustX, this.scaling);
+						var posX = Scaling.scaleX(column.sPositionX + dnote.rectStave.x + adjustX, this.scaling);
 						
 						dnotesPositionsX.push(posX);
 					}

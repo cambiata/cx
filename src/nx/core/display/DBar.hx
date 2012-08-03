@@ -1,8 +1,10 @@
 package nx.core.display;
 import cx.ArrayTools;
 import nme.geom.Rectangle;
+import nx.Constants;
 import nx.core.element.Bar;
 import nme.ObjectHash;
+import nx.enums.EAllotment;
 
 /**
  * ...
@@ -30,13 +32,18 @@ class DBar
 		for (part in this.bar.parts) {
 			this.dparts.push(new DPart(part));
 		}				
-		this._calcPositions();
+		this._calcPositions();		
 		this._calcColumns();
+		this._calcColumnValues();
+		this._calcColumValueWeight();
 		this._calcDnotesColumns();
 		this._calcDnotesComplexXadjust();
 		this._calcColumnsDistancesX();
-		this._calcColumnsPositionsX();
-		this._calcColumnsWidthX();
+		this._calcColumnsPositionsX();		
+		
+		this._calcColumnsSpacing();
+		
+		this._calcColumnsWidthX();		
 	}
 	
 
@@ -48,7 +55,7 @@ class DBar
 	private function _calcPositions() {
 		this.positions = [];
 		for (dpart in this.dparts) {
-			this.positions  = this.positions.concat(dpart.positions);
+			this.positions  = this.positions.concat(dpart.positions);			
 		}	
 		this.positions = ArrayTools.unique(this.positions);
 		this.positions.sort(function(a, b) { return Reflect.compare(a, b); } );
@@ -59,7 +66,7 @@ class DBar
 		this.dnoteColumn = new ObjectHash<DNote, Column>();
 		
 		for (pos in this.positions) {			
-			var column:Column = { position:pos, complexes:[], distanceX:0.0, positionX:0.0 };
+			var column:Column = { position:pos, value:12345, complexes:[], distanceX:0.0, positionX:0.0, widthX:0.0 };
 			for (dpart in this.dparts) {
 				var dplex = dpart.positionComplex.get(pos);	
 				column.complexes.push(dplex);
@@ -67,6 +74,29 @@ class DBar
 			this.columns.push(column);			
 		}
 	}	
+
+	private function _calcColumnValues() {
+		var prevColumn:Column = null;
+		for (column in this.columns) {			
+			if (column == this.columns.first()) {
+				prevColumn = column;				
+				continue;
+			}			
+			var prevValue = column.position - prevColumn.position;
+			prevColumn.value = prevValue;
+			prevColumn = column;
+		}
+		var lastColumn = prevColumn;
+		lastColumn.value = this.value - lastColumn.position;
+		
+	}
+	
+	private function _calcColumValueWeight() {
+		var barvalue = this.value;
+		for (column in this.columns) {
+			column.valueWeight = column.value / barvalue;
+		}
+	}
 	
 	private function _calcDnotesColumns() {
 		for (column in this.columns) {
@@ -94,7 +124,6 @@ class DBar
 		}		
 	}
 	
-	
 	private function _calcColumnsDistancesX() {
 		var testPB:TPosComplex = { position:0, rectsAll:[], rectsHeadW:[] };
 		var firstpb = this.columns[0];		
@@ -104,10 +133,12 @@ class DBar
 			testPB.rectsHeadW.push(complex.rectHeads.width);
 		}
 		
-		var i = 0;
+		var prevColumn:Column = null;
 		for (column in this.columns) {
-			if (i == 0) {
-				i++;
+			
+
+			if (column == this.columns.first()) {
+				prevColumn = column;
 				continue;
 			}
 			
@@ -134,6 +165,7 @@ class DBar
 			//-----------------------------------------------------------------------
 
 			//trace('Max distanceX:' + maxDistanceX);
+			prevColumn.widthX = maxDistanceX;
 			column.distanceX = maxDistanceX;
 		
 			//-----------------------------------------------------------------------
@@ -155,10 +187,7 @@ class DBar
 				}	
 				
 			}
-			
-			//-----------------------------------------------------------------------
-			
-			i++;
+			prevColumn = column;
 		}
 	}
 	
@@ -172,6 +201,82 @@ class DBar
 	
 	
 	
+
+
+	
+	private function _calcColumnsSpacing() {
+		trace('*****************************');
+		
+		var allotment = EAllotment.Logaritmic;
+
+		switch (allotment) {
+			
+			case EAllotment.Equal: 
+				for (column in this.columns) {
+					column.sWidthX = column.aWidthX = Math.max(column.widthX, Constants.ASPACING_NORMAL);
+					column.sSuperX = column.aSuperX = Math.max(column.widthX - Constants.ASPACING_NORMAL, 0);
+				}			
+			case EAllotment.Linear: 
+				for (column in this.columns) {
+					var columnWidthX = (column.value / Constants.BASE_NOTE_VALUE) * Constants.ASPACING_NORMAL;
+					column.sWidthX = column.aWidthX = Math.max(column.widthX, columnWidthX);
+					column.sSuperX = column.aSuperX = Math.max(column.widthX - columnWidthX, 0);			
+				}	
+			case EAllotment.Logaritmic:
+				for (column in this.columns) {
+					var delta:Float = 0.5;
+					var columnWidthX = (delta +(column.value / Constants.BASE_NOTE_VALUE) / 2) * Constants.ASPACING_NORMAL;
+					column.sWidthX = column.aWidthX = Math.max(column.widthX, columnWidthX);
+					column.sSuperX = column.aSuperX = Math.max(column.widthX - columnWidthX, 0);			
+				}				
+			default:
+				for (column in this.columns) {
+					column.sWidthX = column.aWidthX = column.widthX;
+					column.sSuperX = column.aSuperX = column.widthX;
+				}					
+		}
+		
+		/*
+		//-----------------------------------------------------------------------------------------------------
+		// Test equal distance		
+		for (column in this.columns) {
+			column.aWidthX = Math.max(column.widthX, Constants.ASPACING_NORMAL);
+			column.aSuperX = Math.max(column.widthX - Constants.ASPACING_NORMAL, 0);
+		}
+		
+		//-----------------------------------------------------------------------------------------------------
+		// Test linear distance
+		for (column in this.columns) {
+			var columnWidthX = (column.value / Constants.BASE_NOTE_VALUE) * Constants.ASPACING_NORMAL;
+			column.aWidthX = Math.max(column.widthX, columnWidthX);
+			column.aSuperX = Math.max(column.widthX - columnWidthX, 0);			
+		}
+		
+		
+		//-----------------------------------------------------------------------------------------------------
+		// Test logaritmic distance
+		
+		for (column in this.columns) {
+			var delta:Float = 0.5;
+			var columnWidthX = (delta +(column.value / Constants.BASE_NOTE_VALUE) / 2) * Constants.ASPACING_NORMAL;
+			column.aWidthX = Math.max(column.widthX, columnWidthX);
+			column.aSuperX = Math.max(column.widthX - columnWidthX, 0);			
+		}		
+		*/
+		
+		
+		var posX = 0.0;
+		for (column in this.columns) {
+			column.sPositionX = column.aPositionX = posX;
+			posX += column.aWidthX;
+		}		
+		
+		for (column in this.columns) {
+			trace([column.widthX, column.positionX, Constants.ASPACING_NORMAL, column.aSuperX, column.aWidthX, column.aPositionX]);						
+		}
+		
+	}
+	
 	private function _calcColumnsWidthX() {
 		
 		var firstColumn = this.columns.first();
@@ -180,7 +285,7 @@ class DBar
 			firstMinX = Math.min(firstMinX, complex.rectFull.x);
 		}
 		
-		var columnsW = this.columns.last().positionX;
+		var columnsW = this.columns.last().aPositionX;
 		
 		var lastColumn = this.columns.last();
 		var lastMaxW = 0.0;
@@ -188,11 +293,26 @@ class DBar
 			if (complex != null) {
 				lastMaxW = Math.max(lastMaxW, complex.rectFull.x + complex.rectFull.width);				
 			}
-		}		
+		}	
+		lastMaxW = Math.max(lastMaxW, lastColumn.aWidthX);
 		
 		this.columnsRectAll = new Rectangle(firstMinX, 0, -firstMinX + columnsW + lastMaxW, 0);
-	}	
+	}		
 	
+	
+	//------------------------------------------------------------------------------------------------------
+	
+	private var _value:Int;
+	public var value(get_value, null):Int;
+	private function get_value():Int 
+	{
+		if (this._value != null) return this._value;
+		this._value = 0;
+		for (dpart in this.dparts) {
+			this._value = Std.int(Math.max(this._value, dpart.value));
+		}
+		return this._value;
+	}		
 	
 }
 

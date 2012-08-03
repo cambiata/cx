@@ -337,32 +337,41 @@ class _TestRender extends TestCase
 					new Note() ,
 				], EDirectionUAD.Up), 
 				new Voice([
-					new Note([new Head(3)], ENoteValue.Nv4dot),
+					new Note([new Head(1)], ENoteValue.Nv4dot),
 					new Note([new Head(4, ESign.Natural)], ENoteValue.Nv8),
 					new Note([new Head(3)], ENoteValue.Nv16),
 					new Note([new Head(8)], ENoteValue.Nv16),
 					new Note([new Head(3, ESign.Natural)], ENoteValue.Nv16),
 					new Note([new Head(3)], ENoteValue.Nv16),
 					new Note([new Head(1)]) ,
+					new Note() ,
 				], EDirectionUAD.Down),
 			]),
-			
 			
 			new Part([
 				new Voice([
 					new Note([new Head(), new Head(1)], 	ENoteValue.Nv4) ,
 					new Note([new Head(1, ESign.Flat)],  		ENoteValue.Nv8) ,
 					new Note([new Head(4, ESign.None)],  	ENoteValue.Nv8) ,
-					new Note([new Head(1, ESign.Sharp), new Head(2, ESign.Flat)],  		ENoteValue.Nv8) ,
-					new Note([new Head(-3, ESign.None)],  	ENoteValue.Nv8) ,
+					new Note([new Head(1, ESign.Sharp), new Head(2, ESign.Flat)],  		ENoteValue.Nv8dot) ,
+					new Note([new Head(-3, ESign.Flat)],  	ENoteValue.Nv16) ,
 					new Note([new Head(1)]) ,
 				])
 			]),
 			
 			/*
 			new Part([new Voice([
-				new Note([new Head(0, ESign.Flat)], ENoteValue.Nv2) ,
+				new Note(null, ENoteValue.Nv4) ,
+				new Note(null, ENoteValue.Nv4) ,
 				new Note(null, ENoteValue.Nv2) ,
+				new Note(null, ENoteValue.Nv16) ,				
+				new Note(null, ENoteValue.Nv16) ,				
+				new Note([new Head(-4, ESign.Flat)], ENoteValue.Nv16) ,				
+				new Note(null, ENoteValue.Nv16) ,				
+				new Note(null, ENoteValue.Nv8) ,
+				new Note(null, ENoteValue.Nv8) ,
+				new Note(null, ENoteValue.Nv4) ,
+				new Note(null, ENoteValue.Nv4) ,
 			])]),		
 			*/
 			
@@ -375,7 +384,26 @@ class _TestRender extends TestCase
 			
 		]));
 		
-		render.dbar(100, y, db, false);
+		render.dbar(100, y, db, true);
+		
+		
+		var db = new DBar(new Bar([		
+			new Part([new Voice([
+				new Note(null, ENoteValue.Nv4) ,
+				new Note(null, ENoteValue.Nv4) ,
+				new Note(null, ENoteValue.Nv2) ,
+				new Note(null, ENoteValue.Nv16) ,				
+				new Note(null, ENoteValue.Nv16) ,				
+				new Note([new Head(-4, ESign.Flat)], ENoteValue.Nv16) ,				
+				new Note(null, ENoteValue.Nv16) ,				
+				new Note(null, ENoteValue.Nv8) ,
+				new Note(null, ENoteValue.Nv8) ,
+				new Note(null, ENoteValue.Nv4) ,
+				new Note(null, ENoteValue.Nv4) ,
+			])]),			
+		]));
+		
+		render.dbar(100, 800, db, true);		
 		
 	}
 	
