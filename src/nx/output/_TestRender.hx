@@ -31,8 +31,8 @@ class _TestRender extends TestCase
 	
 	override public function setup() {
 		this.target = new Sprite();
-		this.target.width = 1000;
-		this.target.height = 1000;
+		//this.target.width = 1000;
+		//this.target.height = 1000;
 		this.render = new Render(this.target, Scaling.getBig());
 		this.rect = true;		
 	}

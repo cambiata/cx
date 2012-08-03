@@ -308,10 +308,18 @@ class Render implements IRender
 		var firstBottomY = y + (frame.firstStave.bottomY  * scaling.halfSpace);
 		var lastBottomY = y + (frame.lastStave.bottomY * scaling.halfSpace);
 		
+		this.gr.lineStyle(1, 0x666666);
+		if (frame.direction == EDirectionUD.Up) {			
+			this.target.graphics.drawCircle(firstX , firstTopY , 3);
+			if (frame.count > 1) this.target.graphics.drawCircle(lastX , lastTopY , 3);
+		} else {
+			this.target.graphics.drawCircle(firstX , firstBottomY , 3);
+			if (frame.count > 1) this.target.graphics.drawCircle(lastX , lastBottomY , 3);		
+		}
+		
 		this.target.graphics.lineStyle(this.scaling.linesWidth, 0x000000);
 		
 		if (frame.direction == EDirectionUD.Up) {			
-			this.target.graphics.drawCircle(firstX , firstTopY , 3);
 			this.target.graphics.moveTo(firstX , firstTopY);
 			this.target.graphics.lineTo(firstX , firstBottomY);
 			
@@ -324,7 +332,6 @@ class Render implements IRender
 				this.target.graphics.lineTo(firstX 		, firstTopY);
 				this.target.graphics.endFill();
 				
-				this.target.graphics.drawCircle(lastX , lastTopY , 3);
 				this.target.graphics.moveTo(firstX , firstTopY);
 				this.target.graphics.lineTo(lastX , lastTopY);
 				
@@ -332,7 +339,6 @@ class Render implements IRender
 				this.target.graphics.lineTo(lastX , lastBottomY);
 			}
 		} else {
-			this.target.graphics.drawCircle(firstX , firstBottomY , 3);
 			this.target.graphics.moveTo(firstX , firstBottomY);
 			this.target.graphics.lineTo(firstX , firstTopY);			
 			
@@ -346,7 +352,7 @@ class Render implements IRender
 				this.target.graphics.lineTo(firstX 		, firstBottomY);
 				this.target.graphics.endFill();								
 				
-				this.target.graphics.drawCircle(lastX , lastBottomY , 3);		
+				
 				this.target.graphics.moveTo(firstX , firstBottomY);
 				this.target.graphics.lineTo(lastX , lastBottomY);	
 				
@@ -503,8 +509,11 @@ class Render implements IRender
 					var dnotes = beamgroup.getNotes();
 					var dnotesPositionsX:Array<Float> = [];
 					for (dnote in dnotes) {
-						var adjustX = dbar.dnoteComplexXadjust.get(dnote); // justera för sekundkrockar etc...
-						var posX = Scaling.scaleX(dbar.dnoteColumn.get(dnote).positionX + dnote.rectStave.x + adjustX, this.scaling);
+						var column = dbar.dnoteColumn.get(dnote);						
+						var adjustX = dbar.dnoteComplexXadjust.get(dnote); // justera för sekundkrockar etc...						
+						
+						var posX = Scaling.scaleX(column.positionX + dnote.rectStave.x + adjustX, this.scaling);
+						
 						dnotesPositionsX.push(posX);
 					}
 					this.beamGroup(x, y2, frame, dnotesPositionsX);
