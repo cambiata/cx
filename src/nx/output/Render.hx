@@ -25,6 +25,7 @@ import nx.display.beam.BeamGroupFrame;
  */
 using nx.output.Scaling;
 using cx.ArrayTools;
+using nx.core.display.DBar;
 
 
 class Render implements IRender
@@ -308,6 +309,8 @@ class Render implements IRender
 		var firstBottomY = y + (frame.firstStave.bottomY  * scaling.halfSpace);
 		var lastBottomY = y + (frame.lastStave.bottomY * scaling.halfSpace);
 		
+		
+		/*
 		this.gr.lineStyle(1, 0x666666);
 		if (frame.direction == EDirectionUD.Up) {			
 			this.target.graphics.drawCircle(firstX , firstTopY , 3);
@@ -316,6 +319,7 @@ class Render implements IRender
 			this.target.graphics.drawCircle(firstX , firstBottomY , 3);
 			if (frame.count > 1) this.target.graphics.drawCircle(lastX , lastBottomY , 3);		
 		}
+		*/
 		
 		this.target.graphics.lineStyle(this.scaling.linesWidth, 0x000000);
 		
@@ -324,7 +328,7 @@ class Render implements IRender
 			this.target.graphics.lineTo(firstX , firstBottomY);
 			
 			if (frame.count > 1) {
-				this.target.graphics.beginFill(0xFF0000);
+				this.target.graphics.beginFill(0x000000);
 				this.target.graphics.moveTo(firstX		, firstTopY);
 				this.target.graphics.lineTo(lastX 	, lastTopY);
 				this.target.graphics.lineTo(lastX 	, lastTopY - Constants.HEAD_HEIGHT);
@@ -344,7 +348,7 @@ class Render implements IRender
 			
 			if (frame.count > 1) {
 
-				this.target.graphics.beginFill(0xFF0000);
+				this.target.graphics.beginFill(0x000000);
 				this.target.graphics.moveTo(firstX 		, firstBottomY);
 				this.target.graphics.lineTo(lastX 	, lastBottomY);
 				this.target.graphics.lineTo(lastX 	, lastBottomY + Constants.HEAD_HEIGHT);
@@ -479,7 +483,14 @@ class Render implements IRender
 		}		
 	}
 	
-	public function dbar(x:Float, y:Float, dbar:DBar, rects:Bool = true) {
+	public function dbar(x:Float, y:Float, dbar:DBar, stretchToWidth:Float, rects:Bool = true) {
+		
+
+		// Stretch		
+		var currentWidth = this.scaling.scaleX2(dbar.columnsRectAlloted.width);
+		dbar.stretchContentTo( this.scaling.descaleX(stretchToWidth));
+		trace(this.scaling.scaleX2(dbar.columnsRectStretched.width));
+		
 		
 		var x2:Float;
 		var y2:Float;
@@ -504,7 +515,6 @@ class Render implements IRender
 		for (dpart in dbar.dparts) {
 			for (dvoice in dpart.dvoices) {
 				var voiceIdx = ArrayTools.index(dpart.dvoices, dvoice);
-				trace(voiceIdx);
 				for (beamgroup in dvoice.beamGroups) {
 					var frame = BeamTools.getDimensions(beamgroup);
 					var dnotes = beamgroup.getNotes();
@@ -512,9 +522,7 @@ class Render implements IRender
 					for (dnote in dnotes) {
 						var column = dbar.dnoteColumn.get(dnote);						
 						var adjustX = dbar.dnoteComplexXadjust.get(dnote); // justera för sekundkrockar etc...						
-						
 						var posX = Scaling.scaleX(column.sPositionX + dnote.rectStave.x + adjustX, this.scaling);
-						
 						dnotesPositionsX.push(posX);
 					}
 					this.beamGroup(x, y2, frame, dnotesPositionsX);
@@ -523,12 +531,12 @@ class Render implements IRender
 			y2 += 140;
 		}
 		
-		if (rects) {			
-			var r = Scaling.scaleRectangle(dbar.columnsRectAll, this.scaling);
-			r.y = -100;
-			r.height = 360;
+		if (rects) {		
+			var r = Scaling.scaleRectangle(dbar.columnsRectStretched, this.scaling);
+			r.y = -20;
+			r.height = 20;
+			
 			r.offset(x, y);
-			r.inflate(3, 3);
 			this.gr.lineStyle(1, 0x00FF00);
 			this.gr.drawRect(r.x, r.y, r.width, r.height);			
 		}

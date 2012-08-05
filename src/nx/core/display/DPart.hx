@@ -26,6 +26,7 @@ class DPart
 	
 	public function new(part:Part=null) {		
 		this.part = (part != null) ? part : new Part();		
+		this._value = 0;
 		
 		this.dvoices = [];
 		for (voice in this.part.voices) {
@@ -42,7 +43,7 @@ class DPart
 	public var value(get_value, null):Int;
 	private function get_value():Int 
 	{
-		if (this._value != null) return this._value;
+		if (this._value != 0) return this._value;
 		this._value = 0;
 		for (dvoice in this.dvoices) {
 			this._value = Std.int(Math.max(this._value, dvoice.value));

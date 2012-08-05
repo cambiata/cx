@@ -309,24 +309,6 @@ class _TestRender extends TestCase
 		var y = 350; 
 		
 		var db = new DBar(new Bar([
-			
-		/*
-			new Part([new Voice([
-				new Note() ,
-				new Note() ,
-				new Note([new Head(0,ESign.Sharp)]) ,
-				new Note() ,
-			])]),
-
-			new Part([new Voice([
-				new Note() ,
-				new Note([new Head(0,ESign.Flat)]) ,
-				new Note() ,
-				new Note() ,
-			])]),			
-		*/	
-			
-			
 			new Part([
 				new Voice([
 					new Note() ,
@@ -353,40 +335,15 @@ class _TestRender extends TestCase
 					new Note([new Head(), new Head(1)], 	ENoteValue.Nv4) ,
 					new Note([new Head(1, ESign.Flat)],  		ENoteValue.Nv8) ,
 					new Note([new Head(4, ESign.None)],  	ENoteValue.Nv8) ,
-					new Note([new Head(1, ESign.Sharp), new Head(2, ESign.Flat)],  		ENoteValue.Nv8dot) ,
+					new Note([new Head(9, ESign.Sharp), new Head(8, ESign.Flat)],  		ENoteValue.Nv8dot) ,
 					new Note([new Head(-3, ESign.Flat)],  	ENoteValue.Nv16) ,
 					new Note([new Head(1)]) ,
 				])
-			]),
-			
-			/*
-			new Part([new Voice([
-				new Note(null, ENoteValue.Nv4) ,
-				new Note(null, ENoteValue.Nv4) ,
-				new Note(null, ENoteValue.Nv2) ,
-				new Note(null, ENoteValue.Nv16) ,				
-				new Note(null, ENoteValue.Nv16) ,				
-				new Note([new Head(-4, ESign.Flat)], ENoteValue.Nv16) ,				
-				new Note(null, ENoteValue.Nv16) ,				
-				new Note(null, ENoteValue.Nv8) ,
-				new Note(null, ENoteValue.Nv8) ,
-				new Note(null, ENoteValue.Nv4) ,
-				new Note(null, ENoteValue.Nv4) ,
-			])]),		
-			*/
-			
-			/*
-			new Part([new Voice([
-				new Note(null, ENoteValue.Nv2dot) ,
-				new Note() ,
-			])]),
-			*/			
-			
+			]),		
 		]));
 		
-		render.dbar(100, y, db, true);
-		
-		
+		//render.dbar(100, y, db, null, true);
+		/*
 		var db = new DBar(new Bar([		
 			new Part([new Voice([
 				new Note(null, ENoteValue.Nv4) ,
@@ -402,9 +359,38 @@ class _TestRender extends TestCase
 				new Note(null, ENoteValue.Nv4) ,
 			])]),			
 		]));
+		*/
+		//render.dbar(100, 800, db, null, true);		
 		
-		render.dbar(100, 800, db, true);		
+		/*
+		var db = new DBar(new Bar([		
+			new Part([new Voice([
+				new Note(null, ENoteValue.Nv2) ,				
+				new Note(null, ENoteValue.Nv4) ,				
+				new Note(null, ENoteValue.Nv4) ,				
+				new Note(null, ENoteValue.Nv8) ,				
+				new Note(null, ENoteValue.Nv8) ,				
+				//new Note([new Head(0, ESign.Flat)], ENoteValue.Nv8) ,
+				new Note(null, ENoteValue.Nv16) ,
+				new Note(null, ENoteValue.Nv16) ,
+				//new Note(null, ENoteValue.Nv16) ,
+				new Note([new Head(4, ESign.Sharp)], ENoteValue.Nv16) ,
+				new Note(null, ENoteValue.Nv16) ,				
+				//new Note(null, ENoteValue.Nv16) ,				
+				new Note(null, ENoteValue.Nv4) ,				
+				new Note(null, ENoteValue.Nv4) ,				
+			], EDirectionUAD.Up)]),			
+		]));
+		*/
 		
+		//render.dbar(100, 200, db, 0, true);				
+		render.dbar(100, 400, db, 550, true);				
+		render.dbar(100, 700, db, 700, true);				
+		/*
+		render.dbar(100, 500, db, 600, true);				
+		render.dbar(100, 600, db, 700, true);				
+		render.dbar(100, 700, db, 800, true);				
+		*/
 	}
 	
 	

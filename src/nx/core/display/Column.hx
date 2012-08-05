@@ -14,12 +14,14 @@ typedef Column = {
 	distanceX:			Float,
 	?valueWeight:	Float,
 	
-	?aPositionX:		Float,
-	?aWidthX:			Float,
-	?aSuperX:			Float,
+	?aPositionX:		Float,		// alloted position
+	?aWidthX:			Float,		// alloted width
+	?aSuperX:			Float,		// alloted overflow
 	
-	?sPositionX:		Float,
-	?sWidthX:			Float,
-	?sSuperX:			Float,
+	?sPositionX:		Float,		// spcaed position
+	?sWidthX:			Float,		// spaced width
+	?sSuperX:			Float,		// spaced overflow
+	
+	//?sAdd:				Float,
 	
 }

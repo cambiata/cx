@@ -92,6 +92,20 @@ class Scaling  {
 		return displayX * ms.quarterNoteWidth;
 	}	
 	
+	static public inline function scaleRect(ms:TScaling, rectangle:Rectangle):Rectangle {
+		return new Rectangle(rectangle.x*ms.quarterNoteWidth, rectangle.y*ms.halfSpace, rectangle.width*ms.quarterNoteWidth, rectangle.height*ms.halfSpace);		
+	}
+	
+	static public inline function scaleX2(ms:TScaling, displayX:Float):Float {
+		return displayX * ms.quarterNoteWidth;
+	}
+	
+	static public inline function descaleX(ms:TScaling, displayX:Float):Float {
+		return displayX / ms.quarterNoteWidth;
+	}
+	
+	
+	
 }
 
 

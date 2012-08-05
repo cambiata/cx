@@ -29,5 +29,7 @@ class Constants {
 	
 	static public inline var ASPACING_NORMAL:Float = HEAD_HALFWIDTH * 5;
 	
+	static public inline var LOOP_COUNT_MAX:Int = 3000;
+	
 	
 }
