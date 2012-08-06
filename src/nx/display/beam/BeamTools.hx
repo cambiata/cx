@@ -58,8 +58,12 @@ class BeamTools
 			innerStaves: null,
 			lastStave:null,
 			slope:0.0,
+			firstType:beamGroup.firstType,
+			firstNotevalue:beamGroup.firstNotevalue,
 		};
 		
+		
+	
 		/*
 		trace(levels);
 		trace(levelFirst);
@@ -85,7 +89,7 @@ class BeamTools
 				}
 				//trace('innerMin' + innerMin);
 				if (innerMin <= levelMin) {
-					trace('flat');
+					//trace('flat');
 					slopeV = 0;
 				}			
 				slopeV = Math.min(2, Math.max( -2, slopeV));			
@@ -105,7 +109,7 @@ class BeamTools
 				}
 				//trace('innerMax' + innerMax);
 				if (innerMax >= levelMax) {
-					trace('flat');
+					//trace('flat');
 					slopeV = 0;
 				}			
 				slopeV = Math.min(2, Math.max( -2, slopeV));			

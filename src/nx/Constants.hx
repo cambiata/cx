@@ -21,6 +21,7 @@ class Constants {
 	static public inline var HEAD_WIDTH:Int = 4;
 	static public inline var HEAD_HALFWIDTH:Int = 2;
 	static public inline var HEAD_QUARTERWIDTH:Int = 1;
+	static public inline var HEAD_HALFHEIGHT:Int = 1;
 	static public inline var HEAD_HEIGHT:Int = 2;
 	static public inline var STAVE_LENGTH:Int = 7;
 	static public inline var STAVE_OFFSET:Float = 1.4;

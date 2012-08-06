@@ -211,7 +211,7 @@ class DBar
 	}	
 	
 	private function _calcColumnsSpacing() {
-		trace('*****************************');
+		//trace('*****************************');
 		
 		//allotment = EAllotment.Logaritmic;
 
@@ -257,9 +257,11 @@ class DBar
 			posX += column.aWidthX;
 		}		
 		
+		/*
 		for (column in this.columns) {
 			trace([column.widthX, column.positionX, Constants.ASPACING_NORMAL, column.aSuperX, column.aWidthX, column.aPositionX]);						
 		}
+		*/
 		
 	}
 	
@@ -296,8 +298,11 @@ class DBar
 		var columnsWidthStretched = this.columns.last().sPositionX;
 		this.columnsRectStretched = new Rectangle(firstMinX, 0, -firstMinX + columnsWidthStretched + lastWidthIncludeValue, 0);
 		
+		/*
 		trace(this.columnsRectAlloted);
 		trace(this.columnsRectStretched);		
+		*/
+		
 	}		
 
 	public function stretchContentTo(stetchedContentWidth:Float=0.0):DBar {		
@@ -306,7 +311,8 @@ class DBar
 		
 		var currentContentWidth = this.columnsRectAlloted.width;
 		var stretchAmount:Float = stetchedContentWidth - currentContentWidth;
-		trace([currentContentWidth, stetchedContentWidth, stretchAmount]);
+		
+		//trace([currentContentWidth, stetchedContentWidth, stretchAmount]);
 		
 		if (stetchedContentWidth <= currentContentWidth) return this;
 

@@ -15,6 +15,8 @@ import nx.display.beam.IBeamGroup;
 import nx.display.DisplayNote;
 import nx.enums.EDirectionUD;
 import nx.enums.EHeadType;
+import nx.enums.ENoteType;
+import nx.enums.ENoteValue;
 import nx.svg.SvgAssets;
 import nx.output.Scaling;
 import nx.display.beam.BeamGroupFrame;
@@ -321,62 +323,96 @@ class Render implements IRender
 		}
 		*/
 		
-		this.target.graphics.lineStyle(this.scaling.linesWidth, 0x000000);
-		
-		if (frame.direction == EDirectionUD.Up) {			
-			this.target.graphics.moveTo(firstX , firstTopY);
-			this.target.graphics.lineTo(firstX , firstBottomY);
+		switch (frame.firstType) {
 			
-			if (frame.count > 1) {
-				this.target.graphics.beginFill(0x000000);
-				this.target.graphics.moveTo(firstX		, firstTopY);
-				this.target.graphics.lineTo(lastX 	, lastTopY);
-				this.target.graphics.lineTo(lastX 	, lastTopY - Constants.HEAD_HEIGHT);
-				this.target.graphics.lineTo(firstX 		, firstTopY - Constants.HEAD_HEIGHT);
-				this.target.graphics.lineTo(firstX 		, firstTopY);
-				this.target.graphics.endFill();
+			case ENoteType.Normal: 
 				
-				this.target.graphics.moveTo(firstX , firstTopY);
-				this.target.graphics.lineTo(lastX , lastTopY);
+				this.target.graphics.lineStyle(this.scaling.linesWidth, 0x000000);
 				
-				this.target.graphics.moveTo(lastX , lastTopY);				
-				this.target.graphics.lineTo(lastX , lastBottomY);
-			}
-		} else {
-			this.target.graphics.moveTo(firstX , firstBottomY);
-			this.target.graphics.lineTo(firstX , firstTopY);			
-			
-			if (frame.count > 1) {
+				if (frame.direction == EDirectionUD.Up) {			
+					
+					if (frame.firstNotevalue.stavingLevel > 0) {
+						this.target.graphics.moveTo(firstX , firstTopY);
+						this.target.graphics.lineTo(firstX , firstBottomY);
+					}
+					
+					if (frame.count > 1) {
+						this.target.graphics.beginFill(0x000000);
+						this.target.graphics.moveTo(firstX		, firstTopY);
+						this.target.graphics.lineTo(lastX 	, lastTopY);
+						this.target.graphics.lineTo(lastX 	, lastTopY - Constants.HEAD_HEIGHT);
+						this.target.graphics.lineTo(firstX 		, firstTopY - Constants.HEAD_HEIGHT);
+						this.target.graphics.lineTo(firstX 		, firstTopY);
+						this.target.graphics.endFill();
+						
+						this.target.graphics.moveTo(firstX , firstTopY);
+						this.target.graphics.lineTo(lastX , lastTopY);
+						
+						this.target.graphics.moveTo(lastX , lastTopY);				
+						this.target.graphics.lineTo(lastX , lastBottomY);
+					} else {
+						this._drawFlag(firstX, y, frame);
+					}
+					
+				} else {
 
-				this.target.graphics.beginFill(0x000000);
-				this.target.graphics.moveTo(firstX 		, firstBottomY);
-				this.target.graphics.lineTo(lastX 	, lastBottomY);
-				this.target.graphics.lineTo(lastX 	, lastBottomY + Constants.HEAD_HEIGHT);
-				this.target.graphics.lineTo(firstX		, firstBottomY + Constants.HEAD_HEIGHT);
-				this.target.graphics.lineTo(firstX 		, firstBottomY);
-				this.target.graphics.endFill();								
+					if (frame.firstNotevalue.stavingLevel > 0) {
+						this.target.graphics.moveTo(firstX , firstBottomY);
+						this.target.graphics.lineTo(firstX , firstTopY);			
+					}
+					
+					if (frame.count > 1) {
+		
+						this.target.graphics.beginFill(0x000000);
+						this.target.graphics.moveTo(firstX 		, firstBottomY);
+						this.target.graphics.lineTo(lastX 	, lastBottomY);
+						this.target.graphics.lineTo(lastX 	, lastBottomY + Constants.HEAD_HEIGHT);
+						this.target.graphics.lineTo(firstX		, firstBottomY + Constants.HEAD_HEIGHT);
+						this.target.graphics.lineTo(firstX 		, firstBottomY);
+						this.target.graphics.endFill();								
+						
+						
+						this.target.graphics.moveTo(firstX , firstBottomY);
+						this.target.graphics.lineTo(lastX , lastBottomY);	
+						
+						this.target.graphics.moveTo(lastX , lastBottomY);				
+						this.target.graphics.lineTo(lastX , lastTopY);				
+					} else {
+						this._drawFlag(firstX, y, frame);
+					}
+				}
 				
-				
-				this.target.graphics.moveTo(firstX , firstBottomY);
-				this.target.graphics.lineTo(lastX , lastBottomY);	
-				
-				this.target.graphics.moveTo(lastX , lastBottomY);				
-				this.target.graphics.lineTo(lastX , lastTopY);				
-			}
+			default:
+			
 		}
+		
+		
+		
+		
 	}
+	
+
 	
 	//-----------------------------------------------------------------------------------------------------
 	//-----------------------------------------------------------------------------------------------------
 	
 	public function dnote(x:Float, y:Float, dnote:DNote, rects:Bool=false, teststave:Bool=true) {
 		var positions = dnote.headPositions.copy();
-		for (dhead in dnote.dheads) {
-			var position = positions.shift();
-			this._drawHead(x, y, dhead.level, position, dnote.notevalue.headType);
-		}	
-
-		if (teststave) this.dnoteStave(x, y, dnote, rects);
+		
+		switch (dnote.type) {
+			
+			case ENoteType.Pause:
+				this._drawPause(x, y, dnote);
+			
+			case ENoteType.Normal:
+				for (dhead in dnote.dheads) {
+					var position = positions.shift();
+					this._drawHead(x, y, dhead.level, position, dnote.notevalue.headType);
+				}			
+				if (teststave) this.dnoteStave(x, y, dnote, rects);
+			default:
+				
+		}
 		
 		this.dnoteDots(x, y, dnote, rects);
 		
@@ -388,6 +424,8 @@ class Render implements IRender
 			this.gr.drawRect(r.x, r.y, r.width, r.height);		
 		}
 	}
+	
+
 	
 	private function dnoteDots(x:Float, y:Float, dnote:DNote, rects:Bool) {
 		if (dnote.rectDots == null) return;
@@ -402,6 +440,8 @@ class Render implements IRender
 	
 	private function dnoteStave(x:Float, y:Float, dnote:DNote, rects:Bool) {		
 		if (dnote.rectStave == null) return;
+		
+		//if (dnote.type != ENoteType.Normal) return;		
 		
 		var r = Scaling.scaleRectangle(dnote.rectStave, this.scaling);
 		r.offset(x, y);
@@ -424,7 +464,7 @@ class Render implements IRender
 		var shape:Shape; // = SvgAssets.getSvgShape("noteBlack", scaling);			
 		switch(headType) {
 			case EHeadType.Whole:
-				shape = SvgAssets.getSvgShape("snoteWhole", scaling);
+				shape = SvgAssets.getSvgShape("noteWhole", scaling);
 			case EHeadType.White:
 				shape = SvgAssets.getSvgShape("noteWhite", scaling);
 			default:
@@ -435,6 +475,86 @@ class Render implements IRender
 		shape.y = headY + scaling.svgY;
 		target.addChild(shape);	  			
 	}		
+	
+	private function _drawPause(x:Float, y:Float, dnote:DNote) {
+		
+		var shape:Shape = null; // SvgAssets.getSvgShape("pauseNv16", scaling);		
+		//trace(dnote.notevalue);
+		
+		var level = dnote.dheads[0].level;
+		
+		switch (dnote.notevalue) {
+			case ENoteValue.Nv16 , ENoteValue.Nv16dot, ENoteValue.Nv16tri:
+				shape = SvgAssets.getSvgShape("pauseNv16", scaling);			
+			case ENoteValue.Nv8 , ENoteValue.Nv8dot, ENoteValue.Nv8tri:
+				shape = SvgAssets.getSvgShape("pauseNv8", scaling);
+			case ENoteValue.Nv4, ENoteValue.Nv4dot, ENoteValue.Nv4ddot, ENoteValue.Nv4tri:
+				shape = SvgAssets.getSvgShape("pauseNv4", scaling);
+				
+			case ENoteValue.Nv2, ENoteValue.Nv2dot, ENoteValue.Nv2tri:
+				var ry = level - 1 - (level % 2);
+				var r = this.scaling.scaleRect( new Rectangle(-Constants.HEAD_HALFWIDTH, ry, Constants.HEAD_WIDTH * 0.9, Constants.HEAD_HALFHEIGHT));
+				r.offset(x, y);
+				this.gr.beginFill(0x000000);
+				this.gr.drawRect(r.x, r.y, r.width, r.height);
+			case ENoteValue.Nv1, ENoteValue.Nv1dot, ENoteValue.Nv1tri:
+				var ry = level - 2 - (level % 2);
+				var r = this.scaling.scaleRect( new Rectangle(-Constants.HEAD_HALFWIDTH, ry, Constants.HEAD_WIDTH , Constants.HEAD_HALFHEIGHT));
+				r.offset(x, y);
+				this.gr.beginFill(0x000000);
+				this.gr.drawRect(r.x, r.y, r.width, r.height);
+
+			default: 
+				shape = SvgAssets.getSvgShape("noteBlack", scaling);		
+		}
+		
+		
+		if (shape != null) {
+			var headY = y + (level * scaling.halfSpace);
+			var headX = x;		
+			shape.x = headX + scaling.svgX;  
+			shape.y = headY + scaling.svgY;
+			target.addChild(shape);	 				
+		}
+		
+		
+	}	
+	
+	private function _drawFlag(x:Float, y:Float, frame:BeamGroupFrame) {
+		if (frame.firstNotevalue.beamingLevel < 1) return;
+		var shape:Shape = SvgAssets.getSvgShape("flaggor", scaling);
+		if (frame.firstNotevalue.beamingLevel == 1) {
+			if (frame.direction == EDirectionUD.Up) {				
+				shape = SvgAssets.getSvgShape("flagUp8", scaling);				
+			} else {
+				shape = SvgAssets.getSvgShape("flagDown8", scaling);				
+			}
+		} else if (frame.firstNotevalue.beamingLevel == 2) {
+				if (frame.direction == EDirectionUD.Up) {				
+				shape = SvgAssets.getSvgShape("flagUp16", scaling);				
+			} else {
+				shape = SvgAssets.getSvgShape("flagDown16", scaling);				
+			}		
+		}
+		
+		var fy = 0.0;
+		
+		if (frame.direction == EDirectionUD.Up) {			
+			trace(frame.firstStave.topY);
+			fy = scaling.scaleY(frame.firstStave.topY+1.8);
+		} else {			
+			trace(frame.firstStave.bottomY);
+			fy = scaling.scaleY(frame.firstStave.bottomY-1.8);
+		}
+		
+		shape.y = y + scaling.svgY + fy;
+		
+		shape.x = x + scaling.svgX + scaling.scaleX2(1.15);  
+		target.addChild(shape);	 		
+		
+	}	
+	
+	
 	
 	public function complex(x:Float, y:Float, dplex:Complex, rects:Bool=true, moveX:Float=0, teststaves:Bool=true) {		
 		if (moveX != 0) x += Scaling.scaleX(moveX, this.scaling);
@@ -483,14 +603,15 @@ class Render implements IRender
 		}		
 	}
 	
-	public function dbar(x:Float, y:Float, dbar:DBar, stretchToWidth:Float, rects:Bool = true) {
-		
+	public function dbar(x:Float, y:Float, dbar:DBar, stretchToWidth:Float=0, rects:Bool = true) {
 
 		// Stretch		
 		var currentWidth = this.scaling.scaleX2(dbar.columnsRectAlloted.width);
-		dbar.stretchContentTo( this.scaling.descaleX(stretchToWidth));
-		trace(this.scaling.scaleX2(dbar.columnsRectStretched.width));
+		dbar.stretchContentTo( this.scaling.descaleX(stretchToWidth));		
 		
+		trace(this.scaling.scaleX2(dbar.columnsRectStretched.width));		
+		
+		//-----------------------------------------------------------------
 		
 		var x2:Float;
 		var y2:Float;
@@ -522,7 +643,10 @@ class Render implements IRender
 					for (dnote in dnotes) {
 						var column = dbar.dnoteColumn.get(dnote);						
 						var adjustX = dbar.dnoteComplexXadjust.get(dnote); // justera för sekundkrockar etc...						
-						var posX = Scaling.scaleX(column.sPositionX + dnote.rectStave.x + adjustX, this.scaling);
+						var rectStaveX:Float = 0;
+						if (dnote.rectStave != null) rectStaveX = dnote.rectStave.x;
+						var posX = Scaling.scaleX(column.sPositionX + rectStaveX + adjustX, this.scaling);
+						
 						dnotesPositionsX.push(posX);
 					}
 					this.beamGroup(x, y2, frame, dnotesPositionsX);

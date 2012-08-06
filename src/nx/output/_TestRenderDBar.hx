@@ -88,23 +88,20 @@ class _TestRenderDBar extends TestCase
 		]));
 		
 		//render.dbar(100, y, db, null, true);
+		
 		/*
 		var db = new DBar(new Bar([		
-			new Part([new Voice([
-				new Note(null, ENoteValue.Nv4) ,
-				new Note(null, ENoteValue.Nv4) ,
-				new Note(null, ENoteValue.Nv2) ,
-				new Note(null, ENoteValue.Nv16) ,				
-				new Note(null, ENoteValue.Nv16) ,				
-				new Note([new Head(-4, ESign.Flat)], ENoteValue.Nv16) ,				
-				new Note(null, ENoteValue.Nv16) ,				
-				new Note(null, ENoteValue.Nv8) ,
-				new Note(null, ENoteValue.Nv8) ,
-				new Note(null, ENoteValue.Nv4) ,
-				new Note(null, ENoteValue.Nv4) ,
-			])]),			
+			new Part([
+				new Voice([
+					new Note([new Head(-1), new Head(0), new Head(-2)], ENoteValue.Nv1) ,
+				], EDirectionUAD.Up), 
+				new Voice([
+					new Note([new Head(1)], ENoteValue.Nv1),
+				], EDirectionUAD.Down),
+			]),		
 		]));
 		*/
+		
 		//render.dbar(100, 800, db, null, true);		
 		
 		/*
@@ -131,6 +128,7 @@ class _TestRenderDBar extends TestCase
 		render.dbar(100, 100, db, 0, false);				
 		render.dbar(100, 400, db, 550, true);				
 		render.dbar(100, 700, db, 700, true);				
+		
 		/*
 		render.dbar(100, 500, db, 600, true);				
 		render.dbar(100, 600, db, 700, true);				

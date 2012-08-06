@@ -14,6 +14,7 @@ import nx.core.element.Note;
 import nx.core.element.Part;
 import nx.core.element.Voice;
 import nx.enums.EDirectionUAD;
+import nx.enums.ENoteType;
 import nx.enums.ENoteValue;
 import nx.enums.ESign;
 
@@ -22,6 +23,7 @@ import nx.enums.ESign;
  * @author Jonas Nyström
  */
 using cx.SpriteTools;
+using nx.output.Scaling;
 class _TestRender extends TestCase
 {
 	private var render:Render;
@@ -33,7 +35,7 @@ class _TestRender extends TestCase
 		this.target = new Sprite();
 		//this.target.width = 1000;
 		//this.target.height = 1000;
-		this.render = new Render(this.target, Scaling.getBig());
+		this.render = new Render(this.target, Scaling.getNormal());
 		this.rect = true;		
 	}
 	
@@ -53,7 +55,7 @@ class _TestRender extends TestCase
 		render.dnote(500, 100, new DNote(new Note([new Head( -1), new Head(0), new Head(1)])));
 	}
 	
-	public function XtestDPlexOutputStaves() {
+	public function xtestDPlexOutputStaves() {
 		assertTrue(true);
 		var y = 50; 
 		render.lines(0, y, 1200);		
@@ -74,7 +76,7 @@ class _TestRender extends TestCase
 		render.complex(300, y, dp, rect);				
 	}
 	
-	public function XtestComplexOutput() {
+	public function xtestComplexOutput() {
 		assertTrue(true);
 		var y = 200; 
 		render.lines(0, y, 1200);		
@@ -142,9 +144,9 @@ class _TestRender extends TestCase
 		render.complex(1020, y, dp, rect);				
 	}
 	
-	public function testDPlexOutputSigns() {
+	public function xtestDPlexOutputSigns() {
 		assertTrue(true);
-		var y = 50; 
+		var y = 350; 
 		render.lines(0, y, 1200);
 		
 		var dp = new Complex([
@@ -178,10 +180,10 @@ class _TestRender extends TestCase
 		render.complex(1000, y, dp, rect);				
 	}	
 	
-	public function testDPlexOutputSpacing() {
+	public function xtestDPlexOutputSpacing() {
 		assertTrue(true);
 		
-		var y = 200; 
+		var y = 500; 
 		render.lines(0, y, 1200);	
 		
 		var dp = new Complex([
@@ -284,7 +286,7 @@ class _TestRender extends TestCase
 		]);				
 		var distanceX = dp.distanceX(dpNext);
 		render.complex(1000, y, dp, rect);	
-		render.complex(1000, y, dpNext, rect, distanceX);			
+	
 	}
 	
 	/*
@@ -301,99 +303,62 @@ class _TestRender extends TestCase
 		var da = new DPart(new Part([Voice._test3Up(), Voice._test2Down()]));
 		render.dpart(400, y, da, rect);
 				
-	}
+	}	
 	*/
 	
-	public function testDBar() {
+	public function testPause() {
 		assertTrue(true);
-		var y = 350; 
 		
+		var y = 650; 
+		
+		/*
+		var dp = new Complex([
+			new DNote(new Note([new Head(0, ESign.None)], ENoteValue.Nv1, EDirectionUAD.Up, ENoteType.Pause)),
+		]);				
+		var dpNext = new Complex([
+			new DNote(new Note([new Head(0, ESign.None)], ENoteValue.Nv4, EDirectionUAD.Down)),
+		]);		
+		*/
+				
 		var db = new DBar(new Bar([
 			new Part([
 				new Voice([
-					new Note() ,
-					new Note([new Head(1, ESign.Sharp)]) ,
-					new Note(null, ENoteValue.Nv8tri) ,
-					new Note(null, ENoteValue.Nv8tri) ,
-					new Note(null, ENoteValue.Nv8tri) ,
-					new Note() ,
-				], EDirectionUAD.Up), 
-				new Voice([
-					new Note([new Head(1)], ENoteValue.Nv4dot),
-					new Note([new Head(4, ESign.Natural)], ENoteValue.Nv8),
-					new Note([new Head(3)], ENoteValue.Nv16),
-					new Note([new Head(8)], ENoteValue.Nv16),
-					new Note([new Head(3, ESign.Natural)], ENoteValue.Nv16),
-					new Note([new Head(3)], ENoteValue.Nv16),
-					new Note([new Head(1)]) ,
-					new Note() ,
-				], EDirectionUAD.Down),
-			]),
-			
-			new Part([
-				new Voice([
-					new Note([new Head(), new Head(1)], 	ENoteValue.Nv4) ,
-					new Note([new Head(1, ESign.Flat)],  		ENoteValue.Nv8) ,
-					new Note([new Head(4, ESign.None)],  	ENoteValue.Nv8) ,
-					new Note([new Head(9, ESign.Sharp), new Head(8, ESign.Flat)],  		ENoteValue.Nv8dot) ,
-					new Note([new Head(-3, ESign.Flat)],  	ENoteValue.Nv16) ,
-					new Note([new Head(1)]) ,
-				])
-			]),		
-		]));
+				
+					
+					new Note([new Head(1)], ENoteValue.Nv1) ,									
+					new Note([new Head(1)], ENoteValue.Nv1, null, ENoteType.Pause) ,									
+					
+
+					new Note([new Head(1)], ENoteValue.Nv2) ,									
+					new Note([new Head(1)], ENoteValue.Nv2, null, ENoteType.Pause) ,						
+				
+					new Note(null, ENoteValue.Nv4, null, ENoteType.Pause) ,					
+					new Note(null, ENoteValue.Nv4) ,					
+					new Note(null, ENoteValue.Nv16, null, ENoteType.Pause) ,
+					new Note(null, ENoteValue.Nv16) ,
+					new Note(null, ENoteValue.Nv16) ,
+					new Note(null, ENoteValue.Nv16) ,
+					new Note(null, ENoteValue.Nv8, null, ENoteType.Pause) ,
+					new Note(null, ENoteValue.Nv8) ,				
+					
+					new Note([new Head(1)], ENoteValue.Nv8) ,									
+					new Note([new Head(1)], ENoteValue.Nv4) ,				
+					new Note([new Head(1)], ENoteValue.Nv16) ,				
+					new Note([new Head(1)], ENoteValue.Nv4) ,
+					
+					new Note([new Head(-1)], ENoteValue.Nv8) ,				
+					new Note([new Head(-1)], ENoteValue.Nv4) ,				
+					new Note([new Head(-1)], ENoteValue.Nv16) ,				
+					new Note([new Head(-1)], ENoteValue.Nv4) ,					
+					
+				], EDirectionUAD.Auto), 
+				])]));
 		
-		//render.dbar(100, y, db, null, true);
-		/*
-		var db = new DBar(new Bar([		
-			new Part([new Voice([
-				new Note(null, ENoteValue.Nv4) ,
-				new Note(null, ENoteValue.Nv4) ,
-				new Note(null, ENoteValue.Nv2) ,
-				new Note(null, ENoteValue.Nv16) ,				
-				new Note(null, ENoteValue.Nv16) ,				
-				new Note([new Head(-4, ESign.Flat)], ENoteValue.Nv16) ,				
-				new Note(null, ENoteValue.Nv16) ,				
-				new Note(null, ENoteValue.Nv8) ,
-				new Note(null, ENoteValue.Nv8) ,
-				new Note(null, ENoteValue.Nv4) ,
-				new Note(null, ENoteValue.Nv4) ,
-			])]),			
-		]));
-		*/
-		//render.dbar(100, 800, db, null, true);		
 		
-		/*
-		var db = new DBar(new Bar([		
-			new Part([new Voice([
-				new Note(null, ENoteValue.Nv2) ,				
-				new Note(null, ENoteValue.Nv4) ,				
-				new Note(null, ENoteValue.Nv4) ,				
-				new Note(null, ENoteValue.Nv8) ,				
-				new Note(null, ENoteValue.Nv8) ,				
-				//new Note([new Head(0, ESign.Flat)], ENoteValue.Nv8) ,
-				new Note(null, ENoteValue.Nv16) ,
-				new Note(null, ENoteValue.Nv16) ,
-				//new Note(null, ENoteValue.Nv16) ,
-				new Note([new Head(4, ESign.Sharp)], ENoteValue.Nv16) ,
-				new Note(null, ENoteValue.Nv16) ,				
-				//new Note(null, ENoteValue.Nv16) ,				
-				new Note(null, ENoteValue.Nv4) ,				
-				new Note(null, ENoteValue.Nv4) ,				
-			], EDirectionUAD.Up)]),			
-		]));
-		*/
+		render.dbar(100, y, db, 0, false);
+		render.lines(0, y, 1200);				
 		
-		//render.dbar(100, 200, db, 0, true);				
-		render.dbar(100, 400, db, 550, true);				
-		render.dbar(100, 700, db, 700, true);				
-		/*
-		render.dbar(100, 500, db, 600, true);				
-		render.dbar(100, 600, db, 700, true);				
-		render.dbar(100, 700, db, 800, true);				
-		*/
 	}
-	
-	
 	
 	override public function tearDown() {
 		_output();		

@@ -104,6 +104,9 @@ class Scaling  {
 		return displayX / ms.quarterNoteWidth;
 	}
 	
+	static public inline function scaleY(ms:TScaling, displayY:Float):Float {
+		return displayY * ms.halfSpace;
+	}	
 	
 	
 }

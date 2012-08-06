@@ -1,6 +1,7 @@
 package nx.display.beam;
 
 import nx.core.display.DVoice;
+import nx.enums.ENoteType;
 import nx.enums.ENoteValue;
 import nx.enums.EDirectionUAD;
 import nx.enums.EDirectionUD;
@@ -32,12 +33,14 @@ class BeamingProcessorBase {
 	}	
 	
 	private function clearBeamlist():BeamingProcessorBase { 
+		trace('clearBeamlist');
 		//this.dVoice.setBeamGroups([]);
 		this.dVoice.beamGroupsClear();
 		return this;
 	}	
 	
 	private function adjustPatternLength():BeamingProcessorBase { //(dVoice:DisplayVoice) {
+		trace('adjustPatternLength');
 		var vpValue:Int = 0;
 		for (value in valuePattern) vpValue += value.value;
 		
@@ -51,6 +54,8 @@ class BeamingProcessorBase {
 	}	
 	
 	private function findBeamableNotes():BeamingProcessorBase {
+		trace('find beamable');
+		
 		var vP = 0;
 		var vPos = new IntHash<Int>();
 		var vEnd = new IntHash<Int>();
@@ -74,8 +79,9 @@ class BeamingProcessorBase {
 				v++;
 			}
 			
+			trace([dNote.notevalue, dNote.type]);		
 			
-			if ((dVoice.dnotePositionEnd.get(dNote) >= vPos.get(v)) && (dNote.notevalue.beamingLevel > 0)) {
+			if ((dVoice.dnotePositionEnd.get(dNote) >= vPos.get(v)) && (dNote.notevalue.beamingLevel > 0) && (dNote.type == ENoteType.Normal ) ) {
 				dNote.beamTemp = v;
 			} else {
 				dNote.beamTemp = -1;
@@ -127,6 +133,8 @@ class BeamingProcessorBase {
 				// first group dNote
 				if (i == a[0]) {
 					this.bgm = new BeamGroupMulti();
+					this.bgm.firstType = dNote.type;
+					this.bgm.firstNotevalue = dNote.notevalue;
 				}
 				
 				if (this.bgm != null) {
@@ -143,6 +151,10 @@ class BeamingProcessorBase {
 			} else {
 				var bgs:BeamGroupSingle = new BeamGroupSingle();
 				bgs.dNote = dNote;				
+				
+				bgs.firstType = dNote.type;
+				bgs.firstNotevalue = dNote.notevalue;
+				
 				//dVoice.getBeamGroups().push(bgs);
 				dVoice.beamGroupsAdd(bgs);
 			}

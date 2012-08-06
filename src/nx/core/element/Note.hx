@@ -1,5 +1,6 @@
 package nx.core.element;
 import nx.enums.EDirectionUAD;
+import nx.enums.ENoteType;
 import nx.enums.ENoteValue;
 
 /**
@@ -10,11 +11,12 @@ import nx.enums.ENoteValue;
 class Note  
 {
 
-	public function new(heads:Iterable<Head>=null, notevalue:ENoteValue=null, direction:EDirectionUAD=null) {
+	public function new(heads:Iterable<Head>=null, notevalue:ENoteValue=null, direction:EDirectionUAD=null, type:ENoteType=null) {
 		
-		this.heads = (heads != null) ? Lambda.array(heads) : [new Head()];
-		this.notevalue = (notevalue != null) ? notevalue : ENoteValue.Nv4;
-		this.direction = (direction != null) ? direction : EDirectionUAD.Auto;
+		this.heads 				= (heads != null) ? Lambda.array(heads) : [new Head()];
+		this.notevalue		= (notevalue != null) ? notevalue : ENoteValue.Nv4;
+		this.direction 			= (direction != null) ? direction : EDirectionUAD.Auto;
+		this.type				= (type != null) ? type : ENoteType.Normal ;
 
 		this._sortHeads();
 	}
@@ -24,6 +26,7 @@ class Note
 	public var heads(default, null):Array<Head>;
 	public var notevalue(default, null):ENoteValue;
 	public var direction(default, null):EDirectionUAD;
+	public var type(default, null):ENoteType;
 
 	//-----------------------------------------------------------------------------------------------------
 	
@@ -47,7 +50,8 @@ class Note
 		
 		xml.set('value', Std.string(this.notevalue.value));
 		xml.set('direction', Std.string(this.direction));
-		//xml.set('type', Std.string(this.));			
+		xml.set('type', Std.string(this.type));			
+		
 		//xml.set('text', Std.string(this.));			
 		
 		return xml;
@@ -80,13 +84,13 @@ class Note
 		if (str != null) try { direction = Type.createEnum(EDirectionUAD, str); }				
 		
 		
-		/*
+		
 		var type:ENoteType = null;
 		var str = xml.get('type');
 		if (str != null) try type = Type.createEnum(ENoteType, str);
-		*/
 		
-		var note = new Note(heads, value, direction);
+		
+		var note = new Note(heads, value, direction, type);
 		
 		return note;
 	}		 

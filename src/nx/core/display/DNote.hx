@@ -8,6 +8,7 @@ import nx.core.util.SignsUtil;
 import nx.display.beam.IBeamGroup;
 import nx.enums.EDirectionUAD;
 import nx.enums.EDirectionUD;
+import nx.enums.ENoteType;
 import nx.enums.ENoteValue;
 import nx.enums.utils.EDirectionTools;
 
@@ -29,6 +30,8 @@ class DNote
 		this.levelTop 			= this.note.heads[0].level;
 		this.levelBottom 	= this.note.heads[this.headsCount-1].level;		
 		this.dheads 			= [];
+		this.type				= this.note.type;
+		
 		
 		for (head in this.note.heads) {
 			this.dheads.push(new DHead(head));
@@ -52,6 +55,8 @@ class DNote
 	
 	public var note(default, null):Note;
 	public var notevalue(default, null):ENoteValue;
+	public var type(default, null):ENoteType;
+	public var notetype(default, null):ENoteType;	
 	public var dheads(default, null):Array<DHead>;
 	public var headsCount(default, null):Int;
 	public var levelTop(default, null):Int;
@@ -71,9 +76,9 @@ class DNote
 	private function get_direction():EDirectionUD {
 		return _direction;
 	}
+	
 	private function set_direction(value:EDirectionUD):EDirectionUD {
 		this._rectHeads = null;
-		
 		this._direction = value;
 		this.headPositions = this._calcHeadPositions(this._direction);
 		this.signs = this._calcSigns();
@@ -150,17 +155,26 @@ class DNote
 	public var rectHeads(get_rectHeads, null):Rectangle;	
 	private function get_rectHeads():Rectangle {
 		if (this._rectHeads != null) return this._rectHeads;
-		this._rectHeads = this.dheads[0].rect;
-		this._rectHeads.offset(this.headPositions[0]*Constants.HEAD_WIDTH, 0);
-		if (this.dheads.length > 1) {
-			for (i in 1...this.dheads.length) {
-				var headRect = this.dheads[i].rect;
-				headRect.offset(this.headPositions[i]*Constants.HEAD_WIDTH, 0);
-				this._rectHeads = this._rectHeads.union(headRect);
-			}
+		
+		switch(note.type) {
+			case ENoteType.Pause:
+				var pauseLevel = this.dheads[0].level;
+				this._rectHeads = new Rectangle( -Constants.HEAD_QUARTERWIDTH, -3, Constants.HEAD_HALFWIDTH, 6);			
+				this._rectHeads.offset(0, pauseLevel * Constants.HEAD_HALFHEIGHT);
+			default:
+				this._rectHeads = this.dheads[0].rect;
+				this._rectHeads.offset(this.headPositions[0]*Constants.HEAD_WIDTH, 0);
+				if (this.dheads.length > 1) {
+					for (i in 1...this.dheads.length) {
+						var headRect = this.dheads[i].rect;
+						headRect.offset(this.headPositions[i]*Constants.HEAD_WIDTH, 0);
+						this._rectHeads = this._rectHeads.union(headRect);
+					}
+				}
 		}
 		return this._rectHeads;
 	}
+	
 	
 	private var _rectStave:Rectangle;
 	public var rectStave(get_rectStave, null):Rectangle;
@@ -181,6 +195,7 @@ class DNote
 		}		
 		return this._rectStave;
 	}
+	
 	
 	private var _rectDots:Rectangle;
 	public var rectDots(get_rectDots, null):Rectangle;

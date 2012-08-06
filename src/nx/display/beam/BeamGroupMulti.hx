@@ -1,6 +1,8 @@
 package nx.display.beam;
 import nx.core.display.DNote;
 import nx.enums.EDirectionUD;
+import nx.enums.ENoteType;
+import nx.enums.ENoteValue;
 /**
  * ...
  * @author Jonas Nyström
@@ -64,6 +66,10 @@ class BeamGroupMulti implements IBeamGroup {
 		return ret;
 		
 	}
+	
+	public var firstType:ENoteType;
+	
+	public var firstNotevalue:ENoteValue;
 	
 	//--------------------------------------------
 	public function toString():String {

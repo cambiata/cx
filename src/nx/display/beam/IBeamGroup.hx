@@ -1,6 +1,8 @@
 package nx.display.beam;
 import nx.core.display.DNote;
 import nx.enums.EDirectionUD;
+import nx.enums.ENoteType;
+import nx.enums.ENoteValue;
 /**
  * ...
  * @author Jonas Nyström
@@ -21,6 +23,9 @@ interface IBeamGroup {
 	
 	function getTopHeadsLevels():Array<Int>;
 	function getBottomHeadsLevels():Array<Int>;
+	
+	var firstType:ENoteType;
+	var firstNotevalue:ENoteValue;
 }
 
 

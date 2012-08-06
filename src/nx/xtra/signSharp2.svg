@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.0 r9654"
+   sodipodi:docname="signSharp2.svg">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.98994949"
+     inkscape:cx="368.06531"
+     inkscape:cy="902.77823"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1680"
+     inkscape:window-height="1024"
+     inkscape:window-x="1676"
+     inkscape:window-y="-4"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     style="display:inline">
+    <path
+       style="fill:#000000"
+       d="m 45.586352,187.21875 c -15.18043,5.09504 -32.04855,10.23725 -45.46874944,14.5625 l 0,16.59375 C 8.4966124,215.62824 8.6953124,215.68706 45.586352,203.78125 l 0,-16.5625 z"
+       id="rect2993"
+       inkscape:connector-curvature="0" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path2997"
+       d="m 45.586352,235.47129 c -15.18043,5.09504 -32.04855,10.23725 -45.46874944,14.5625 l 0,16.59375 C 8.4966124,263.88078 8.6953124,263.9396 45.586352,252.03379 l 0,-16.5625 z"
+       style="fill:#000000" />
+    <rect
+       style="fill:#000000"
+       id="rect3002"
+       width="4.5456862"
+       height="119.70308"
+       x="9.5571632"
+       y="169.74139" />
+    <rect
+       y="163.48886"
+       x="32.062233"
+       height="119.70308"
+       width="4.5456862"
+       id="rect3004"
+       style="fill:#000000" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Lager"
+     style="display:inline" />
+</svg>

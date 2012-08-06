@@ -1,5 +1,7 @@
 package nx.display.beam;
 import nx.enums.EDirectionUD;
+import nx.enums.ENoteType;
+import nx.enums.ENoteValue;
 
 /**
  * ...
@@ -15,6 +17,8 @@ typedef BeamGroupFrame =
 	innerStaves:BeamGroupStaves,
 	lastStave:BeamGroupStave,
 	slope:Float,
+	firstType:ENoteType,
+	firstNotevalue:ENoteValue,	
 }
 
 typedef BeamGroupStaves = Array<BeamGroupStave>;

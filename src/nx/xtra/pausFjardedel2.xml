@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg version="1.1"
+																									   viewBox="0 0 21000 29700"
+																									   preserveAspectRatio="xMidYMid"
+																									   fill-rule="evenodd"
+																									   xmlns="http://www.w3.org/2000/svg"
+																									   xmlns:xlink="http://www.w3.org/1999/xlink">
+	<g visibility="visible"
+	   id="Default">
+		<desc>Master slide</desc>
+		<g style="stroke:none;fill:none">
+			<rect x="0"
+				  y="0"
+				  width="21000"
+				  height="29700" />
+		</g>
+	</g>
+	<g visibility="visible"
+	   id="page1">
+		<desc>Slide</desc>
+		<g>
+			<desc>Group</desc>
+			<g>
+				<desc>Group</desc>
+				<g>
+					<desc>Group</desc>
+					<g>
+						<desc>Drawing</desc>
+						<g>
+							<g style="stroke:none;fill:none">
+								<rect x="0"
+									  y="0"
+									  width="21000"
+									  height="29701" />
+							</g>
+							<g />
+						</g>
+					</g>
+				</g>
+			</g>
+			<g>
+				<desc>Group</desc>
+				<g>
+					<desc>Group</desc>
+					<g>
+						<desc>Group</desc>
+						<g>
+							<desc>Group</desc>
+							<g>
+								<desc>Drawing</desc>
+								<g>
+									<g style="stroke:none;fill:none">
+										<rect x="-217"
+											  y="15"
+											  width="21553"
+											  height="10448" />
+									</g>
+									<g />
+								</g>
+							</g>
+						</g>
+						<g>
+							<desc>Group</desc>
+							<g>
+								<desc>Group</desc>
+								<g>
+									<desc>Group</desc>
+									<g>
+										<desc>Drawing</desc>
+										<g>
+											<g style="stroke:none;fill:rgb(0,0,0)">
+												<path d="M 1404,7510 C 1251,7442 1106,7408 969,7408 840,7408 730,7440 642,7503 553,7566 509,7657 509,7776 509,7957 616,8152 831,8360 824,8380 811,8390 790,8390 759,8390 705,8365 626,8316 548,8266 466,8201 381,8121 296,8041 221,7953 156,7858 91,7762 59,7669 59,7577 59,7502 71,7428 95,7357 119,7285 153,7221 197,7165 241,7109 295,7063 358,7029 421,6995 492,6978 570,6978 666,6978 768,7007 877,7065 836,7004 792,6941 744,6878 696,6815 641,6746 578,6671 515,6596 443,6512 363,6418 283,6324 194,6216 95,6093 446,5772 621,5479 621,5213 621,5144 602,5069 562,4985 523,4901 481,4823 435,4750 389,4676 346,4616 307,4568 268,4520 248,4496 248,4496 248,4462 277,4440 335,4430 L 1246,5678 C 925,6064 765,6347 765,6528 765,6596 788,6669 836,6747 884,6826 941,6908 1008,6993 1074,7078 1144,7164 1217,7251 1291,7338 1353,7425 1404,7510 Z" />
+											</g>
+											<g style="stroke:none;fill:none">
+												<rect x="59"
+													  y="4429"
+													  width="1347"
+													  height="3962" />
+											</g>
+											<g />
+										</g>
+									</g>
+								</g>
+							</g>
+						</g>
+					</g>
+				</g>
+			</g>
+		</g>
+	</g>
+</svg>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   viewBox="0 0 19687 27844"
+   preserveAspectRatio="xMidYMid"
+   fill-rule="evenodd"
+   id="svg2"
+   inkscape:version="0.48.0 r9654"
+   width="100%"
+   height="100%"
+   sodipodi:docname="pausFjardedel.svg">
+  <metadata
+     id="metadata42">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs40" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1680"
+     inkscape:window-height="1024"
+     id="namedview38"
+     showgrid="false"
+     inkscape:zoom="0.90509668"
+     inkscape:cx="332.02825"
+     inkscape:cy="27517.578"
+     inkscape:window-x="1676"
+     inkscape:window-y="-4"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2" />
+  <g
+     visibility="visible"
+     id="Default">
+    <desc
+       id="desc5">Master slide</desc>
+    <g
+       style="stroke:none;fill:none"
+       id="g7">
+      <rect
+         x="0"
+         y="0"
+         width="19687"
+         height="27844"
+         id="rect9" />
+    </g>
+  </g>
+  <g
+     visibility="visible"
+     id="page1"
+     transform="matrix(0.03910046,0,0,0.03910046,5.6878036,-12.269993)"
+     style="visibility:visible">
+    <desc
+       id="desc12">Slide</desc>
+    <g
+       id="g14">
+      <desc
+         id="desc16">Group</desc>
+      <g
+         id="g18">
+        <desc
+           id="desc20">Group</desc>
+        <g
+           id="g22">
+          <desc
+             id="desc24">Drawing</desc>
+          <g
+             id="g26">
+            <g
+               style="fill:#000000;stroke:none"
+               id="g28">
+              <path
+                 d="m 1253,7028 c -144,-63 -280,-95 -407,-95 -122,0 -224,29 -308,89 -83,59 -124,144 -124,256 0,170 100,352 302,547 -6,19 -19,28 -38,29 -29,-1 -80,-24 -154,-70 C 450,7738 374,7677 294,7602 214,7527 144,7444 83,7355 22,7265 -8,7177 -8,7091 c 0,-70 11,-139 34,-206 22,-67 54,-127 95,-180 42,-53 92,-95 151,-127 59,-32 126,-48 199,-48 90,0 186,27 288,81 -38,-57 -80,-116 -125,-175 -44,-59 -96,-124 -156,-194 -59,-70 -126,-150 -201,-238 -75,-88 -159,-189 -251,-304 329,-301 493,-576 493,-826 0,-64 -18,-135 -55,-213 -37,-79 -77,-152 -120,-221 -43,-69 -83,-125 -120,-170 -36,-45 -55,-67 -55,-67 0,-32 27,-53 82,-63 l 854,1171 c -301,361 -451,627 -451,796 0,64 22,133 67,206 45,74 98,151 161,231 62,80 127,160 196,242 69,82 127,162 175,242 z"
+                 id="path30"
+                 inkscape:connector-curvature="0" />
+            </g>
+            <g
+               style="fill:none;stroke:none"
+               id="g32">
+              <rect
+                 x="-8"
+                 y="4140"
+                 width="1263"
+                 height="3715"
+                 id="rect34" />
+            </g>
+            <g
+               id="g36" />
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
