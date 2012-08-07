@@ -35,8 +35,7 @@ class Constants {
 	static public inline var STAVE_WIDTH:Float = 0.2;
 	static public inline var STAVE_HEADADJUST:Float = 0.4;
 	
-	static public inline var ASPACING_NORMAL:Float = HEAD_HALFWIDTH * 5;
-	
+	static public inline var ASPACING_NORMAL:Float = HEAD_HALFWIDTH * 5;	
 	static public inline var LOOP_COUNT_MAX:Int = 3000;
 	
 	

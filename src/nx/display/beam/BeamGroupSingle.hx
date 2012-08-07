@@ -73,6 +73,6 @@ class BeamGroupSingle implements IBeamGroup {
 	
 	//--------------------------------------------
 	public function toString():String {
-		return 'BeamGroupSingle (' + this.levelTop + ',' + this.levelBottom + ')-' + this.direction;
+		return 'BeamGroupSingle (' + this.levelTop + ',' + this.levelBottom + ')- direction:' + this.direction + ' count:' + this.count;
 	}
 }

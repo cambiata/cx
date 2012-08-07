@@ -115,6 +115,6 @@ class BeamGroupMulti implements IBeamGroup {
 			indexes.push(dNote.note.index);
 		}
 		*/
-		return 'BeamGroupMulti (' + this.levelTop + ',' + this.levelBottom + ')-' + this.direction;
+		return 'BeamGroupMulti (' + this.levelTop + ',' + this.levelBottom + ')- direction:' + this.direction + ' count:' + this.count;
 	}
 }

@@ -23,14 +23,25 @@ class BeamingProcessorBase {
 		
 		this.clearBeamlist()
 		.adjustPatternLength()
+		//.traceBeamTemp()
 		.findBeamableNotes()
 		.filterSingleBeamableNotes()
+		.traceBeamTemp()
 		.createBeamGroups()
 		.calcLevelWeight()
 		.setGroupDirection()
 		.setDisplayNoteDirections()
+		.traceBeamGroups()
 		;
 	}	
+	
+	private function traceBeamGroups() {
+		trace('');
+		trace('BeamGroups:');
+		for (beamGroup in this.dVoice.beamGroups) {
+			trace([beamGroup, beamGroup.count]);
+		}
+	}
 	
 	private function clearBeamlist():BeamingProcessorBase { 
 		//trace('clearBeamlist');
@@ -81,11 +92,14 @@ class BeamingProcessorBase {
 			
 			//trace([dNote.notevalue, dNote.type]);		
 			
-			if ((dVoice.dnotePositionEnd.get(dNote) >= vPos.get(v)) && (dNote.notevalue.beamingLevel > 0) && (dNote.type == ENoteType.Normal ) ) {
+			if ((dVoice.dnotePositionEnd.get(dNote) >= vPos.get(v)) && (dNote.notevalue.beamingLevel > 0) && (dNote.type == ENoteType.Normal)  ) {
 				dNote.beamTemp = v;
 			} else {
 				dNote.beamTemp = -1;
 			}
+			
+			//trace([dNote.notevalue.value, dNote.beamTemp]);
+			
 		}			
 		return this;
 	}	
@@ -106,6 +120,16 @@ class BeamingProcessorBase {
 		return this;
 	}	
 	
+	private function traceBeamTemp() {
+		
+		for (dNote in dVoice.dnotes) {
+			trace(dNote.beamTemp);
+		}
+		
+		return this;
+	}
+	
+	
 	private var bgm:BeamGroupMulti;
 	
 	private function createBeamGroups():BeamingProcessorBase {
@@ -116,6 +140,7 @@ class BeamingProcessorBase {
 			if (dNote.beamTemp < 0) {
 				continue;
 			}
+
 			
 			if (!(dbm.exists(dNote.beamTemp))) dbm.set(dNote.beamTemp, []);
 			var a = dbm.get(dNote.beamTemp);
