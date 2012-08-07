@@ -35,7 +35,7 @@ class _TestRender extends TestCase
 		this.target = new Sprite();
 		//this.target.width = 1000;
 		//this.target.height = 1000;
-		this.render = new Render(this.target, Scaling.getNormal());
+		this.render = new Render(this.target, Scaling.getBig());
 		this.rect = true;		
 	}
 	
@@ -324,13 +324,87 @@ class _TestRender extends TestCase
 			new Part([
 				new Voice([
 				
-					
-					new Note([new Head(1)], ENoteValue.Nv1) ,									
+					new Note([new Head(1)], ENoteValue.Nv1) ,		
 					new Note([new Head(1)], ENoteValue.Nv1, null, ENoteType.Pause) ,									
 					
+					new Note([new Head(1), new Head(0)], ENoteValue.Nv2dot) ,
+					new Note([new Head(1)], ENoteValue.Nv4) ,						
+					new Note([new Head(0)], ENoteValue.Nv2dot) ,
+					new Note([new Head(-1)], ENoteValue.Nv4) ,					
 
 					new Note([new Head(1)], ENoteValue.Nv2) ,									
 					new Note([new Head(1)], ENoteValue.Nv2, null, ENoteType.Pause) ,						
+					
+					/*
+					new Note([new Head(1)], ENoteValue.Nv16) ,
+					new Note([new Head(5)], ENoteValue.Nv16) ,
+					new Note([new Head(2)], ENoteValue.Nv16) ,
+					new Note([new Head(4)], ENoteValue.Nv16) ,					
+					*/
+					
+					new Note([new Head(3)], ENoteValue.Nv16) ,
+					new Note([new Head(3)], ENoteValue.Nv16) ,
+					new Note([new Head(3)], ENoteValue.Nv16) ,
+					new Note([new Head(3)], ENoteValue.Nv16) ,							
+					
+					new Note([new Head(2)], ENoteValue.Nv16) ,
+					new Note([new Head(2)], ENoteValue.Nv16) ,
+					new Note([new Head(2)], ENoteValue.Nv16) ,
+					new Note([new Head(2)], ENoteValue.Nv16) ,					
+
+					/*
+					new Note([new Head(1)], ENoteValue.Nv8) ,
+					new Note([new Head(5)], ENoteValue.Nv16) ,
+					new Note([new Head(2)], ENoteValue.Nv16) ,
+
+					new Note([new Head(5)], ENoteValue.Nv16) ,
+					new Note([new Head(1)], ENoteValue.Nv8) ,
+					new Note([new Head(2)], ENoteValue.Nv16) ,					
+					
+					
+					new Note([new Head(5)], ENoteValue.Nv16) ,
+					new Note([new Head(2)], ENoteValue.Nv16) ,
+					new Note([new Head(1)], ENoteValue.Nv8) ,
+					
+					
+					new Note([new Head(-1)], ENoteValue.Nv8) ,
+					new Note([new Head(0)], ENoteValue.Nv16) ,
+					new Note([new Head(-3)], ENoteValue.Nv16) ,
+					
+					//new Note([new Head(-3), new Head(-1)], ENoteValue.Nv16) ,
+					//new Note([new Head(0)], ENoteValue.Nv16) ,
+
+					new Note([new Head(2)], ENoteValue.Nv16) ,
+					new Note([new Head(3)], ENoteValue.Nv8) ,
+					new Note([new Head(0)], ENoteValue.Nv16) ,
+
+					new Note([new Head(-1)], ENoteValue.Nv16) ,
+					new Note([new Head(-3)], ENoteValue.Nv16) ,
+					new Note([new Head(-2)], ENoteValue.Nv8) ,
+				
+					new Note([new Head(0)], ENoteValue.Nv16, null, ENoteType.Pause) ,
+					new Note([new Head(0)], ENoteValue.Nv16) ,
+					new Note([new Head(0)], ENoteValue.Nv16) ,
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+
+					new Note([new Head(0)], ENoteValue.Nv16) ,
+					new Note([new Head(0)], ENoteValue.Nv16, null, ENoteType.Pause) ,
+					new Note([new Head(0)], ENoteValue.Nv16) ,
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					*/
+					
+					/*
+					new Note([new Head(1)], ENoteValue.Nv1dot) ,									
+					new Note([new Head(1)], ENoteValue.Nv1, null, ENoteType.Pause) ,									
+					
+					new Note([new Head(1), new Head(0)], ENoteValue.Nv2dot) ,
+					new Note([new Head(1)], ENoteValue.Nv4) ,						
+					new Note([new Head(0)], ENoteValue.Nv2dot) ,
+					new Note([new Head(-1)], ENoteValue.Nv4) ,					
+
+					new Note([new Head(1)], ENoteValue.Nv2) ,									
+					new Note([new Head(1)], ENoteValue.Nv2, null, ENoteType.Pause) ,						
+				
 				
 					new Note(null, ENoteValue.Nv4, null, ENoteType.Pause) ,					
 					new Note(null, ENoteValue.Nv4) ,					
@@ -338,9 +412,13 @@ class _TestRender extends TestCase
 					new Note(null, ENoteValue.Nv16) ,
 					new Note(null, ENoteValue.Nv16) ,
 					new Note(null, ENoteValue.Nv16) ,
-					new Note(null, ENoteValue.Nv8, null, ENoteType.Pause) ,
-					new Note(null, ENoteValue.Nv8) ,				
+					new Note([new Head(10)], ENoteValue.Nv8, null, ENoteType.Normal) ,
+					new Note(null, ENoteValue.Nv8, null, ENoteType.Pause) ,				
+					new Note([new Head(-10)], ENoteValue.Nv8, null, ENoteType.Normal) ,
+					new Note(null, ENoteValue.Nv8, null, ENoteType.Pause) ,				
+					*/
 					
+					/*
 					new Note([new Head(1)], ENoteValue.Nv8) ,									
 					new Note([new Head(1)], ENoteValue.Nv4) ,				
 					new Note([new Head(1)], ENoteValue.Nv16) ,				
@@ -349,7 +427,127 @@ class _TestRender extends TestCase
 					new Note([new Head(-1)], ENoteValue.Nv8) ,				
 					new Note([new Head(-1)], ENoteValue.Nv4) ,				
 					new Note([new Head(-1)], ENoteValue.Nv16) ,				
-					new Note([new Head(-1)], ENoteValue.Nv4) ,					
+					new Note([new Head(-1)], ENoteValue.Nv4) ,			
+					*/
+
+					/*
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					*/
+					/*
+					new Note([new Head(6)], ENoteValue.Nv16) ,					
+					new Note([new Head(-5)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,		
+					
+					new Note([new Head(6)], ENoteValue.Nv16) ,					
+					new Note([new Head(-4)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,		
+					
+					new Note([new Head(6)], ENoteValue.Nv16) ,					
+					new Note([new Head(-3)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,		
+					
+					new Note([new Head(6)], ENoteValue.Nv16) ,					
+					new Note([new Head(-2)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,		
+					
+					new Note([new Head(6)], ENoteValue.Nv16) ,					
+					new Note([new Head(-1)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,		
+					
+					new Note([new Head(6)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,		
+
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					new Note([new Head(6)], ENoteValue.Nv16) ,		
+
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					new Note([new Head(-1)], ENoteValue.Nv16) ,					
+					new Note([new Head(6)], ENoteValue.Nv16) ,		
+
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					new Note([new Head(-2)], ENoteValue.Nv16) ,					
+					new Note([new Head(6)], ENoteValue.Nv16) ,		
+
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					new Note([new Head(-3)], ENoteValue.Nv16) ,					
+					new Note([new Head(6)], ENoteValue.Nv16) ,		
+					*/
+					/*
+					new Note([new Head(-6)], ENoteValue.Nv16) ,					
+					new Note([new Head(5)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					
+					new Note([new Head(-6)], ENoteValue.Nv16) ,					
+					new Note([new Head(4)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					
+					new Note([new Head(-6)], ENoteValue.Nv16) ,					
+					new Note([new Head(3)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					
+					new Note([new Head(-6)], ENoteValue.Nv16) ,					
+					new Note([new Head(2)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					
+					new Note([new Head(-6)], ENoteValue.Nv16) ,					
+					new Note([new Head(1)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					
+					new Note([new Head(-6)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					*/
+					/*
+					new Note([new Head(-1)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,					
+					new Note([new Head(0)], ENoteValue.Nv16) ,						
+					
+					new Note([new Head(0)], ENoteValue.Nv16) ,						
+					new Note([new Head(0)], ENoteValue.Nv16) ,						
+					new Note([new Head(0)], ENoteValue.Nv16) ,						
+					new Note([new Head(1)], ENoteValue.Nv16) ,							
+					
+					new Note([new Head(0)], ENoteValue.Nv16) ,						
+					new Note([new Head(0)], ENoteValue.Nv16) ,						
+					new Note([new Head(0)], ENoteValue.Nv16) ,						
+					new Note([new Head(-1)], ENoteValue.Nv16) ,						
+					
+					new Note([new Head(10)], ENoteValue.Nv16) ,						
+					new Note([new Head(10)], ENoteValue.Nv16) ,						
+					new Note([new Head(10)], ENoteValue.Nv16) ,						
+					new Note([new Head(10)], ENoteValue.Nv16) ,			
+					
+					new Note([new Head(10)], ENoteValue.Nv4) ,							
+					
+					new Note([new Head(-10)], ENoteValue.Nv16) ,						
+					new Note([new Head(-10)], ENoteValue.Nv16) ,						
+					new Note([new Head(-10)], ENoteValue.Nv16) ,						
+					new Note([new Head(-10)], ENoteValue.Nv16) ,							
+					
+					new Note([new Head(-10)], ENoteValue.Nv4) ,	
+					*/
 					
 				], EDirectionUAD.Auto), 
 				])]));

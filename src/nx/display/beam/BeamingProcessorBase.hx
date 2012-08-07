@@ -33,14 +33,14 @@ class BeamingProcessorBase {
 	}	
 	
 	private function clearBeamlist():BeamingProcessorBase { 
-		trace('clearBeamlist');
+		//trace('clearBeamlist');
 		//this.dVoice.setBeamGroups([]);
 		this.dVoice.beamGroupsClear();
 		return this;
 	}	
 	
 	private function adjustPatternLength():BeamingProcessorBase { //(dVoice:DisplayVoice) {
-		trace('adjustPatternLength');
+		//trace('adjustPatternLength');
 		var vpValue:Int = 0;
 		for (value in valuePattern) vpValue += value.value;
 		
@@ -54,7 +54,7 @@ class BeamingProcessorBase {
 	}	
 	
 	private function findBeamableNotes():BeamingProcessorBase {
-		trace('find beamable');
+		//trace('find beamable');
 		
 		var vP = 0;
 		var vPos = new IntHash<Int>();
@@ -79,7 +79,7 @@ class BeamingProcessorBase {
 				v++;
 			}
 			
-			trace([dNote.notevalue, dNote.type]);		
+			//trace([dNote.notevalue, dNote.type]);		
 			
 			if ((dVoice.dnotePositionEnd.get(dNote) >= vPos.get(v)) && (dNote.notevalue.beamingLevel > 0) && (dNote.type == ENoteType.Normal ) ) {
 				dNote.beamTemp = v;

@@ -126,8 +126,8 @@ class _TestRenderDBar extends TestCase
 		*/
 		
 		render.dbar(100, 100, db, 0, false);				
-		render.dbar(100, 400, db, 550, true);				
-		render.dbar(100, 700, db, 700, true);				
+		render.dbar(100, 400, db, 550, false);				
+		render.dbar(100, 700, db, 700, false);				
 		
 		/*
 		render.dbar(100, 500, db, 600, true);				

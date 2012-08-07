@@ -2,6 +2,9 @@ package nx.display.beam;
 import nx.Constants;
 import nx.enums.EDirectionUD;
 import nx.enums.ETime;
+import nx.display.beam.BeamGroupFrame.BeamGroupStave;
+import nx.display.beam.BeamGroupFrame.BeamGroupStaves;
+import nx.display.beam.BeamGroupFrame.ESubBeam;
 
 /**
  * ...
@@ -54,12 +57,13 @@ class BeamTools
 			direction:beamGroup.getDirection(),
 			adjustX: (directionUp) ? 1.0 : -1.0,
 			count:count,
-			firstStave:null,
-			innerStaves: null,
-			lastStave:null,
+			//firstStave:null,
+			//innerStaves: null,
+			//lastStave:null,
+			staves:[],
 			slope:0.0,
 			firstType:beamGroup.firstType,
-			firstNotevalue:beamGroup.firstNotevalue,
+			firstNotevalue:beamGroup.firstNotevalue,			
 		};
 		
 		
@@ -76,32 +80,48 @@ class BeamTools
 		var levelMin = Math.min(levelFirst, levelLast);
 		var levelMax = Math.max(levelFirst, levelLast);
 		
+		var innerLevels:Array<Int> = []; 
+		var innerLevels2:Array<Int> = []; 
+		if (count > 2) {
+			innerLevels = levels.copy();
+			innerLevels.pop();
+			innerLevels.shift();
+			innerLevels2 = levels2.copy();
+			innerLevels2.pop();
+			innerLevels2.shift();
+		}
+		
+		
+		
 		if (directionUp) {
-			//trace('STÄMMA UP');
+			trace('STÄMMA UP');
 			if (count > 2) {
-				var innerLevels = levels.copy();
-				innerLevels.pop();
-				innerLevels.shift();
-				//trace('innerLevels' + innerLevels);
+				//trace('levelMin: ' + levelMin);
+				//trace('innerLevels: ' + innerLevels);
 				var innerMin:Float = innerLevels[0];
 				for (il in innerLevels) {
+					//trace(il);
 					innerMin = Math.min(il, innerMin);
 				}
 				//trace('innerMin' + innerMin);
 				if (innerMin <= levelMin) {
-					//trace('flat');
+					trace('flat');	
+					levelMin = innerMin; // <- Justera!
 					slopeV = 0;
 				}			
 				slopeV = Math.min(2, Math.max( -2, slopeV));			
+				
+				trace('levelMin: ' + levelMin);
+				
 			} else {
 				slopeV = Math.min(1, Math.max( -1, slopeV));			
 			}
 		} else {
 			//trace('STÄMMA DOWN');
 			if (count > 2) {
-				var innerLevels = levels.copy();
-				innerLevels.pop();
-				innerLevels.shift();
+				//var innerLevels = levels.copy();
+				//innerLevels.pop();
+				//innerLevels.shift();
 				//trace('innerLevels' + innerLevels);
 				var innerMax:Float = innerLevels[0];
 				for (il in innerLevels) {
@@ -110,6 +130,7 @@ class BeamTools
 				//trace('innerMax' + innerMax);
 				if (innerMax >= levelMax) {
 					//trace('flat');
+					levelMax = innerMax;
 					slopeV = 0;
 				}			
 				slopeV = Math.min(2, Math.max( -2, slopeV));			
@@ -123,6 +144,9 @@ class BeamTools
 		var bLevelLast = 0.0;
 		var bLevelFirst = 0.0;
 		
+		var firstStave:BeamGroupStave = null;
+		var lastStave:BeamGroupStave = null;
+		
 		if (directionUp) {
 			
 			if (slopeV < 0) { // lutar uppåt
@@ -135,8 +159,12 @@ class BeamTools
 				bLevelFirst = levelMin;	
 				bLevelLast = levelMin;
 			}			
-			frame.firstStave = {topY: bLevelFirst - Constants.STAVE_LENGTH, bottomY: level2First - Constants.STAVE_HEADADJUST };
-			frame.lastStave = { topY: bLevelLast - Constants.STAVE_LENGTH, bottomY: level2Last - Constants.STAVE_HEADADJUST };
+			
+			var firstTopYLevel = Math.min(0, bLevelFirst - Constants.STAVE_LENGTH);
+			var lastTopYLevel = Math.min(0, bLevelLast - Constants.STAVE_LENGTH);
+			
+			firstStave = {topY: firstTopYLevel, bottomY: level2First - Constants.STAVE_HEADADJUST, flag16:ESubBeam.None };
+			lastStave = { topY: lastTopYLevel, bottomY: level2Last - Constants.STAVE_HEADADJUST, flag16:ESubBeam.None };
 			
 		} else {
 			
@@ -150,22 +178,53 @@ class BeamTools
 				bLevelFirst = levelMax;	
 				bLevelLast = levelMax;
 			}			
-			frame.firstStave = {topY: level2First + Constants.STAVE_HEADADJUST , bottomY: bLevelFirst + Constants.STAVE_LENGTH - Constants.STAVE_HEADADJUST};
-			frame.lastStave = {topY: level2Last + Constants.STAVE_HEADADJUST, bottomY: bLevelLast + Constants.STAVE_LENGTH - Constants.STAVE_HEADADJUST};			
+			
+			var firstBottomYLevel = Math.max(0, bLevelFirst + Constants.STAVE_LENGTH - Constants.STAVE_HEADADJUST);
+			var lastBottomYLevel = Math.max(0, bLevelLast + Constants.STAVE_LENGTH - Constants.STAVE_HEADADJUST);			
+			
+			firstStave = {topY: level2First + Constants.STAVE_HEADADJUST , bottomY: firstBottomYLevel, flag16:ESubBeam.None};
+			lastStave = {topY: level2Last + Constants.STAVE_HEADADJUST, bottomY: lastBottomYLevel , flag16:ESubBeam.None};			
 			
 		}
 		
+		var innerStaves:BeamGroupStaves = [];
 		
-		/*
-		if (levels.length > 2) {
-			
-			
-			
-			
-			
-			
+		if (levels.length > 2) {						
+			if (directionUp) {				
+				for (level2 in innerLevels2) {
+					var stave:BeamGroupStave = {
+						topY: -50.0,
+						bottomY:level2 * 1.0,		
+						flag16:ESubBeam.None,
+					}					
+					innerStaves.push(stave);
+				}
+			} else {
+				for (level2 in innerLevels2) {
+					var stave:BeamGroupStave = {
+						topY: level2 * 1.0, 
+						bottomY:50.0,
+						flag16:ESubBeam.None,
+					}					
+					innerStaves.push(stave);
+				}
+			}
 		}
-		*/
+		
+		
+		frame.staves.push(firstStave);
+		for (stave in innerStaves) frame.staves.push(stave);
+		frame.staves.push(lastStave);
+		
+		var idx = 0;
+		for (flag16 in beamGroup.getBeams16()) {
+			frame.staves[idx].flag16 = flag16;
+			idx++;
+		}
+
+		trace(frame.staves);
+		
+		
 		
 		return frame;
 	}

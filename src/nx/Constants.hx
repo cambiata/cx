@@ -23,7 +23,14 @@ class Constants {
 	static public inline var HEAD_QUARTERWIDTH:Int = 1;
 	static public inline var HEAD_HALFHEIGHT:Int = 1;
 	static public inline var HEAD_HEIGHT:Int = 2;
-	static public inline var STAVE_LENGTH:Int = 7;
+	static public inline var HEAD_DOTRADIUS:Float = 0.5;
+	
+	static public inline var BEAM_HEIGHT:Float = 0.8;
+	static public inline var BEAM_SUBDISTANCE:Float = HEAD_HEIGHT * 0.8;
+	static public inline var BEAM_SUBWIDTH:Float = HEAD_WIDTH * 0.8;
+	
+	
+	static public inline var STAVE_LENGTH:Float = 6.8;
 	static public inline var STAVE_OFFSET:Float = 1.4;
 	static public inline var STAVE_WIDTH:Float = 0.2;
 	static public inline var STAVE_HEADADJUST:Float = 0.4;

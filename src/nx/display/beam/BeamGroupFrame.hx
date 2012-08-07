@@ -13,9 +13,12 @@ typedef BeamGroupFrame =
 	direction:EDirectionUD,
 	adjustX:Float,
 	count:Int,
-	firstStave:BeamGroupStave,
-	innerStaves:BeamGroupStaves,
-	lastStave:BeamGroupStave,
+	//firstStave:BeamGroupStave,
+	//innerStaves:BeamGroupStaves,
+	//lastStave:BeamGroupStave,
+	
+	staves:BeamGroupStaves,
+	
 	slope:Float,
 	firstType:ENoteType,
 	firstNotevalue:ENoteValue,	
@@ -26,4 +29,12 @@ typedef BeamGroupStaves = Array<BeamGroupStave>;
 typedef BeamGroupStave = {
 	topY:Float,
 	bottomY:Float,
+	?flag16:ESubBeam,
+}
+
+enum ESubBeam {
+	None;
+	ShortRight;
+	ShortLeft;
+	Full;	
 }

@@ -3,6 +3,7 @@ import nx.core.display.DNote;
 import nx.enums.EDirectionUD;
 import nx.enums.ENoteType;
 import nx.enums.ENoteValue;
+import nx.display.beam.BeamGroupFrame.ESubBeam;
 /**
  * ...
  * @author Jonas Nyström
@@ -60,6 +61,10 @@ class BeamGroupSingle implements IBeamGroup {
 		var ret:Array<Int> = [this.getFirstNote().levelBottom];		
 		return ret;
 	}	
+	
+	public function getBeams16():Array<ESubBeam> {
+		return [ESubBeam.None];
+	}
 	
 	public var firstType:ENoteType;
 	public var firstNotevalue:ENoteValue;	

@@ -302,14 +302,29 @@ class Render implements IRender
 	
 	public function beamGroup(xpos:Float, y:Float, frame:BeamGroupFrame, dnotePositionsX:Array<Float>) {
 		
+		if (frame.firstNotevalue.stavingLevel < 1) return;
+		
 		var firstX = xpos + dnotePositionsX.first();
 		var lastX = xpos + dnotePositionsX.last();
+		var beamW = lastX - firstX;
+		var beamH = 0.0;
+		
+		var staves = frame.staves.copy();
+		
+		var count = frame.staves.length;
+		
+		var xfirstStave:BeamGroupStave = staves.shift();
+		var xlastStave:BeamGroupStave = staves.pop();
+		var xinnerStaves:BeamGroupStaves = staves;
+		
+		//trace([frame.firstStave, xfirstStave]);
+		//trace([frame.lastStave, xlastStave]);
 		
 		var adjustX = 0; // this.scaling.halfNoteWidth; // frame.adjustX * this.scaling.halfNoteWidth;
-		var firstTopY = y + (frame.firstStave.topY * scaling.halfSpace);
-		var lastTopY = y + (frame.lastStave.topY * scaling.halfSpace); 
-		var firstBottomY = y + (frame.firstStave.bottomY  * scaling.halfSpace);
-		var lastBottomY = y + (frame.lastStave.bottomY * scaling.halfSpace);
+		var firstTopY = y + (xfirstStave.topY * scaling.halfSpace);
+		var lastTopY = y + (xlastStave.topY * scaling.halfSpace); 
+		var firstBottomY = y + (xfirstStave.bottomY  * scaling.halfSpace);
+		var lastBottomY = y + (xlastStave.bottomY * scaling.halfSpace);
 		
 		
 		/*
@@ -323,6 +338,8 @@ class Render implements IRender
 		}
 		*/
 		
+		var beamHeight = this.scaling.scaleY(Constants.BEAM_HEIGHT);
+		
 		switch (frame.firstType) {
 			
 			case ENoteType.Normal: 
@@ -331,52 +348,198 @@ class Render implements IRender
 				
 				if (frame.direction == EDirectionUD.Up) {			
 					
-					if (frame.firstNotevalue.stavingLevel > 0) {
-						this.target.graphics.moveTo(firstX , firstTopY);
-						this.target.graphics.lineTo(firstX , firstBottomY);
+					beamH = lastTopY - firstTopY;
+					
+					// Staves
+					this.target.graphics.moveTo(firstX , firstTopY);
+					this.target.graphics.lineTo(firstX , firstBottomY);
+					
+					if (count > 1) {
+						this.target.graphics.moveTo(lastX , lastTopY);				
+						this.target.graphics.lineTo(lastX , lastBottomY);							
+					}
+
+					if (count > 2) {
+						var idx = 1;
+						for (innerStave in xinnerStaves) {
+							var staveX = xpos + dnotePositionsX[idx];
+							var slopeDelta = (staveX - firstX) / beamW;
+							var innerTopY = firstTopY + beamH * slopeDelta;
+							var innerBottomY = y + this.scaling.scaleY(innerStave.bottomY);
+							this.gr.moveTo(staveX, innerBottomY);
+							this.gr.lineTo(staveX, innerTopY);			
+							idx++;
+						}							
 					}
 					
-					if (frame.count > 1) {
-						this.target.graphics.beginFill(0x000000);
-						this.target.graphics.moveTo(firstX		, firstTopY);
-						this.target.graphics.lineTo(lastX 	, lastTopY);
-						this.target.graphics.lineTo(lastX 	, lastTopY - Constants.HEAD_HEIGHT);
-						this.target.graphics.lineTo(firstX 		, firstTopY - Constants.HEAD_HEIGHT);
-						this.target.graphics.lineTo(firstX 		, firstTopY);
-						this.target.graphics.endFill();
+					// Beam/flag
+					
+					if ((count > 1) && (frame.firstNotevalue.beamingLevel > 1)) {
+						// 8th beam
 						
-						this.target.graphics.moveTo(firstX , firstTopY);
-						this.target.graphics.lineTo(lastX , lastTopY);
+							this.target.graphics.beginFill(0x000000);
+							this.target.graphics.moveTo(firstX		, firstTopY);
+							this.target.graphics.lineTo(lastX 	, lastTopY);
+							this.target.graphics.lineTo(lastX 	, lastTopY + beamHeight);
+							this.target.graphics.lineTo(firstX 		, firstTopY + beamHeight);
+							this.target.graphics.lineTo(firstX 		, firstTopY);
+							this.target.graphics.endFill();	
+							
+							
+							
+							var prevStave:BeamGroupStave = null;
+							var prevStaveX:Float = 0;
+							var idx = 0;
+							trace(firstX);
+							trace(frame.staves.length);
+							for (stave in frame.staves) {
+								var staveX = xpos + dnotePositionsX[idx];
+								trace([stave, idx, staveX]);
+								
+								
+								if (prevStave == null) {
+									prevStave = stave;
+									prevStaveX = staveX;
+									idx++;
+									continue;
+								}
+
+								var x1:Float = prevStaveX;
+								var x2:Float = staveX;
+								
+								switch(stave.flag16) {
+									case ESubBeam.ShortLeft:										
+										x2 = prevStaveX + this.scaling.scaleX2(Constants.BEAM_SUBWIDTH);
+									case ESubBeam.ShortRight:										
+										x1 = staveX - this.scaling.scaleX2(Constants.BEAM_SUBWIDTH);
+									default:
+										
+								}
+								
+								var yshift = this.scaling.scaleY(Constants.BEAM_SUBDISTANCE);
+								
+								var subW:Float = x2 - x1;								
+								var subH = beamH * (subW / beamW);
+								var y1 = firstTopY + ((x1-firstX) / beamW) * beamH + yshift;
+								var y2 = firstTopY + ((x2-firstX) / beamW) * beamH + yshift;
+								
+								
+								trace([x1, y1, x2, y2]);
+								
+								if (stave.flag16 != ESubBeam.None) {
+									this.target.graphics.beginFill(0x000000);
+									this.target.graphics.moveTo(x1		, y1);
+									this.target.graphics.lineTo(x2 		, y2);
+									this.target.graphics.lineTo(x2 		, y2 + beamHeight);
+									this.target.graphics.lineTo(x1 		, y1 + beamHeight);
+									this.target.graphics.lineTo(x1 		, y1);
+									this.target.graphics.endFill();									
+								}
+								
+								
+								prevStave = stave;
+								prevStaveX = staveX;
+								idx++;
+							}
 						
-						this.target.graphics.moveTo(lastX , lastTopY);				
-						this.target.graphics.lineTo(lastX , lastBottomY);
+						
 					} else {
 						this._drawFlag(firstX, y, frame);
 					}
-					
 				} else {
-
-					if (frame.firstNotevalue.stavingLevel > 0) {
-						this.target.graphics.moveTo(firstX , firstBottomY);
-						this.target.graphics.lineTo(firstX , firstTopY);			
-					}
 					
-					if (frame.count > 1) {
-		
+					beamH = lastBottomY - firstBottomY;
+					
+					this.target.graphics.moveTo(firstX , firstBottomY);
+					this.target.graphics.lineTo(firstX , firstTopY);			
+					if (count > 1) {
+						this.target.graphics.moveTo(lastX , lastBottomY);				
+						this.target.graphics.lineTo(lastX , lastTopY);				
+					}
+					if (count > 2) {
+						var idx = 1;
+						for (innerStave in xinnerStaves) {
+							var staveX = xpos + dnotePositionsX[idx];
+							var slopeDelta = (staveX - firstX) / beamW;
+							var innerBottomY = firstBottomY + beamH * slopeDelta;
+							var innerTopY = y + this.scaling.scaleY(innerStave.topY);
+							this.gr.moveTo(staveX, innerBottomY);
+							this.gr.lineTo(staveX, innerTopY);			
+							idx++;
+						}
+					}	
+					
+					
+					if ((count > 1) && (frame.firstNotevalue.beamingLevel > 1)) {
+					
+					
 						this.target.graphics.beginFill(0x000000);
 						this.target.graphics.moveTo(firstX 		, firstBottomY);
 						this.target.graphics.lineTo(lastX 	, lastBottomY);
-						this.target.graphics.lineTo(lastX 	, lastBottomY + Constants.HEAD_HEIGHT);
-						this.target.graphics.lineTo(firstX		, firstBottomY + Constants.HEAD_HEIGHT);
+						this.target.graphics.lineTo(lastX 	, lastBottomY - beamHeight);
+						this.target.graphics.lineTo(firstX		, firstBottomY - beamHeight);
 						this.target.graphics.lineTo(firstX 		, firstBottomY);
-						this.target.graphics.endFill();								
+						this.target.graphics.endFill();		
 						
 						
-						this.target.graphics.moveTo(firstX , firstBottomY);
-						this.target.graphics.lineTo(lastX , lastBottomY);	
+							var prevStave:BeamGroupStave = null;
+							var prevStaveX:Float = 0;
+							var idx = 0;
+							trace(firstX);
+							trace(frame.staves.length);
+							for (stave in frame.staves) {
+								var staveX = xpos + dnotePositionsX[idx];
+								trace([stave, idx, staveX]);
+								
+								
+								if (prevStave == null) {
+									prevStave = stave;
+									prevStaveX = staveX;
+									idx++;
+									continue;
+								}
+
+								var x1:Float = prevStaveX;
+								var x2:Float = staveX;
+								
+								switch(stave.flag16) {
+									case ESubBeam.ShortLeft:										
+										x2 = prevStaveX + this.scaling.scaleX2(Constants.BEAM_SUBWIDTH);
+									case ESubBeam.ShortRight:										
+										x1 = staveX - this.scaling.scaleX2(Constants.BEAM_SUBWIDTH);
+									default:
+										
+								}
+								
+								var yshift = this.scaling.scaleY(Constants.BEAM_SUBDISTANCE);
+								
+								var subW:Float = x2 - x1;								
+								var subH = beamH * (subW / beamW);
+								var y1 = firstBottomY + ((x1-firstX) / beamW) * beamH - yshift;
+								var y2 = firstBottomY + ((x2-firstX) / beamW) * beamH - yshift;
+								
+								
+								trace([x1, y1, x2, y2]);
+								
+								if (stave.flag16 != ESubBeam.None) {
+									this.target.graphics.beginFill(0x000000);
+									this.target.graphics.moveTo(x1		, y1);
+									this.target.graphics.lineTo(x2 		, y2);
+									this.target.graphics.lineTo(x2 		, y2 - beamHeight);
+									this.target.graphics.lineTo(x1 		, y1 - beamHeight);
+									this.target.graphics.lineTo(x1 		, y1);
+									this.target.graphics.endFill();									
+								}
+								
+								
+								prevStave = stave;
+								prevStaveX = staveX;
+								idx++;
+							}
 						
-						this.target.graphics.moveTo(lastX , lastBottomY);				
-						this.target.graphics.lineTo(lastX , lastTopY);				
+						
+						
+						
 					} else {
 						this._drawFlag(firstX, y, frame);
 					}
@@ -408,6 +571,12 @@ class Render implements IRender
 				for (dhead in dnote.dheads) {
 					var position = positions.shift();
 					this._drawHead(x, y, dhead.level, position, dnote.notevalue.headType);
+					
+					if (dnote.notevalue.dotLevel > 0) {
+						this._drawHeadDot(x, y, dhead.level, position, dnote);
+						
+					}
+					
 				}			
 				if (teststave) this.dnoteStave(x, y, dnote, rects);
 			default:
@@ -423,6 +592,27 @@ class Render implements IRender
 			r.offset(x, y);
 			this.gr.drawRect(r.x, r.y, r.width, r.height);		
 		}
+	}
+	
+	private function _drawHeadDot(x:Float, y:Float, level:Int, position:Int, dnote:DNote) {
+		
+		var dlevel = level + (level % 2)-1;
+		trace([level, dlevel]);
+		
+		var x2 = x + this.scaling.scaleX2(dnote.rectDots.x + Constants.HEAD_QUARTERWIDTH);
+		var y2 = y + this.scaling.scaleY(dlevel);
+		
+		trace(['dot', x, dnote.rectDots.x, x, y, x2, y2]);
+		
+		this.gr.beginFill(0x000000);	
+		this.gr.lineStyle(0);
+		var radius = this.scaling.scaleX2(Constants.HEAD_DOTRADIUS);
+		this.gr.drawCircle(x2, y2, radius);
+		//var r = new Rectangle(x2 - radius, y2 - radius, 2 * radius, 2 * radius);
+		//trace(r);
+		//this.gr.drawEllipse(r.x, r.y, r.width, r.height);
+		this.gr.endFill();
+		
 	}
 	
 
@@ -521,7 +711,9 @@ class Render implements IRender
 	}	
 	
 	private function _drawFlag(x:Float, y:Float, frame:BeamGroupFrame) {
+		
 		if (frame.firstNotevalue.beamingLevel < 1) return;
+		
 		var shape:Shape = SvgAssets.getSvgShape("flaggor", scaling);
 		if (frame.firstNotevalue.beamingLevel == 1) {
 			if (frame.direction == EDirectionUD.Up) {				
@@ -539,12 +731,14 @@ class Render implements IRender
 		
 		var fy = 0.0;
 		
+		var firstStave = frame.staves.first();
+		
 		if (frame.direction == EDirectionUD.Up) {			
-			trace(frame.firstStave.topY);
-			fy = scaling.scaleY(frame.firstStave.topY+1.8);
+			//trace(frame.firstStave.topY);
+			fy = scaling.scaleY(firstStave.topY+1.8);
 		} else {			
-			trace(frame.firstStave.bottomY);
-			fy = scaling.scaleY(frame.firstStave.bottomY-1.8);
+			//trace(frame.firstStave.bottomY);
+			fy = scaling.scaleY(firstStave.bottomY-1.8);
 		}
 		
 		shape.y = y + scaling.svgY + fy;

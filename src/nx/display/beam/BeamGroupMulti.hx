@@ -3,11 +3,12 @@ import nx.core.display.DNote;
 import nx.enums.EDirectionUD;
 import nx.enums.ENoteType;
 import nx.enums.ENoteValue;
+import nx.display.beam.BeamGroupFrame.ESubBeam;
 /**
  * ...
  * @author Jonas Nyström
  */
-
+using cx.ArrayTools;
 class BeamGroupMulti implements IBeamGroup {	
 	public function new() {
 		this.dNotes = new Array<DNote>();
@@ -70,6 +71,41 @@ class BeamGroupMulti implements IBeamGroup {
 	public var firstType:ENoteType;
 	
 	public var firstNotevalue:ENoteValue;
+	
+	private var _beams16:Array<ESubBeam>;
+	
+	public function getBeams16():Array<ESubBeam> {
+		if (this._beams16 != null) return this._beams16;
+		
+		var beams:Array<ESubBeam> = [ESubBeam.None];
+		var prevDnote:DNote = null;
+		var dnote:DNote = null;
+		for (dnote in this.dNotes) {
+			if (prevDnote == null) {
+				prevDnote = dnote;
+				continue;
+			}	
+			
+			if ((prevDnote.notevalue.beamingLevel < 2)) {				
+				if ((dnote == this.dNotes.last()) && (dnote.notevalue.beamingLevel >= 2)) {
+					beams.push(ESubBeam.ShortRight);
+				} else {					
+					beams.push(ESubBeam.None);
+				}
+			} else if ((prevDnote.notevalue.beamingLevel >= 2) && (dnote.notevalue.beamingLevel < 2)) {
+				if (dnote == this.dNotes.first()) {
+					beams.push(ESubBeam.ShortLeft);
+				}
+			} else if ((prevDnote.notevalue.beamingLevel >= 2) && (dnote.notevalue.beamingLevel >= 2)) {
+				beams.push(ESubBeam.Full);
+			}
+			
+			prevDnote = dnote;
+		}		
+		this._beams16 = beams;
+		return this._beams16;
+	}
+	
 	
 	//--------------------------------------------
 	public function toString():String {
