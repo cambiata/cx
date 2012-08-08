@@ -13,6 +13,10 @@ class WebTools {
 		var parts = hostname.split('.');		
 		if (parts.length == 1) parts.push('');
 		if (parts.length == 2) parts.unshift('');				
+		
+		// HACK!
+		if (parts[0] == 'dev') parts[0] = '';
+		
 		return {
 			topdomain: parts[2],
 			maindomain: parts[1],

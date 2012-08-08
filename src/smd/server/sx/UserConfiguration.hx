@@ -8,7 +8,7 @@ import harfang.exceptions.HTTPException;
 import neko.Lib;
 import neko.Web;
 import smd.server.base.result.TemplateResult;
-import smd.server.sx.config.Config;
+import smd.server.sx.Config;
 
 class UserConfiguration extends AbstractServerConfiguration {
 

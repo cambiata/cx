@@ -1,4 +1,4 @@
-package smd.server.sx.config;
+package smd.server.sx;
 
 /**
  * ...
