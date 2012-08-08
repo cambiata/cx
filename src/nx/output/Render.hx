@@ -321,7 +321,14 @@ class Render implements IRender
 		var count = frame.staves.length;
 		
 		var xfirstStave:BeamGroupStave = staves.shift();
-		var xlastStave:BeamGroupStave = staves.pop();
+		var xlastStave:BeamGroupStave = null; 
+		var xinnerStaves:BeamGroupStaves = null;
+		if (count > 1) {
+			xlastStave = staves.pop();
+		} else {
+			xlastStave = xfirstStave;
+		}
+		
 		var xinnerStaves:BeamGroupStaves = staves;
 		
 		//trace([frame.firstStave, xfirstStave]);
@@ -372,7 +379,7 @@ class Render implements IRender
 					
 					// Beam/flag
 					
-					if ((count > 1) && (frame.firstNotevalue.beamingLevel > 1)) {
+					if ((count > 1) && (frame.firstNotevalue.beamingLevel > 0)) {
 						// 8th beam
 						
 							this.target.graphics.beginFill(0x000000);
@@ -388,12 +395,8 @@ class Render implements IRender
 							var prevStave:BeamGroupStave = null;
 							var prevStaveX:Float = 0;
 							var idx = 0;
-							trace(firstX);
-							trace(frame.staves.length);
 							for (stave in frame.staves) {
 								var staveX = xpos + dnotePositionsX[idx];
-								trace([stave, idx, staveX]);
-								
 								
 								if (prevStave == null) {
 									prevStave = stave;
@@ -421,8 +424,6 @@ class Render implements IRender
 								var y1 = firstTopY + ((x1-firstX) / beamW) * beamH + yshift;
 								var y2 = firstTopY + ((x2-firstX) / beamW) * beamH + yshift;
 								
-								
-								trace([x1, y1, x2, y2]);
 								
 								if (stave.flag16 != ESubBeam.None) {
 									this.target.graphics.beginFill(0x000000);
@@ -468,7 +469,7 @@ class Render implements IRender
 					}	
 					
 					
-					if ((count > 1) && (frame.firstNotevalue.beamingLevel > 1)) {
+					if ((count > 1) && (frame.firstNotevalue.beamingLevel > 0)) {
 					
 					
 						this.target.graphics.beginFill(0x000000);
@@ -483,11 +484,8 @@ class Render implements IRender
 							var prevStave:BeamGroupStave = null;
 							var prevStaveX:Float = 0;
 							var idx = 0;
-							trace(firstX);
-							trace(frame.staves.length);
 							for (stave in frame.staves) {
 								var staveX = xpos + dnotePositionsX[idx];
-								trace([stave, idx, staveX]);
 								
 								
 								if (prevStave == null) {
@@ -515,9 +513,6 @@ class Render implements IRender
 								var subH = beamH * (subW / beamW);
 								var y1 = firstBottomY + ((x1-firstX) / beamW) * beamH - yshift;
 								var y2 = firstBottomY + ((x2-firstX) / beamW) * beamH - yshift;
-								
-								
-								trace([x1, y1, x2, y2]);
 								
 								if (stave.flag16 != ESubBeam.None) {
 									this.target.graphics.beginFill(0x000000);
@@ -557,7 +552,7 @@ class Render implements IRender
 	//-----------------------------------------------------------------------------------------------------
 	//-----------------------------------------------------------------------------------------------------
 	
-	public function dnote(x:Float, y:Float, dnote:DNote, rects:Bool=false, teststave:Bool=true) {
+	public function dnote(x:Float, y:Float, dnote:DNote, rects:Bool=false, collisionShiftX:Float=0) {
 		var positions = dnote.headPositions.copy();
 		
 		switch (dnote.notetype) {
@@ -566,17 +561,21 @@ class Render implements IRender
 				this._drawPause(x, y, dnote);
 			
 			case ENoteType.Normal:
+				
 				for (dhead in dnote.dheads) {
 					var position = positions.shift();
-					this._drawHead(x, y, dhead.level, position, dnote.notevalue.headType);
+					var xshift = scaling.scaleX2(collisionShiftX);
+					this._drawHead(x + xshift, y, dhead.level, position, dnote.notevalue.headType);					
 					
 					if (dnote.notevalue.dotLevel > 0) {
 						this._drawHeadDot(x, y, dhead.level, position, dnote);
-						
-					}
+					}					
 					
-				}			
-				if (teststave) this.dnoteStave(x, y, dnote, rects);
+				}
+				
+				_drawLegers(x, y, dnote);
+				
+				
 			default:
 				
 		}
@@ -592,15 +591,44 @@ class Render implements IRender
 		}
 	}
 	
+	private function _drawLegers(x:Float, y:Float, dnote:DNote) {
+		
+		var x1 = x + scaling.scaleX2(dnote.rectHeads.x - Constants.HEAD_16thWIDTH) ;
+		var x2 = x1 + scaling.scaleX2(dnote.rectHeads.width + Constants.HEAD_QUARTERWIDTH);
+		if (dnote.notevalue.stavingLevel == 0) x2 += scaling.scaleX2(Constants.HEAD_QUARTERWIDTH + Constants.HEAD_16thWIDTH);
+		
+		
+		this.gr.lineStyle(scaling.linesWidth);
+		if (dnote.levelTop <= -6) {
+			for (level in 5...-dnote.levelTop+1) {
+				if (level % 2 == 1) continue;
+				var y1 = y + scaling.scaleY(-level);
+				this.gr.moveTo(x1, y1);
+				this.gr.lineTo(x2, y1);	
+				trace(x1, y1, x2);
+			}
+			
+		}
+		
+		if (dnote.levelBottom >= 6) {
+			for (level in 5...dnote.levelBottom+1) {
+				if (level % 2 == 1) continue;
+				var y1 = y + scaling.scaleY(level);
+				this.gr.moveTo(x1, y1);
+				this.gr.lineTo(x2, y1);	
+			}
+		}
+	}
+	
 	private function _drawHeadDot(x:Float, y:Float, level:Int, position:Int, dnote:DNote) {
 		
 		var dlevel = level + (level % 2)-1;
-		trace([level, dlevel]);
+		//trace([level, dlevel]);
 		
 		var x2 = x + this.scaling.scaleX2(dnote.rectDots.x + Constants.HEAD_QUARTERWIDTH);
 		var y2 = y + this.scaling.scaleY(dlevel);
 		
-		trace(['dot', x, dnote.rectDots.x, x, y, x2, y2]);
+		//trace(['dot', x, dnote.rectDots.x, x, y, x2, y2]);
 		
 		this.gr.beginFill(0x000000);	
 		this.gr.lineStyle(0);
@@ -647,8 +675,10 @@ class Render implements IRender
 	}
 
 	private function _drawHead(x:Float, y:Float, level:Int, position:Int, headType:EHeadType) {
+		
 		var headY = y + (level * scaling.halfSpace);
-		var headX = x + position * scaling.noteWidth;
+		var headX = x + position * this.scaling.scaleX2(Constants.HEAD_WIDTH);
+		
 		var shape:Shape; // = SvgAssets.getSvgShape("noteBlack", scaling);			
 		switch(headType) {
 			case EHeadType.Whole:
@@ -661,7 +691,7 @@ class Render implements IRender
 		
 		shape.x = headX + scaling.svgX;  
 		shape.y = headY + scaling.svgY;
-		target.addChild(shape);	  			
+		target.addChild(shape);	  	
 	}		
 	
 	private function _drawPause(x:Float, y:Float, dnote:DNote) {
@@ -757,8 +787,8 @@ class Render implements IRender
 			this.gr.lineTo(x, y + 60);
 		}
 		
-		for (i in 0...dplex.dnotes.length) {
-			this.dnote(x + dplex.dnoteXshift(i) * scaling.quarterNoteWidth, y, dplex.dnote(i), rects, teststaves);	
+		for (i in 0...dplex.dnotes.length) {			
+			this.dnote(x, y, dplex.dnote(i), rects, dplex.dnoteXshift(i));	
 		}		
 		
 		this.signs(dplex, x, y);
@@ -801,7 +831,8 @@ class Render implements IRender
 		var currentWidth = this.scaling.scaleX2(dbar.columnsRectAlloted.width);
 		dbar.stretchContentTo( this.scaling.descaleX(stretchToWidth));		
 		
-		trace(this.scaling.scaleX2(dbar.columnsRectStretched.width));		
+		// STRETCHED WIDTH:
+		// trace(this.scaling.scaleX2(dbar.columnsRectStretched.width));		
 		
 		//-----------------------------------------------------------------
 		
@@ -818,7 +849,7 @@ class Render implements IRender
 				if (complex != null) {
 					this.complex(x2, y2, complex, rects, 0, false);
 				}
-				y2 += 140;
+				y2 += 180;
 			}
 		}
 		
@@ -844,7 +875,7 @@ class Render implements IRender
 					this.beamGroup(x, y2, frame, dnotesPositionsX);
 				}
 			}
-			y2 += 140;
+			y2 += 180;
 		}
 		
 		if (rects) {		

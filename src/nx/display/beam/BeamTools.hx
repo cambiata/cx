@@ -41,6 +41,8 @@ class BeamTools
 	}
 	
 	static public function getDimensions(beamGroup:IBeamGroup):BeamGroupFrame {
+	
+		
 		
 		var directionUp:Bool = (beamGroup.getDirection() == EDirectionUD.Up);
 		
@@ -94,7 +96,7 @@ class BeamTools
 		
 		
 		if (directionUp) {
-			trace('STÄMMA UP');
+			//trace('STÄMMA UP');
 			if (count > 2) {
 				//trace('levelMin: ' + levelMin);
 				//trace('innerLevels: ' + innerLevels);
@@ -105,13 +107,11 @@ class BeamTools
 				}
 				//trace('innerMin' + innerMin);
 				if (innerMin <= levelMin) {
-					trace('flat');	
+					//trace('flat');	
 					levelMin = innerMin; // <- Justera!
 					slopeV = 0;
 				}			
 				slopeV = Math.min(2, Math.max( -2, slopeV));			
-				
-				trace('levelMin: ' + levelMin);
 				
 			} else {
 				slopeV = Math.min(1, Math.max( -1, slopeV));			
@@ -212,9 +212,13 @@ class BeamTools
 		}
 		
 		
+		
 		frame.staves.push(firstStave);
-		for (stave in innerStaves) frame.staves.push(stave);
-		frame.staves.push(lastStave);
+		
+		if (beamGroup.count() > 1) {
+			for (stave in innerStaves) frame.staves.push(stave);
+			frame.staves.push(lastStave);
+		}
 		
 		var idx = 0;
 		for (flag16 in beamGroup.getBeams16()) {
@@ -222,9 +226,6 @@ class BeamTools
 			idx++;
 		}
 
-		trace(frame.staves);
-		
-		
 		
 		return frame;
 	}

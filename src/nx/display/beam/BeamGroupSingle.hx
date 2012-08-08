@@ -11,6 +11,11 @@ import nx.display.beam.BeamGroupFrame.ESubBeam;
 class BeamGroupSingle implements IBeamGroup {
 	public var dNote:DNote;
 
+	public function new(dnote:DNote = null) {
+			this.dNote = dnote;
+	}	
+	
+	
 	public function getNotes():Array<DNote> {
 		return [this.dNote];
 	}
@@ -69,10 +74,10 @@ class BeamGroupSingle implements IBeamGroup {
 	public var firstType:ENoteType;
 	public var firstNotevalue:ENoteValue;	
 	
-	public function new() { }
+
 	
 	//--------------------------------------------
 	public function toString():String {
-		return 'BeamGroupSingle (' + this.levelTop + ',' + this.levelBottom + ')- direction:' + this.direction + ' count:' + this.count;
+		return 'BeamGroupSingle (' + this.levelTop + ',' + this.levelBottom + ')- direction:' + this.direction + ' count:' + this.count();
 	}
 }

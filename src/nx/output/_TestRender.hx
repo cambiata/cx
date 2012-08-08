@@ -324,7 +324,12 @@ class _TestRender extends TestCase
 			new Part([
 				new Voice([
 				
-
+					new Note([new Head(-1)], ENoteValue.Nv4) ,					
+					new Note([new Head(1)], ENoteValue.Nv4) ,					
+					new Note([new Head(-1), new Head(0)], ENoteValue.Nv4) ,					
+					new Note([new Head(1), new Head(0)], ENoteValue.Nv4) ,					
+					
+				
 					/*
 					new Note([new Head(1)], ENoteValue.Nv1) ,		
 					new Note([new Head(1)], ENoteValue.Nv1, null, ENoteType.Pause) ,									
@@ -345,30 +350,65 @@ class _TestRender extends TestCase
 					new Note([new Head(3)], ENoteValue.Nv16) ,							
 					*/
 					
-					new Note([new Head(1)], ENoteValue.Nv4) ,
-					
+					/*
 					new Note([new Head(1)], ENoteValue.Nv8) ,
 					new Note([new Head(1)], ENoteValue.Nv8, null, ENoteType.Pause) ,
 
 					new Note([new Head(1)], ENoteValue.Nv4dot) ,
 					new Note([new Head(1)], ENoteValue.Nv8) ,
+					*/
 					
-					
-					
+					/*
 					new Note([new Head(5)], ENoteValue.Nv16) ,
 					new Note([new Head(5)], ENoteValue.Nv16) ,
-					new Note([new Head(5)], ENoteValue.Nv16) ,
+					//new Note([new Head(5)], ENoteValue.Nv16) ,
+					new Note([new Head(5)], ENoteValue.Nv16, null, ENoteType.Pause),
 					new Note([new Head(2)], ENoteValue.Nv16) ,
 					
-					new Note([new Head(5)], ENoteValue.Nv16) ,
-					new Note([new Head(5)], ENoteValue.Nv16) ,
-					new Note([new Head(5)], ENoteValue.Nv16) ,
+					
+					new Note([new Head(2)], ENoteValue.Nv8) ,
+					new Note([new Head(2)], ENoteValue.Nv8, null, ENoteType.Pause) ,
+					
+					new Note([new Head(2)], ENoteValue.Nv8, null, ENoteType.Pause) ,
 					new Note([new Head(2)], ENoteValue.Nv8) ,
 
+					new Note([new Head(2)], ENoteValue.Nv8) ,
+					new Note([new Head(2)], ENoteValue.Nv16) ,
+					new Note([new Head(2)], ENoteValue.Nv16) ,
+					
+					new Note([new Head(2)], ENoteValue.Nv16) ,
+					new Note([new Head(2)], ENoteValue.Nv16) ,
+					new Note([new Head(1)], ENoteValue.Nv16) ,
+					new Note([new Head(1)], ENoteValue.Nv16) ,
+					*/
+					
+					/*
+					new Note([new Head(2)], ENoteValue.Nv8) ,
+					new Note([new Head(5)], ENoteValue.Nv16) ,
+					new Note([new Head(5)], ENoteValue.Nv16) ,
+					*/
+					
+					//new Note([new Head(1)], ENoteValue.Nv4) ,
+					
+					/*
+					new Note([new Head(2)], ENoteValue.Nv16) ,
+					new Note([new Head(2)], ENoteValue.Nv16) ,
+					new Note([new Head(2)], ENoteValue.Nv16) ,
+					new Note([new Head(2)], ENoteValue.Nv16) ,
+					*/
+					
+					
+
+					/*
+					new Note([new Head(5)], ENoteValue.Nv16) ,
 					new Note([new Head(5)], ENoteValue.Nv16) ,
 					new Note([new Head(5)], ENoteValue.Nv16) ,
 					new Note([new Head(5)], ENoteValue.Nv16) ,
 					
+					new Note([new Head(2)], ENoteValue.Nv8) ,
+					new Note([new Head(5)], ENoteValue.Nv16) ,
+					new Note([new Head(5)], ENoteValue.Nv16) ,
+					*/
 					
 					/*
 					new Note([new Head(5)], ENoteValue.Nv16) ,
@@ -568,7 +608,7 @@ class _TestRender extends TestCase
 				])]));
 		
 		
-		render.dbar(100, y, db, 0, false);
+		render.dbar(100, y, db, 0, true);
 		render.lines(0, y, 1200);				
 		
 	}

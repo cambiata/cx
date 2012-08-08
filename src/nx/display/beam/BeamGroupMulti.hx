@@ -10,8 +10,8 @@ import nx.display.beam.BeamGroupFrame.ESubBeam;
  */
 using cx.ArrayTools;
 class BeamGroupMulti implements IBeamGroup {	
-	public function new() {
-		this.dNotes = new Array<DNote>();
+	public function new(dNotes:Array<DNote>=null) {		
+		this.dNotes = (dNotes != null) ? dNotes : new Array<DNote>();
 	}
 	public var dNotes:Array<DNote>;
 
@@ -28,7 +28,7 @@ class BeamGroupMulti implements IBeamGroup {
 		return dNotes[index];
 	}
 	public function count():Int {	
-		return dNotes.length;
+		return dNotes.length;		
 	}
 	
 	private var direction:EDirectionUD;
@@ -115,6 +115,6 @@ class BeamGroupMulti implements IBeamGroup {
 			indexes.push(dNote.note.index);
 		}
 		*/
-		return 'BeamGroupMulti (' + this.levelTop + ',' + this.levelBottom + ')- direction:' + this.direction + ' count:' + this.count;
+		return 'BeamGroupMulti (' + this.levelTop + ',' + this.levelBottom + ')- direction:' + this.direction + ' count:' + this.count();
 	}
 }
