@@ -57,7 +57,7 @@ class DVoice
 			this.dnotePositionEnd = new ObjectHash<DNote, Int>();
 			
 			this.value = 0;
-			for (dnote in this.dnotes) {
+			for (dnote in this.dnotes) {				
 				this.dnotePosition.set(dnote, value);
 				this.value += dnote.notevalue.value;
 				this.dnotePositionEnd.set(dnote, value);

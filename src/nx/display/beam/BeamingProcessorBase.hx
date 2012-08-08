@@ -1,10 +1,12 @@
 package nx.display.beam;
 
+import nx.core.display.DNote;
 import nx.core.display.DVoice;
 import nx.enums.ENoteType;
 import nx.enums.ENoteValue;
 import nx.enums.EDirectionUAD;
 import nx.enums.EDirectionUD;
+import nme.ObjectHash;
 /**
  * ...
  * @author Jonas Nyström
@@ -23,25 +25,26 @@ class BeamingProcessorBase {
 		
 		this.clearBeamlist()
 		.adjustPatternLength()
-		//.traceBeamTemp()
+		
+		.preparePatternCalculation()
+		.createBeamGroups2()
+		
 		.findBeamableNotes()
 		.filterSingleBeamableNotes()
-		.traceBeamTemp()
 		.createBeamGroups()
 		.calcLevelWeight()
 		.setGroupDirection()
 		.setDisplayNoteDirections()
+		
 		.traceBeamGroups()
 		;
 	}	
 	
-	private function traceBeamGroups() {
-		trace('');
-		trace('BeamGroups:');
-		for (beamGroup in this.dVoice.beamGroups) {
-			trace([beamGroup, beamGroup.count]);
-		}
-	}
+
+	
+
+	
+
 	
 	private function clearBeamlist():BeamingProcessorBase { 
 		//trace('clearBeamlist');
@@ -92,14 +95,11 @@ class BeamingProcessorBase {
 			
 			//trace([dNote.notevalue, dNote.type]);		
 			
-			if ((dVoice.dnotePositionEnd.get(dNote) >= vPos.get(v)) && (dNote.notevalue.beamingLevel > 0) && (dNote.type == ENoteType.Normal)  ) {
+			if ((dVoice.dnotePositionEnd.get(dNote) >= vPos.get(v)) && (dNote.notevalue.beamingLevel > 0) && (dNote.notetype == ENoteType.Normal ) ) {
 				dNote.beamTemp = v;
 			} else {
 				dNote.beamTemp = -1;
 			}
-			
-			//trace([dNote.notevalue.value, dNote.beamTemp]);
-			
 		}			
 		return this;
 	}	
@@ -120,16 +120,6 @@ class BeamingProcessorBase {
 		return this;
 	}	
 	
-	private function traceBeamTemp() {
-		
-		for (dNote in dVoice.dnotes) {
-			trace(dNote.beamTemp);
-		}
-		
-		return this;
-	}
-	
-	
 	private var bgm:BeamGroupMulti;
 	
 	private function createBeamGroups():BeamingProcessorBase {
@@ -140,7 +130,6 @@ class BeamingProcessorBase {
 			if (dNote.beamTemp < 0) {
 				continue;
 			}
-
 			
 			if (!(dbm.exists(dNote.beamTemp))) dbm.set(dNote.beamTemp, []);
 			var a = dbm.get(dNote.beamTemp);
@@ -158,7 +147,7 @@ class BeamingProcessorBase {
 				// first group dNote
 				if (i == a[0]) {
 					this.bgm = new BeamGroupMulti();
-					this.bgm.firstType = dNote.type;
+					this.bgm.firstType = dNote.notetype;
 					this.bgm.firstNotevalue = dNote.notevalue;
 				}
 				
@@ -177,7 +166,7 @@ class BeamingProcessorBase {
 				var bgs:BeamGroupSingle = new BeamGroupSingle();
 				bgs.dNote = dNote;				
 				
-				bgs.firstType = dNote.type;
+				bgs.firstType = dNote.notetype;
 				bgs.firstNotevalue = dNote.notevalue;
 				
 				//dVoice.getBeamGroups().push(bgs);
@@ -300,5 +289,111 @@ class BeamingProcessorBase {
 		return this;
 	}
 	*/
+	
+
+	
+
+	
+	private var patternValuePos:Array<Int>;
+	private var patternValueEnd: Array<Int>;
+	
+	
+	
+	private function preparePatternCalculation() {
+		
+		trace('preparePatternCalculation');
+		
+		patternValuePos = [];
+		patternValueEnd = [];		
+		
+		var vPos = 0;
+		var i = 0;
+		for (v in valuePattern) {			
+			var vValue = v.value;
+			var vEnd = vPos + vValue;
+			patternValuePos.push(vPos);
+			patternValueEnd.push(vEnd);			
+			vPos = vEnd;
+			i++;
+		}
+		
+		trace(patternValuePos);
+		trace(patternValueEnd);
+		return this;
+	}	
+	
+	private function createBeamGroups2() {
+		trace('');	
+		trace('CREATE BEAM GROUPS 2');
+		
+		var dnoteGroupIdx = new ObjectHash<DNote, Int>();
+		
+		for (dnote in dVoice.dnotes) {
+			var dnotePos = dVoice.dnotePosition.get(dnote);
+			var dnoteEnd = dVoice.dnotePositionEnd.get(dnote);
+			
+			if (dnote.notetype != ENoteType.Normal) {
+				groupIdx = -2;
+			} else if (dnote.notevalue.beamingLevel < 1) {
+				groupIdx = -1;
+			} else {
+				var groupIdx = _findBeamGroupIndex(dnotePos, dnoteEnd);				
+			}			
+			dnoteGroupIdx.set(dnote, groupIdx);			
+		}
+		
+		var prevDnote:DNote = null;
+		var groupIdx = 0;
+		
+		var currType = 'single';
+		
+		for (dnote in dVoice.dnotes) {
+			if (prevDnote == null) continue;			
+			var prevGroupIdx = dnoteGroupIdx.get(prevDnote);
+			var currGroupIdx = dnoteGroupIdx.get(dnote);
+
+			
+			if (prevGroupIdx != currGroupIdx) {
+				trace('Add current to ' + currType);				
+			} else {
+				currType = 'Multi';
+				trace('Add current to ' + currType);
+			}
+			
+			
+			
+			
+			
+			prevDnote = dnote;
+		}
+		
+		
+		
+		
+		
+		return this;
+	}	
+	
+	
+	private function _findBeamGroupIndex(pos:Int, endPos:Int, countFrom:Int=0) {
+		for (idx in countFrom...patternValuePos.length) {			
+			if (pos >= patternValuePos[idx] && endPos <= patternValueEnd[idx]) {
+				return idx;
+			}
+		}
+		return -1;			
+	}
+
+	private function traceBeamGroups() {
+		
+		for (beamGroup in this.dVoice.beamGroups) {
+				
+				
+		}
+		
+	}	
+	
+	
+	
 
 }

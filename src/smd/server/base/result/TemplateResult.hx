@@ -11,12 +11,10 @@ class TemplateResult extends ActionResult
 {
 	private var templateFile:String;
 	private var data:Dynamic;
-	public function new(templateFile:String, ?data:Dynamic=null) {
-		this.templateFile = (FileTools.exists(templateFile)) ? templateFile : cx.Web.getCwd() + '/' + templateFile;
-		//this.templateFile = templateFile;
-		
+	public function new(templateFile:String, ?data:Dynamic=null, directory:String='') {
+		this.templateFile = (FileTools.exists(directory + templateFile)) ? directory + templateFile : cx.Web.getCwd() + '/' + directory + templateFile;
 		this.data = data;
-		if (!neko.FileSystem.exists(this.templateFile)) throw new harfang.exceptions.Exception("Can't find templateFile " + templateFile);		
+		if (!FileTools.exists(this.templateFile)) throw new harfang.exceptions.Exception("Can't find templateFile " + this.templateFile);		
 	}
 	
 	override public function execute() {		

@@ -39,8 +39,9 @@ class SqliteTools {
 	
 	static public function execute(filename:String, sql:String) {
 		var cnx = Sqlite.open(filename);	
-		cnx.request(sql);
+		var results = cnx.request(sql).results();
 		cnx.close();
+		return results;
 	}	
 	
 	static public function createSqlite(filename:String):Bool {

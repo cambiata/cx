@@ -336,47 +336,47 @@ class _TestRender extends TestCase
 
 					new Note([new Head(1)], ENoteValue.Nv2) ,									
 					new Note([new Head(1)], ENoteValue.Nv2, null, ENoteType.Pause) ,						
-					
+					*/
 
-					
+					/*
 					new Note([new Head(3)], ENoteValue.Nv16) ,
 					new Note([new Head(3)], ENoteValue.Nv16) ,
 					new Note([new Head(3)], ENoteValue.Nv16) ,
 					new Note([new Head(3)], ENoteValue.Nv16) ,							
 					*/
-
-					new Note([new Head(1)], ENoteValue.Nv4, null, ENoteType.Normal) ,
-					
-					new Note([new Head(2)], ENoteValue.Nv16) ,
-					new Note([new Head(2)], ENoteValue.Nv16) ,
-					new Note([new Head(2)], ENoteValue.Nv16, null, ENoteType.Pause) ,
-					new Note([new Head(2)], ENoteValue.Nv16) ,					
 					
 					new Note([new Head(1)], ENoteValue.Nv4) ,
-
-					new Note([new Head(2)], ENoteValue.Nv16) ,
-					new Note([new Head(2)], ENoteValue.Nv16, null, ENoteType.Pause) ,
-					new Note([new Head(2)], ENoteValue.Nv16) ,
-					new Note([new Head(2)], ENoteValue.Nv16, null, ENoteType.Pause) ,
-
 					
-					/*
-					new Note([new Head(2)], ENoteValue.Nv16, null, ENoteType.Pause) ,
-					new Note([new Head(2)], ENoteValue.Nv16) ,
-					new Note([new Head(2)], ENoteValue.Nv8, null, ENoteType.Pause) ,
-					*/
-					
-					
-					/*
 					new Note([new Head(1)], ENoteValue.Nv8) ,
+					new Note([new Head(1)], ENoteValue.Nv8, null, ENoteType.Pause) ,
+
+					new Note([new Head(1)], ENoteValue.Nv4dot) ,
+					new Note([new Head(1)], ENoteValue.Nv8) ,
+					
+					
+					
+					new Note([new Head(5)], ENoteValue.Nv16) ,
+					new Note([new Head(5)], ENoteValue.Nv16) ,
 					new Note([new Head(5)], ENoteValue.Nv16) ,
 					new Note([new Head(2)], ENoteValue.Nv16) ,
+					
+					new Note([new Head(5)], ENoteValue.Nv16) ,
+					new Note([new Head(5)], ENoteValue.Nv16) ,
+					new Note([new Head(5)], ENoteValue.Nv16) ,
+					new Note([new Head(2)], ENoteValue.Nv8) ,
 
+					new Note([new Head(5)], ENoteValue.Nv16) ,
+					new Note([new Head(5)], ENoteValue.Nv16) ,
+					new Note([new Head(5)], ENoteValue.Nv16) ,
+					
+					
+					/*
 					new Note([new Head(5)], ENoteValue.Nv16) ,
 					new Note([new Head(1)], ENoteValue.Nv8) ,
 					new Note([new Head(2)], ENoteValue.Nv16) ,					
+					*/
 					
-					
+					/*
 					new Note([new Head(5)], ENoteValue.Nv16) ,
 					new Note([new Head(2)], ENoteValue.Nv16) ,
 					new Note([new Head(1)], ENoteValue.Nv8) ,

@@ -300,7 +300,14 @@ class Render implements IRender
 		}
 	}	
 	
+	
+	
 	public function beamGroup(xpos:Float, y:Float, frame:BeamGroupFrame, dnotePositionsX:Array<Float>) {
+		
+		function _dStave(sX:Float, sTopY:Float, sBottomY:Float) {
+			this.target.graphics.moveTo(sX , sTopY);
+			this.target.graphics.lineTo(sX , sBottomY);			
+		}	
 		
 		if (frame.firstNotevalue.stavingLevel < 1) return;
 		
@@ -327,17 +334,6 @@ class Render implements IRender
 		var lastBottomY = y + (xlastStave.bottomY * scaling.halfSpace);
 		
 		
-		/*
-		this.gr.lineStyle(1, 0x666666);
-		if (frame.direction == EDirectionUD.Up) {			
-			this.target.graphics.drawCircle(firstX , firstTopY , 3);
-			if (frame.count > 1) this.target.graphics.drawCircle(lastX , lastTopY , 3);
-		} else {
-			this.target.graphics.drawCircle(firstX , firstBottomY , 3);
-			if (frame.count > 1) this.target.graphics.drawCircle(lastX , lastBottomY , 3);		
-		}
-		*/
-		
 		var beamHeight = this.scaling.scaleY(Constants.BEAM_HEIGHT);
 		
 		switch (frame.firstType) {
@@ -351,12 +347,14 @@ class Render implements IRender
 					beamH = lastTopY - firstTopY;
 					
 					// Staves
-					this.target.graphics.moveTo(firstX , firstTopY);
-					this.target.graphics.lineTo(firstX , firstBottomY);
+					//this.target.graphics.moveTo(firstX , firstTopY);
+					//this.target.graphics.lineTo(firstX , firstBottomY);
+					_dStave(firstX, firstTopY, firstBottomY);
 					
 					if (count > 1) {
-						this.target.graphics.moveTo(lastX , lastTopY);				
-						this.target.graphics.lineTo(lastX , lastBottomY);							
+						//this.target.graphics.moveTo(lastX , lastTopY);				
+						//this.target.graphics.lineTo(lastX , lastBottomY);							
+						_dStave(lastX, lastTopY, lastBottomY);
 					}
 
 					if (count > 2) {
@@ -562,7 +560,7 @@ class Render implements IRender
 	public function dnote(x:Float, y:Float, dnote:DNote, rects:Bool=false, teststave:Bool=true) {
 		var positions = dnote.headPositions.copy();
 		
-		switch (dnote.type) {
+		switch (dnote.notetype) {
 			
 			case ENoteType.Pause:
 				this._drawPause(x, y, dnote);

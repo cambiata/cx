@@ -30,8 +30,7 @@ class DNote
 		this.levelTop 			= this.note.heads[0].level;
 		this.levelBottom 	= this.note.heads[this.headsCount-1].level;		
 		this.dheads 			= [];
-		this.type				= this.note.type;
-		
+		this.notetype			= this.note.type;
 		
 		for (head in this.note.heads) {
 			this.dheads.push(new DHead(head));
@@ -55,7 +54,7 @@ class DNote
 	
 	public var note(default, null):Note;
 	public var notevalue(default, null):ENoteValue;
-	public var type(default, null):ENoteType;
+	//public var type(default, null):ENoteType;
 	public var notetype(default, null):ENoteType;	
 	public var dheads(default, null):Array<DHead>;
 	public var headsCount(default, null):Int;
