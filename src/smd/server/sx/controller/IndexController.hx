@@ -8,6 +8,7 @@ import neko.Web;
 import smd.server.base.result.TemplateResult;
 import smd.server.sx.Config;
 import smd.server.sx.data.PageData;
+import smd.server.sx.State;
 
 /**
  * ...
@@ -16,7 +17,7 @@ import smd.server.sx.data.PageData;
 
 class IndexController extends AbstractController
 {
-	static private var domainIndexPage:String = WebTools.getDomainInfo().domain + '.html';
+	//static private var domainIndexPage:String = WebTools.getDomainInfo().domain + '.html';
 
 	/*
 	public function new() {
@@ -27,13 +28,12 @@ class IndexController extends AbstractController
 	
 	@URL("^/$")
 	public function index() { 			
-		
-		return new TemplateResult(domainIndexPage, PageData.getData(), Config.templatesDir);
+		return new TemplateResult(State.indexPage, PageData.getData(), Config.templatesDir);
 	}
 	
 	@URL("/info/([a-zA-Z]+)", "g")
 	public function info(param : String = 'default') {			
-		return param;		
+		return new TemplateResult(State.indexPage, PageData.getData(), Config.templatesDir);
 	}
 }
 

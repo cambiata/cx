@@ -29,6 +29,19 @@ class WebTools {
 		return Web.getURI();
 	}
 	
+	static public function getPostValue(key:String):String {
+		var postdata = Web.getPostData();
+		if (postdata == null) return null;
+		var postdatas = postdata.split('&');
+		
+		for (pair in postdatas) {
+			if (StringTools.startsWith(pair, key)) {
+				return pair.split('=')[1];
+			}
+		}
+		return null;
+	}
+	
 	
 	
 }

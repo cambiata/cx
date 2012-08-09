@@ -9,6 +9,7 @@ import neko.Lib;
 import neko.Web;
 import smd.server.base.result.TemplateResult;
 import smd.server.sx.Config;
+import smd.server.sx.data.PageData;
 
 class UserConfiguration extends AbstractServerConfiguration {
 
@@ -17,6 +18,10 @@ class UserConfiguration extends AbstractServerConfiguration {
 		this.addModule(new Site());			
 		
 		ConfigTools.loadConfig(Config, Web.getCwd() + Config.configFile);
+		
+		//State.messages.infos.push('Hello World');
+		//State.messages.errors.push('This is an error');
+		
 		/*
 		try {
 			ConfigTools.loadConfig(Config, Web.getCwd() + Config.configFile);
@@ -29,15 +34,28 @@ class UserConfiguration extends AbstractServerConfiguration {
     }
 	
 	override public function onHTTPError(error : HTTPException) : Void {
+		
+		State.messages.errors.push(error.getErrorCode() + ': ' + error.getMessage());
+		
 		error.uri = Web.getURI();
-		var output = new TemplateResult('error/httpError.html', error, Config.templatesDir).execute();
+		var output = new TemplateResult(State.indexPage, PageData.getData(), Config.templatesDir).execute();
 		Lib.print(output);
+		
+		
+		//Lib.println(new TemplateResult(State.indexPage, PageData.getData(), Config.templatesDir));
+		
 	}
 	
 	override public function onError(exception : Exception) : Void {		
+		//trace(State.indexPage);
+		State.messages.errors.push(exception.getMessage());
+		
 		exception.uri = Web.getURI();
-		var output = new TemplateResult('error/Error.html', exception, Config.templatesDir).execute();
+		var output = new TemplateResult(State.indexPage, PageData.getData(), Config.templatesDir).execute();
 		Lib.print(output);
+		
+		//Lib.println(new TemplateResult(State.indexPage, null, Config.templatesDir));
+		
 	}
 	
 	

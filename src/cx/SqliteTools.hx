@@ -33,7 +33,8 @@ class SqliteTools {
 		for (field in fields) {			
 			values.push(Reflect.field(insertObject, field));
 		}		
-		sql += '("' + values.join('", "') + '")';
+		//sql += '("' + values.join('", "') + '")';
+		sql += "('" + values.join("', '") + "')";
 		return 'INSERT INTO "' + tableName + '" ' + sql;		
 	}
 	
