@@ -86,7 +86,8 @@ class User
 			var domain = WebTools.getDomainInfo().submain;
 			var top = WebTools.getDomainInfo().topdomain;
 			if (domain != 'scorx') {
-				var url = 'http://scorx.' + top;
+				//var url = 'http://scorx.' + top
+				var url = 'http://' + Config.homedomain;				
 				Web.redirect(url);
 			}			
 		}

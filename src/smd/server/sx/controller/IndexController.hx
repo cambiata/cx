@@ -10,6 +10,7 @@ import smd.server.sx.Config;
 import smd.server.sx.data.DocumentData;
 import smd.server.sx.data.DocumentData.TDocument;
 import smd.server.sx.data.PageData;
+import smd.server.sx.result.IndexResult;
 import smd.server.sx.State;
 
 /**
@@ -30,12 +31,13 @@ class IndexController extends AbstractController
 	
 	@URL("^/$")
 	public function index() { 			
-		return new TemplateResult(State.indexPage, PageData.getData(), Config.templatesDir);
+		//return new TemplateResult(State.indexPage, PageData.getData(), Config.templatesDir);
+		return new IndexResult(State.indexPage, PageData.getData(), Config.templatesDir);
 	}
 	
 	@URL("/info/([a-zA-Z]+)", "g")
 	public function info(param : String = 'default') {			
-		return new TemplateResult(State.indexPage, PageData.getData(), Config.templatesDir);
+		return new IndexResult(State.indexPage, PageData.getData(), Config.templatesDir);
 	}
 	
 	@URL("/dok/([a-zA-Z]+)", "g")
@@ -47,7 +49,7 @@ class IndexController extends AbstractController
 		var data:TPageData = {};
 		data.content ={tag:'content', text:doc.text};
 		data.title = {tag:'title', text:'title'};
-		return new TemplateResult(State.indexPage, data, Config.templatesDir);
+		return new IndexResult(State.indexPage, data, Config.templatesDir);
 		
 		//return tag;
 	}

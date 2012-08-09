@@ -11,6 +11,7 @@ import smd.server.base.result.TemplateResult;
 import smd.server.sx.Config;
 import smd.server.sx.data.Functions;
 import smd.server.sx.data.PageData;
+import smd.server.sx.result.IndexResult;
 import smd.server.sx.user.User;
 
 class UserConfiguration extends AbstractServerConfiguration {
@@ -43,7 +44,7 @@ class UserConfiguration extends AbstractServerConfiguration {
 		State.messages.errors.push(error.getErrorCode() + ': ' + error.getMessage());
 		
 		error.uri = Web.getURI();
-		var output = new TemplateResult(State.indexPage, PageData.getData(), Config.templatesDir).execute();
+		var output = new IndexResult(State.indexPage, PageData.getData(), Config.templatesDir).execute();
 		Lib.print(output);
 		
 		
@@ -56,7 +57,7 @@ class UserConfiguration extends AbstractServerConfiguration {
 		State.messages.errors.push(exception.getMessage());
 		
 		exception.uri = Web.getURI();
-		var output = new TemplateResult(State.indexPage, PageData.getData(), Config.templatesDir).execute();
+		var output = new IndexResult(State.indexPage, PageData.getData(), Config.templatesDir).execute();
 		Lib.print(output);
 		
 		//Lib.println(new TemplateResult(State.indexPage, null, Config.templatesDir));

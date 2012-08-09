@@ -18,6 +18,7 @@ class Config
 	static public var guser = 'scorxmedia'; 
 	static public var gpass = 'cambiata'; 
 	
+	static public var homedomain = 'scorx.xe';
 	
 	/*
 	static public var authFile:String 		= '../files/auth/auth.dat';

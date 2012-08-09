@@ -13,7 +13,9 @@ import smd.server.base.types.Messages;
 class State 
 {	
 	
-	static public var indexPage: String = WebTools.getDomainInfo().submain + '.html';
+	static public var domain :String = WebTools.getDomainInfo().submain;
+	
+	static public var indexPage: String = 'index.html'; // WebTools.getDomainInfo().submain + '.html';
 	
 	static public var messages:Messages = {
 		errors: [],
