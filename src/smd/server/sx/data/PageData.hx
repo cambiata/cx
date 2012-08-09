@@ -13,7 +13,7 @@ import smd.server.sx.State;
  */
 using StringTools;
 class PageData {	
-	static public function getData(sqlitefile:String = 'templates/pages.sqlite'):Dynamic {		
+	static public function getData(sqlitefile:String = 'data/pages.sqlite'):Dynamic {		
 		
 		var file = Web.getCwd() + Config.filesDir + sqlitefile;
 		//State.messages.infos.push(file + ' - ' + FileTools.exists(file));
@@ -40,7 +40,7 @@ class PageData {
 				}
 				var sql = SqliteTools.getInsertStatement(insertObject, 'pagecontent');
 				var insertId = SqliteTools.insert(file, sql);
-				State.messages.infos.push(sql + ' : ' + insertId);
+				State.messages.success.push('Texttagg skapad! : ' + insertId);
 			case 'tag-delete': 	
 				var id = WebTools.getPostValue('id');			
 				var sql = 'DELETE from pagecontent where rowid="' + id + '"';
