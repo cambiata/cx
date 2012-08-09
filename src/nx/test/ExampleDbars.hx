@@ -51,7 +51,7 @@ class ExampleDbars
 					new Note([new Head(-3)], ENoteValue.Nv8tri) ,
 					new Note([new Head(-2)], ENoteValue.Nv8tri) ,
 					new Note() ,
-				], EDirectionUAD.Auto), 
+				], EDirectionUAD.Up), 
 				
 				
 				new Voice([
