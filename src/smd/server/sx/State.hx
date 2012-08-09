@@ -2,6 +2,7 @@ package smd.server.sx;
 
 //import smd.server.base.auth.AuthUser;
 import cx.WebTools;
+import smd.server.base.auth.AuthUser;
 import smd.server.base.types.Messages;
 
 /**
@@ -12,7 +13,7 @@ import smd.server.base.types.Messages;
 class State 
 {	
 	
-	static public var indexPage: String = WebTools.getDomainInfo().domain + '.html';
+	static public var indexPage: String = WebTools.getDomainInfo().submain + '.html';
 	
 	static public var messages:Messages = {
 		errors: [],

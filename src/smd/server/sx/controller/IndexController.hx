@@ -7,6 +7,8 @@ import harfang.exceptions.Exception;
 import neko.Web;
 import smd.server.base.result.TemplateResult;
 import smd.server.sx.Config;
+import smd.server.sx.data.DocumentData;
+import smd.server.sx.data.DocumentData.TDocument;
 import smd.server.sx.data.PageData;
 import smd.server.sx.State;
 
@@ -14,7 +16,7 @@ import smd.server.sx.State;
  * ...
  * @author Jonas Nyström
  */
-
+using StringTools;
 class IndexController extends AbstractController
 {
 	//static private var domainIndexPage:String = WebTools.getDomainInfo().domain + '.html';
@@ -35,5 +37,35 @@ class IndexController extends AbstractController
 	public function info(param : String = 'default') {			
 		return new TemplateResult(State.indexPage, PageData.getData(), Config.templatesDir);
 	}
+	
+	@URL("/dok/([a-zA-Z]+)", "g")
+	public function dok(param : String = 'default') {			
+		
+		var tag = 'site' + WebTools.getUri().replace('/', '_');
+		
+		var doc:TDocument = DocumentData.getDocument(tag);
+		var data:TPageData = {};
+		data.content ={tag:'content', text:doc.text};
+		data.title = {tag:'title', text:'title'};
+		return new TemplateResult(State.indexPage, data, Config.templatesDir);
+		
+		//return tag;
+	}
+	
+	
+	
+}
+
+typedef TPageData = {
+	?title:TPageTextElement, 
+	?korakademin:TPageTextElement, 
+	?sensus30:TPageTextElement, 
+	?projektinloggning:TPageTextElement,
+	?content:TPageTextElement, 
+}
+
+typedef TPageTextElement = {
+	tag:String,
+	text:String,
 }
 

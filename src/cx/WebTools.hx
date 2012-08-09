@@ -21,7 +21,8 @@ class WebTools {
 			topdomain: parts[2],
 			maindomain: parts[1],
 			subdomain: parts[0],
-			domain: (parts[0] > '') ? parts[0] + '.' + parts[1] : parts[1],
+			submain: (parts[0] > '') ? parts[0] + '.' + parts[1] : parts[1],
+			maintop: (parts[2] > '') ? parts[1] + '.' + parts[2] : parts[1],
 		}
 	}
 	

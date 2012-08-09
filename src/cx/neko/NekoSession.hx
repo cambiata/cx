@@ -15,6 +15,8 @@ class NekoSession
 	private static var sessionData : Hash<Dynamic>;
 	public static var sessionName(default, setName) : String;
 	private static var needCommit : Bool;
+	
+	public static var domain:String = null;
 
 	public static function getCacheLimiter()
 	{
@@ -139,6 +141,8 @@ class NekoSession
 
 	public static function start()
 	{
+		//trace(domain);
+		
 		if(started) return;
 		needCommit = false;
 		if( sessionName == null ) sessionName = SID;
@@ -228,7 +232,9 @@ class NekoSession
 			} while( neko.FileSystem.exists(file) );
 			
 			// TODO: Set cookie path to application path, right now it's global.
-			Web.setCookie(SID, id, null, null, '/');
+			//trace(domain);
+			
+			Web.setCookie(SID, id, null, domain, '/');
 			
 			started = true;
 			commit();

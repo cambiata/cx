@@ -15,6 +15,10 @@ class Config
 	static public var test:String 				= 'DEFAULT TESTVALUE!';
 	static public var templatesDir:String	= filesDir + 'templates/';
 	static public var secretKey:String		= 'xyz';
+	static public var guser = 'scorxmedia'; 
+	static public var gpass = 'cambiata'; 
+	
+	
 	/*
 	static public var authFile:String 		= '../files/auth/auth.dat';
 

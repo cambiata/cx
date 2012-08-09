@@ -9,7 +9,9 @@ import neko.Lib;
 import neko.Web;
 import smd.server.base.result.TemplateResult;
 import smd.server.sx.Config;
+import smd.server.sx.data.Functions;
 import smd.server.sx.data.PageData;
+import smd.server.sx.user.User;
 
 class UserConfiguration extends AbstractServerConfiguration {
 
@@ -18,7 +20,10 @@ class UserConfiguration extends AbstractServerConfiguration {
 		this.addModule(new Site());			
 		
 		ConfigTools.loadConfig(Config, Web.getCwd() + Config.configFile);
-		
+		new Functions();
+		User.getCurrentUser();
+		User.checkRedirect();
+		State.messages.infos.push(Std.string(User.user));
 		//State.messages.infos.push('Hello World');
 		//State.messages.errors.push('This is an error');
 		

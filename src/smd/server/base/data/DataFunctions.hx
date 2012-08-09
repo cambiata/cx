@@ -3,6 +3,7 @@ import cx.ReflectTools;
 import cx.Tools;
 import haxe.Firebug;
 import neko.Web;
+import smd.server.sx.Config;
 
 /**
  * ...
@@ -22,7 +23,14 @@ class DataFunctions
 		var classMethods = ReflectTools.getMethods(this);		
 		for (key in keys) {
 			var value = params.get(key);
-			var funcname = "__" + key + "_" + value;
+			if (value != Config.secretKey) {
+				//trace('wrong key!');
+				return;
+			}
+			
+			var funcname = "__" + key;
+			//trace(funcname);
+			
 			if (Lambda.has(classMethods, funcname)) {
 				ReflectTools.callMethod(this, funcname, []);
 			}			
