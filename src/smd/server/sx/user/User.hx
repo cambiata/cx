@@ -16,7 +16,7 @@ class User
 	static public function getCurrentUser() :AuthUser{
 		
 		var authUser:AuthUser = getUserNull();
-		var sessionDir = Web.getCwd();		
+		var sessionDir = Web.getCwd() + Config.filesDir + 'sessions/';		
 		var auth = new AuthDummy();		
 		
 		NekoSession.setSavePath(sessionDir);		
