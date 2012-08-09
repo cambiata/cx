@@ -37,5 +37,24 @@ class ReflectTools
 		return Reflect.field(getClass(object), fieldName);
 	}
 	
+
+	/*
+	Reflect.setField
+
+
+			var methodName = "jeashSet" + field.substr (0, 1).toUpperCase () +  
+	field.substr (1);
+       
+        if (o[methodName] != null) {
+               
+                o[methodName] (value);
+               
+        } else {
+               
+                o[field] = value;
+               
+        } 	
+	*/
+		
 	
 }

@@ -24,7 +24,11 @@ class Scaling  {
 	
 	static public inline function getMid():TScaling {
 		return {
+#if js			
+			linesWidth:			0.8,
+#else
 			linesWidth:			1.25,
+#end			
 			space:					12.0,
 			halfSpace: 				6.0,
 			noteWidth:				16.5,
@@ -40,7 +44,11 @@ class Scaling  {
 	
 	static public inline function getNormal():TScaling {
 		return {
+#if js
+			linesWidth:			.4,
+#else
 			linesWidth:			.75,
+#end
 			space:					8.0,
 			halfSpace: 				4.0,
 			noteWidth:				11.0,

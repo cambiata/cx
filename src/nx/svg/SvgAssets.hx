@@ -1,5 +1,6 @@
 package nx.svg;
 
+import cx.ReflectTools;
 import nx.output.TScaling;
 import nx.svg.SVG2Gfx;
 import nme.display.Shape;
@@ -34,15 +35,18 @@ class SvgAssets
 	*/
 	
 
-	static var fields:Array<String>;
+	//static var fields:Array<String> = Type.getClassFields(NoteElements);
 	
 	static public function getSvgString(tag:String):String {
-		if (fields == null) fields = Type.getClassFields(NoteElements);
-		if (Lambda.indexOf(fields, tag) > -1) {
+		/*
+		try {
 			return Reflect.callMethod(NoteElements, Reflect.field(NoteElements, tag), []);
+		} catch (e:Dynamic) {
 		}
 		// if doesnt exist:
 		return NoteElements.clefG();
+		*/
+		return NoteElements.getSvg(tag);
 	}
 	
 }

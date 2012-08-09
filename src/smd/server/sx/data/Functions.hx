@@ -9,12 +9,7 @@ import smd.server.base.data.DataFunctions;
 
 class Functions extends DataFunctions
 {
-
 	public function __hello() {
 		trace('HELLO');		
 	}
-	
-	
-	
-	
 }
