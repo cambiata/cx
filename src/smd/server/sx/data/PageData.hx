@@ -58,8 +58,8 @@ class PageData {
 		if (!FileTools.exists(file)) throw new Exception('Can\'t find pagedata file ' + file);
 		var cnx = SqliteTools.getCnx(file);
 		var page = WebTools.getUri();
-		var domain = WebTools.getDomainInfo().submain;
-		var sql = "select rowid, * from pagecontent where (domain = '" + domain + "' and page = '" + page + "')";
+		//var domain = WebTools.getDomainInfo().submain;
+		var sql = "select rowid, * from pagecontent where (domain = '" + State.domaintag + "' and page = '" + page + "')";
 		var results = SqliteTools.execute(file, sql);
 		var data:Dynamic = { };
 		for (result in results) {
@@ -83,7 +83,7 @@ class PageData {
 		}
 		
 		Reflect.setField(data, 'messages', State.messages);
-		Reflect.setField(data, 'domain', WebTools.getDomainInfo().submain);
+		Reflect.setField(data, 'domain', State.domaintag);
 		Reflect.setField(data, 'uri', WebTools.getUri());
 		
 		return data;		
