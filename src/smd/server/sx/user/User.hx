@@ -75,6 +75,8 @@ class User
 			var domain = '';
 			if (user.user == 'kak') domain = 'korakademin.scorx';
 			if (user.user == 'sensus') domain = 'sensus.scorx';
+			if (user.user == 'projekt' && user.pass == 'vivaldi') domain = 'projekt.scorx';
+			
 			
 			if (currentDomain != domain) {				
 				var url = 'http://' + domain + '.' + top;
@@ -102,6 +104,7 @@ class AuthDummy implements IAuth {
 		var user:AuthUser = User.getUserNull();
 		if (_user == 'kak' && _pass == 'kak') user.success = true;
 		if (_user == 'sensus' && _pass == 'sensus') user.success = true;
+		if (_user == 'projekt' && _pass == 'vivaldi') user.success = true;
 		user.user = _user;
 		user.pass = _pass;
 		

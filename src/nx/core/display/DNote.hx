@@ -183,7 +183,13 @@ class DNote
 		var r = this.rectHeads.clone();		
 		if (this.direction == EDirectionUD.Up) {
 			r.x = Constants.HEAD_HALFWIDTH;
-			r.width = Constants.STAVE_WIDTH;			
+			
+			r.width = Constants.STAVE_WIDTH;
+
+			// 8ths and 16ths flags:
+			if (this.notevalue.beamingLevel > 0) r.width += Constants.HEAD_HALFWIDTH*0.7;
+			
+			
 			this._rectStave = GeomUtils.stretchUp(r, DEFAULT_STAVE_LENGTH);
 			this._rectStave = GeomUtils.stretchDown(r, -Constants.STAVE_OFFSET);
 		} else {

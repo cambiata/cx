@@ -58,11 +58,23 @@ class Render implements IRender
 		}		
 	}
 	
-	public function clef(x:Float, y:Float) {
-		var shape = nx.svg.SvgAssets.getSvgShape('clefG', scaling);
+	public function clefG(x:Float, y:Float) {
+	var shape = nx.svg.SvgAssets.getSvgShape('clefG', scaling);
+	shape.x = x + scaling.svgX + scaling.space;  
+	shape.y = y + scaling.svgY + scaling.space;
+	target.addChild(shape);	  	
+	}	
+	public function clefC(x:Float, y:Float) {
+	var shape = nx.svg.SvgAssets.getSvgShape('clefC', scaling);
+	shape.x = x + scaling.svgX + scaling.space;  
+	shape.y = y + scaling.svgY + scaling.space;
+	target.addChild(shape);	  	
+	}
+	public function clefF(x:Float, y:Float) {
+		var shape = nx.svg.SvgAssets.getSvgShape('clefF', scaling);
 		shape.x = x + scaling.svgX + scaling.space;  
 		shape.y = y + scaling.svgY + scaling.space;
-		target.addChild(shape);	  				
+		target.addChild(shape);	  	
 	}
 	
 	public function noteARects(noteX:Float, noteY:Float, displayNote:DisplayNote, color:Int=0xFF0000) {
@@ -742,7 +754,11 @@ class Render implements IRender
 		
 		if (frame.firstNotevalue.beamingLevel < 1) return;
 		
-		var shape:Shape = SvgAssets.getSvgShape("flaggor", scaling);
+		trace('draw flag!');
+		
+		var shape:Shape = new nme.display.Shape(); // = SvgAssets.getSvgShape("flaggor", scaling);
+		
+		
 		if (frame.firstNotevalue.beamingLevel == 1) {
 			if (frame.direction == EDirectionUD.Up) {				
 				shape = SvgAssets.getSvgShape("flagUp8", scaling);				
@@ -757,6 +773,10 @@ class Render implements IRender
 			}		
 		}
 		
+		
+		//var shape = SvgAssets.getSvgShape('flagUp8', this.scaling);
+		
+
 		var fy = 0.0;
 		
 		var firstStave = frame.staves.first();
@@ -769,9 +789,11 @@ class Render implements IRender
 			fy = scaling.scaleY(firstStave.bottomY-1.8);
 		}
 		
+
 		shape.y = y + scaling.svgY + fy;
 		
 		shape.x = x + scaling.svgX + scaling.scaleX2(1.15);  
+		
 		target.addChild(shape);	 		
 		
 	}	

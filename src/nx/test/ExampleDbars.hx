@@ -82,4 +82,35 @@ class ExampleDbars
 			
 		]));	
 	}
+	
+	static public function dbarFlags() {
+		return new DBar(new Bar([
+			new Part([				
+				new Voice([
+					
+					new Note([new Head(1)], ENoteValue.Nv16) ,
+					new Note([new Head(0, ESign.Sharp)]) ,
+					
+					new Note([new Head(-1)], ENoteValue.Nv16) ,
+					new Note() ,
+
+					new Note([new Head(1)], ENoteValue.Nv8) ,
+					new Note([new Head(0, ESign.Sharp)]) ,
+					
+					new Note([new Head(-1)], ENoteValue.Nv8) ,
+					new Note() ,					
+					
+					new Note([new Head(1)], ENoteValue.Nv16) ,
+					new Note([new Head(4, ESign.Sharp)]) ,					
+
+					new Note([new Head(1)], ENoteValue.Nv16) ,
+					new Note([new Head(3, ESign.Sharp)]) ,						
+
+					new Note([new Head(1)], ENoteValue.Nv16) ,
+					new Note([new Head(2, ESign.Sharp)]) ,						
+					
+				], EDirectionUAD.Auto), 
+			]),				
+		]));			
+	}
 }
