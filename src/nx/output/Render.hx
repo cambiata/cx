@@ -754,7 +754,7 @@ class Render implements IRender
 		
 		if (frame.firstNotevalue.beamingLevel < 1) return;
 		
-		trace('draw flag!');
+		//trace('draw flag!');
 		
 		var shape:Shape = new nme.display.Shape(); // = SvgAssets.getSvgShape("flaggor", scaling);
 		

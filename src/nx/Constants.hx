@@ -17,7 +17,7 @@ class Constants {
 	*/
 	
 	static public inline var BASE_NOTE_VALUE:Int = 3024;	
-	static public inline var HEAD_MAX_LEVEL:Int = 10;
+	static public inline var HEAD_MAX_LEVEL:Int = 12;
 	
 	static public inline var HEAD_WIDTH:Int = 4;
 	static public inline var HEAD_HALFWIDTH:Int = 2;

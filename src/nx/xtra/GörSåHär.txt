@@ -1,0 +1,3 @@
+Använd OpenOfficeDraw, typsnittet Opus med 5,1 punkters storlek. 
+(Först 5,5, minska därefter till 5,1).
+Exportera som SVG.
