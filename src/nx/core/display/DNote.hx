@@ -6,8 +6,10 @@ import nx.core.type.TSigns;
 import nx.core.util.GeomUtils;
 import nx.core.util.SignsUtil;
 import nx.display.beam.IBeamGroup;
+import nx.enums.EClef;
 import nx.enums.EDirectionUAD;
 import nx.enums.EDirectionUD;
+import nx.enums.EFlagCorrection;
 import nx.enums.ENoteType;
 import nx.enums.ENoteValue;
 import nx.enums.utils.EDirectionTools;
@@ -66,7 +68,13 @@ class DNote
 	public function dhead(idx:Int) {
 		return this.dheads[idx];
 	}
+
+	private var flagCorrection:EFlagCorrection;
 	
+	public function setFlagCorrection(correction:EFlagCorrection) {
+		
+		
+	}
 	
 	//--------------------------------------
 	
