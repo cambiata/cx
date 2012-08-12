@@ -120,11 +120,14 @@ class ExampleDbars
 		return new DBar(new Bar([
 			new Part([				
 				new Voice([
-					new Note([new Head(1, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv4dot),
-					new Note(null, ENoteValue.Nv4dot),
-					/*
+				
+					//new Note([new Head(1, ETie.Tie(EDirectionUAD.Auto)), new Head(3, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv2dot),
+					new Note([new Head(1, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv2),
+					new Note([new Head(1, ESign.Flat)], ENoteValue.Nv2),
+					
+					
 					new Note(null),
-					new Note([new Head(0, ETie.Tie(EDirectionUAD.Auto))]),
+					new Note([new Head(1, ETie.Tie(EDirectionUAD.Auto))]),
 					
 					new Note([new Head(1, null, null)], ENoteValue.Nv16) ,
 					new Note([new Head(1, null, null)], ENoteValue.Nv16) ,
@@ -134,9 +137,20 @@ class ExampleDbars
 					new Note([new Head(1, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv16) ,
 					new Note([new Head(1, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv16) ,
 					new Note([new Head(6, ESign.Flat, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv16) ,
-					new Note([new Head(1, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv16) ,
-					*/
-				]),
+					new Note([new Head(1, null, ETie.Tie(EDirectionUAD.Auto)), new Head(6)], ENoteValue.Nv16) ,
+					
+					
+				], EDirectionUAD.Up),
+				
+				new Voice ([
+					new Note([new Head(5, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv2dot),
+					new Note([new Head(5, ESign.None, ETie.Tie(EDirectionUAD.Auto))]),
+					
+					new Note([new Head(2, ETie.Tie(EDirectionUAD.Auto))]),
+					new Note([new Head(2)]),
+					
+				], EDirectionUAD.Down),
+				
 			]),
 		]));
 	}

@@ -10,6 +10,7 @@ import nx.core.display.DBar;
 import nx.core.display.DNote;
 import nx.core.display.DPart;
 import nx.core.display.Complex;
+import nx.core.display.DVoice;
 import nx.display.beam.BeamTools;
 import nx.display.beam.IBeamGroup;
 import nx.display.DisplayNote;
@@ -903,28 +904,63 @@ class Render implements IRender
 			y2 += 180;
 		}
 		
-		// Draw voice stuff
+		// Draw voice stuff...
+		
 		y2 = y;
 		for (dpart in dbar.dparts) {
 			for (dvoice in dpart.dvoices) {
-				var lastDnote:DNote = null;
-				dvoice.dnotes.fold(function(currentDnote:DNote, prevDnote:DNote) {
-					if (prevDnote != null) {
-						trace(prevDnote.countTies());
-					} else {
-						trace(currentDnote.countTies());
+				this.dvoiceTies(x, y, dbar, dvoice);
+				/*
+				dvoice.dnotes.fold(function(rightDNote:DNote, leftDNote:DNote) {					
+					if (leftDNote != null) {
+						
+						if (leftDNote.countTies() > 0) {
+							
+							
+							var tieLevels = leftDNote.getTieLevels();
+							var tieConnectLevels = leftDNote.getTieConnections(rightDNote);
+							trace([tieLevels, tieConnectLevels]);						
+							
+							var leftColumn = dbar.dnoteColumn.get(leftDNote);
+							var rightColumn = dbar.dnoteColumn.get(rightDNote);
+							
+							var leftX = leftColumn.sPositionX + leftDNote.rectTiesfrom.x;						
+							var rightComplex = dbar.dnoteComplex.get(rightDNote);
+							var rigthX = rightColumn.sPositionX;							
+							rigthX += (rightDNote.signs.count() > 0) ? rightComplex.rectSigns.x : rightComplex.rectHeads.x;
+							trace([leftColumn.sPositionX, rightColumn.sPositionX]);
+							trace([leftX, rigthX]);
+	
+							var tieX 			= x + this.scaling.scaleX2(leftX);
+							var tieXConnect 	= x + this.scaling.scaleX2(rigthX);
+							var tieXHanging 	= tieX + this.scaling.scaleX2(Constants.HEAD_TIEWIDTH);
+							
+							var tieY:Float = 0.0;
+							
+							this.gr.lineStyle(2, 0x000000);
+							for (tieLevel in tieLevels) {
+								tieY = y +  this.scaling.scaleY(tieLevel * Constants.HEAD_HALFHEIGHT);
+								if (tieConnectLevels.has(tieLevel)) {
+									trace(['- connect level ', tieLevel]);
+									this.gr.moveTo(tieX, tieY);
+									this.gr.lineTo(tieXConnect, tieY);
+								} else {
+									trace(['- hanging level ', tieLevel]);
+									this.gr.moveTo(tieX, tieY);
+									this.gr.lineTo(tieXHanging, tieY);
+								}
+							}
+						}
 					}
-					
-					lastDnote = currentDnote;
-					return currentDnote;
+					return rightDNote;
 				}, null);
-				trace(lastDnote.countTies());
+				*/
+				
 			}
 			y2 += 180;
 		}
-		
-		
-		
+
+		//-----------------------------------------------------------------------------------------------------
 		
 		if (rects) {		
 			var r = Scaling.scaleRectangle(dbar.columnsRectStretched, this.scaling);
@@ -937,6 +973,61 @@ class Render implements IRender
 		}
 	}
 	
+	private function dvoiceTies(x:Float, y:Float, dbar:DBar, dvoice:DVoice) {
+		
+		// Local function: 
+		function _drawTie(rightDNote:DNote, leftDNote:DNote) {
+			if (leftDNote != null) {				
+				var tieConnectLevels = [];
+				if (leftDNote.countTies() > 0) {
+					var tieLevels = leftDNote.getTieLevels();					
+					var leftColumn = dbar.dnoteColumn.get(leftDNote);
+					var leftX = leftColumn.sPositionX + leftDNote.rectTiesfrom.x;
+					var tieX 			= x + this.scaling.scaleX2(leftX);					
+					var tieXHanging 	= tieX + this.scaling.scaleX2(Constants.HEAD_TIEWIDTH);
+					var rightX = 0.0;
+					var tieXRigthNote = 0.0;
+					// if there is a right note to tie to:
+					if (rightDNote != null) {
+						tieConnectLevels = leftDNote.getTieConnections(rightDNote);
+						var rightColumn = dbar.dnoteColumn.get(rightDNote);					
+						var rightComplex = dbar.dnoteComplex.get(rightDNote);
+						var rigthX = rightColumn.sPositionX + dbar.dnoteComplexXadjust.get(rightDNote) - Constants.HEAD_QUARTERWIDTH;							
+						rigthX += (rightDNote.signs.count() > 0) ? rightComplex.rectSigns.x : rightComplex.rectHeads.x;
+						//rightX -= this.scaling.scaleX2(Constants.HEAD_HALFWIDTH);
+						tieXRigthNote 	= x + this.scaling.scaleX2(rigthX);
+					}
+					var tieY:Float = 0.0;
+					this.gr.lineStyle(4, 0xFF0000);
+					for (tieLevel in tieLevels) {
+						tieY = y +  this.scaling.scaleY(tieLevel * Constants.HEAD_HALFHEIGHT);
+						if (tieConnectLevels.has(tieLevel)) {
+							// connect to next note
+							this.gr.moveTo(tieX, tieY);
+							this.gr.lineTo(tieXRigthNote, tieY);
+						} else {
+							// hanging from this note
+							this.gr.moveTo(tieX, tieY);
+							this.gr.lineTo(tieXHanging, tieY);
+						}
+					}
+				}
+			}
+		}
+		
+		// Core fold loop:
+		
+		var lastDNote:DNote;
+		dvoice.dnotes.fold(function(rightDNote:DNote, leftDNote:DNote) {					
+			_drawTie(rightDNote, leftDNote);
+			lastDNote = rightDNote;			
+			return rightDNote;
+		}, null);				
+		_drawTie(null, lastDNote);
+		
+	}
+	
+
 	private function drawRect(x:Float, y:Float, rect:Rectangle, lineWidth = 1.0, lineColor = 0xFF0000) {
 		var r = this.scaling.scaleRect(rect);
 		r.offset(x, y);

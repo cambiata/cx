@@ -1,4 +1,5 @@
 package nx.core.display;
+import cx.ArrayTools;
 import nme.geom.Rectangle;
 import nx.Constants;
 import nx.core.element.Note;
@@ -88,6 +89,34 @@ class DNote
 			if (head.tie != null) count++;
 		}
 		return count;
+	}
+
+	private var _levels:Array<Int>;
+	public function getLevels():Array<Int> {
+		if (_levels != null) return _levels;
+		this._levels = [];
+		for (dhead in this.dheads) {
+			this._levels.push(dhead.head.level);
+		}
+		return this._levels;
+	}
+	
+	private var _tieLevels:Array<Int>;
+	public function getTieLevels():Array<Int> {
+		if (this._tieLevels != null) return this._tieLevels;
+		this._tieLevels = [];
+		for (dhead in this.dheads) {
+			if (dhead.head.tie != null) this._tieLevels.push(dhead.head.level);
+		}
+		return this._tieLevels;
+	}
+
+	private var _tieConnections:Array<Int>;
+	public function getTieConnections(next:DNote):Array<Int> {		
+		var thisTieLevels = this.getTieLevels();
+		var nextLevels = next.getLevels();
+		var overlap = ArrayTools.overlap(thisTieLevels, nextLevels);
+		return overlap; // 
 	}
 	
 	//--------------------------------------
@@ -235,10 +264,13 @@ class DNote
 		if (this.notevalue.dotLevel == 0) return null;		
 		var r = this.rectHeads.clone();		
 		r.offset(r.width+ Constants.HEAD_QUARTERWIDTH, 0) ;
-		r.width = Constants.HEAD_HALFWIDTH * this.notevalue.dotLevel;
+		r.width = Constants.HEAD_HALFWIDTH * this.notevalue.dotLevel + Constants.HEAD_QUARTERWIDTH;
 		this._rectDots = r;
 		return this._rectDots;
 	}
+	
+	
+	
 	
 	private var _rectTiesfrom:Rectangle;
 	public var rectTiesfrom(get_rectTiesfrom, null):Rectangle;

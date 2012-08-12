@@ -4,7 +4,7 @@ package cx;
  * ...
  * @author Jonas Nyström
  */
-
+using Lambda;
 class ArrayTools 
 {
 	static public function unique<T>(arr: Array<T>): Array<T> {
@@ -26,12 +26,19 @@ class ArrayTools
 		return fromIterator(it.iterator());
 	}
 	
-	static public function overlap(array1:Array<Dynamic>, array2:Array<Dynamic>):Bool {		
+	static public function doOverlap(array1:Array<Dynamic>, array2:Array<Dynamic>):Bool {		
 		for (item in array1) {
 			if (Lambda.has(array2, item)) return true;
 		}
 		return false;
 	}	
+	
+	static public function overlap<T>(array1:Array<T>, array2:Array<T>): Array<T> {
+		return Lambda.array(array1.filter(function(value1) {
+			var ret = (array2.has(value1));
+			return ret;
+		}));
+	}
 	
 	static public function first<T>(array:Array<T>): T {
 		return array[0];

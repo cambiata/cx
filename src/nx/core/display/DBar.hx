@@ -27,6 +27,8 @@ class DBar
 	
 	public var dnoteColumn				(default, null)		:ObjectHash<DNote, Column>;
 	public var dnoteComplexXadjust	(default, null)		:ObjectHash<DNote, Float>;
+	public var dnoteComplex				(default, null)		:ObjectHash<DNote, Complex>;
+	
 	
 	public var columnsRectMinframe	(default, null) :	Rectangle;	
 	public var columnsRectCramped		(default, null) :	Rectangle;	
@@ -49,13 +51,15 @@ class DBar
 		this._calcColumns();
 		this._calcColumnValues();
 		this._calcColumValueWeight();
-		this._calcDnotesColumns();
+		this._calcDnotesColumnsAndComplexes();
 		this._calcDnotesComplexXadjust();
 		this._calcColumnsDistancesX();
 		this._calcColumnsPositionsX();		
 		this._calcColumnsSpacing();
 		this._calcColumnsRects();		
 	}
+	
+
 	
 
 	/************************************************************************
@@ -74,7 +78,7 @@ class DBar
 	
 	private function _calcColumns() {		
 		this.columns = [];	
-		this.dnoteColumn = new ObjectHash<DNote, Column>();
+		
 		
 		for (pos in this.positions) {			
 			var column:Column = { position:pos, value:12345, complexes:[], distanceX:0.0, positionX:0.0, widthX:0.0 };
@@ -109,16 +113,22 @@ class DBar
 		}
 	}
 	
-	private function _calcDnotesColumns() {
+	private function _calcDnotesColumnsAndComplexes() {
+		this.dnoteColumn 		= new ObjectHash<DNote, Column>();
+		this.dnoteComplex 		= new ObjectHash <DNote, Complex>();
+		
 		for (column in this.columns) {
 			for (complex in column.complexes) {
 				if (complex == null) continue;
 				for (dnote in complex.dnotes) {
 					this.dnoteColumn.set(dnote, column);
+					this.dnoteComplex.set(dnote, complex);
 				}
 			}
 		}
 	}	
+	
+	
 	
 	private function _calcDnotesComplexXadjust() {
 		this.dnoteComplexXadjust = new ObjectHash<DNote, Float>();
