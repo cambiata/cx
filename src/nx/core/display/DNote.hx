@@ -9,9 +9,9 @@ import nx.display.beam.IBeamGroup;
 import nx.enums.EClef;
 import nx.enums.EDirectionUAD;
 import nx.enums.EDirectionUD;
-import nx.enums.EFlagCorrection;
 import nx.enums.ENoteType;
 import nx.enums.ENoteValue;
+import nx.enums.ERectCorrection;
 import nx.enums.utils.EDirectionTools;
 
 /**
@@ -33,6 +33,8 @@ class DNote
 		this.levelBottom 	= this.note.heads[this.headsCount-1].level;		
 		this.dheads 			= [];
 		this.notetype			= this.note.type;
+		
+		this.flagCorrection 	= ERectCorrection.None;
 		
 		for (head in this.note.heads) {
 			this.dheads.push(new DHead(head));
@@ -69,11 +71,15 @@ class DNote
 		return this.dheads[idx];
 	}
 
-	private var flagCorrection:EFlagCorrection;
+	private var flagCorrection:ERectCorrection;
 	
-	public function setFlagCorrection(correction:EFlagCorrection) {
+	public function setFlagCorrection(correction:ERectCorrection) {
 		
-		
+			this.flagCorrection = ERectCorrection.CorrectFlags;
+			this._rectStave = null;
+			//trace('Rect stave != null - recalculate!');
+			var dummy = this.rectStave;	 // force recalculate
+
 	}
 	
 	//--------------------------------------
@@ -188,6 +194,7 @@ class DNote
 	private function get_rectStave():Rectangle {
 		if (this.notevalue.stavingLevel == 0) return null;
 		if (this._rectStave != null) return this._rectStave;		
+		
 		var r = this.rectHeads.clone();		
 		if (this.direction == EDirectionUD.Up) {
 			r.x = Constants.HEAD_HALFWIDTH;
@@ -195,8 +202,10 @@ class DNote
 			r.width = Constants.STAVE_WIDTH;
 
 			// 8ths and 16ths flags:
-			if (this.notevalue.beamingLevel > 0) r.width += Constants.HEAD_HALFWIDTH*0.7;
-			
+			if (this.flagCorrection == ERectCorrection.CorrectFlags) {
+				//trace('Correct Flag');
+				r.width += Constants.STAVE_FLAGCORRECTION;	
+			}
 			
 			this._rectStave = GeomUtils.stretchUp(r, DEFAULT_STAVE_LENGTH);
 			this._rectStave = GeomUtils.stretchDown(r, -Constants.STAVE_OFFSET);

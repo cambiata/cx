@@ -75,7 +75,8 @@ class DisplayNoteUtils {
 	*/
 	
 	static public function drawAODR(ar:Array<Rectangle>, sprite:Sprite, x:Float, y:Float, ms:TScaling, color:Int=0x000000) {				
-		sprite.graphics.lineStyle(2, color);		
+		sprite.graphics.lineStyle(2, color);	
+		sprite.graphics.endFill();
 		for (r in ar) {
 			var r2 = Scaling.scaleRectangle(r, ms);
 			r2.offset(x, y);

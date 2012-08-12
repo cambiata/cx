@@ -7,6 +7,7 @@ import nx.enums.ENoteValue;
 import nx.enums.EDirectionUAD;
 import nx.enums.EDirectionUD;
 import nme.ObjectHash;
+import nx.enums.ERectCorrection;
 /**
  * ...
  * @author Jonas Nyström
@@ -32,9 +33,11 @@ class BeamingProcessorBase {
 		.calcLevelWeight()
 		.setGroupDirection()
 		.setDisplayNoteDirections()		
+		.setFlagCorrections()
 		//.trBeamGroups()
 		;
 	}	
+	
 	
 	private function clearBeamlist():BeamingProcessorBase { 
 		//trace('clearBeamlist');
@@ -195,6 +198,35 @@ class BeamingProcessorBase {
 		return this;
 	}
 
+	private function setFlagCorrections() {
+		for (bg in dVoice.beamGroups) {
+			if (!Std.is(bg, BeamGroupSingle)) continue;
+			if (bg.getDirection() != EDirectionUD.Up) continue;
+			
+			var dNote:DNote = bg.getFirstNote();			
+			if (dNote.notetype != ENoteType.Normal) continue;
+			if (dNote.notevalue.beamingLevel < 2) continue;
+			
+			// Do the flag rect correction!
+			dNote.setFlagCorrection(ERectCorrection.CorrectFlags);
+			
+			
+			/*
+			if (Std.is(bg, BeamGroupSingle)) {
+				if (bg.getDirection() == EDirectionUD.Up) {
+					var dNote:DNote = bg.getFirstNote();
+					
+					if (dNote.notevalue.beamingLevel >= 2) { // 8ths or 16ths
+						trace('CORRECT');
+						dNote.setFlagCorrection(ERectCorrection.CorrectFlags);
+					}					
+				}				
+			}			
+			*/
+			
+			
+		}
+	}
 	
 
 

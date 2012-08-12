@@ -27,6 +27,10 @@ class Constants {
 	static public inline var HEAD_HEIGHT:Int = 2;
 	static public inline var HEAD_DOTRADIUS:Float = 0.5;
 	
+	static public inline var HEAD_LEGER_LEFT:Float = 1;
+	static public inline var HEAD_LEGER_RIGHT:Float = 1.9;
+	static public inline var HEAD_LEGER_RIGHT_WHOLE:Float = 1.8;
+	
 	static public inline var BEAM_HEIGHT:Float = 0.8;
 	static public inline var BEAM_SUBDISTANCE:Float = HEAD_HEIGHT * 0.8;
 	static public inline var BEAM_SUBWIDTH:Float = HEAD_WIDTH * 0.8;
@@ -36,6 +40,7 @@ class Constants {
 	static public inline var STAVE_OFFSET:Float = 1.4;
 	static public inline var STAVE_WIDTH:Float = 0.2;
 	static public inline var STAVE_HEADADJUST:Float = 0.4;
+	static public inline var STAVE_FLAGCORRECTION:Float = HEAD_HALFWIDTH + HEAD_QUARTERWIDTH;
 	
 	static public inline var ASPACING_NORMAL:Float = HEAD_HALFWIDTH * 5;	
 	static public inline var LOOP_COUNT_MAX:Int = 3000;

@@ -75,6 +75,6 @@ class ENoteValue {
 			}
 			
 		}
-		return null;
+		return ENoteValue.Nv4;
 	}
 }

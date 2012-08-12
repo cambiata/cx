@@ -84,7 +84,8 @@ class Render implements IRender
 	public function noteRects(noteX:Float, noteY:Float, displayNote:DisplayNote) {
 		var graphics = target.graphics;
 		
-		graphics.beginFill(0, 0);
+		//graphics.beginFill(0, 0);
+		graphics.endFill();
 		
 		
 		// Zero line
@@ -605,9 +606,9 @@ class Render implements IRender
 	
 	private function _drawLegers(x:Float, y:Float, dnote:DNote) {
 		
-		var x1 = x + scaling.scaleX2(dnote.rectHeads.x - Constants.HEAD_16thWIDTH) ;
-		var x2 = x1 + scaling.scaleX2(dnote.rectHeads.width + Constants.HEAD_QUARTERWIDTH);
-		if (dnote.notevalue.stavingLevel == 0) x2 += scaling.scaleX2(Constants.HEAD_QUARTERWIDTH + Constants.HEAD_16thWIDTH);
+		var x1 = x + scaling.scaleX2(dnote.rectHeads.x - Constants.HEAD_LEGER_LEFT) ;
+		var x2 = x1 + scaling.scaleX2(dnote.rectHeads.width + Constants.HEAD_LEGER_RIGHT);
+		if (dnote.notevalue.stavingLevel == 0) x2 += scaling.scaleX2(Constants.HEAD_LEGER_RIGHT_WHOLE);
 		
 		
 		this.gr.lineStyle(scaling.linesWidth);
@@ -848,7 +849,7 @@ class Render implements IRender
 	}
 	
 	public function dbar(x:Float, y:Float, dbar:DBar, stretchToWidth:Float=0, rects:Bool = true) {
-
+		this.gr.endFill();
 		// Stretch		
 		var currentWidth = this.scaling.scaleX2(dbar.columnsRectAlloted.width);
 		dbar.stretchContentTo( this.scaling.descaleX(stretchToWidth));		

@@ -5,8 +5,7 @@ package nx.enums;
  * @author Jonas Nyström
  */
 
-enum EFlagCorrection 
-{
-	None;
-	Correct;
+enum ETie 
+{	
+	Tie(direction:EDirectionUAD);	
 }

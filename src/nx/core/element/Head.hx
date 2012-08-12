@@ -1,23 +1,27 @@
 package nx.core.element;
+import cx.EnumTools;
 import nx.enums.ESign;
+import nx.enums.ETie;
 
 /**
  * ...
  * @author Jonas Nyström
  */
- 
+using cx.EnumTools;
 class Head  
 {
 	
-	public function new(level:Int=0, sign:ESign=null)  {
+	public function new(level:Int=0, sign:ESign=null, tie:ETie=null)  {
 		//trace(sign);
 		this.level = level;
 		this.sign = (sign == null) ? ESign.None : sign;
+		this.tie = tie;
 		//trace(this.sign);
 	}
 	
 	public var level(default, null):Int;
 	public var sign(default, null):ESign;
+	public var tie(default, null):ETie;
 	
 	//-----------------------------------------------------------------------------------------------------
 	
@@ -29,23 +33,30 @@ class Head
 	 * XML functions
 	 * 
 	 ************************************************************************/
-
+	static public var XHEAD 		= 'head';
+	static public var XLEVEL 		= 'level';
+	static public var XSIGN 		= 'sign';
+	static public var XTIE 			= 'tie';
+	
+	 
 	public function toXml():Xml {		
-		var xml:Xml = Xml.createElement('head');		
-		xml.set('level', Std.string(this.level));
-		xml.set('sign', Std.string(this.sign));				
+		var xml:Xml = Xml.createElement(XHEAD);		
+		xml.set(XLEVEL, Std.string(this.level));		
+		if (this.sign != ESign.None) xml.set(XSIGN, Std.string(this.sign));				
+		if (this.tie != null) xml.set(XTIE, Std.string(this.tie));						
 		return xml;
 	}
 	
 	static public function fromXmlStr(xmlStr:String) {		
 		var xml = Xml.parse(xmlStr).firstElement();		
-		var level:Int = 0;
-		try level = Std.parseInt(xml.get('level'));			
 		
-		var sign:ESign = null;
-		var signStr = xml.get('sign');
-		if (signStr != null) try { sign = Type.createEnum(ESign, signStr); }		
-		var head = new Head(level, sign);		
+		var level:Int = 0;		
+		try level = Std.parseInt(xml.get(XLEVEL));			
+		
+		var sign = ESign.createFromString(xml.get(XSIGN));
+		var tie = ETie.createFromString(xml.get(XTIE));
+		
+		var head = new Head(level, sign, tie);		
 		return head;
 	}	 
 		

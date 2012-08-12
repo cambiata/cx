@@ -126,6 +126,10 @@ class StrTools
 		return Math.max(0, Math.min(totalScore, 1));
 	}
 	
+	static public function has(str:String, substr:String):Bool {
+		return (str.indexOf(substr) > -1);
+	}
+	
 }
 
 typedef SimilaritySegment = {

@@ -1,4 +1,6 @@
 package nx.core.element;
+import cx.EnumTools;
+import nx.Constants;
 import nx.enums.EDirectionUAD;
 import nx.enums.ENoteType;
 import nx.enums.ENoteValue;
@@ -7,7 +9,7 @@ import nx.enums.ENoteValue;
  * ...
  * @author Jonas Nyström
  */
-
+using cx.EnumTools;
 class Note  
 {
 
@@ -39,56 +41,37 @@ class Note
 	 * 
 	 ************************************************************************/
 	
+	static public var XNOTE 			= 'note'; 
+	static public var XVALUE 			= 'value';
+	static public var XDIRECTION	= 'direction';
+	static public var XTYPE				= 'type';
+	 
 	public function toXml():Xml {		
-		
-		var xml:Xml = Xml.createElement('note');				
+		var xml:Xml = Xml.createElement(XNOTE);				
 		
 		for (head in this.heads) {
 			var headXml = head.toXml();
 			xml.addChild(headXml);
 		}
 		
-		xml.set('value', Std.string(this.notevalue.value));
-		xml.set('direction', Std.string(this.direction));
-		xml.set('type', Std.string(this.type));			
-		
-		//xml.set('text', Std.string(this.));			
+		if (this.notevalue != ENoteValue.Nv4) 		xml.set(XVALUE, 			Std.string(this.notevalue.value));
+		if (this.direction != EDirectionUAD.Auto) 	xml.set(XDIRECTION, 		Std.string(this.direction));
+		if (this.type != ENoteType.Normal)			xml.set(XTYPE, 				Std.string(this.type));			
 		
 		return xml;
 	}
 	
 	static public function fromXmlStr(xmlStr:String):Note {
-		
-		var xml = Xml.parse(xmlStr).firstElement();
-		
-		var heads:Array<Head> = [];
-		
-		for (h in xml.elementsNamed('head')) {
+		var xml = Xml.parse(xmlStr).firstElement();		
+		var heads:Array<Head> = [];		
+		for (h in xml.elementsNamed(Head.XHEAD)) {
 			var head = Head.fromXmlStr(h.toString());
 			heads.push(head);
 		}
 
-		/*
-		var text:String;
-		try text = xml.get('text');			
-		*/
-		
-		var value:ENoteValue= null;
-		var int = Std.parseInt(xml.get('value'));
-		if (int != null) {
-			value = ENoteValue.getFromValue(int);		
-		}
-		
-		var direction:EDirectionUAD = null;
-		var str = xml.get('direction');
-		if (str != null) try { direction = Type.createEnum(EDirectionUAD, str); }				
-		
-		
-		
-		var type:ENoteType = null;
-		var str = xml.get('type');
-		if (str != null) try type = Type.createEnum(ENoteType, str);
-		
+		var value = 			ENoteValue.getFromValue(Std.parseInt(xml.get(XVALUE)));		
+		var direction = 		EDirectionUAD.createFromString(xml.get(XDIRECTION));
+		var type = 				ENoteType.createFromString(xml.get(XTYPE));
 		
 		var note = new Note(heads, value, direction, type);
 		
