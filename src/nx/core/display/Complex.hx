@@ -144,10 +144,13 @@ class Complex
 		this._rectsAll = [];
 		if (this.rectHeads != null) this._rectsAll.push(this.rectHeads);
 		if (this.rectSigns != null) this._rectsAll.push(this.rectSigns);
+		
 		for (dnote in this.dnotes) {
-			if (dnote.rectStave != null) this._rectsAll.push(dnote.rectStave);			
-			if (dnote.rectDots != null) this._rectsAll.push(dnote.rectDots);
+			if (dnote.rectStave != null) 			this._rectsAll.push(dnote.rectStave);			
+			if (dnote.rectDots != null) 			this._rectsAll.push(dnote.rectDots);
+			if (dnote.rectTiesfrom != null) 		this._rectsAll.push(dnote.rectTiesfrom);
 		}
+		
 		return this._rectsAll;
 	}
 	

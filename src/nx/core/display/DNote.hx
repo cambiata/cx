@@ -82,6 +82,14 @@ class DNote
 
 	}
 	
+	public function countTies():Int {
+		var count = 0;
+		for (head in this.note.heads) {
+			if (head.tie != null) count++;
+		}
+		return count;
+	}
+	
 	//--------------------------------------
 	
 	public var direction(get_direction, set_direction):EDirectionUD;
@@ -157,10 +165,11 @@ class DNote
 	
 	
 	
+	
 	//-----------------------------------------------------------------------------------------------------
 	
-	public var beamGroup:IBeamGroup;
-	public var beamTemp:Int;	
+	//public var beamGroup:IBeamGroup;
+	//public var beamTemp:Int;	
 	
 	//-----------------------------------------------------------------------------------------------------
 	
@@ -229,6 +238,27 @@ class DNote
 		r.width = Constants.HEAD_HALFWIDTH * this.notevalue.dotLevel;
 		this._rectDots = r;
 		return this._rectDots;
+	}
+	
+	private var _rectTiesfrom:Rectangle;
+	public var rectTiesfrom(get_rectTiesfrom, null):Rectangle;
+	private function get_rectTiesfrom():Rectangle {
+		if (this._rectTiesfrom != null) return this._rectTiesfrom;
+		
+		this._rectTiesfrom = null;
+		
+		if (this.countTies() > 0) {
+			var r = this.rectHeads.clone();
+			r.offset(r.width + Constants.HEAD_QUARTERWIDTH, 0);
+			r.width = Constants.HEAD_TIEWIDTH;
+			if (this.rectDots != null) {
+				r.offset(this.rectDots.width, 0);
+			}
+			this._rectTiesfrom = r;
+		}
+		
+		return this._rectTiesfrom;
+		
 	}
 	
 }

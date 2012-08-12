@@ -1,30 +1,30 @@
 package nx.core.element;
-import nx.core.element.Part;
 
 /**
  * ...
  * @author Jonas Nyström
  */
 
-class Bar 
+class Bars 
 {
-	public var parts(default, null):Array<Part>;
-
-	public function new(parts:Iterable<Part>=null) {
-		this.parts = (parts != null) ? Lambda.array(parts) : [new Part()];
+	public var bars(default, null): Array<Bar>;
+	
+	public function new(bars:Iterable<Bar>=null) 
+	{
+		this.bars = (bars != null) ? Lambda.array(bars) : [new Bar()];
 	}
 	
 	/*************************************************************
 	 * XML functions
 	 */
 	
-	static public var XBAR 					= 'bar';
+	static public var XBARS 				= 'bars';
 	//static public var XDIRECTION		= 'direction';
 	
 	public function toXml():Xml {		
-		var xml:Xml = Xml.createElement(XBAR);				
+		var xml:Xml = Xml.createElement(XBARS);				
 		
-		for (item in this.parts) {
+		for (item in this.bars) {
 			var itemXml = item.toXml();
 			xml.addChild(itemXml);
 		}
@@ -34,18 +34,18 @@ class Bar
 		return xml;
 	}
 	
-	static public function fromXmlStr(xmlStr:String):Bar {	
+	static public function fromXmlStr(xmlStr:String):Bars {	
 		
 		var xml = Xml.parse(xmlStr).firstElement();
-		var items:Array<Part> = [];
-		for (itemXml in xml.elementsNamed(Part.XPART)) {
-			var item = Part.fromXmlStr(itemXml.toString());
+		var items:Array<Bar> = [];
+		for (itemXml in xml.elementsNamed(Bar.XBAR)) {
+			var item = Bar.fromXmlStr(itemXml.toString());
 			items.push(item);
 		}	
 		
 		//var direction = EDirectionUAD.createFromString(xml.get(XDIRECTION));
 		
-		return new Bar(items);
+		return new Bars(items);
 		
 	}
 	

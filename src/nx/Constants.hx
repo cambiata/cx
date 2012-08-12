@@ -26,6 +26,7 @@ class Constants {
 	static public inline var HEAD_HALFHEIGHT:Int = 1;
 	static public inline var HEAD_HEIGHT:Int = 2;
 	static public inline var HEAD_DOTRADIUS:Float = 0.5;
+	static public inline var HEAD_TIEWIDTH:Float = HEAD_WIDTH;
 	
 	static public inline var HEAD_LEGER_LEFT:Float = 1;
 	static public inline var HEAD_LEGER_RIGHT:Float = 1.9;

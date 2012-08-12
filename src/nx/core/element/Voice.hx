@@ -7,12 +7,12 @@ import nx.enums.ESign;
  * ...
  * @author Jonas Nyström
  */
-
+using cx.EnumTools;
 class Voice 
 {
 	public function new(notes:Iterable<Note>=null, direction:EDirectionUAD=null)  {
 		this.notes = (notes != null) ? Lambda.array(notes) : [new Note()];
-		this.direction = direction;
+		this.direction =(direction!= null) ? direction : EDirectionUAD.Auto;
 	}
 
 	public var notes(default, null):Array<Note>;
@@ -21,16 +21,20 @@ class Voice
 	/*************************************************************
 	 * XML functions
 	 */
+	
+	static public var XVOICE 				= 'voice';
+	static public var XDIRECTION		= 'direction';
+	
 	public function toXml():Xml {		
 		
-		var xml:Xml = Xml.createElement('voice');				
+		var xml:Xml = Xml.createElement(XVOICE);				
 		
 		for (note in this.notes) {
 			var itemXml = note.toXml();
 			xml.addChild(itemXml);
 		}
 		
-		xml.set('direction', Std.string(this.direction));
+		if (this.direction != EDirectionUAD.Auto) 		xml.set(XDIRECTION, 		Std.string(this.direction));
 		
 		return xml;
 	}
@@ -41,15 +45,14 @@ class Voice
 		
 		var notes:Array<Note> = [];
 		
-		for (itemXml in xml.elementsNamed('note')) {
+		for (itemXml in xml.elementsNamed(Note.XNOTE)) {
 			var item = Note.fromXmlStr(itemXml.toString());
 			notes.push(item);
 		}	
 		
-		var direction:EDirectionUAD = null;
-		var str = xml.get('direction');
-		if (str != null) try { direction = Type.createEnum(EDirectionUAD, str); }				
-				
+		
+		var direction = EDirectionUAD.createFromString(xml.get(XDIRECTION));
+		
 		return new Voice(notes, direction);
 		
 	}

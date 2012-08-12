@@ -28,7 +28,7 @@ import nx.display.beam.BeamGroupFrame;
 using nx.output.Scaling;
 using cx.ArrayTools;
 using nx.core.display.DBar;
-
+using Lambda;
 
 class Render implements IRender
 {
@@ -588,19 +588,18 @@ class Render implements IRender
 				
 				_drawLegers(x, y, dnote);
 				
-				
 			default:
-				
 		}
 		
 		this.dnoteDots(x, y, dnote, rects);
 		
 		
 		if (rects) {
-			this.gr.lineStyle(1, 0x0000FF);		
-			var r = Scaling.scaleRectangle(dnote.rectHeads, this.scaling);
-			r.offset(x, y);
-			this.gr.drawRect(r.x, r.y, r.width, r.height);		
+			//this.drawRect(x, y, dnote.rectHeads, 3, 0x0000FF);
+			
+			this.drawRect(x, y, dnote.rectStave, 1, 0xFF0000);
+			if (dnote.rectDots != null)   this.drawRect(x, y, dnote.rectDots, 3, 0x00FF00);
+			if (dnote.rectTiesfrom != null)  this.drawRect(x, y, dnote.rectTiesfrom, 3, 0xFF0000);
 		}
 	}
 	
@@ -658,12 +657,14 @@ class Render implements IRender
 	
 	private function dnoteDots(x:Float, y:Float, dnote:DNote, rects:Bool) {
 		if (dnote.rectDots == null) return;
+		/*
 		if (rects) {
 			this.gr.lineStyle(1, 0x00FFFF);		
 			var r = Scaling.scaleRectangle(dnote.rectDots, this.scaling);
 			r.offset(x, y);
 			this.gr.drawRect(r.x, r.y, r.width, r.height);		
-		}		
+		}	
+		*/
 		
 	}
 	
@@ -675,11 +676,12 @@ class Render implements IRender
 		var r = Scaling.scaleRectangle(dnote.rectStave, this.scaling);
 		r.offset(x, y);
 
+		/*
 		if (rects) {
 			this.gr.lineStyle(1, 0xFF0000);					
 			this.gr.drawRect(r.x, r.y, r.width, r.height);		
 		}				
-		
+		*/
 		
 		this.gr.lineStyle(this.scaling.linesWidth, 0x000000);
 		this.gr.moveTo(r.x, r.y);
@@ -901,6 +903,29 @@ class Render implements IRender
 			y2 += 180;
 		}
 		
+		// Draw voice stuff
+		y2 = y;
+		for (dpart in dbar.dparts) {
+			for (dvoice in dpart.dvoices) {
+				var lastDnote:DNote = null;
+				dvoice.dnotes.fold(function(currentDnote:DNote, prevDnote:DNote) {
+					if (prevDnote != null) {
+						trace(prevDnote.countTies());
+					} else {
+						trace(currentDnote.countTies());
+					}
+					
+					lastDnote = currentDnote;
+					return currentDnote;
+				}, null);
+				trace(lastDnote.countTies());
+			}
+			y2 += 180;
+		}
+		
+		
+		
+		
 		if (rects) {		
 			var r = Scaling.scaleRectangle(dbar.columnsRectStretched, this.scaling);
 			r.y = -20;
@@ -912,7 +937,13 @@ class Render implements IRender
 		}
 	}
 	
-	
+	private function drawRect(x:Float, y:Float, rect:Rectangle, lineWidth = 1.0, lineColor = 0xFF0000) {
+		var r = this.scaling.scaleRect(rect);
+		r.offset(x, y);
+		this.gr.lineStyle(lineWidth, lineColor);
+		this.gr.drawRect(r.x, r.y, r.width, r.height);
+		
+	}
 	
 	
 	

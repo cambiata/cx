@@ -24,10 +24,11 @@ class Head
 	public var tie(default, null):ETie;
 	
 	//-----------------------------------------------------------------------------------------------------
-	
+	/*
 	public function toString():String {
 		return '- Head:' + this.level + ':' + this.sign;
 	}
+	*/
 	
 	/************************************************************************
 	 * XML functions
