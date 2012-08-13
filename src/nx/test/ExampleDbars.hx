@@ -65,7 +65,7 @@ class ExampleDbars
 					new Note([new Head(5)], ENoteValue.Nv16),
 					new Note([new Head(1, ESign.Flat)]) ,
 					new Note([new Head( -6), new Head( -7)]) ,					
-					new Note([new Head(8), new Head(7)], ENoteValue.Nv1) ,
+					new Note([new Head(8, null, ETie.Tie(EDirectionUAD.Auto)), new Head(7)], ENoteValue.Nv1) ,
 					new Note([new Head(8)], ENoteValue.Nv1) ,
 				], EDirectionUAD.Down),				
 				
