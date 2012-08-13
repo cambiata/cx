@@ -29,6 +29,9 @@ class DBar
 	public var dnoteComplexXadjust	(default, null)		:ObjectHash<DNote, Float>;
 	public var dnoteComplex				(default, null)		:ObjectHash<DNote, Complex>;
 	
+	public var dnoteguidColumnidx		(default, null)		:Hash<Int>;
+	public var dnoteguidComplexidx		(default, null)		:Hash<Int>;
+	public var dnoteguidComplexXadjust	(default, null)		:Hash<Float>;
 	
 	public var columnsRectMinframe	(default, null) :	Rectangle;	
 	public var columnsRectCramped		(default, null) :	Rectangle;	
@@ -114,8 +117,10 @@ class DBar
 	}
 	
 	private function _calcDnotesColumnsAndComplexes() {
-		this.dnoteColumn 		= new ObjectHash<DNote, Column>();
-		this.dnoteComplex 		= new ObjectHash <DNote, Complex>();
+		this.dnoteColumn 				= new ObjectHash<DNote, Column>();
+		this.dnoteComplex 				= new ObjectHash <DNote, Complex>();
+		this.dnoteguidColumnidx 		= new Hash<Int>();
+		this.dnoteguidComplexidx 	= new Hash<Int>();
 		
 		for (column in this.columns) {
 			for (complex in column.complexes) {
@@ -123,6 +128,13 @@ class DBar
 				for (dnote in complex.dnotes) {
 					this.dnoteColumn.set(dnote, column);
 					this.dnoteComplex.set(dnote, complex);
+					
+					var columnIdx = this.columns.index(column);
+					this.dnoteguidColumnidx.set(dnote.guid, columnIdx);
+					
+					var complexIdx = column.complexes.index(complex);
+					this.dnoteguidComplexidx.set(dnote.guid, complexIdx);
+					
 				}
 			}
 		}
@@ -132,6 +144,8 @@ class DBar
 	
 	private function _calcDnotesComplexXadjust() {
 		this.dnoteComplexXadjust = new ObjectHash<DNote, Float>();
+		this.dnoteguidComplexXadjust = new Hash<Float>();
+		
 		for (column in this.columns) {
 			for (complex in column.complexes) {
 				if (complex == null) continue;
@@ -139,10 +153,15 @@ class DBar
 				for (dnote in complex.dnotes) {
 					var adjustX = complex.dnoteXshift(idx);
 					this.dnoteComplexXadjust.set(dnote, adjustX);
+					
+					var complexIdx = column.complexes.index(complex);
+					this.dnoteguidComplexXadjust.set(dnote.guid, adjustX);
+					
 					idx++;
 				}
 			}
-		}		
+		}
+		
 	}
 	
 	private function _calcColumnsDistancesX() {

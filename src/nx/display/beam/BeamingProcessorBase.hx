@@ -117,14 +117,12 @@ class BeamingProcessorBase {
 				
 				var newBeamGroup = _getBeamGroupFromArray(arrDnote);
 				this.dVoice.beamGroups.push(newBeamGroup);
-				
 				count = 0;				
 				arrDnote = [dnote];
 			} else {
 				count++;
 				arrDnote.push(dnote);
 			}
-			
 			prevDnote = dnote;
 		}
 		var newBeamGroup = _getBeamGroupFromArray(arrDnote);

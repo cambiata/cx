@@ -27,7 +27,7 @@ class DVoice
 	
 	public var dnotePosition(default, null):ObjectHash<DNote, Int>;
 	public var dnotePositionEnd(default, null):ObjectHash<DNote, Int>;
-	
+	public var dnoteBeamgroup(default, null):ObjectHash<DNote, IBeamGroup>;
 
 	
 
@@ -55,6 +55,7 @@ class DVoice
 			
 			this.dnotePosition = new ObjectHash<DNote, Int>();
 			this.dnotePositionEnd = new ObjectHash<DNote, Int>();
+			this.dnoteBeamgroup = new ObjectHash<DNote, IBeamGroup>();
 			
 			this.value = 0;
 			for (dnote in this.dnotes) {				

@@ -5,6 +5,7 @@ import nme.display.Graphics;
 import nme.display.Shape;
 import nme.display.Sprite;
 import nme.geom.Rectangle;
+import nme.Vector;
 import nx.Constants;
 import nx.core.display.DBar;
 import nx.core.display.DNote;
@@ -14,10 +15,12 @@ import nx.core.display.DVoice;
 import nx.display.beam.BeamTools;
 import nx.display.beam.IBeamGroup;
 import nx.display.DisplayNote;
+import nx.enums.EDirectionUAD;
 import nx.enums.EDirectionUD;
 import nx.enums.EHeadType;
 import nx.enums.ENoteType;
 import nx.enums.ENoteValue;
+import nx.enums.utils.EDirectionTools;
 import nx.svg.SvgAssets;
 import nx.output.Scaling;
 import nx.display.beam.BeamGroupFrame;
@@ -566,7 +569,7 @@ class Render implements IRender
 	//-----------------------------------------------------------------------------------------------------
 	//-----------------------------------------------------------------------------------------------------
 	
-	public function dnote(x:Float, y:Float, dnote:DNote, rects:Bool=false, collisionShiftX:Float=0) {
+	public function dnote(x:Float, y:Float, dnote:DNote, rects:Bool=false, collisionShiftX:Float=0, dvoice:DVoice=null) {
 		var positions = dnote.headPositions.copy();
 		
 		switch (dnote.notetype) {
@@ -581,8 +584,38 @@ class Render implements IRender
 					var xshift = scaling.scaleX2(collisionShiftX);
 					this._drawHead(x + xshift, y, dhead.level, position, dnote.notevalue.headType);					
 					
+					
+					
+					
 					if (dnote.notevalue.dotLevel > 0) {
-						this._drawHeadDot(x, y, dhead.level, position, dnote);
+						
+						var tieUp:Bool = false; // (leftDNote.direction == EDirectionUD.Up);
+					
+						/*
+						switch(dvoice.direction) {
+							case EDirectionUAD.Up:
+								//trace('VoiceUp = tieUp true');
+								tieUp = true;
+								if (tieSingle) tieXRigthNote += this.scaling.scaleX2(Constants.HEAD_QUARTERWIDTH + Constants.TIE_SINGLE_XCOMP);
+							case EDirectionUAD.Down:
+								//trace('VoiceDown = tieUp false');
+								tieUp = false;
+								if (tieSingle) {
+									leftX = leftColumn.sPositionX + leftDNote.rectHeads.x + leftDNote.rectHeads.width - Constants.TIE_SINGLE_XCOMP;
+									tieX = x + this.scaling.scaleX2(leftX);										
+								}
+							default:									
+						}
+						*/
+						var dotLevel = 0;
+						
+						if (dhead.level < 0) {
+							dotLevel = dhead.level  + ((dhead.level-1) % 2);
+						} else {
+							dotLevel = dhead.level-1 + (dhead.level % 2) ;
+						}
+						
+						this._drawHeadDot(x, y, dotLevel, position, dnote);
 					}					
 					
 				}
@@ -635,11 +668,11 @@ class Render implements IRender
 	
 	private function _drawHeadDot(x:Float, y:Float, level:Int, position:Int, dnote:DNote) {
 		
-		var dlevel = level + (level % 2)-1;
+		
 		//trace([level, dlevel]);
 		
 		var x2 = x + this.scaling.scaleX2(dnote.rectDots.x + Constants.HEAD_QUARTERWIDTH);
-		var y2 = y + this.scaling.scaleY(dlevel);
+		var y2 = y + this.scaling.scaleY(level);
 		
 		//trace(['dot', x, dnote.rectDots.x, x, y, x2, y2]);
 		
@@ -853,6 +886,8 @@ class Render implements IRender
 	
 	public function dbar(x:Float, y:Float, dbar:DBar, stretchToWidth:Float=0, rects:Bool = true) {
 		this.gr.endFill();
+		
+		
 		// Stretch		
 		var currentWidth = this.scaling.scaleX2(dbar.columnsRectAlloted.width);
 		dbar.stretchContentTo( this.scaling.descaleX(stretchToWidth));		
@@ -909,53 +944,7 @@ class Render implements IRender
 		y2 = y;
 		for (dpart in dbar.dparts) {
 			for (dvoice in dpart.dvoices) {
-				this.dvoiceTies(x, y, dbar, dvoice);
-				/*
-				dvoice.dnotes.fold(function(rightDNote:DNote, leftDNote:DNote) {					
-					if (leftDNote != null) {
-						
-						if (leftDNote.countTies() > 0) {
-							
-							
-							var tieLevels = leftDNote.getTieLevels();
-							var tieConnectLevels = leftDNote.getTieConnections(rightDNote);
-							trace([tieLevels, tieConnectLevels]);						
-							
-							var leftColumn = dbar.dnoteColumn.get(leftDNote);
-							var rightColumn = dbar.dnoteColumn.get(rightDNote);
-							
-							var leftX = leftColumn.sPositionX + leftDNote.rectTiesfrom.x;						
-							var rightComplex = dbar.dnoteComplex.get(rightDNote);
-							var rigthX = rightColumn.sPositionX;							
-							rigthX += (rightDNote.signs.count() > 0) ? rightComplex.rectSigns.x : rightComplex.rectHeads.x;
-							trace([leftColumn.sPositionX, rightColumn.sPositionX]);
-							trace([leftX, rigthX]);
-	
-							var tieX 			= x + this.scaling.scaleX2(leftX);
-							var tieXConnect 	= x + this.scaling.scaleX2(rigthX);
-							var tieXHanging 	= tieX + this.scaling.scaleX2(Constants.HEAD_TIEWIDTH);
-							
-							var tieY:Float = 0.0;
-							
-							this.gr.lineStyle(2, 0x000000);
-							for (tieLevel in tieLevels) {
-								tieY = y +  this.scaling.scaleY(tieLevel * Constants.HEAD_HALFHEIGHT);
-								if (tieConnectLevels.has(tieLevel)) {
-									trace(['- connect level ', tieLevel]);
-									this.gr.moveTo(tieX, tieY);
-									this.gr.lineTo(tieXConnect, tieY);
-								} else {
-									trace(['- hanging level ', tieLevel]);
-									this.gr.moveTo(tieX, tieY);
-									this.gr.lineTo(tieXHanging, tieY);
-								}
-							}
-						}
-					}
-					return rightDNote;
-				}, null);
-				*/
-				
+				this.dvoiceTies(x, y2, dbar, dvoice);
 			}
 			y2 += 180;
 		}
@@ -973,6 +962,15 @@ class Render implements IRender
 		}
 	}
 	
+	private function drawRect(x:Float, y:Float, rect:Rectangle, lineWidth = 1.0, lineColor = 0xFF0000) {
+		var r = this.scaling.scaleRect(rect);
+		r.offset(x, y);
+		this.gr.lineStyle(lineWidth, lineColor);
+		this.gr.drawRect(r.x, r.y, r.width, r.height);
+		
+	}	
+	
+	
 	private function dvoiceTies(x:Float, y:Float, dbar:DBar, dvoice:DVoice) {
 		
 		// Local function: 
@@ -981,34 +979,92 @@ class Render implements IRender
 				var tieConnectLevels = [];
 				if (leftDNote.countTies() > 0) {
 					var tieLevels = leftDNote.getTieLevels();					
-					var leftColumn = dbar.dnoteColumn.get(leftDNote);
+					var columIdx = dbar.dnoteguidColumnidx.get(leftDNote.guid);
+					var leftColumn = dbar.columns[columIdx];
 					var leftX = leftColumn.sPositionX + leftDNote.rectTiesfrom.x;
 					var tieX 			= x + this.scaling.scaleX2(leftX);					
 					var tieXHanging 	= tieX + this.scaling.scaleX2(Constants.HEAD_TIEWIDTH);
 					var rightX = 0.0;
 					var tieXRigthNote = 0.0;
+					
 					// if there is a right note to tie to:
 					if (rightDNote != null) {
 						tieConnectLevels = leftDNote.getTieConnections(rightDNote);
-						var rightColumn = dbar.dnoteColumn.get(rightDNote);					
-						var rightComplex = dbar.dnoteComplex.get(rightDNote);
-						var rigthX = rightColumn.sPositionX + dbar.dnoteComplexXadjust.get(rightDNote) - Constants.HEAD_QUARTERWIDTH;							
-						rigthX += (rightDNote.signs.count() > 0) ? rightComplex.rectSigns.x : rightComplex.rectHeads.x;
-						//rightX -= this.scaling.scaleX2(Constants.HEAD_HALFWIDTH);
-						tieXRigthNote 	= x + this.scaling.scaleX2(rigthX);
+						var columidx = dbar.dnoteguidColumnidx.get(rightDNote.guid);
+						var rightColumn = dbar.columns[columidx];
+						var complexIdx = dbar.dnoteguidComplexidx.get(rightDNote.guid);
+						var rightComplex = rightColumn.complexes[complexIdx];
+						rightX = rightColumn.sPositionX + dbar.dnoteguidComplexXadjust.get(rightDNote.guid) - Constants.HEAD_QUARTERWIDTH;							
+						rightX += (rightDNote.signs.count() > 0) ? rightComplex.rectSigns.x : rightComplex.rectHeads.x;
+						tieXRigthNote 	= x + this.scaling.scaleX2(rightX);
 					}
+					var tieConnectLength = rightX - leftX;
+					
+					
 					var tieY:Float = 0.0;
-					this.gr.lineStyle(4, 0xFF0000);
+					var tieThickness:Float = this.scaling.scaleY(Constants.TIE_THICKNESS);					
+					var tieHeight:Float = 0.0;
+					
+					//-----------------------------------------------------------------------------------------
+
+					var tieUp:Bool = false; // (leftDNote.direction == EDirectionUD.Up);
+					var tieSingle:Bool = (leftDNote.countTies() == 1);
+					
+					
+					switch(dvoice.direction) {
+						case EDirectionUAD.Up:
+							//trace('VoiceUp = tieUp true');
+							tieUp = true;
+							if (tieSingle) tieXRigthNote += this.scaling.scaleX2(Constants.HEAD_QUARTERWIDTH + Constants.TIE_SINGLE_XCOMP);
+						case EDirectionUAD.Down:
+							//trace('VoiceDown = tieUp false');
+							tieUp = false;
+							if (tieSingle) {
+								leftX = leftColumn.sPositionX + leftDNote.rectHeads.x + leftDNote.rectHeads.width - Constants.TIE_SINGLE_XCOMP;
+								tieX = x + this.scaling.scaleX2(leftX);										
+							}
+						default:							
+							if (leftDNote.direction == EDirectionUD.Up) {
+								//trace('VoiceAuto, NoteUp = tieUp true');
+								tieUp = false;
+							} else {
+								//trace('VoiceAuto, NoteDown = tieUp true');
+								tieUp = true;
+							}
+							// move y
+							if (tieSingle) {								
+								leftX = leftColumn.sPositionX + leftDNote.rectHeads.x + leftDNote.rectHeads.width - Constants.TIE_SINGLE_XCOMP;
+								tieX = x + this.scaling.scaleX2(leftX);		
+								tieXRigthNote += this.scaling.scaleX2(Constants.HEAD_QUARTERWIDTH + Constants.TIE_SINGLE_XCOMP);
+							}
+					}
+					
+					tieHeight = this.scaling.scaleY((tieUp) ? -Constants.TIE_HEIGHT : Constants.TIE_HEIGHT);
+					
+					if (tieSingle) {
+						tieY = this.scaling.scaleY((tieUp) ? -Constants.TIE_SINGLE_YMOVE : Constants.TIE_SINGLE_YMOVE);
+					} else {
+						tieY = this.scaling.scaleY((tieUp) ? -Constants.TIE_MULTI_YMOVE : Constants.TIE_MULTI_YMOVE);
+					}
+					
+					//-----------------------------------------------------------------------------------------
+
+					var ty:Float = tieY;
+					//this.gr.lineStyle(4, 0xFF0000);
 					for (tieLevel in tieLevels) {
-						tieY = y +  this.scaling.scaleY(tieLevel * Constants.HEAD_HALFHEIGHT);
+						ty = tieY + y +  this.scaling.scaleY(tieLevel * Constants.HEAD_HALFHEIGHT);
 						if (tieConnectLevels.has(tieLevel)) {
+							
+							if (tieConnectLength < Constants.TIE_SHORT) {
+								tieHeight = this.scaling.scaleY((tieUp) ? -Constants.TIE_SHORT_HEIGHT : Constants.TIE_SHORT_HEIGHT);
+							}
+							trace(tieConnectLength, tieHeight);
+							
 							// connect to next note
-							this.gr.moveTo(tieX, tieY);
-							this.gr.lineTo(tieXRigthNote, tieY);
+							this.tie(this.gr, tieX, ty, tieXRigthNote-tieX, tieHeight, 4, tieThickness);
 						} else {
 							// hanging from this note
-							this.gr.moveTo(tieX, tieY);
-							this.gr.lineTo(tieXHanging, tieY);
+							this.tie(this.gr, tieX, ty, tieXHanging-tieX, tieHeight, 4, tieThickness);
 						}
 					}
 				}
@@ -1016,6 +1072,7 @@ class Render implements IRender
 		}
 		
 		// Core fold loop:
+		
 		
 		var lastDNote:DNote;
 		dvoice.dnotes.fold(function(rightDNote:DNote, leftDNote:DNote) {					
@@ -1025,15 +1082,91 @@ class Render implements IRender
 		}, null);				
 		_drawTie(null, lastDNote);
 		
+		/*
+		var leftDNote:DNote = null;
+		for (rightDNote in dvoice.dnotes) {
+			if (leftDNote == null) {				
+				leftDNote = rightDNote;
+				continue;
+			}
+			_drawTie(rightDNote, leftDNote, dbar.dnoteComplexXadjust);
+			
+			leftDNote = rightDNote;
+		}
+		*/
+		
 	}
 	
-
-	private function drawRect(x:Float, y:Float, rect:Rectangle, lineWidth = 1.0, lineColor = 0xFF0000) {
-		var r = this.scaling.scaleRect(rect);
-		r.offset(x, y);
-		this.gr.lineStyle(lineWidth, lineColor);
-		this.gr.drawRect(r.x, r.y, r.width, r.height);
+	public function cubicCurveTo(graphics:Graphics, anchorX1 : Float, anchorY1 : Float, controlX1 : Float, controlY1 : Float, controlX2 : Float, controlY2 : Float, anchorX2 : Float, anchorY2 : Float) {
+		function _scaleCoords(coords:Vector<Float>) {				
+			var i = 0;
+			do {
+				coords[i] 		= this.scaling.scaleX2(coords[i]);
+				coords[i + 1] 	= this.scaling.scaleY(coords[i + 1]);
+				i += 2;					
+			} while (i < Std.int(coords.length));
+		}
 		
+		var segments:Float = 100;
+		var step:Float = 1/segments;
+		
+		var posx:Float = 0.0;
+		var posy:Float = 0.0;			
+		var u:Float = 0.0;
+		
+		var cmds: Vector<Int> = new Vector<Int>();
+		var coords: Vector<Float> = new Vector<Float>();
+		
+		do {
+			posx = Math.pow(u,3)*(anchorX2+3*(controlX1-controlX2)-anchorX1)+3*Math.pow(u,2)*(anchorX1-2*controlX1+controlX2)+3*u*(controlX1-anchorX1)+anchorX1;
+			posy = Math.pow(u,3)*(anchorY2+3*(controlY1-controlY2)-anchorY1)+3*Math.pow(u,2)*(anchorY1-2*controlY1+controlY2)+3*u*(controlY1-anchorY1)+anchorY1;
+			//graphics.lineTo(posx, posy);
+			
+			cmds.push(2);
+			coords.push(posx);
+			coords.push(posy);
+			
+			u += step;
+		} while (u <= 1);
+		
+		
+		//trace(coords);
+		//_scaleCoords(coords);
+		//trace(coords);
+	
+
+		// graphics.drawPath(cmds, coords);
+		this.graphicsDrawPath(this.gr, cmds, coords);
+
+	}	
+	
+	public function tie(graphics:Graphics, x:Float, y:Float, width:Float, height:Float, delta:Float=8.0, thickness:Float=4.0) {
+		var x2 = x + width;
+		var deltaX = width / delta;
+		var cx1:Float = x + deltaX;
+		var cx2:Float = x2 - deltaX;
+		var halfThickness = thickness / 2;			
+		graphics.moveTo(x, y);
+		graphics.beginFill(0x000000);
+		graphics.lineStyle(0); // , 0x000000, 0);
+		this.cubicCurveTo(graphics, x, y-0, cx1, y + height - halfThickness, cx2, y + height - halfThickness, x2, y-0);
+		this.cubicCurveTo(graphics, x2, y+0, cx2, y + height + halfThickness, cx1, y + height + halfThickness, x, y+0);
+		graphics.endFill();
+	}	
+	
+	// Js drawPath
+	private function graphicsDrawPath(graphics:Graphics, cmds:Vector<Int>, coords:Vector<Float>) {
+		for (i in 0...cmds.length) {
+			var j = i * 2;
+			var cmd = cmds[i];
+			var coordX = coords[j];
+			var coordY = coords[j + 1];
+			if (cmd == 1) {
+				graphics.moveTo(coordX, coordY);
+			} else {
+				graphics.lineTo(coordX, coordY);
+			}
+		}
 	}
 	
 	

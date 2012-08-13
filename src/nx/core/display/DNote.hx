@@ -1,5 +1,6 @@
 package nx.core.display;
 import cx.ArrayTools;
+import cx.GUIDTools;
 import nme.geom.Rectangle;
 import nx.Constants;
 import nx.core.element.Note;
@@ -55,6 +56,8 @@ class DNote
 			this.direction = this._calcDirection();
 		}
 		
+		this.guid = GUIDTools.guid();
+
 	}
 	
 	public var note(default, null):Note;
@@ -67,6 +70,8 @@ class DNote
 	public var levelBottom(default, null):Int;
 	public var headPositions(default, null):Array<Int>;
 	public var signs(default, null):TSigns;	
+	public var guid(default, null):String;
+	
 	
 	public function dhead(idx:Int) {
 		return this.dheads[idx];

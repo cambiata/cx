@@ -11,7 +11,8 @@ class EAllotmentCalculator
 {
 	static inline var delta:Float = 0.5;
 	
-	static public function aWidthX(allotment:EAllotment, widthX:Float, value:Int=Constants.BASE_NOTE_VALUE):Float {
+	static public function aWidthX(allotment:EAllotment, widthX:Float, value:Int=0):Float {
+		if (value == 0) value = Constants.BASE_NOTE_VALUE;
 		switch (allotment) {
 			case EAllotment.Equal: 
 					return Math.max(widthX, Constants.ASPACING_NORMAL);
@@ -26,7 +27,8 @@ class EAllotmentCalculator
 		}		
 	}
 	
-	static public function aSuperX(allotment:EAllotment, widthX:Float, value:Int=Constants.BASE_NOTE_VALUE):Float {
+	static public function aSuperX(allotment:EAllotment, widthX:Float, value:Int=0):Float {
+		if (value == 0) value = Constants.BASE_NOTE_VALUE;
 		switch (allotment) {
 			case EAllotment.Equal: 
 					return Math.max(widthX - Constants.ASPACING_NORMAL, 0);

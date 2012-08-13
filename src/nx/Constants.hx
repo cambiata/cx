@@ -46,5 +46,16 @@ class Constants {
 	static public inline var ASPACING_NORMAL:Float = HEAD_HALFWIDTH * 5;	
 	static public inline var LOOP_COUNT_MAX:Int = 3000;
 	
+	static public inline var TIE_HEIGHT:Float = 1.3;
+	static public inline var TIE_THICKNESS:Float = 0.3;
+	static public inline var TIE_SINGLE_YMOVE:Float = 1.5;
+	static public inline var TIE_MULTI_YMOVE:Float = 0.7;	
+	static public inline var TIE_SINGLE_XCOMP:Float = 1;	
+	static public inline var TIE_SHORT:Float = 5;	
+	static public inline var TIE_SHORT_HEIGHT:Float = 0.8;	
+	
+
+	
+	
 	
 }

@@ -116,42 +116,142 @@ class ExampleDbars
 		]));			
 	}
 	
-	static public function dbarTestTies() {
+	static public function dbarTestDots() {
 		return new DBar(new Bar([
 			new Part([				
 				new Voice([
 				
-					//new Note([new Head(1, ETie.Tie(EDirectionUAD.Auto)), new Head(3, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv2dot),
-					new Note([new Head(1, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv2),
-					new Note([new Head(1, ESign.Flat)], ENoteValue.Nv2),
+					new Note([new Head(-2)], ENoteValue.Nv4dot),
+					new Note([new Head(-1)], ENoteValue.Nv4dot),
+					new Note([new Head(0)], ENoteValue.Nv4dot),
+					new Note([new Head(1)], ENoteValue.Nv4dot),
+					new Note([new Head(2)], ENoteValue.Nv4dot),
+					new Note([new Head(3)], ENoteValue.Nv4dot),
+
+					new Note([new Head(-1), new Head(-3)], ENoteValue.Nv4dot),
+					new Note([new Head(0), new Head(-2)], ENoteValue.Nv4dot),
+					new Note([new Head(1), new Head(-1)], ENoteValue.Nv4dot),
+					new Note([new Head(2), new Head(0)], ENoteValue.Nv4dot),
+
+					new Note([new Head(-1), new Head(-2)], ENoteValue.Nv4dot),
+					new Note([new Head(0), new Head(-1)], ENoteValue.Nv4dot),
+					new Note([new Head(1), new Head(0)], ENoteValue.Nv4dot),
+					new Note([new Head(2), new Head(1)], ENoteValue.Nv4dot),
+				]),
+			]),						
+			new Part([					
+				new Voice([
+						new Note([new Head(-1)], ENoteValue.Nv4dot),
+						new Note([new Head(0)], ENoteValue.Nv4dot),
+						new Note([new Head(1)], ENoteValue.Nv4dot),
+						new Note([new Head(2)], ENoteValue.Nv4dot),
+
+						new Note([new Head(-1), new Head(-3)], ENoteValue.Nv4dot),
+						new Note([new Head(0), new Head(-2)], ENoteValue.Nv4dot),
+						new Note([new Head(1), new Head(-1)], ENoteValue.Nv4dot),
+						new Note([new Head(2), new Head(0)], ENoteValue.Nv4dot),
+
+						new Note([new Head(-1), new Head(-2)], ENoteValue.Nv4dot),
+						new Note([new Head(0), new Head(-1)], ENoteValue.Nv4dot),
+						new Note([new Head(1), new Head(0)], ENoteValue.Nv4dot),
+						new Note([new Head(2), new Head(1)], ENoteValue.Nv4dot),
+					], EDirectionUAD.Up),
+				]),
+					
+			new Part([							
+				new Voice([
+					new Note([new Head(-1)], ENoteValue.Nv4dot),
+					new Note([new Head(0)], ENoteValue.Nv4dot),
+					new Note([new Head(1)], ENoteValue.Nv4dot),
+					new Note([new Head(2)], ENoteValue.Nv4dot),
+
+					new Note([new Head(-1), new Head(-3)], ENoteValue.Nv4dot),
+					new Note([new Head(0), new Head(-2)], ENoteValue.Nv4dot),
+					new Note([new Head(1), new Head(-1)], ENoteValue.Nv4dot),
+					new Note([new Head(2), new Head(0)], ENoteValue.Nv4dot),
+
+					new Note([new Head(-1), new Head(-2)], ENoteValue.Nv4dot),
+					new Note([new Head(0), new Head(-1)], ENoteValue.Nv4dot),
+					new Note([new Head(1), new Head(0)], ENoteValue.Nv4dot),
+					new Note([new Head(2), new Head(1)], ENoteValue.Nv4dot),
+				], EDirectionUAD.Down),				
+			]),		
+		]));
+	}
+		
+	
+	static public function dbarTestTies() {
+		return new DBar(new Bar([
+			new Part([				
+				new Voice([
+					new Note([new Head(-1, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv2dot),
+					new Note([new Head(-1, null, null)], ENoteValue.Nv4),
+					new Note([new Head(-1, null, ETie.Tie(EDirectionUAD.Auto)), new Head(-2, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv2dot),
+					new Note([new Head(-1, null, null), new Head(-2, null, null)], ENoteValue.Nv4),
+					new Note([new Head(1, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv2dot),
+					new Note([new Head(1, null, null)], ENoteValue.Nv4),
+					new Note([new Head(1, null, ETie.Tie(EDirectionUAD.Auto)), new Head(2, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv2dot),
+					new Note([new Head(1, null, null), new Head(2, null, null)], ENoteValue.Nv4),
+					
+					new Note([new Head(-1, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv16),
+					new Note([new Head(-1, null, null)], ENoteValue.Nv16),
+					new Note([new Head(-1, null, ETie.Tie(EDirectionUAD.Auto)), new Head(-3, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv16),
+					new Note([new Head(-1, null, null), new Head(-3, null, null)], ENoteValue.Nv16),
+					new Note([new Head(1, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv16),
+					new Note([new Head(1, null, null)], ENoteValue.Nv16),
+					new Note([new Head(1, null, ETie.Tie(EDirectionUAD.Auto)), new Head(3, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv16),
+					new Note([new Head(1, null, null), new Head(3, null, null)], ENoteValue.Nv16),
 					
 					
-					new Note(null),
-					new Note([new Head(1, ETie.Tie(EDirectionUAD.Auto))]),
 					
-					new Note([new Head(1, null, null)], ENoteValue.Nv16) ,
-					new Note([new Head(1, null, null)], ENoteValue.Nv16) ,
-					new Note([new Head(6, ESign.Flat, null)], ENoteValue.Nv16) ,
-					new Note([new Head(1, null, null)], ENoteValue.Nv16) ,
+				]),
+				
+			]),	
+			
+			new Part([				
+				new Voice([
+					new Note([new Head(-1, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv2dot),
+					new Note([new Head(-1, null, null)], ENoteValue.Nv4),
+					new Note([new Head(-1, null, ETie.Tie(EDirectionUAD.Auto)), new Head(-2, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv2dot),
+					new Note([new Head(-1, null, null), new Head(-2, null, null)], ENoteValue.Nv4),
+					new Note([new Head(1, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv2dot),
+					new Note([new Head(1, null, null)], ENoteValue.Nv4),
+					new Note([new Head(1, null, ETie.Tie(EDirectionUAD.Auto)), new Head(2, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv2dot),
+					new Note([new Head(1, null, null), new Head(2, null, null)], ENoteValue.Nv4),
 					
-					new Note([new Head(1, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv16) ,
-					new Note([new Head(1, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv16) ,
-					new Note([new Head(6, ESign.Flat, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv16) ,
-					new Note([new Head(1, null, ETie.Tie(EDirectionUAD.Auto)), new Head(6)], ENoteValue.Nv16) ,
-					
-					
+					new Note([new Head(-1, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv16),
+					new Note([new Head(-1, null, null)], ENoteValue.Nv16),
+					new Note([new Head(-1, null, ETie.Tie(EDirectionUAD.Auto)), new Head(-3, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv16),
+					new Note([new Head(-1, null, null), new Head(-3, null, null)], ENoteValue.Nv16),
+					new Note([new Head(1, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv16),
+					new Note([new Head(1, null, null)], ENoteValue.Nv16),
+					new Note([new Head(1, null, ETie.Tie(EDirectionUAD.Auto)), new Head(3, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv16),
+					new Note([new Head(1, null, null), new Head(3, null, null)], ENoteValue.Nv16),
 				], EDirectionUAD.Up),
-				
-				new Voice ([
-					new Note([new Head(5, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv2dot),
-					new Note([new Head(5, ESign.None, ETie.Tie(EDirectionUAD.Auto))]),
+			]),	
+			
+			new Part([				
+				new Voice([
+					new Note([new Head(-1, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv2dot),
+					new Note([new Head(-1, null, null)], ENoteValue.Nv4),
+					new Note([new Head(-1, null, ETie.Tie(EDirectionUAD.Auto)), new Head(-2, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv2dot),
+					new Note([new Head(-1, null, null), new Head(-2, null, null)], ENoteValue.Nv4),
+					new Note([new Head(1, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv2dot),
+					new Note([new Head(1, null, null)], ENoteValue.Nv4),
+					new Note([new Head(1, null, ETie.Tie(EDirectionUAD.Auto)), new Head(2, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv2dot),
+					new Note([new Head(1, null, null), new Head(2, null, null)], ENoteValue.Nv4),
 					
-					new Note([new Head(2, ETie.Tie(EDirectionUAD.Auto))]),
-					new Note([new Head(2)]),
-					
+					new Note([new Head(-1, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv16),
+					new Note([new Head(-1, null, null)], ENoteValue.Nv16),
+					new Note([new Head(-1, null, ETie.Tie(EDirectionUAD.Auto)), new Head(-3, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv16),
+					new Note([new Head(-1, null, null), new Head(-3, null, null)], ENoteValue.Nv16),
+					new Note([new Head(1, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv16),
+					new Note([new Head(1, null, null)], ENoteValue.Nv16),
+					new Note([new Head(1, null, ETie.Tie(EDirectionUAD.Auto)), new Head(3, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv16),
+					new Note([new Head(1, null, null), new Head(3, null, null)], ENoteValue.Nv16),
 				], EDirectionUAD.Down),
-				
-			]),
+			]),				
+			
 		]));
 	}
 	
