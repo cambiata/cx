@@ -17,4 +17,5 @@ typedef TScaling = {
 	svgScale:			Float,
 	svgX:				Float,
 	svgY:				Float,
+	fontScaling:		Float,
 }

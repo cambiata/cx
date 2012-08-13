@@ -36,7 +36,6 @@ class Constants {
 	static public inline var BEAM_SUBDISTANCE:Float = HEAD_HEIGHT * 0.8;
 	static public inline var BEAM_SUBWIDTH:Float = HEAD_WIDTH * 0.8;
 	
-	
 	static public inline var STAVE_LENGTH:Float = 6.8;
 	static public inline var STAVE_OFFSET:Float = 1.4;
 	static public inline var STAVE_WIDTH:Float = 0.2;
@@ -46,15 +45,24 @@ class Constants {
 	static public inline var ASPACING_NORMAL:Float = HEAD_HALFWIDTH * 5;	
 	static public inline var LOOP_COUNT_MAX:Int = 3000;
 	
-	static public inline var TIE_HEIGHT:Float = 1.3;
-	static public inline var TIE_THICKNESS:Float = 0.3;
+	static public inline var TIE_HEIGHT:Float = 1.5;
+	static public inline var TIE_THICKNESS:Float = 0.5;
 	static public inline var TIE_SINGLE_YMOVE:Float = 1.5;
 	static public inline var TIE_MULTI_YMOVE:Float = 0.7;	
 	static public inline var TIE_SINGLE_XCOMP:Float = 1;	
 	static public inline var TIE_SHORT:Float = 5;	
 	static public inline var TIE_SHORT_HEIGHT:Float = 1.0;	
+	static public inline var TIE_DELTA:Int = 7;
 	
-
+	static public inline var CLEF_WIDTH:Float = 4;
+	static public inline var KEYSIGN_WIDTH:Float = 2;
+	static public inline var TIME_WIDTH:Float = 3;
+	static public inline var ATTRIBUTE_NULL_WIDTH:Float = 1;
+	
+	static public inline var BARLINE_NORMAL_WIDTH:Float = 2;
+	static public inline var BARLINE_DOUBLE_WIDTH:Float = 3;
+	static public inline var BAR_MARGIN_LEFT:Float = 1.1;
+	static public inline var BAR_MARGIN_RIGHT:Float = 2.2;
 	
 	
 	

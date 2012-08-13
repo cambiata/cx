@@ -1,5 +1,7 @@
 package nx.core.display;
 import cx.ArrayTools;
+import nme.geom.Rectangle;
+import nx.Constants;
 import nx.core.element.Part;
 import nme.ObjectHash;
 
@@ -96,4 +98,37 @@ class DPart
 			this.complexDistance.set(plexNext, distanceX);
 		}			
 	}
+	
+	//-----------------------------------------------------------------------------------------------------
+	
+	private var _rectClef:Rectangle;
+	public var rectClef(get_rectClef, null):Rectangle;
+	private function get_rectClef():Rectangle 
+	{
+		if (this._rectClef != null) return this._rectClef;
+		var rect:Rectangle = null;
+		if (this.part.clef == null) {
+			rect = new Rectangle(0, -2, Constants.ATTRIBUTE_NULL_WIDTH, 4);
+			this._rectClef = rect;
+			return this._rectClef;
+		}
+		switch(this.part.clef) {			
+			default: rect = new Rectangle(0, -2, Constants.CLEF_WIDTH, 4);
+		}
+		this._rectClef = rect;		
+		return this._rectClef;
+	}
+	
+	private var _rectKey:Rectangle;
+	public var rectKey(get_rectKey, null):Rectangle;
+	private function get_rectKey():Rectangle {
+		if (this._rectKey != null) return this._rectKey;
+		var keyInt:Int = (this.part.key != null) ? Std.int(Math.abs(this.part.key.levelShift)) : 0;
+		var r = new Rectangle(0, -2, (keyInt * Constants.KEYSIGN_WIDTH) + Constants.ATTRIBUTE_NULL_WIDTH, 4);
+		this._rectKey = r;
+		return this._rectKey;
+	}
+	
+	
+	
 }

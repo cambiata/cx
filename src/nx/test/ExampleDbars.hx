@@ -6,11 +6,16 @@ import nx.core.element.Head;
 import nx.core.element.Note;
 import nx.core.element.Part;
 import nx.core.element.Voice;
+import nx.enums.EAttributeDisplay;
+import nx.enums.EBarline;
+import nx.enums.EClef;
 import nx.enums.EDirectionUAD;
+import nx.enums.EKey;
 import nx.enums.ENoteType;
 import nx.enums.ESign;
 import nx.enums.ENoteValue;
 import nx.enums.ETie;
+import nx.enums.ETime;
 
 
 /**
@@ -43,6 +48,31 @@ import nx.enums.ETie;
  
 class ExampleDbars 
 {
+	static public function dbarAttributes() {
+		return new DBar(new Bar([
+			new Part([
+				new Voice([
+					new Note(), 
+					
+					new Note(null, ENoteValue.Nv8),
+					new Note(null, ENoteValue.Nv8),
+					new Note(null, ENoteValue.Nv16),
+					new Note(null, ENoteValue.Nv16),
+					new Note(null, ENoteValue.Nv16),
+					new Note(null, ENoteValue.Nv16),
+
+					new Note(null, ENoteValue.Nv8dot),
+					new Note(null, ENoteValue.Nv16),
+					
+					new Note(),
+					
+				])
+			], EClef.ClefG, EAttributeDisplay.Always, EKey.Flat3, EAttributeDisplay.Layout, 'Part1'),
+			//new Part(null, EClef.ClefC, EAttributeDisplay.Layout, EKey.Sharp5, EAttributeDisplay.Never, 'part two'),
+			//new Part(null, EClef.ClefF, EAttributeDisplay.Never, EKey.Natural, EAttributeDisplay.Always),
+		], ETime.T3_4, EAttributeDisplay.Always, EBarline.Double));
+	}
+	
 	
 	static public function dbarComplex1() { 
 		return new DBar(new Bar([			
@@ -66,9 +96,8 @@ class ExampleDbars
 					new Note([new Head(1, ESign.Flat)]) ,
 					new Note([new Head( -6), new Head( -7)]) ,					
 					new Note([new Head(8, null, ETie.Tie(EDirectionUAD.Auto)), new Head(7)], ENoteValue.Nv1) ,
-					new Note([new Head(8)], ENoteValue.Nv1) ,
+					new Note([new Head(8, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv1) ,
 				], EDirectionUAD.Down),				
-				
 			]),
 			
 			new Part([
@@ -81,6 +110,35 @@ class ExampleDbars
 					new Note([new Head(1)]) ,
 				])
 			]),
+			
+			new Part([
+				new Voice([
+					new Note([new Head(0)], ENoteValue.Nv4, null, ENoteType.Pause) ,
+					new Note([new Head(1)], ENoteValue.Nv4, null, ENoteType.Normal) ,
+					new Note([new Head(2)], ENoteValue.Nv4, null, ENoteType.Normal) ,
+					new Note([new Head(3)], ENoteValue.Nv4, null, ENoteType.Normal) ,
+					
+					new Note([new Head(1)], ENoteValue.Nv4, null, ENoteType.Normal) ,
+					new Note([new Head(0)], ENoteValue.Nv4, null, ENoteType.Pause) ,
+					new Note([new Head(0)], ENoteValue.Nv8, null, ENoteType.Pause) ,
+					new Note([new Head(1)], ENoteValue.Nv8, null, ENoteType.Normal) ,
+					new Note([new Head(1)], ENoteValue.Nv16, null, ENoteType.Normal) ,
+					new Note([new Head(1)], ENoteValue.Nv16, null, ENoteType.Normal) ,
+					new Note([new Head(0)], ENoteValue.Nv16, null, ENoteType.Pause) ,
+					new Note([new Head(1)], ENoteValue.Nv16, null, ENoteType.Normal) ,
+
+				], EDirectionUAD.Up)	,			
+				
+				new Voice([
+					new Note([new Head(6)], ENoteValue.Nv8) ,
+					new Note([new Head(2)], ENoteValue.Nv4) ,
+					new Note([new Head(3, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv8) ,
+					new Note([new Head(3, null, null)], ENoteValue.Nv8) ,
+					new Note([new Head(4, ESign.None)], ENoteValue.Nv4) ,
+					new Note([new Head(5, null, null)], ENoteValue.Nv8) ,
+				], EDirectionUAD.Down)
+			]),			
+			
 			
 		]));	
 	}

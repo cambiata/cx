@@ -4,6 +4,7 @@ import nme.display.Bitmap;
 import nme.display.BitmapData;
 import nme.display.Sprite;
 import nme.text.TextField;
+import nme.text.TextFieldAutoSize;
 import nme.text.TextFormat;
 
 
@@ -18,11 +19,12 @@ class StringBitmap
 	private var tf:TextFormat;
 	private var cache:Hash<Bitmap>;
 
-	public function new(font:String='Arial', size:Int=20, color:Int=0xFF0000, bold:Bool=false, italic:Bool=false)  {
+	public function new(font:String='Arial', size:Float=14.0, color:Int=0xFF0000, bold:Bool=false, italic:Bool=false)  {		
 		this.t = new TextField();		
 		this.t.width = 200;
 		this.t.height = 30;
 		this.t.defaultTextFormat = new TextFormat(font, size, color, bold, italic);
+		this.t.autoSize = TextFieldAutoSize.LEFT;
 		this.cache = new Hash<Bitmap>();
 	}
 	
@@ -34,6 +36,7 @@ class StringBitmap
 			bm.y = y;
 			return bm;
 		}
+		
 		this.t.text = string;
 
 		#if neko

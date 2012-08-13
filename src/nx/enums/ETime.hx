@@ -8,6 +8,7 @@ import nx.Constants;
  */
 
 class ETime {
+	
 	static public var T4_4 = 	new ETime('4/4', Constants.BASE_NOTE_VALUE * 4);
 	static public var T3_4 = 	new ETime('3/4', Constants.BASE_NOTE_VALUE * 3);
 	static public var T2_4 = 	new ETime('2/4', Constants.BASE_NOTE_VALUE * 2);
@@ -17,12 +18,11 @@ class ETime {
 	static public var T9_8 = 	new ETime('9/8', Std.int(Constants.BASE_NOTE_VALUE * 4.5));
 	static public var T12_8 = 	new ETime('12/8', Constants.BASE_NOTE_VALUE * 6);
 	
-	
-	
 	public function new(id:String, value:Int) {
 		this.id = id;
 		this.value = value;
 	}
+	
 	public var id:String;
 	public var value:Int;
 	
@@ -35,10 +35,8 @@ class ETime {
 			case '3/8': ret = ETime.T3_8;
 			case '6/8': ret = ETime.T6_8;
 			case '9/8': ret = ETime.T9_8;
-			case '12/8': ret = ETime.T12_8;
-	
+			case '12/8': ret = ETime.T12_8;	
 		}
 		return ret;
-	}
-	
+	}	
 }

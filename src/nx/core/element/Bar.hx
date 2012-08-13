@@ -1,25 +1,38 @@
 package nx.core.element;
 import nx.core.element.Part;
+import nx.enums.EBarline;
+import nx.enums.ETime;
+import nx.enums.EAttributeDisplay;
 
 /**
  * ...
  * @author Jonas Nyström
  */
-
+using cx.EnumTools;
 class Bar 
 {
 	public var parts(default, null):Array<Part>;
 
-	public function new(parts:Iterable<Part>=null) {
+	public function new(parts:Iterable<Part>=null, time:ETime=null, timeDisplay:EAttributeDisplay=null, barline:EBarline=null) {
 		this.parts = (parts != null) ? Lambda.array(parts) : [new Part()];
+		this.time = time; // (time != null) ? time : ETime.T3_4;
+		this.timeDisplay = (timeDisplay != null) ? timeDisplay : EAttributeDisplay.Layout;		
+		this.barline = barline;
 	}
+	
+	public var time(default, null): ETime;
+	public var timeDisplay(default, null):EAttributeDisplay;	
+	
+	public var barline(default, null):EBarline;
 	
 	/*************************************************************
 	 * XML functions
 	 */
 	
 	static public var XBAR 					= 'bar';
-	//static public var XDIRECTION		= 'direction';
+	static public var XTIME 				= 'time';
+	static public var XTIMEDISPLAY 	= 'timedisplay';
+	static public var XBARLINE 			= 'barline';
 	
 	public function toXml():Xml {		
 		var xml:Xml = Xml.createElement(XBAR);				
@@ -29,8 +42,9 @@ class Bar
 			xml.addChild(itemXml);
 		}
 		
-		//if (this.direction != EDirectionUAD.Auto) 		xml.set(XDIRECTION, 		Std.string(this.direction));
-		
+		if (this.time != null) 											xml.set(XTIME, 				this.time.id);
+		if (this.timeDisplay != EAttributeDisplay.Layout)	xml.set(XTIMEDISPLAY,	Std.string(this.timeDisplay));
+		if (this.barline != null) 										xml.set(XBARLINE, 			Std.string(this.barline));
 		return xml;
 	}
 	
@@ -43,9 +57,14 @@ class Bar
 			items.push(item);
 		}	
 		
-		//var direction = EDirectionUAD.createFromString(xml.get(XDIRECTION));
+		var time:ETime = null;
+		var timeStr = xml.get(XTIME);
+		if (timeStr != null) time = ETime.getFromId(timeStr);
 		
-		return new Bar(items);
+		var timeDisplay 	= EAttributeDisplay.createFromString(xml.get(XTIMEDISPLAY));
+		var barline 			= EBarline.createFromString(xml.get(XBARLINE));
+		
+		return new Bar(items, time, timeDisplay, barline);
 		
 	}
 	

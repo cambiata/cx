@@ -19,6 +19,7 @@ class Scaling  {
 			svgScale:				.36,
 			svgX:					-11.0,
 			svgY:					-82.0,
+			fontScaling:			8.0,
 		}
 	}
 	
@@ -38,6 +39,7 @@ class Scaling  {
 			svgScale:				.27,
 			svgX:					-8.0,
 			svgY:					-60.5,
+			fontScaling:			6.0,
 		}
 	}	
 	
@@ -58,6 +60,7 @@ class Scaling  {
 			svgScale:				.175,
 			svgX:					-6.0,
 			svgY:					-40.0,
+			fontScaling:			4.0,
 		}
 	}
 	
@@ -73,6 +76,7 @@ class Scaling  {
 			svgScale:				.14,
 			svgX:					-5.0,
 			svgY:					-32.0,
+			fontScaling:			3.0,
 		}
 	}
 	
@@ -88,6 +92,7 @@ class Scaling  {
 			svgScale:				0.0,
 			svgX:					-2.0,
 			svgY:					0.0,
+			fontScaling:			0.0,
 		}		
 		
 	}

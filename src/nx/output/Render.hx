@@ -887,6 +887,8 @@ class Render implements IRender
 	public function dbar(x:Float, y:Float, dbar:DBar, stretchToWidth:Float=0, rects:Bool = true) {
 		this.gr.endFill();
 		
+		trace(stretchToWidth);
+		
 		
 		// Stretch		
 		var currentWidth = this.scaling.scaleX2(dbar.columnsRectAlloted.width);
@@ -1058,13 +1060,13 @@ class Render implements IRender
 							if (tieConnectLength < Constants.TIE_SHORT) {
 								tieHeight = this.scaling.scaleY((tieUp) ? -Constants.TIE_SHORT_HEIGHT : Constants.TIE_SHORT_HEIGHT);
 							}
-							trace(tieConnectLength, tieHeight);
+							//trace(tieConnectLength, tieHeight);
 							
 							// connect to next note
-							this.tie(this.gr, tieX, ty, tieXRigthNote-tieX, tieHeight, 4, tieThickness);
+							this.tie(this.gr, tieX, ty, tieXRigthNote-tieX, tieHeight, Constants.TIE_DELTA, tieThickness);
 						} else {
 							// hanging from this note
-							this.tie(this.gr, tieX, ty, tieXHanging-tieX, tieHeight, 4, tieThickness);
+							this.tie(this.gr, tieX, ty, tieXHanging-tieX, tieHeight, Constants.TIE_DELTA, tieThickness);
 						}
 					}
 				}
@@ -1073,7 +1075,6 @@ class Render implements IRender
 		
 		// Core fold loop:
 		
-		
 		var lastDNote:DNote;
 		dvoice.dnotes.fold(function(rightDNote:DNote, leftDNote:DNote) {					
 			_drawTie(rightDNote, leftDNote);
@@ -1081,19 +1082,6 @@ class Render implements IRender
 			return rightDNote;
 		}, null);				
 		_drawTie(null, lastDNote);
-		
-		/*
-		var leftDNote:DNote = null;
-		for (rightDNote in dvoice.dnotes) {
-			if (leftDNote == null) {				
-				leftDNote = rightDNote;
-				continue;
-			}
-			_drawTie(rightDNote, leftDNote, dbar.dnoteComplexXadjust);
-			
-			leftDNote = rightDNote;
-		}
-		*/
 		
 	}
 	
@@ -1128,12 +1116,6 @@ class Render implements IRender
 			
 			u += step;
 		} while (u <= 1);
-		
-		
-		//trace(coords);
-		//_scaleCoords(coords);
-		//trace(coords);
-	
 
 		// graphics.drawPath(cmds, coords);
 		this.graphicsDrawPath(this.gr, cmds, coords);
@@ -1143,6 +1125,7 @@ class Render implements IRender
 	public function tie(graphics:Graphics, x:Float, y:Float, width:Float, height:Float, delta:Float=8.0, thickness:Float=4.0) {
 		var x2 = x + width;
 		var deltaX = width / delta;
+		trace('deltaX: ' + deltaX);
 		var cx1:Float = x + deltaX;
 		var cx2:Float = x2 - deltaX;
 		var halfThickness = thickness / 2;			
@@ -1169,6 +1152,59 @@ class Render implements IRender
 		}
 	}
 	
+	public function dbarAttributesLeft(x:Float, y:Float, dbar:DBar, rects:Bool = true) {
+		
+		//var rClef = this.scaling.scaleRect(dbar.rectClef);
+		this.gr.endFill();
+		this.drawRect(x, y, dbar.attributesRectLeft, 4, 0xaaaaaa);
+		this.drawRect(x, y, dbar.rectClef, 2, 0x00FF00);
+		this.drawRect(x, y, dbar.rectKey, 2, 0xFF0000);
+		this.drawRect(x, y, dbar.rectTime, 2, 0x0000FF);
+		this.drawRect(x, y, dbar.rectMarginLeft, 1, 0xFF0000);
+	}
+	
+
+	public function dbarAttributesRight(x:Float, y:Float, dbar:DBar, rects:Bool = true) {
+		
+		//var rClef = this.scaling.scaleRect(dbar.rectClef);
+		this.gr.endFill();
+		this.drawRect(x, y, dbar.attributesRectRight, 4, 0xaaaaaa);
+		this.drawRect(x, y, dbar.rectMarginRight, 2, 0x00FF00);
+		this.drawRect(x, y, dbar.rectBarline, 2, 0xFF0000);
+	}
+	
+	public function dbarFull(x:Float, y:Float, dbar:DBar, stretchToWidth:Float=0,  rects:Bool = true ) {
+		
+		var barMeas = dbar.getTotalWidthAlloted();
+		
+		var scaledAttrLeftWidth = this.scaling.scaleX2(barMeas.attribLeftWidth);
+		var scaledAttrRightWidth	= this.scaling.scaleX2(barMeas.attribRightWidth);
+		var contentUnstretchedWidth = this.scaling.scaleX2(barMeas.columnsWidth);
+		
+		var minWidth = scaledAttrLeftWidth + contentUnstretchedWidth + scaledAttrRightWidth;
+		stretchToWidth = Math.max(minWidth, stretchToWidth);
+		
+		var stretchToWidth2 = stretchToWidth - (scaledAttrLeftWidth + scaledAttrRightWidth);
+		//dbar.stretchContentTo(this.scaling.descaleX(stretchToWidth2));
+		//trace(stretchToWidth2);
+		
+		var attrLeftX = x;
+		var attrLeftWidth = this.scaling.scaleX2(barMeas.attribLeftWidth);
+		this.dbarAttributesLeft(x, y, dbar, rects);
+		
+		var columnsX = x + attrLeftWidth;		
+		var columnsXAdjust = this.scaling.scaleX2(-dbar.columnsRectStretched.x);
+		this.dbar(columnsX+columnsXAdjust, y, dbar, stretchToWidth2, false);
+		
+		//trace(dbar.columnsRectAlloted.width);
+		//trace(dbar.columnsRectStretched.width);
+		
+		var columnsWidth = this.scaling.scaleX2(dbar.columnsRectStretched.width);
+
+		var attrRightX = columnsX + columnsWidth;
+		this.dbarAttributesRight(attrRightX, y, dbar, rects);
+		
+	}
 	
 	
 }

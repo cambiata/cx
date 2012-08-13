@@ -1,24 +1,48 @@
 package nx.core.element;
+import nx.enums.EAttributeDisplay;
+import nx.enums.EClef;
+import nx.enums.EKey;
+import nx.enums.ETime;
 
 /**
  * ...
  * @author Jonas Nyström
  */
-
+using cx.EnumTools;
 class Part 
 {
-	public function new(voices:Iterable<Voice>=null) {
+	public function new(voices:Iterable<Voice>=null, clef:EClef=null, clefDisplay:EAttributeDisplay=null, key:EKey=null, keyDisplay:EAttributeDisplay=null, label:String='') {
 		this.voices = (voices != null) ? Lambda.array(voices) : [new Voice()];
+
+		this.key = key; // (key != null) ? key : EKey.Flat2;
+		this.keyDisplay = (keyDisplay != null) ? keyDisplay : EAttributeDisplay.Layout;
+		this.clef = clef; // (clef != null) ? clef : EClef.ClefC;
+		this.clefDisplay = (clefDisplay != null) ? clefDisplay : EAttributeDisplay.Layout;
+		
+		this.label = label;
 	}
 	
 	public var voices(default, null):Array<Voice>;
+
+	public var key(default, null): EKey;
+	public var keyDisplay(default, null):EAttributeDisplay;
+	public var clef(default, null): EClef;
+	public var clefDisplay(default, null):EAttributeDisplay;
+	
+	public var label(default, null):String;
+	
 	
 	/*************************************************************
 	 * XML functions
 	 */
 	
 	static public var XPART 				= 'part';
-	//static public var XDIRECTION		= 'direction';
+	static public var XCLEF					= 'clef';
+	static public var XCLEFDISPLAY		= 'clefdisplay';
+	static public var XKEY					= 'key';
+	static public var XKEYDISPLAY		= 'keydisplay';
+	static public var XLABEL				= 'label';
+	
 	
 	public function toXml():Xml {		
 		
@@ -29,7 +53,13 @@ class Part
 			xml.addChild(itemXml);
 		}
 		
-		//if (this.direction != EDirectionUAD.Auto) 		xml.set(XDIRECTION, 		Std.string(this.direction));
+		if (this.clef != null) 												xml.set(XCLEF, 				Std.string(this.clef));
+		if (this.clefDisplay != EAttributeDisplay.Layout)		xml.set(XCLEFDISPLAY,	Std.string(this.clefDisplay));		
+		
+		if (this.key != null) 												xml.set(XKEY, 				Std.string(this.key.levelShift));
+		if (this.keyDisplay != EAttributeDisplay.Layout)		xml.set(XKEYDISPLAY,		Std.string(this.keyDisplay));		
+		
+		if (this.label != '')												xml.set(XLABEL, 				this.label);
 		
 		return xml;
 	}
@@ -44,10 +74,17 @@ class Part
 			var item = Voice.fromXmlStr(itemXml.toString());
 			voices.push(item);
 		}	
+
+		var clefDisplay = EAttributeDisplay.createFromString(xml.get(XCLEFDISPLAY));
+		var clef = EClef.createFromString(xml.get(XCLEF));
 		
-		//var direction = EDirectionUAD.createFromString(xml.get(XDIRECTION));
+		var keyDispaly = EAttributeDisplay.createFromString(xml.get(XKEYDISPLAY));		
+		var keyValue = Std.parseInt(xml.get(XKEY));
+		var key = new EKey(keyValue);
 		
-		return new Part(voices);
+		var label = xml.get(XLABEL);
+		
+		return new Part(voices, clef, clefDisplay, key, keyDispaly, label);
 		
 	}
 	

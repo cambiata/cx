@@ -5,6 +5,7 @@ import nx.Constants;
 import nx.core.element.Bar;
 import nme.ObjectHash;
 import nx.enums.EAllotment;
+import nx.enums.EBarline;
 import nx.enums.utils.EAllotmentCalculator;
 
 /**
@@ -23,8 +24,6 @@ class DBar
 	public var postionDistpos				(default, null)	:	IntHash<Float>;
 	
 	public var columns						(default, null)	:	Array<Column>;
-	
-	
 	public var dnoteColumn				(default, null)		:ObjectHash<DNote, Column>;
 	public var dnoteComplexXadjust	(default, null)		:ObjectHash<DNote, Float>;
 	public var dnoteComplex				(default, null)		:ObjectHash<DNote, Complex>;
@@ -39,6 +38,10 @@ class DBar
 	public var columnsRectStretched	(default, null) :	Rectangle;	
 	
 	public var allotment						(default, null)	: 	EAllotment;	
+	
+	
+	
+	
 	
 	
 	public function new(bar:Bar=null, allotment:EAllotment=null) {				
@@ -420,9 +423,7 @@ class DBar
 	//------------------------------------------------------------------------------------------------------
 	
 	private var _value:Int;
-	
 	public var value(get_value, null):Int;
-
 	private function get_value():Int 
 	{
 		if (this._value != 0) return this._value;
@@ -433,7 +434,206 @@ class DBar
 		return this._value;
 	}		
 	
+	//-----------------------------------------------------------------------------------------------------
+	
+
+	//-----------------------------------------------------------------------------------------------------
+	
+	/// INDENT LEFT
+	
+	/// PART LABELS
+	
+	/// ACKOLADE
+	
+	private var _rectClef:Rectangle;
+	public var rectClef(get_rectClef, null):Rectangle;
+	private function get_rectClef():Rectangle 
+	{
+		if (this._rectClef != null) return this._rectClef;
+		this._rectClef = new Rectangle(0, 0, 0, 0);
+		for (dpart in this.dparts) {
+			this._rectClef = this._rectClef.union(dpart.rectClef);			
+		}		
+		
+		this._rectClef.offset(3, 0); /// CHANGE WHEN ACKOLADE!
+		
+		return this._rectClef;
+	}
+	
+	private var _rectKey:Rectangle;
+	public var rectKey(get_rectKey, null):Rectangle;
+	private function get_rectKey():Rectangle {
+		if (this._rectKey != null) return this._rectKey;
+		this._rectKey = new Rectangle(0, 0, 0, 0);
+		for (dpart in this.dparts) {
+			this._rectKey = this._rectKey.union(dpart.rectKey);						
+		}
+		
+		this._rectKey.offset(this.rectClef.x + this.rectClef.width, 0);
+		return this._rectKey;
+	}	
+	
+	private var _rectTime:Rectangle;
+	public var rectTime(get_rectTime, null):Rectangle;
+	private function get_rectTime():Rectangle 
+	{
+		var rect:Rectangle = null;
+		if (this.bar.time == null) {
+			rect = new Rectangle(0, -2, Constants.ATTRIBUTE_NULL_WIDTH, 4);
+		} else {
+			rect = new Rectangle(0, -2, Constants.TIME_WIDTH, 4);
+		}		
+		this._rectTime = rect;
+		
+		this._rectTime.offset(this.rectKey.x + this.rectKey.width, 0);
+		return _rectTime;
+	}
+	
+	/// LEFT BARLINE
+
+	private var _rectMarginLeft:Rectangle;
+	public var rectMarginLeft(get_rectMarginLeft, null):Rectangle;
+	private function get_rectMarginLeft():Rectangle 
+	{
+		if (this._rectMarginLeft != null) return this._rectMarginLeft;		
+		this._rectMarginLeft = new Rectangle(0, -2, Constants.BAR_MARGIN_LEFT, 4);
+		this._rectMarginLeft.offset(this.rectTime.x + this.rectTime.width, 0); /// CHANGE TO LEFT BARLINE
+		return this._rectMarginLeft;
+	}
+	
+	//--------------------------------------------------------------------------------------
+	
+	private var _rectMarginRight:Rectangle;
+	public var rectMarginRight(get_rectMarginRight, null):Rectangle;
+	private function get_rectMarginRight():Rectangle 
+	{
+		return new Rectangle(0, -2, Constants.BAR_MARGIN_RIGHT, 4);
+		if (this._rectMarginRight != null) return this._rectMarginRight;		
+		this._rectMarginRight = new Rectangle(0, -2, Constants.BAR_MARGIN_RIGHT, 4);
+		//this._rectMarginLeft.offset(this.rectTime.x + this.rectTime.width, 0); /// CHANGE TO LEFT BARLINE
+		return this._rectMarginRight;		
+		
+	}
+	
+	
+	private var _rectBarline:Rectangle;
+	public var rectBarline(get_rectBarline, null):Rectangle;
+	private function get_rectBarline():Rectangle 
+	{
+		if (this._rectBarline != null) return this._rectBarline;
+		var barlineWidth = Constants.ATTRIBUTE_NULL_WIDTH;
+		if (this.bar.barline == null) {
+			return this._rectBarline = new Rectangle(0, -2, Constants.BARLINE_DOUBLE_WIDTH, 4);
+		}
+		
+		switch (this.bar.barline) {
+			case EBarline.Normal: barlineWidth = Constants.BARLINE_NORMAL_WIDTH;
+			case EBarline.Double: barlineWidth = Constants.BARLINE_DOUBLE_WIDTH;			
+			default: 
+				barlineWidth = Constants.BARLINE_DOUBLE_WIDTH;
+		}
+		var rect = new Rectangle(0, -2, barlineWidth, 4);
+		this._rectBarline = rect;
+		this._rectBarline.offset(this.rectMarginRight.x + this.rectMarginRight.width, 0);
+		return this._rectBarline;
+	}
+	
+	/// CAUTIONARIES...
+	
+	/// RIGHT INDENT
+	
+		
+	//--------------------------------------------------------------------------------------
+	
+	private var _attributesRectLeft:Rectangle;
+	private function get_attributesRectLeft():Rectangle 
+	{
+		if (this._attributesRectLeft != null) return this._attributesRectLeft;
+
+		var rect = new Rectangle(0, 0, 0, 0)
+			// left indent
+			// part labels
+			// ackolade
+			.union(this.rectClef)
+			.union(this.rectKey)
+			.union(this.rectTime)
+			// Right barline
+			.union(this.rectMarginLeft)			
+			;
+			
+		this._attributesRectLeft = rect;
+		return this._attributesRectLeft;
+	}
+	public var attributesRectLeft(get_attributesRectLeft, null):Rectangle;	
+
+	
+	private var _attributesRectRight:Rectangle;
+	private function get_attributesRectRight():Rectangle 
+	{
+		if (this._attributesRectRight != null) return this._attributesRectRight;
+	
+		var rect = new Rectangle(0, 0, 0, 0)
+			.union(this.rectMarginRight)
+			.union(this.rectBarline)
+			// cautionaries...
+			// right indent...
+			;
+			
+		this._attributesRectRight = rect;
+		return this._attributesRectRight;
+	}
+	public var attributesRectRight(get_attributesRectRight, null):Rectangle;	
+	
+	//---------------------------------------------------------------------------------------------------------
+
+	public function getTotalWidthCramped() {
+		var ret:TBarMeasurement = {
+			attribLeftWidth: 		this.attributesRectLeft.width,
+			columnsWidth: 		this.columnsRectCramped.width,
+			attribRightWidth:	this.attributesRectRight.width, 
+			totalWidth:			this.attributesRectLeft.width + this.columnsRectCramped.width + this.attributesRectRight.width,
+			//columnsX:				this.attributesRectLeft.width + -this.columnsRectCramped.x,
+			//attribRightX:			this.attributesRectLeft.width + this.columnsRectCramped.width,			
+		}
+		return ret;		
+	}
+	
+	
+	public function getTotalWidthAlloted() {
+		var ret:TBarMeasurement = {
+			attribLeftWidth: 		this.attributesRectLeft.width,
+			columnsWidth: 		this.columnsRectCramped.width,
+			attribRightWidth:	this.attributesRectRight.width, 
+			totalWidth:			this.attributesRectLeft.width + this.columnsRectAlloted.width + this.attributesRectRight.width,
+			//columnsX:				this.attributesRectLeft.width + -this.columnsRectAlloted.x,
+			//attribRightX:			this.attributesRectLeft.width + this.columnsRectAlloted.width,			
+		}
+		return ret;		
+	}	
+	
+	public function getTotalWidthStretchedTo(stretchToWidth:Float=0) {
+		
+		
+		
+		
+	}
+	
+
+	
+	
+	
 }
+
+
+typedef TBarMeasurement = {
+	attribLeftWidth: 		Float,
+	columnsWidth: 		Float,
+	attribRightWidth:	Float, 
+	totalWidth:			Float,
+	//columnsX:				Float,
+	//attribRightX:			Float,
+}
+
 
 
 typedef TPosComplex = {
