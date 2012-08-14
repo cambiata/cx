@@ -310,7 +310,7 @@ class Documents  {
 	public function getEntryForTitle(titleSearch:String):DocumentEntry {		
 		var entries = this.getDocumentEntries();
 		for (entry in entries) {
-			if (entry.title.toLowerCase().indexOf(titleSearch.toLowerCase()) > -1) return entry;			
+			if (entry.title.toLowerCase() == titleSearch.toLowerCase()) return entry; 
 		}
 		return null;
 	}
