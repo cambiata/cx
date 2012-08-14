@@ -44,13 +44,17 @@ class IndexController extends AbstractController
 	public function dok(param : String = 'default') {			
 		
 		var tag = 'site' + WebTools.getUri().replace('/', '_');
-		
 		var doc:TDocument = DocumentData.getDocument(tag);
-		var data:TPageData = {};
-		data.content ={tag:'content', text:doc.text};
-		data.title = {tag:'title', text:'title'};
+				
+		var data:Dynamic = { };		
+		data.content = {tag:'content', text:doc.text};
+		data.title = { tag:'title', text:'title' };
+		data.layout = { tag:'document', text:'document' };
 		return new IndexResult(State.indexPage, data, Config.templatesDir);
 		
+		
+		//return doc.text;
+		//return Std.string(doc);
 		//return tag;
 	}
 	

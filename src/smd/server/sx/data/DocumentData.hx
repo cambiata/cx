@@ -31,6 +31,7 @@ class DocumentData
 		}
 		
 		var sql = "select rowid, * from documents where (tag = '" + tag + "')";
+		
 		var results = SqliteTools.execute(file, sql);
 		try {
 			var result = results.first();
