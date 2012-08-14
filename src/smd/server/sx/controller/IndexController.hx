@@ -46,7 +46,9 @@ class IndexController extends AbstractController
 		var tag = 'site' + WebTools.getUri().replace('/', '_');
 		var doc:TDocument = DocumentData.getDocument(tag);
 				
-		var data:Dynamic = { };		
+		//var data:Dynamic = { };		
+		var data = PageData.getData();
+		
 		data.content = {tag:'content', text:doc.text};
 		data.title = { tag:'title', text:'title' };
 		data.layout = { tag:'document', text:'document' };
