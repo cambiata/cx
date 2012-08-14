@@ -13,12 +13,13 @@ using cx.EnumTools;
 class Note  
 {
 
-	public function new(heads:Iterable<Head>=null, notevalue:ENoteValue=null, direction:EDirectionUAD=null, type:ENoteType=null) {
+	public function new(heads:Iterable<Head>=null, notevalue:ENoteValue=null, direction:EDirectionUAD=null, type:ENoteType=null, text='') {
 		
 		this.heads 				= (heads != null) ? Lambda.array(heads) : [new Head()];
 		this.notevalue		= (notevalue != null) ? notevalue : ENoteValue.Nv4;
 		this.direction 			= (direction != null) ? direction : EDirectionUAD.Auto;
 		this.type				= (type != null) ? type : ENoteType.Normal ;
+		this.text				= text;
 
 		this._sortHeads();
 	}
@@ -29,6 +30,7 @@ class Note
 	public var notevalue(default, null):ENoteValue;
 	public var direction(default, null):EDirectionUAD;
 	public var type(default, null):ENoteType;
+	public var text(default, null):String;
 
 	//-----------------------------------------------------------------------------------------------------
 	
@@ -45,6 +47,7 @@ class Note
 	static public var XVALUE 			= 'value';
 	static public var XDIRECTION	= 'direction';
 	static public var XTYPE				= 'type';
+	static public var XTEXT				= 'text';
 	 
 	public function toXml():Xml {		
 		var xml:Xml = Xml.createElement(XNOTE);				
@@ -57,6 +60,7 @@ class Note
 		if (this.notevalue != ENoteValue.Nv4) 		xml.set(XVALUE, 			Std.string(this.notevalue.value));
 		if (this.direction != EDirectionUAD.Auto) 	xml.set(XDIRECTION, 		Std.string(this.direction));
 		if (this.type != ENoteType.Normal)			xml.set(XTYPE, 				Std.string(this.type));			
+		if (this.text != '')									xml.set(XTYPE, 				Std.string(this.text));			
 		
 		return xml;
 	}
@@ -72,8 +76,9 @@ class Note
 		var value = 			ENoteValue.getFromValue(Std.parseInt(xml.get(XVALUE)));		
 		var direction = 		EDirectionUAD.createFromString(xml.get(XDIRECTION));
 		var type = 				ENoteType.createFromString(xml.get(XTYPE));
+		var text = 				xml.get(XTYPE);
 		
-		var note = new Note(heads, value, direction, type);
+		var note = new Note(heads, value, direction, type, text);
 		
 		return note;
 	}		 

@@ -203,7 +203,7 @@ class BeamingProcessorBase {
 			
 			var dNote:DNote = bg.getFirstNote();			
 			if (dNote.notetype != ENoteType.Normal) continue;
-			if (dNote.notevalue.beamingLevel < 2) continue;
+			if (dNote.notevalue.beamingLevel < 1) continue;
 			
 			// Do the flag rect correction!
 			dNote.setFlagCorrection(ERectCorrection.CorrectFlags);

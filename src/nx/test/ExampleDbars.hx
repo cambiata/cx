@@ -60,16 +60,14 @@ class ExampleDbars
 					new Note(null, ENoteValue.Nv16),
 					new Note(null, ENoteValue.Nv16),
 					new Note(null, ENoteValue.Nv16),
-
 					new Note(null, ENoteValue.Nv8dot),
 					new Note(null, ENoteValue.Nv16),
-					
 					new Note(),
 					
 				])
 			], EClef.ClefG, EAttributeDisplay.Always, EKey.Flat3, EAttributeDisplay.Layout, 'Part1'),
-			//new Part(null, EClef.ClefC, EAttributeDisplay.Layout, EKey.Sharp5, EAttributeDisplay.Never, 'part two'),
-			//new Part(null, EClef.ClefF, EAttributeDisplay.Never, EKey.Natural, EAttributeDisplay.Always),
+			new Part(null, EClef.ClefC, EAttributeDisplay.Layout, EKey.Sharp5, EAttributeDisplay.Never, 'part two'),
+			new Part(null, EClef.ClefF, EAttributeDisplay.Never, EKey.Sharp4, EAttributeDisplay.Always),
 		], ETime.T3_4, EAttributeDisplay.Always, EBarline.Double));
 	}
 	

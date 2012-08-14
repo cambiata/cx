@@ -124,7 +124,7 @@ class DPart
 	private function get_rectKey():Rectangle {
 		if (this._rectKey != null) return this._rectKey;
 		var keyInt:Int = (this.part.key != null) ? Std.int(Math.abs(this.part.key.levelShift)) : 0;
-		var r = new Rectangle(0, -2, (keyInt * Constants.KEYSIGN_WIDTH) + Constants.ATTRIBUTE_NULL_WIDTH, 4);
+		var r = new Rectangle(0, -2, (keyInt * Constants.SIGN_WIDTH) + Constants.ATTRIBUTE_NULL_WIDTH, 4);
 		this._rectKey = r;
 		return this._rectKey;
 	}

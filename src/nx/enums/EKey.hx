@@ -28,9 +28,34 @@ class EKey {
 	
 	/*
 	static public function getFromValue(value:Int):ENoteValue {	
-		
 	}
 	*/
+	
+	static public function getSignLevel(levelShift:Int, signIndex:Int, clef:EClef) {
+		var shift = [0];
+		
+		if (levelShift < 0) {
+			shift = [0, -3, 1, -2, 2, -1, 3];
+		} else {
+			shift =  [ -4, -1, -5, -2, -6, -3];
+		}
+		
+		var level = shift[signIndex];
+		
+		if (clef != null) {
+			switch (clef) {
+				case EClef.ClefC: level += 1;
+				case EClef.ClefF: level += 2;
+				default:
+			}
+		}
+		
+		if (level < -4) level += 7;
+		
+		return level;
+		
+		
+	}
 	
 	
 }

@@ -54,15 +54,16 @@ class Constants {
 	static public inline var TIE_SHORT_HEIGHT:Float = 1.0;	
 	static public inline var TIE_DELTA:Int = 7;
 	
-	static public inline var CLEF_WIDTH:Float = 4;
+	static public inline var CLEF_WIDTH:Float = 11;
 	static public inline var KEYSIGN_WIDTH:Float = 2;
-	static public inline var TIME_WIDTH:Float = 3;
+	static public inline var TIME_WIDTH:Float = 5;
 	static public inline var ATTRIBUTE_NULL_WIDTH:Float = 1;
 	
 	static public inline var BARLINE_NORMAL_WIDTH:Float = 2;
 	static public inline var BARLINE_DOUBLE_WIDTH:Float = 3;
-	static public inline var BAR_MARGIN_LEFT:Float = 1.1;
-	static public inline var BAR_MARGIN_RIGHT:Float = 2.2;
+	static public inline var BAR_MARGIN_LEFT:Float = 5;
+	static public inline var BAR_MARGIN_RIGHT:Float = 3;
+	static public inline var SIGN_WIDTH:Float = 3.2;
 	
 	
 	
