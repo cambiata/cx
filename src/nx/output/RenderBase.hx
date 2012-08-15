@@ -743,8 +743,8 @@ class RenderBase
 		
 		if (frame.firstNotevalue.stavingLevel < 1) return;
 		
-		var firstX = xpos + dnotePositionsX.first();
-		var lastX = xpos + dnotePositionsX.last();
+		var firstX = (xpos + dnotePositionsX.first());
+		var lastX = (xpos + dnotePositionsX.last());
 		var beamW = lastX - firstX;
 		var beamH = 0.0;
 		
@@ -799,7 +799,7 @@ class RenderBase
 					if (count > 2) {
 						var idx = 1;
 						for (innerStave in xinnerStaves) {
-							var staveX = xpos + dnotePositionsX[idx];
+							var staveX = (xpos + dnotePositionsX[idx]);
 							var slopeDelta = (staveX - firstX) / beamW;
 							var innerTopY = firstTopY + beamH * slopeDelta;
 							var innerBottomY = y + this.scaling.scaleY(innerStave.bottomY);

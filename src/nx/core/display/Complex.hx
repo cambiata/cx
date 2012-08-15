@@ -26,10 +26,12 @@ class Complex
 	
 	private var _dnotesXshift:Array<Float>;
 	
-	public function new(dnotes:Iterable<DNote>)  {
+	public function new(dnotes:Iterable<DNote>, dpart:DPart=null)  {
 		this.dnotes 			= Lambda.array(dnotes);
+		this.dpart 				= dpart;
 		this._dnotesXshift 	= [];
 		this.signs 				= [];
+		
 		
 		for (dnote in this.dnotes) {
 			this._dnotesXshift.push(0);
@@ -46,6 +48,7 @@ class Complex
 	
 	public var signs(default, null):TSigns;
 	public var dnotes(default, null):Array<DNote>;		
+	public var dpart(default, null):DPart;
 	
 	public function dnote(idx:Int) : DNote {
 		return this.dnotes[idx];

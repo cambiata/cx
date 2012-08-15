@@ -601,6 +601,7 @@ class DBar
 		return this._attributesRectRight;
 	}
 	public var attributesRectRight(get_attributesRectRight, null):Rectangle;	
+
 	
 	//---------------------------------------------------------------------------------------------------------
 
@@ -628,12 +629,31 @@ class DBar
 		}
 		return ret;		
 	}	
+
 	
-	public function getTotalWidthStretchedTo(stretchToWidth:Float=0) {
+	//-----------------------------------------------------------------------------------------------------
+	
+	private var _dpartTop:ObjectHash<DPart, Float>;
+	public var dpartTop(get_dpartTop, null):ObjectHash<DPart, Float>;
+	private function get_dpartTop():ObjectHash<DPart, Float> {
+
+		if (this._dpartTop != null) return this._dpartTop;
+		this._dpartTop = new ObjectHash<DPart, Float>();
 		
+		var distance = 0.0;
+		var prevDpart:DPart = null;
+		for (dpart in this.dparts) {						
+			if (dpart == this.dparts.first()) {
+				distance += -(dpart.rectDPartHeight.y);
+			} else {
+				distance += (prevDpart.rectDPartHeight.height + prevDpart.rectDPartHeight.y) + -dpart.rectDPartHeight.y + Constants.PART_MIN_DISTANCE;				
+			}
+			this._dpartTop.set(dpart, distance);			
+			prevDpart = dpart;
+		}
 		
-		
-		
+		return this._dpartTop;
+
 	}
 	
 

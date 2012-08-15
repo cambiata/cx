@@ -25,9 +25,9 @@ class Text
 	public function new(scaling:TScaling, font:String='Times New Roman', size:Float=12, color:Int=0x000000, bold:Bool=false, italic:Bool=false) {
 		this.scaling = scaling; 		
 #if js
-		var scalefactor:Float = 3.65;
+		var scalefactor:Float = 2.8;
 #else
-		var scalefactor:Float = 4.0;
+		var scalefactor:Float = 3.6;
 #end		
 		//var fontsize = scaling.fontScaling * (size / scaling.fontScaling) * scalefactor;
 		var fontsize = scaling.fontScaling * scalefactor * 1.5;

@@ -73,7 +73,64 @@ class ExampleDbars
 			
 		], ETime.T3_4, null));				
 	}	
-	
+
+	static public function dbarFourpart() {
+		return new DBar(new Bar([
+			new Part([
+				new Voice([
+					new Note([new Head(-2)], ENoteValue.Nv4), 
+					new Note([new Head(-1)], ENoteValue.Nv4), 
+					new Note([new Head(0)], ENoteValue.Nv4), 
+					new Note([new Head(1)], ENoteValue.Nv4), 
+				], EDirectionUAD.Up),
+
+				new Voice([
+					new Note([new Head(3)], ENoteValue.Nv8), 
+					new Note([new Head(2)], ENoteValue.Nv8), 
+					new Note([new Head(1, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv4), 
+					new Note([new Head(1)], ENoteValue.Nv8), 
+					new Note([new Head(2)], ENoteValue.Nv8), 
+					new Note([new Head(3)], ENoteValue.Nv4), 
+				], EDirectionUAD.Down),
+			], EClef.ClefG, EKey.Sharp2),
+			
+			new Part(EPartType.Lyrics, [
+				new Voice([
+					new Note(ENoteValue.Nv4, ENoteType.Lyric, 'Li-'), 
+					new Note(ENoteValue.Nv4, ENoteType.Lyric, 'te'), 
+					new Note(ENoteValue.Nv8, ENoteType.Lyric, 'text,'), 
+					new Note(ENoteValue.Nv8, ENoteType.Lyric, 'så'), 
+					new Note(ENoteValue.Nv4, ENoteType.Lyric, 'här.'), 
+				]),
+			]),
+			
+			new Part(EPartType.Lyrics, [
+				new Voice([
+					new Note(ENoteValue.Nv4, ENoteType.Lyric, 'Me-'), 
+					new Note(ENoteValue.Nv4, ENoteType.Lyric, 'ra'), 
+					new Note(ENoteValue.Nv2, ENoteType.Lyric, 'text_'), 
+				]),
+			]),			
+			
+			new Part([
+				new Voice([
+					new Note([new Head(-4)], ENoteValue.Nv4), 
+					new Note([new Head(-7)], ENoteValue.Nv4), 
+					new Note([new Head(-7)], ENoteValue.Nv4), 
+					new Note([new Head(-7)], ENoteValue.Nv4), 
+				], EDirectionUAD.Up),
+
+				new Voice([
+					new Note([new Head(0)], ENoteValue.Nv4), 
+					new Note([new Head(-1)], ENoteValue.Nv8), 
+					new Note([new Head(-2)], ENoteValue.Nv8), 
+					new Note([new Head(-3)], ENoteValue.Nv4), 
+					new Note([new Head(0)], ENoteValue.Nv4), 
+				], EDirectionUAD.Down),
+			], EClef.ClefF, EKey.Sharp2),
+		], ETime.T4_4));
+	}					
+					
 	
 	static public function dbarLyrics() {
 		return new DBar(new Bar([

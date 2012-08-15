@@ -41,9 +41,6 @@ using Lambda;
 class Render extends RenderBase, implements IRender
 {
 	static public var drawRects:Bool = false;
-	
-
-	
 
 	
 	public function new(target:Sprite, scaling:TScaling) {
@@ -106,25 +103,29 @@ class Render extends RenderBase, implements IRender
 		
 		var x2:Float;
 		var y2:Float;
+
+		/*
+		for (dpart in dbar.dparts) {
+			trace(dbar.dpartTop.get(dpart));
+		}
+		*/
 		
 		// Draw complexes...
 		
 		for (column in dbar.columns) {
-			var y2 = y;			
-			
 			x2 = x + Scaling.scaleX(column.sPositionX, this.scaling);
 			for (partComplex in column.complexes) {
-				if (partComplex != null) {
+				if (partComplex != null) {					
+					y2 = y + scaling.scaleY(dbar.dpartTop.get(partComplex.dpart));					
 					this.complex(x2, y2, partComplex, rects, 0, false);
 				}
-				y2 += 180;
 			}
 		}
 		
 		// Draw beams...
 		
-		var y2 = y;			
 		for (dpart in dbar.dparts) {
+			y2 = y + scaling.scaleY(dbar.dpartTop.get(dpart));					
 			switch (dpart.part.type) {
 				case EPartType.Normal:
 					for (dvoice in dpart.dvoices) {
@@ -148,24 +149,25 @@ class Render extends RenderBase, implements IRender
 				default:
 					// draw no beams!
 			}
-			y2 += 180;
 		}
 		
 		// Draw part stuff...
 		
-		y2 = y;
 		for (dpart in dbar.dparts) {
-				var heightRect = dpart.rectDPartHeight;
-				heightRect.width = 200;
-				gr.lineStyle(2, 0x00FF00);
-				drawRect(x, y2, heightRect, 2, 0x00FF00);						
-			y2 += 180;
+			y2 = y + scaling.scaleY(dbar.dpartTop.get(dpart));				
+			
+			/*
+			var heightRect = dpart.rectDPartHeight;
+			heightRect.width = 200;
+			gr.lineStyle(2, 0x00FF00);
+			drawRect(x, y2, heightRect, 2, 0x00FF00);						
+			*/
 		}
 		
 		// Draw voice stuff...
 		
-		y2 = y;
 		for (dpart in dbar.dparts) {
+			y2 = y + scaling.scaleY(dbar.dpartTop.get(dpart));			
 			for (dvoice in dpart.dvoices) {
 				this.dvoiceBarpause(x, y2, dbar, dvoice);
 				this.dvoiceTies(x, y2, dbar, dvoice);
@@ -178,7 +180,6 @@ class Render extends RenderBase, implements IRender
 				*/
 				
 			}
-			y2 += 180;
 		}
 
 		//-----------------------------------------------------------------------------------------------------
@@ -237,13 +238,18 @@ class Render extends RenderBase, implements IRender
 		
 		var attrLeftX = x;
 		var attrLeftWidth = this.scaling.scaleX2(barMeas.attribLeftWidth);
-		this.dbarAttributesLeft(x, y, dbar, rects);
-		var y2 = y;
+		//var y2 = y;
+		
+		
+		var y2:Float = 0.0;
 		for (dpart in dbar.dparts) {			
+			y2 = y + scaling.scaleY(dbar.dpartTop.get(dpart));			
+			
+			dbarAttributesLeft(x, y2, dbar, dpart, rects);									
 			attributeClef(x, y2, dbar, dpart, rects);
 			attributeKey(x, y2, dbar, dpart, rects);
 			attributeTime(x, y2, dbar, dpart, rects);
-			y2 += 180;
+			//y2 += 180;
 		}
 		
 		var columnsX = x + attrLeftWidth;		
@@ -256,13 +262,25 @@ class Render extends RenderBase, implements IRender
 		var columnsWidth = this.scaling.scaleX2(dbar.columnsRectStretched.width);
 
 		var attrRightX = columnsX + columnsWidth;
-		this.dbarAttributesRight(attrRightX, y, dbar, rects);
+		var attrRightWidth =  this.scaling.scaleX2(barMeas.attribRightWidth);
+		
+		
+		var x2 = attrRightX + attrRightWidth - x;
+		for (dpart in dbar.dparts) {			
+			y2 = Std.int(y + scaling.scaleY(dbar.dpartTop.get(dpart)));									
+			
+			dbarAttributesRight(attrRightX, y2, dbar, rects);                        
+			if (dpart.part.type == EPartType.Normal) lines(x, y2, x2);
+		}
+		
+		
 		
 	}
 	
 
-	public function dbarAttributesLeft(x:Float, y:Float, dbar:DBar, rects:Bool = true) {
+	public function dbarAttributesLeft(x:Float, y:Float, dbar:DBar, dpart:DPart, rects:Bool = true) {
 		//var rClef = this.scaling.scaleRect(dbar.rectClef);
+		if (!rects) return;
 		this.gr.endFill();
 		this.drawRect(x, y, dbar.attributesRectLeft, 4, 0xaaaaaa);
 		this.drawRect(x, y, dbar.rectClef, 2, 0x00FF00);
@@ -273,8 +291,9 @@ class Render extends RenderBase, implements IRender
 	}
 	
 	public function attributeClef(x:Float, y:Float, dbar:DBar, dpart:DPart, rects:Bool = true) {
-		var x2 = x + this.scaling.scaleX2(dbar.rectClef.x);
+		if (dpart.part.type != EPartType.Normal) return;
 		if (dpart.part.clef == null) return;
+		var x2 = x + this.scaling.scaleX2(dbar.rectClef.x);
 		
 		var shape:Shape = null;
 		switch(dpart.part.clef) {
@@ -292,9 +311,9 @@ class Render extends RenderBase, implements IRender
 	}
 	
 	public function attributeKey(x:Float, y:Float, dbar:DBar, dpart:DPart, rects:Bool = true) {
-		var x2 = x + this.scaling.scaleX2(dbar.rectKey.x);
+		if (dpart.part.type != EPartType.Normal) return;
 		if (dpart.part.key == null) return;
-		
+		var x2 = x + this.scaling.scaleX2(dbar.rectKey.x);
 		
 		var shape:Shape = null;
 		
@@ -321,10 +340,9 @@ class Render extends RenderBase, implements IRender
 	}
 
 	public function attributeTime(x:Float, y:Float, dbar:DBar, dpart:DPart, rects:Bool = true) {
+		if (dpart.part.type != EPartType.Normal) return;
+		if (dbar.bar.time == null) return;
 		var x2 = x + this.scaling.scaleX2(dbar.rectTime.x);
-		if (dbar.bar.time == null) return;	
-		
-		
 		
 		var shape:Shape = null;
 		var shapeLower:Shape = null;
@@ -356,8 +374,8 @@ class Render extends RenderBase, implements IRender
 		target.addChild(shape);
 	}
 
-	public function dbarAttributesRight(x:Float, y:Float, dbar:DBar, rects:Bool = true) {
-		
+	public function dbarAttributesRight(x:Float, y:Float, dbar:DBar, rects:Bool = true) {		
+		if (!rects) return;
 		//var rClef = this.scaling.scaleRect(dbar.rectClef);
 		this.gr.endFill();
 		this.drawRect(x, y, dbar.attributesRectRight, 4, 0xaaaaaa);

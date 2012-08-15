@@ -4,6 +4,7 @@ import nme.geom.Rectangle;
 import nx.Constants;
 import nx.core.element.Part;
 import nme.ObjectHash;
+import nx.enums.EPartType;
 
 /**
  * ...
@@ -79,7 +80,7 @@ class DPart
 		
 		for (pos in this.positions) {
 			var dnotes = this._posDNotes.get(pos);
-			var dplex = new Complex(dnotes);
+			var dplex = new Complex(dnotes, this);
 			this.complexes.push(dplex);			
 			this.complexPosition.set(dplex, pos);
 			this.positionComplex.set(pos, dplex);
@@ -107,7 +108,9 @@ class DPart
 	{
 		if (this._rectClef != null) return this._rectClef;
 		var rect:Rectangle = null;
-		if (this.part.clef == null) {
+		
+		
+		if ((this.part.clef == null) || (this.part.type != EPartType.Normal)) {
 			rect = new Rectangle(0, -2, Constants.ATTRIBUTE_NULL_WIDTH, 4);
 			this._rectClef = rect;
 			return this._rectClef;
@@ -125,10 +128,10 @@ class DPart
 		if (this._rectKey != null) return this._rectKey;
 		var keyInt:Int = (this.part.key != null) ? Std.int(Math.abs(this.part.key.levelShift)) : 0;		
 		
-		if (keyInt > 0) {
-			this._rectKey = new Rectangle(0, -6, (keyInt * Constants.SIGN_WIDTH) + Constants.ATTRIBUTE_NULL_WIDTH, 12);
+		if ((keyInt == 0) || (this.part.type != EPartType.Normal)) {
+			this._rectKey = new Rectangle(0, -2, Constants.ATTRIBUTE_NULL_WIDTH, 4);
 		} else {
-			this._rectKey = new Rectangle(0, -2, Constants.ATTRIBUTE_NULL_WIDTH, 4);			
+			this._rectKey = new Rectangle(0, -6, (keyInt * Constants.SIGN_WIDTH) + Constants.ATTRIBUTE_NULL_WIDTH, 12);
 		}
 		
 		return this._rectKey;

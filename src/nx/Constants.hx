@@ -62,5 +62,8 @@ class Constants {
 	static public inline var TEXT_XADJUST:Float = 0.8;
 	static public inline var TEXT_YADJUST:Float = 2.8;
 	
+	static public inline var PART_MIN_DISTANCE:Float = 1;
+	
+	
 	
 }
