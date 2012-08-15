@@ -27,10 +27,14 @@ class DBar
 	public var dnoteColumn				(default, null)		:ObjectHash<DNote, Column>;
 	public var dnoteComplexXadjust	(default, null)		:ObjectHash<DNote, Float>;
 	public var dnoteComplex				(default, null)		:ObjectHash<DNote, Complex>;
-	
+
+	/*
+	 * 2.09 dpp ObjectHash bug workaround - seems to work in 2.10
+	 * 	
 	public var dnoteguidColumnidx		(default, null)		:Hash<Int>;
 	public var dnoteguidComplexidx		(default, null)		:Hash<Int>;
 	public var dnoteguidComplexXadjust	(default, null)		:Hash<Float>;
+	*/
 	
 	public var columnsRectMinframe	(default, null) :	Rectangle;	
 	public var columnsRectCramped		(default, null) :	Rectangle;	
@@ -38,10 +42,6 @@ class DBar
 	public var columnsRectStretched	(default, null) :	Rectangle;	
 	
 	public var allotment						(default, null)	: 	EAllotment;	
-	
-	
-	
-	
 	
 	
 	public function new(bar:Bar=null, allotment:EAllotment=null) {				
@@ -122,8 +122,13 @@ class DBar
 	private function _calcDnotesColumnsAndComplexes() {
 		this.dnoteColumn 				= new ObjectHash<DNote, Column>();
 		this.dnoteComplex 				= new ObjectHash <DNote, Complex>();
+
+		/*
+		 * 2.09 dpp ObjectHash bug workaround - seems to work in 2.10
+		 * 
 		this.dnoteguidColumnidx 		= new Hash<Int>();
 		this.dnoteguidComplexidx 	= new Hash<Int>();
+		*/
 		
 		for (column in this.columns) {
 			for (complex in column.complexes) {
@@ -131,12 +136,16 @@ class DBar
 				for (dnote in complex.dnotes) {
 					this.dnoteColumn.set(dnote, column);
 					this.dnoteComplex.set(dnote, complex);
-					
+			
+					/*
+					 * 2.09 dpp ObjectHash bug workaround - seems to work in 2.10
+					 * 
 					var columnIdx = this.columns.index(column);
 					this.dnoteguidColumnidx.set(dnote.guid, columnIdx);
 					
 					var complexIdx = column.complexes.index(complex);
 					this.dnoteguidComplexidx.set(dnote.guid, complexIdx);
+					*/
 					
 				}
 			}
@@ -147,7 +156,12 @@ class DBar
 	
 	private function _calcDnotesComplexXadjust() {
 		this.dnoteComplexXadjust = new ObjectHash<DNote, Float>();
+
+		/*
+		 * 2.09 dpp ObjectHash bug workaround - seems to work in 2.10
+		 * 		
 		this.dnoteguidComplexXadjust = new Hash<Float>();
+		*/
 		
 		for (column in this.columns) {
 			for (complex in column.complexes) {
@@ -157,8 +171,12 @@ class DBar
 					var adjustX = complex.dnoteXshift(idx);
 					this.dnoteComplexXadjust.set(dnote, adjustX);
 					
+					/*
+					 * 2.09 dpp ObjectHash bug workaround - seems to work in 2.10
+					 * 					
 					var complexIdx = column.complexes.index(complex);
 					this.dnoteguidComplexXadjust.set(dnote.guid, adjustX);
+					*/
 					
 					idx++;
 				}

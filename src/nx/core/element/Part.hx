@@ -2,6 +2,7 @@ package nx.core.element;
 import nx.enums.EAttributeDisplay;
 import nx.enums.EClef;
 import nx.enums.EKey;
+import nx.enums.EPartType;
 import nx.enums.ETime;
 
 /**
@@ -11,9 +12,9 @@ import nx.enums.ETime;
 using cx.EnumTools;
 class Part 
 {
-	public function new(voices:Iterable<Voice>=null, clef:EClef=null, clefDisplay:EAttributeDisplay=null, key:EKey=null, keyDisplay:EAttributeDisplay=null, label:String='') {
+	public function new(type:EPartType=null, voices:Iterable<Voice>=null, clef:EClef=null, clefDisplay:EAttributeDisplay=null, key:EKey=null, keyDisplay:EAttributeDisplay=null, label:String='') {
+		this.type = (type != null) ? type : EPartType.Normal;
 		this.voices = (voices != null) ? Lambda.array(voices) : [new Voice()];
-
 		this.key = key; // (key != null) ? key : EKey.Flat2;
 		this.keyDisplay = (keyDisplay != null) ? keyDisplay : EAttributeDisplay.Layout;
 		this.clef = clef; // (clef != null) ? clef : EClef.ClefC;
@@ -22,8 +23,8 @@ class Part
 		this.label = label;
 	}
 	
+	public var type(default, null):EPartType;	
 	public var voices(default, null):Array<Voice>;
-
 	public var key(default, null): EKey;
 	public var keyDisplay(default, null):EAttributeDisplay;
 	public var clef(default, null): EClef;
@@ -37,6 +38,7 @@ class Part
 	 */
 	
 	static public var XPART 				= 'part';
+	static public var XTYPE					= 'type';
 	static public var XCLEF					= 'clef';
 	static public var XCLEFDISPLAY		= 'clefdisplay';
 	static public var XKEY					= 'key';
@@ -53,6 +55,7 @@ class Part
 			xml.addChild(itemXml);
 		}
 		
+		if (this.type != EPartType.Normal) 						xml.set(XTYPE, 				Std.string(this.type));
 		if (this.clef != null) 												xml.set(XCLEF, 				Std.string(this.clef));
 		if (this.clefDisplay != EAttributeDisplay.Layout)		xml.set(XCLEFDISPLAY,	Std.string(this.clefDisplay));		
 		
@@ -75,6 +78,8 @@ class Part
 			voices.push(item);
 		}	
 
+		var type = EPartType.createFromString(xml.get(XTYPE));
+		
 		var clefDisplay = EAttributeDisplay.createFromString(xml.get(XCLEFDISPLAY));
 		var clef = EClef.createFromString(xml.get(XCLEF));
 		
@@ -84,7 +89,7 @@ class Part
 		
 		var label = xml.get(XLABEL);
 		
-		return new Part(voices, clef, clefDisplay, key, keyDispaly, label);
+		return new Part(type, voices, clef, clefDisplay, key, keyDispaly, label);
 		
 	}
 	

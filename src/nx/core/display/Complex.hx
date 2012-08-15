@@ -149,6 +149,7 @@ class Complex
 			if (dnote.rectStave != null) 			this._rectsAll.push(dnote.rectStave);			
 			if (dnote.rectDots != null) 			this._rectsAll.push(dnote.rectDots);
 			if (dnote.rectTiesfrom != null) 		this._rectsAll.push(dnote.rectTiesfrom);
+			if (dnote.rectText != null)				this._rectsAll.push(dnote.rectText);
 		}
 		
 		return this._rectsAll;

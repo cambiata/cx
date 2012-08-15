@@ -22,6 +22,7 @@ import nx.enums.EHeadType;
 import nx.enums.ENoteType;
 import nx.enums.ENoteValue;
 import nx.enums.utils.EDirectionTools;
+import nx.output.text.TextBitmap;
 import nx.svg.SvgAssets;
 import nx.output.Scaling;
 import nx.display.beam.BeamGroupFrame;
@@ -35,6 +36,7 @@ using nx.output.Scaling;
 using cx.ArrayTools;
 using nx.core.display.DBar;
 using Lambda;
+using StringTools;
  
 class RenderBase 
 {
@@ -43,18 +45,21 @@ class RenderBase
 	private var scaling:TScaling;
 	private var gr:Graphics;
 	
+	private var textOutput:Text;
+	
 	public function new(target:Sprite, scaling:TScaling) {
 		this.target = target;
 		this.gr = target.graphics;
 		this.scaling = scaling;
+		this.textOutput = new Text(this.scaling);
 	}
 	
 	private function drawRect(x:Float, y:Float, rect:Rectangle, lineWidth = 1.0, lineColor = 0xFF0000) {
+		if (rect == null) return;
 		var r = this.scaling.scaleRect(rect);
 		r.offset(x, y);
 		this.gr.lineStyle(lineWidth, lineColor);
 		this.gr.drawRect(r.x, r.y, r.width, r.height);
-		
 	}		
 	
 	
@@ -75,22 +80,59 @@ class RenderBase
 				var tieConnectLevels = [];
 				if (leftDNote.countTies() > 0) {
 					var tieLevels = leftDNote.getTieLevels();					
+					
+					/*
 					var columIdx = dbar.dnoteguidColumnidx.get(leftDNote.guid);
 					var leftColumn = dbar.columns[columIdx];
+					*/
+					
+					var leftColumn = dbar.dnoteColumn.get(leftDNote);
+					
 					var leftX = leftColumn.sPositionX + leftDNote.rectTiesfrom.x;
 					var tieX 			= x + this.scaling.scaleX2(leftX);					
-					var tieXHanging 	= tieX + this.scaling.scaleX2(Constants.HEAD_TIEWIDTH);
+					
+					
+					var tieXHanging = tieX;
+					if (dbar.columns.last() != leftColumn) {
+						tieXHanging 	+= this.scaling.scaleX2(Constants.TIE_WIDTH);						
+					} else {
+						tieXHanging 	+= this.scaling.scaleX2(Constants.TIE_WIDTH_LASTHANGING);						
+					}
+					
+					
 					var rightX = 0.0;
 					var tieXRigthNote = 0.0;
 					
 					// if there is a right note to tie to:
 					if (rightDNote != null) {
 						tieConnectLevels = leftDNote.getTieConnections(rightDNote);
+						
+						/*
+						 * 2.09 dpp ObjectHash bug workaround - seems to work in 2.10
+						 * 
 						var columidx = dbar.dnoteguidColumnidx.get(rightDNote.guid);
 						var rightColumn = dbar.columns[columidx];
+						*/
+						
+						var rightColumn = dbar.dnoteColumn.get(rightDNote);
+						
+						/*
+						 * 2.09 dpp bug ObjectHash workaround - seems to work in 2.10
+						 * 
 						var complexIdx = dbar.dnoteguidComplexidx.get(rightDNote.guid);
 						var rightComplex = rightColumn.complexes[complexIdx];
+						*/
+						var rightComplex = dbar.dnoteComplex.get(rightDNote);
+						
+						/*
+						 * 2.09 dpp bug ObjectHash workaround - seems to work in 2.10
+						 * 
 						rightX = rightColumn.sPositionX + dbar.dnoteguidComplexXadjust.get(rightDNote.guid) - Constants.HEAD_QUARTERWIDTH;							
+						*/
+						
+						rightX = rightColumn.sPositionX + dbar.dnoteComplexXadjust.get(rightDNote) - Constants.HEAD_QUARTERWIDTH;							
+						
+						
 						rightX += (rightDNote.signs.count() > 0) ? rightComplex.rectSigns.x : rightComplex.rectHeads.x;
 						tieXRigthNote 	= x + this.scaling.scaleX2(rightX);
 					}
@@ -250,7 +292,8 @@ class RenderBase
 		var positions = dnote.headPositions.copy();
 		
 		switch (dnote.notetype) {
-			
+			case ENoteType.Lyric:
+				this._drawLyric(x, y, dnote);
 			case ENoteType.Pause:
 				this._drawPause(x, y, dnote);
 			
@@ -295,6 +338,18 @@ class RenderBase
 			if (dnote.rectDots != null)   this.drawRect(x, y, dnote.rectDots, 3, 0x00FF00);
 			if (dnote.rectTiesfrom != null)  this.drawRect(x, y, dnote.rectTiesfrom, 3, 0xFF0000);
 		}
+	}
+	
+	private function _drawLyric(x:Float, y:Float, dnote:DNote) {
+		var text:String = dnote.note.text;
+		if (text.endsWith('-')) text.replace('-', '');
+		if (text.endsWith('_')) text.replace('-', '');
+		
+		var bmp = textOutput.getStringBitmap(text);
+		bmp.x = x + this.scaling.scaleX2(dnote.rectText.x) - this.scaling.scaleX2(Constants.TEXT_XADJUST);
+		bmp.y = y + this.scaling.scaleY(dnote.rectText.y)- this.scaling.scaleX2(Constants.TEXT_YADJUST);
+		trace([text, bmp.width]);
+		this.target.addChild(bmp);
 	}
 	
 	private function _drawLegers(x:Float, y:Float, dnote:DNote) {
@@ -424,17 +479,17 @@ class RenderBase
 				r.offset(x, y);
 				this.gr.beginFill(0x000000);
 				this.gr.drawRect(r.x, r.y, r.width, r.height);
+				this.gr.endFill();
 			case ENoteValue.Nv1, ENoteValue.Nv1dot, ENoteValue.Nv1tri:
 				var ry = level - 2 - (level % 2);
 				var r = this.scaling.scaleRect( new Rectangle(-Constants.HEAD_HALFWIDTH, ry, Constants.HEAD_WIDTH , Constants.HEAD_HALFHEIGHT));
 				r.offset(x, y);
 				this.gr.beginFill(0x000000);
 				this.gr.drawRect(r.x, r.y, r.width, r.height);
-
+				this.gr.endFill();				
 			default: 
 				shape = SvgAssets.getSvgShape("noteBlack", scaling);		
 		}
-		
 		
 		if (shape != null) {
 			var headY = y + (level * scaling.halfSpace);

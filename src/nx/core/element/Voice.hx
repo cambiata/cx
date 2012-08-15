@@ -2,6 +2,7 @@ package nx.core.element;
 import nx.enums.EDirectionUAD;
 import nx.enums.ENoteValue;
 import nx.enums.ESign;
+import nx.enums.EVoiceType;
 
 /**
  * ...
@@ -10,11 +11,15 @@ import nx.enums.ESign;
 using cx.EnumTools;
 class Voice 
 {
-	public function new(notes:Iterable<Note>=null, direction:EDirectionUAD=null)  {
+	public function new(type:EVoiceType=null, notes:Array<Note> = null, direction:EDirectionUAD = null)  {
+		this.type = (type != null) ? type : EVoiceType.Normal;
+		if (notes == null) this.type = EVoiceType.Barpause;
+		
 		this.notes = (notes != null) ? Lambda.array(notes) : [new Note()];
 		this.direction =(direction!= null) ? direction : EDirectionUAD.Auto;
 	}
 
+	public var type(default, null):EVoiceType;
 	public var notes(default, null):Array<Note>;
 	public var direction(default, null):EDirectionUAD;
 	
@@ -23,17 +28,24 @@ class Voice
 	 */
 	
 	static public var XVOICE 				= 'voice';
+	static public var XTYPE 				= 'type';
 	static public var XDIRECTION		= 'direction';
 	
 	public function toXml():Xml {		
 		
 		var xml:Xml = Xml.createElement(XVOICE);				
 		
-		for (note in this.notes) {
-			var itemXml = note.toXml();
-			xml.addChild(itemXml);
+		switch (this.type) {
+			case EVoiceType.Barpause:
+				// save no notes if barpause!
+			default:
+				for (note in this.notes) {
+					var itemXml = note.toXml();
+					xml.addChild(itemXml);
+				}
 		}
 		
+		if (this.type != EVoiceType.Normal) 				xml.set(XTYPE, 				Std.string(this.type));
 		if (this.direction != EDirectionUAD.Auto) 		xml.set(XDIRECTION, 		Std.string(this.direction));
 		
 		return xml;
@@ -50,8 +62,9 @@ class Voice
 			notes.push(item);
 		}	
 		
-		
+		var type = EVoiceType.createFromString(xml.get(XTYPE));
 		var direction = EDirectionUAD.createFromString(xml.get(XDIRECTION));
+		
 		
 		return new Voice(notes, direction);
 		

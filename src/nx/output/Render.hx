@@ -22,6 +22,8 @@ import nx.enums.EHeadType;
 import nx.enums.EKey;
 import nx.enums.ENoteType;
 import nx.enums.ENoteValue;
+import nx.enums.EPartType;
+import nx.enums.EVoiceType;
 import nx.enums.utils.EDirectionTools;
 import nx.svg.SvgAssets;
 import nx.output.Scaling;
@@ -86,12 +88,9 @@ class Render extends RenderBase, implements IRender
 		shape.y = y + scaling.svgY + scaling.space;
 		target.addChild(shape);	  	
 	}
-
 	
 	//-----------------------------------------------------------------------------------------------------
 	//-----------------------------------------------------------------------------------------------------
-	
-
 	
 	public function dbar(x:Float, y:Float, dbar:DBar, stretchToWidth:Float=0, rects:Bool = true) {
 		this.gr.endFill();
@@ -114,9 +113,9 @@ class Render extends RenderBase, implements IRender
 			var y2 = y;			
 			
 			x2 = x + Scaling.scaleX(column.sPositionX, this.scaling);
-			for (complex in column.complexes) {
-				if (complex != null) {
-					this.complex(x2, y2, complex, rects, 0, false);
+			for (partComplex in column.complexes) {
+				if (partComplex != null) {
+					this.complex(x2, y2, partComplex, rects, 0, false);
 				}
 				y2 += 180;
 			}
@@ -126,24 +125,40 @@ class Render extends RenderBase, implements IRender
 		
 		var y2 = y;			
 		for (dpart in dbar.dparts) {
-			for (dvoice in dpart.dvoices) {
-				var voiceIdx = ArrayTools.index(dpart.dvoices, dvoice);
-				for (beamgroup in dvoice.beamGroups) {
-					var frame = BeamTools.getDimensions(beamgroup);
-					var dnotes = beamgroup.getNotes();
-					var dnotesPositionsX:Array<Float> = [];
-					for (dnote in dnotes) {
-						var column = dbar.dnoteColumn.get(dnote);						
-						var adjustX = dbar.dnoteComplexXadjust.get(dnote); // justera för sekundkrockar etc...						
-						var rectStaveX:Float = 0;
-						if (dnote.rectStave != null) rectStaveX = dnote.rectStave.x;
-						var posX = Scaling.scaleX(column.sPositionX + rectStaveX + adjustX, this.scaling);
-						
-						dnotesPositionsX.push(posX);
+			switch (dpart.part.type) {
+				case EPartType.Normal:
+					for (dvoice in dpart.dvoices) {
+						var voiceIdx = ArrayTools.index(dpart.dvoices, dvoice);
+						for (beamgroup in dvoice.beamGroups) {
+							var frame = BeamTools.getDimensions(beamgroup);
+							var dnotes = beamgroup.getNotes();
+							var dnotesPositionsX:Array<Float> = [];
+							for (dnote in dnotes) {
+								var column = dbar.dnoteColumn.get(dnote);						
+								var adjustX = dbar.dnoteComplexXadjust.get(dnote); // justera för sekundkrockar etc...						
+								var rectStaveX:Float = 0;
+								if (dnote.rectStave != null) rectStaveX = dnote.rectStave.x;
+								var posX = Scaling.scaleX(column.sPositionX + rectStaveX + adjustX, this.scaling);
+								
+								dnotesPositionsX.push(posX);
+							}
+							this.beamGroup(x, y2, frame, dnotesPositionsX);
+						}
 					}
-					this.beamGroup(x, y2, frame, dnotesPositionsX);
-				}
+				default:
+					// draw no beams!
 			}
+			y2 += 180;
+		}
+		
+		// Draw part stuff...
+		
+		y2 = y;
+		for (dpart in dbar.dparts) {
+				var heightRect = dpart.rectDPartHeight;
+				heightRect.width = 200;
+				gr.lineStyle(2, 0x00FF00);
+				drawRect(x, y2, heightRect, 2, 0x00FF00);						
 			y2 += 180;
 		}
 		
@@ -152,7 +167,16 @@ class Render extends RenderBase, implements IRender
 		y2 = y;
 		for (dpart in dbar.dparts) {
 			for (dvoice in dpart.dvoices) {
+				this.dvoiceBarpause(x, y2, dbar, dvoice);
 				this.dvoiceTies(x, y2, dbar, dvoice);
+				
+				/*
+				var heightRect = dvoice.heightRect;	
+				heightRect.width = 200;
+				gr.lineStyle(2, 0x00FF00);
+				drawRect(x, y2, heightRect, 2, 0x00FF00);
+				*/
+				
 			}
 			y2 += 180;
 		}
@@ -168,6 +192,24 @@ class Render extends RenderBase, implements IRender
 			this.gr.lineStyle(1, 0x00FF00);
 			this.gr.drawRect(r.x, r.y, r.width, r.height);			
 		}
+	}
+	
+	private function dvoiceBarpause(x:Float, y2:Float, dbar:DBar, dvoice:DVoice) {
+		if (dvoice.voice.type != EVoiceType.Barpause) return;
+
+		var level = dvoice.voice.notes.first().heads.first().level;
+		var ry = level - 2 - (level % 2);
+		var r = this.scaling.scaleRect( new Rectangle(-Constants.HEAD_HALFWIDTH, ry, Constants.HEAD_WIDTH , Constants.HEAD_HALFHEIGHT));
+
+		var width = this.scaling.scaleX2(dbar.columnsRectStretched.width) ;
+		var x2 = x + this.scaling.scaleX2(dbar.columnsRectStretched.x);
+		var x3 = x2 + ((width - r.width) / 2);
+		
+		r.offset(x3, y2);
+		this.gr.lineStyle(1, 0x00000);		
+		this.gr.beginFill(0x000000);
+		this.gr.drawRect(r.x, r.y, r.width, r.height);
+		this.gr.endFill();				
 	}
 	
 
@@ -206,7 +248,7 @@ class Render extends RenderBase, implements IRender
 		
 		var columnsX = x + attrLeftWidth;		
 		var columnsXAdjust = this.scaling.scaleX2(-dbar.columnsRectStretched.x);
-		this.dbar(columnsX+columnsXAdjust, y, dbar, stretchToWidth2, true);
+		this.dbar(columnsX+columnsXAdjust, y, dbar, stretchToWidth2, rects);
 		
 		//trace(dbar.columnsRectAlloted.width);
 		//trace(dbar.columnsRectStretched.width);

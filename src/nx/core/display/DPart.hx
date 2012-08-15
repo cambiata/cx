@@ -113,7 +113,7 @@ class DPart
 			return this._rectClef;
 		}
 		switch(this.part.clef) {			
-			default: rect = new Rectangle(0, -2, Constants.CLEF_WIDTH, 4);
+			default: rect = new Rectangle(0, -7, Constants.CLEF_WIDTH, 14);
 		}
 		this._rectClef = rect;		
 		return this._rectClef;
@@ -123,10 +123,37 @@ class DPart
 	public var rectKey(get_rectKey, null):Rectangle;
 	private function get_rectKey():Rectangle {
 		if (this._rectKey != null) return this._rectKey;
-		var keyInt:Int = (this.part.key != null) ? Std.int(Math.abs(this.part.key.levelShift)) : 0;
-		var r = new Rectangle(0, -2, (keyInt * Constants.SIGN_WIDTH) + Constants.ATTRIBUTE_NULL_WIDTH, 4);
-		this._rectKey = r;
+		var keyInt:Int = (this.part.key != null) ? Std.int(Math.abs(this.part.key.levelShift)) : 0;		
+		
+		if (keyInt > 0) {
+			this._rectKey = new Rectangle(0, -6, (keyInt * Constants.SIGN_WIDTH) + Constants.ATTRIBUTE_NULL_WIDTH, 12);
+		} else {
+			this._rectKey = new Rectangle(0, -2, Constants.ATTRIBUTE_NULL_WIDTH, 4);			
+		}
+		
 		return this._rectKey;
+	}
+	
+	//----------------------------------------------------------------------------------------------------------
+	
+	private var _rectDPartHeight:Rectangle;
+	public var rectDPartHeight(get_rectDPartHeight, null):Rectangle;
+	private function get_rectDPartHeight():Rectangle 	{
+		if (this._rectDPartHeight != null) return this._rectDPartHeight;
+		
+		var rect = new Rectangle(0, 0, 0, 0);
+		for (complex in this.complexes) {
+			rect = rect.union(complex.rectFull);			
+		}
+		
+		/*
+		rect = rect.union(this.rectKey);
+		rect = rect.union(this.rectClef);		
+		*/
+		
+		this._rectDPartHeight = rect;
+		return this._rectDPartHeight;
+		
 	}
 	
 	

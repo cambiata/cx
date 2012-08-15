@@ -14,7 +14,6 @@ class Note
 {
 
 	public function new(heads:Iterable<Head>=null, notevalue:ENoteValue=null, direction:EDirectionUAD=null, type:ENoteType=null, text='') {
-		
 		this.heads 				= (heads != null) ? Lambda.array(heads) : [new Head()];
 		this.notevalue		= (notevalue != null) ? notevalue : ENoteValue.Nv4;
 		this.direction 			= (direction != null) ? direction : EDirectionUAD.Auto;

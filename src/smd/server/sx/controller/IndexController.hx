@@ -21,19 +21,12 @@ using StringTools;
 class IndexController extends AbstractController
 {
 	//static private var domainIndexPage:String = WebTools.getDomainInfo().domain + '.html';
-
-	/*
-	public function new() {
-		this.domainIndexPage = ;
-		trace(this.domainIndexPage);
-	}
-	*/
 	
 	@URL("^/$")
 	public function index() { 			
-		//return new TemplateResult(State.indexPage, PageData.getData(), Config.templatesDir);
 		return new IndexResult(State.indexPage, PageData.getData(), Config.templatesDir);
 	}
+	
 	
 	@URL("/info/([a-zA-Z]+)", "g")
 	public function info(param : String = 'default') {			
@@ -53,14 +46,7 @@ class IndexController extends AbstractController
 		data.title = { tag:'title', text:'title' };
 		data.layout = { tag:'document', text:'document' };
 		return new IndexResult(State.indexPage, data, Config.templatesDir);
-		
-		
-		//return doc.text;
-		//return Std.string(doc);
-		//return tag;
 	}
-	
-	
 	
 }
 

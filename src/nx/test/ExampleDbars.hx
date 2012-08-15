@@ -12,10 +12,12 @@ import nx.enums.EClef;
 import nx.enums.EDirectionUAD;
 import nx.enums.EKey;
 import nx.enums.ENoteType;
+import nx.enums.EPartType;
 import nx.enums.ESign;
 import nx.enums.ENoteValue;
 import nx.enums.ETie;
 import nx.enums.ETime;
+import nx.enums.EVoiceType;
 
 
 /**
@@ -25,13 +27,10 @@ import nx.enums.ETime;
 /*
  
 	private function init(e) {
-
 		var dbar = ExampleDbars.dbarComplex1();
-		
 		var sprite:Sprite = new Sprite();
 		sprite.graphics.beginFill(0xFF0000);
 		sprite.graphics.drawRect(0, 0, 50, 50);
-		
 		var render = new Render(sprite, Scaling.getNormal());
 		render.lines(0, 100, 1200);				
 		render.dbar(100, 100, dbar, 0, false);
@@ -42,12 +41,67 @@ import nx.enums.ETime;
 		
 		this.addChild(sprite);
 	}
-
-
 */
  
 class ExampleDbars 
 {
+	static public function dbarVoiceEmpty() {
+		return new DBar(new Bar([
+			new Part([
+				new Voice(EVoiceType.Barpause)
+			], EClef.ClefG, EAttributeDisplay.Always, EKey.Flat3, EAttributeDisplay.Layout, 'Part1'),
+			
+			new Part([
+				new Voice(EVoiceType.Barpause, null)
+			], EClef.ClefG, EAttributeDisplay.Always, EKey.Flat3, EAttributeDisplay.Layout, 'Part1'),
+			
+			new Part([
+				new Voice()
+			], EClef.ClefG, EAttributeDisplay.Always, EKey.Flat3, EAttributeDisplay.Layout, 'Part1'),			
+			
+			
+			/*
+			new Part(EPartType.Lyrics, [
+				new Voice([
+					new Note(), 
+					new Note(), 
+					new Note(), 
+					new Note(), 	 					
+				])
+			], EClef.ClefF, EAttributeDisplay.Always, EKey.Flat3, EAttributeDisplay.Layout, 'Part1'),
+			*/			
+			
+		], ETime.T3_4, null));				
+	}	
+	
+	
+	static public function dbarLyrics() {
+		return new DBar(new Bar([
+			new Part([
+				new Voice([
+					new Note([new Head(0)], ENoteValue.Nv8dot), 
+					new Note([new Head(0)], ENoteValue.Nv16), 
+					new Note([new Head(2)], ENoteValue.Nv8), 
+					new Note([new Head(-1)], ENoteValue.Nv8), 
+					new Note(ENoteValue.Nv8), 
+					new Note(ENoteValue.Nv8), 
+				])
+			], EClef.ClefG, EAttributeDisplay.Always, EKey.Flat3, EAttributeDisplay.Layout, 'Part1'),
+			
+			new Part(EPartType.Lyrics, [
+				new Voice([
+					new Note(ENoteValue.Nv8dot, ENoteType.Lyric, 'Ut-'), 
+					new Note(ENoteValue.Nv16, ENoteType.Lyric, 'i'), 
+					new Note(ENoteValue.Nv8, ENoteType.Lyric, 'vår'), 
+					new Note(ENoteValue.Nv8, ENoteType.Lyric, 'ha-'), 					
+					new Note(ENoteValue.Nv8, ENoteType.Lyric, 'ge'), 					
+					new Note(ENoteValue.Nv8, ENoteType.Lyric, 'där'), 					
+				])
+			]),
+		], ETime.T3_4, null));				
+	}
+	
+	
 	static public function dbarAttributes() {
 		return new DBar(new Bar([
 			new Part([
@@ -96,7 +150,7 @@ class ExampleDbars
 					new Note([new Head(8, null, ETie.Tie(EDirectionUAD.Auto)), new Head(7)], ENoteValue.Nv1) ,
 					new Note([new Head(8, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv1) ,
 				], EDirectionUAD.Down),				
-			]),
+			], EClef.ClefG, null, EKey.Flat3, null),
 			
 			new Part([
 				new Voice([
@@ -107,7 +161,7 @@ class ExampleDbars
 					new Note([new Head(-3, ESign.Flat)], ENoteValue.Nv16) ,
 					new Note([new Head(1)]) ,
 				])
-			]),
+			], EClef.ClefC, null, EKey.Sharp2, null),
 			
 			new Part([
 				new Voice([
@@ -135,10 +189,10 @@ class ExampleDbars
 					new Note([new Head(4, ESign.None)], ENoteValue.Nv4) ,
 					new Note([new Head(5, null, null)], ENoteValue.Nv8) ,
 				], EDirectionUAD.Down)
-			]),			
+			], EClef.ClefG, null, EKey.Flat4, null),			
 			
 			
-		]));	
+		], ETime.T3_4, null));	
 	}
 	
 	static public function dbarFlags() {

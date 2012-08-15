@@ -14,16 +14,21 @@ import smd.server.sx.data.PageData;
 import smd.server.sx.result.IndexResult;
 import smd.server.sx.user.User;
 
+import harfang.url.URLDispatcher;
+
 class UserConfiguration extends AbstractServerConfiguration {
 
     public function new() {
         super();
 		this.addModule(new Site());			
 		
+		
 		ConfigTools.loadConfig(Config, Web.getCwd() + Config.configFile);
 		new Functions();
 		User.getCurrentUser();
 		User.checkRedirect();
+		
+		
 		//State.messages.infos.push(Std.string(User.user));
 		//State.messages.infos.push('Hello World');
 		//State.messages.errors.push('This is an error');
@@ -39,30 +44,30 @@ class UserConfiguration extends AbstractServerConfiguration {
 		*/
     }
 	
+	
 	override public function onHTTPError(error : HTTPException) : Void {
 		
-		State.messages.errors.push(error.getErrorCode() + ': ' + error.getMessage());
+		//Lib.println(error.getMessage());
 		
-		error.uri = Web.getURI();
+		State.messages.errors.push(error.getErrorCode() + ': ' + error.getMessage());
+		//error.uri = Web.getURI();
 		var output = new IndexResult(State.indexPage, PageData.getData(), Config.templatesDir).execute();
 		Lib.print(output);
-		
-		
-		//Lib.println(new TemplateResult(State.indexPage, PageData.getData(), Config.templatesDir));
 		
 	}
 	
+	
+	
 	override public function onError(exception : Exception) : Void {		
-		//trace(State.indexPage);
-		State.messages.errors.push(exception.getMessage());
+		Lib.println(exception.getMessage());
 		
-		exception.uri = Web.getURI();
+		State.messages.errors.push(exception.getMessage());
+		//exception.uri = Web.getURI();
 		var output = new IndexResult(State.indexPage, PageData.getData(), Config.templatesDir).execute();
 		Lib.print(output);
 		
-		//Lib.println(new TemplateResult(State.indexPage, null, Config.templatesDir));
-		
 	}
+	
 	
 	
 	

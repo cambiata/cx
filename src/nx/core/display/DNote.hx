@@ -1,6 +1,8 @@
 package nx.core.display;
 import cx.ArrayTools;
 import cx.GUIDTools;
+import cx.StrTools;
+import haxe.Utf8;
 import nme.geom.Rectangle;
 import nx.Constants;
 import nx.core.element.Note;
@@ -15,12 +17,16 @@ import nx.enums.ENoteType;
 import nx.enums.ENoteValue;
 import nx.enums.ERectCorrection;
 import nx.enums.utils.EDirectionTools;
+import nx.output.ITextProcessor;
+import nx.output.Scaling;
+import nx.output.Text;
+import nx.output.text.TextBitmap;
 
 /**
  * ...
  * @author Jonas Nyström
  */
-
+using StringTools;
 class DNote 
 {
 	
@@ -57,6 +63,8 @@ class DNote
 		}
 		
 		this.guid = GUIDTools.guid();
+		
+		//this.textProcessor = textProcessor;
 
 	}
 	
@@ -71,6 +79,9 @@ class DNote
 	public var headPositions(default, null):Array<Int>;
 	public var signs(default, null):TSigns;	
 	public var guid(default, null):String;
+	
+	
+	
 	
 	
 	public function dhead(idx:Int) {
@@ -217,6 +228,10 @@ class DNote
 				var pauseLevel = this.dheads[0].level;
 				this._rectHeads = new Rectangle( -Constants.HEAD_QUARTERWIDTH, -3, Constants.HEAD_HALFWIDTH, 6);			
 				this._rectHeads.offset(0, pauseLevel * Constants.HEAD_HALFHEIGHT);
+			
+			case ENoteType.Lyric:
+				this._rectHeads = new Rectangle( -0.1, -1, 0.2, 2);
+				
 			default:
 				this._rectHeads = this.dheads[0].rect;
 				this._rectHeads.offset(this.headPositions[0]*Constants.HEAD_WIDTH, 0);
@@ -227,8 +242,29 @@ class DNote
 						this._rectHeads = this._rectHeads.union(headRect);
 					}
 				}
+				
 		}
 		return this._rectHeads;
+	}
+	
+	private var _rectText:Rectangle;
+	public var rectText(get_rectText, null):Rectangle;
+	private function get_rectText():Rectangle 	{
+		if (this._rectText != null) return this._rectText;
+		if (this.notetype != ENoteType.Lyric) return null;
+		var lyricLevel = this.dheads[0].level;
+		var text = this.note.text;
+		if (text.endsWith('-')) text = text.replace('-', '');
+		if (text.endsWith('_')) text = text.replace('-', '');
+		var textProcessor:Text = Text.getInstance();		
+		var rect = textProcessor.getStringRect(text).clone();		
+		var w:Float = rect.width / 3;
+		var h:Float = rect.height / 6;				
+
+		this._rectText = new Rectangle( -w/2, -h/2, w + Constants.HEAD_HALFWIDTH, h);		
+		this._rectText.offset(0, lyricLevel * Constants.HEAD_HALFHEIGHT);		
+		
+		return this._rectText;
 	}
 	
 	
@@ -236,6 +272,8 @@ class DNote
 	public var rectStave(get_rectStave, null):Rectangle;
 	private function get_rectStave():Rectangle {
 		if (this.notevalue.stavingLevel == 0) return null;
+		if (this.notetype != ENoteType.Normal) return null;
+		
 		if (this._rectStave != null) return this._rectStave;		
 		
 		var r = this.rectHeads.clone();		
@@ -266,7 +304,10 @@ class DNote
 	public var rectDots(get_rectDots, null):Rectangle;
 	private function get_rectDots():Rectangle {
 		if (this._rectDots != null) return this._rectDots;		
+		if (this.notetype != ENoteType.Normal) return null;
+		
 		if (this.notevalue.dotLevel == 0) return null;		
+		
 		var r = this.rectHeads.clone();		
 		r.offset(r.width+ Constants.HEAD_QUARTERWIDTH, 0) ;
 		r.width = Constants.HEAD_HALFWIDTH * this.notevalue.dotLevel + Constants.HEAD_QUARTERWIDTH;
@@ -279,15 +320,17 @@ class DNote
 	
 	private var _rectTiesfrom:Rectangle;
 	public var rectTiesfrom(get_rectTiesfrom, null):Rectangle;
+
 	private function get_rectTiesfrom():Rectangle {
 		if (this._rectTiesfrom != null) return this._rectTiesfrom;
+		if (this.notetype != ENoteType.Normal) return null;
 		
 		this._rectTiesfrom = null;
 		
 		if (this.countTies() > 0) {
 			var r = this.rectHeads.clone();
 			r.offset(r.width + Constants.HEAD_QUARTERWIDTH, 0);
-			r.width = Constants.HEAD_TIEWIDTH;
+			r.width = Constants.TIE_WIDTH;
 			if (this.rectDots != null) {
 				r.offset(this.rectDots.width, 0);
 			}

@@ -22,16 +22,16 @@ class Text
 	 *
 	*/
 	
-	public function new(scaling:TScaling, font:String='Times New Roman', size:Int=20, color:Int=0x000000, bold:Bool=false, italic:Bool=false) {
-		this.scaling = scaling; 
-		
+	public function new(scaling:TScaling, font:String='Times New Roman', size:Float=12, color:Int=0x000000, bold:Bool=false, italic:Bool=false) {
+		this.scaling = scaling; 		
 #if js
 		var scalefactor:Float = 3.65;
 #else
 		var scalefactor:Float = 4.0;
-#end
-		
-		var fontsize = scaling.fontScaling * (size / scaling.fontScaling) * scalefactor;
+#end		
+		//var fontsize = scaling.fontScaling * (size / scaling.fontScaling) * scalefactor;
+		var fontsize = scaling.fontScaling * scalefactor * 1.5;
+		trace('fontsize' + fontsize);
 		this.stringBitmap = new StringBitmap(font, fontsize, color, bold, italic);
 		this.rectCache = new Hash<Rectangle>();
 	}
@@ -55,5 +55,11 @@ class Text
 		return r;		
 	}
 
+	static private var instance:Text;
+	static public function getInstance():Text {
+		if (instance != null) return instance;
+		instance = new Text(Scaling.getNormal());
+		return instance;
+	}
 	
 }

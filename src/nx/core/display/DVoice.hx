@@ -1,4 +1,5 @@
 package nx.core.display;
+import nme.geom.Rectangle;
 import nx.core.element.Head;
 import nx.core.element.Note;
 import nx.core.element.Voice;
@@ -7,8 +8,11 @@ import nx.display.beam.BeamingProcessor_4;
 import nx.display.beam.IBeamGroup;
 import nx.display.beam.IBeamingProcessor;
 import nx.enums.EDirectionUAD;
+import nx.enums.EDirectionUD;
+import nx.enums.ENoteType;
 import nx.enums.ENoteValue;
 import nx.enums.ESign;
+import nx.enums.EVoiceType;
 import nx.enums.utils.EDirectionTools;
 import nme.ObjectHash;
 
@@ -16,7 +20,7 @@ import nme.ObjectHash;
  * ...
  * @author Jonas Nyström
  */
-
+using cx.ArrayTools;
 class DVoice 
 {
 	public var voice(default, null):Voice;
@@ -33,12 +37,7 @@ class DVoice
 
 	public function new(voice:Voice=null, direction:EDirectionUAD=null, beamingProcessor:IBeamingProcessor=null) 
 	{
-			this.voice = (voice != null) ? voice : new Voice([
-				new Note([new Head(0)]),
-				new Note([new Head(2)]),
-				new Note([new Head(-1)]),
-				new Note([new Head(-0)]),
-			]);
+			this.voice = (voice != null) ? voice : new Voice([new Note([new Head(0)])]);
 			
 			this._beamingProcessor = (beamingProcessor != null) ? beamingProcessor : new BeamingProcessor_4();
 			
@@ -49,9 +48,19 @@ class DVoice
 			}
 			
 			this.dnotes = [];
-			for (note in this.voice.notes) {
-				this.dnotes.push(new DNote(note, EDirectionTools.UADtoUD(this.direction)));
-			}	
+			
+			switch(this.voice.type) {
+				case EVoiceType.Normal:
+					for (note in this.voice.notes) {
+						this.dnotes.push(new DNote(note, EDirectionTools.UADtoUD(this.direction)));
+					}	
+				case EVoiceType.Barpause:
+					var emptyNoteLevel = this.voice.notes.first().heads.first().level;
+					var emptyNote:Note = new Note([new Head(emptyNoteLevel)], ENoteValue.Nv1, null, ENoteType.BarPause);
+					this.dnotes.push(new DNote(emptyNote, EDirectionTools.UADtoUD(this.direction)));
+				default:
+					throw "Unimplemented Voicetype";
+			}
 			
 			this.dnotePosition = new ObjectHash<DNote, Int>();
 			this.dnotePositionEnd = new ObjectHash<DNote, Int>();
@@ -87,8 +96,37 @@ class DVoice
 	}
 	public var beamGroups(get_beamGroups, null):BeamGroups;
 	
+
+	
 	
 	//------------------------------------------------------------------------------------------------
+	
+	private var _heightRect:Rectangle;
+	public var heightRect(get_heightRect, null):Rectangle;
+	private function get_heightRect():Rectangle 
+	{
+		if (this._heightRect != null) return this._heightRect;
+		
+		var lowest = 0.0;
+		var highest = 0.0;
+		
+		for (beamGroup in this.beamGroups) {
+			if (beamGroup.getDirection() == EDirectionUD.Up) {
+				highest = Math.min(highest, beamGroup.getLevelTop() - Constants.STAVE_LENGTH);
+				lowest = Math.max(lowest, beamGroup.getLevelBottom());
+			} else {
+				highest = Math.min(highest, beamGroup.getLevelTop());
+				lowest = Math.max(lowest, beamGroup.getLevelBottom() + Constants.STAVE_LENGTH);			
+			}			
+		}
+		
+		this._heightRect = new Rectangle( -1, highest, 2, -highest + lowest);
+		trace(this._heightRect);
+		return this._heightRect;
+	}
+	
+	
+	
 	
 }
 

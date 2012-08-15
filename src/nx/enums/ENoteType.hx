@@ -7,7 +7,8 @@ package nx.enums;
 
 enum ENoteType {
 	Normal;
-	Pause;
+	Pause; 
+	BarPause;
 	HeadOnly;
 	StaveOnly;
 	Rythmic;
