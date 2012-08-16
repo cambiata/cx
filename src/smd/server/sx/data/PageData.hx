@@ -115,9 +115,13 @@ class PageData {
 				//State.messages.infos.push(sql);
 				var results = SqliteTools.execute(file, sql);								
 				for (result in results) {
-					data.sidemenu = { tag:result.tag, id: result.rowid, text: StringTools.htmlEscape(result.text) } ;
-					//State.messages.errors.push(data.sidemenu);
-					return data;
+					if (result.tag != null) {
+						if (result.tag == 'sidemenu') {
+							data.sidemenu = { tag:result.tag, id: result.rowid, text: StringTools.htmlEscape(result.text) } ;
+							//State.messages.errors.push(data.sidemenu);
+							return data;
+						}
+					}
 				}
 			}
 			
