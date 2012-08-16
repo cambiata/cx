@@ -6,6 +6,8 @@ import nx.core.element.Bar;
 import nme.ObjectHash;
 import nx.enums.EAllotment;
 import nx.enums.EBarline;
+import nx.enums.EPartType;
+import nx.enums.EPartType.EPartTypeDistances;
 import nx.enums.utils.EAllotmentCalculator;
 
 /**
@@ -459,22 +461,50 @@ class DBar
 	
 	/// INDENT LEFT
 	
+	
+	
 	/// PART LABELS
+	private var _rectLabels:Rectangle;
+	public var rectLabels(get_rectLabels, null):Rectangle;
+	private function get_rectLabels():Rectangle {
+		if (this._rectLabels != null) return this._rectLabels;
+		this._rectLabels = new Rectangle(0, -1, 2, 2);
+		return this._rectLabels;
+	}
 	
 	/// ACKOLADE
+	private var _rectAckolade:Rectangle;
+	public var rectAckolade(get_rectAckolade, null):Rectangle;
+	private function get_rectAckolade():Rectangle 
+	{
+		if (this._rectAckolade != null) return this._rectAckolade;
+		this._rectAckolade = new Rectangle(0, -3, 4, 6);
+		this._rectAckolade.offset(this.rectLabels.x + this.rectLabels.width, 0);
+		return this._rectAckolade;
+	}
+	
+	/// ACKOLADEMargin
+	private var _rectAckolademargin:Rectangle;
+	public var rectAckolademargin(get_rectAckolademargin, null):Rectangle;
+	private function get_rectAckolademargin():Rectangle 
+	{
+		if (this._rectAckolademargin != null) return this._rectAckolademargin;
+		this._rectAckolademargin = new Rectangle(0, -4, Constants.ACKOLADE_CLEF_MARGIN, 8);
+		this._rectAckolademargin.offset(this.rectAckolade.x + this.rectAckolade.width, 0);
+		return this._rectAckolademargin;
+	}	
+	
 	
 	private var _rectClef:Rectangle;
 	public var rectClef(get_rectClef, null):Rectangle;
 	private function get_rectClef():Rectangle 
 	{
 		if (this._rectClef != null) return this._rectClef;
-		this._rectClef = new Rectangle(0, 0, 0, 0);
+		this._rectClef = new Rectangle(0, -2, 0, 2);
 		for (dpart in this.dparts) {
 			this._rectClef = this._rectClef.union(dpart.rectClef);			
 		}		
-		
-		this._rectClef.offset(3, 0); /// CHANGE WHEN ACKOLADE!
-		
+		this._rectClef.offset(this.rectAckolademargin.x + this.rectAckolademargin.width, 0); /// CHANGE WHEN ACKOLADE!
 		return this._rectClef;
 	}
 	
@@ -525,10 +555,10 @@ class DBar
 	public var rectMarginRight(get_rectMarginRight, null):Rectangle;
 	private function get_rectMarginRight():Rectangle 
 	{
-		return new Rectangle(0, -2, Constants.BAR_MARGIN_RIGHT, 4);
+		
 		if (this._rectMarginRight != null) return this._rectMarginRight;		
-		this._rectMarginRight = new Rectangle(0, -2, Constants.BAR_MARGIN_RIGHT, 4);
-		//this._rectMarginLeft.offset(this.rectTime.x + this.rectTime.width, 0); /// CHANGE TO LEFT BARLINE
+		this._rectMarginRight = new Rectangle(0, -3, Constants.BAR_MARGIN_RIGHT, 6);
+		
 		return this._rectMarginRight;		
 		
 	}
@@ -539,20 +569,21 @@ class DBar
 	private function get_rectBarline():Rectangle 
 	{
 		if (this._rectBarline != null) return this._rectBarline;
-		var barlineWidth = Constants.ATTRIBUTE_NULL_WIDTH;
-		if (this.bar.barline == null) {
-			return this._rectBarline = new Rectangle(0, -2, Constants.BARLINE_DOUBLE_WIDTH, 4);
-		}
+		var barlineWidth:Float = Constants.ATTRIBUTE_NULL_WIDTH;
 		
-		switch (this.bar.barline) {
-			case EBarline.Normal: barlineWidth = Constants.BARLINE_NORMAL_WIDTH;
-			case EBarline.Double: barlineWidth = Constants.BARLINE_DOUBLE_WIDTH;			
-			default: 
-				barlineWidth = Constants.BARLINE_DOUBLE_WIDTH;
+		if (this.bar.barline == null) {
+			this._rectBarline = new Rectangle(0, -2, Constants.BARLINE_NORMAL_WIDTH, 4);
+		} else {
+			switch (this.bar.barline) {
+				case EBarline.Normal: barlineWidth = Constants.BARLINE_NORMAL_WIDTH;
+				case EBarline.Double: barlineWidth = Constants.BARLINE_DOUBLE_WIDTH;			
+				default: 
+					barlineWidth = Constants.BARLINE_DOUBLE_WIDTH;
+			}
+			this._rectBarline = new Rectangle(0, -2, barlineWidth, 4);
 		}
-		var rect = new Rectangle(0, -2, barlineWidth, 4);
-		this._rectBarline = rect;
 		this._rectBarline.offset(this.rectMarginRight.x + this.rectMarginRight.width, 0);
+		
 		return this._rectBarline;
 	}
 	
@@ -569,16 +600,28 @@ class DBar
 		if (this._attributesRectLeft != null) return this._attributesRectLeft;
 
 		var rect = new Rectangle(0, 0, 0, 0)
+		
 			// left indent
 			// part labels
 			// ackolade
+			.union(this.rectLabels)
+			.union(this.rectAckolade)
+			.union(this.rectAckolademargin)
 			.union(this.rectClef)
 			.union(this.rectKey)
 			.union(this.rectTime)
 			// Right barline
 			.union(this.rectMarginLeft)			
 			;
-			
+		/*
+		rect = rect.union(this.rectLabels);	
+		rect = rect.union(this.rectAckolade);	
+		rect = rect.union(this.rectClef);	
+		rect = rect.union(this.rectKey);	
+		rect = rect.union(this.rectTime);	
+		rect = rect.union(this.rectMarginLeft);	
+		*/	
+		
 		this._attributesRectLeft = rect;
 		return this._attributesRectLeft;
 	}
@@ -635,6 +678,9 @@ class DBar
 	
 	private var _dpartTop:ObjectHash<DPart, Float>;
 	public var dpartTop(get_dpartTop, null):ObjectHash<DPart, Float>;
+	
+
+
 	private function get_dpartTop():ObjectHash<DPart, Float> {
 
 		if (this._dpartTop != null) return this._dpartTop;
@@ -646,14 +692,15 @@ class DBar
 			if (dpart == this.dparts.first()) {
 				distance += -(dpart.rectDPartHeight.y);
 			} else {
-				distance += (prevDpart.rectDPartHeight.height + prevDpart.rectDPartHeight.y) + -dpart.rectDPartHeight.y + Constants.PART_MIN_DISTANCE;				
+				var increase = (prevDpart.rectDPartHeight.height + prevDpart.rectDPartHeight.y) + -dpart.rectDPartHeight.y + Constants.PART_MIN_DISTANCE;								
+				var minDistance = EPartTypeDistances.getMinDistance(dpart.part.type);
+				//trace([increase, minDistance]);
+				distance += Math.max(minDistance, increase);
 			}
 			this._dpartTop.set(dpart, distance);			
 			prevDpart = dpart;
 		}
-		
 		return this._dpartTop;
-
 	}
 	
 

@@ -20,7 +20,6 @@ import nx.enums.utils.EDirectionTools;
 import nx.output.ITextProcessor;
 import nx.output.Scaling;
 import nx.output.Text;
-import nx.output.text.TextBitmap;
 
 /**
  * ...
@@ -64,7 +63,6 @@ class DNote
 		
 		this.guid = GUIDTools.guid();
 		
-		//this.textProcessor = textProcessor;
 
 	}
 	

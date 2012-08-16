@@ -249,7 +249,7 @@ class ExampleDbars
 			], EClef.ClefG, null, EKey.Flat4, null),			
 			
 			
-		], ETime.T3_4, null));	
+		], ETime.T3_4));	
 	}
 	
 	static public function dbarFlags() {
@@ -373,7 +373,7 @@ class ExampleDbars
 					
 				]),
 				
-			]),	
+			], EKey.Flat1),	
 			
 			new Part([				
 				new Voice([
@@ -395,7 +395,7 @@ class ExampleDbars
 					new Note([new Head(1, null, ETie.Tie(EDirectionUAD.Auto)), new Head(3, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv16),
 					new Note([new Head(1, null, null), new Head(3, null, null)], ENoteValue.Nv16),
 				], EDirectionUAD.Up),
-			]),	
+			], EKey.Flat1),	
 			
 			new Part([				
 				new Voice([
@@ -417,7 +417,7 @@ class ExampleDbars
 					new Note([new Head(1, null, ETie.Tie(EDirectionUAD.Auto)), new Head(3, null, ETie.Tie(EDirectionUAD.Auto))], ENoteValue.Nv16),
 					new Note([new Head(1, null, null), new Head(3, null, null)], ENoteValue.Nv16),
 				], EDirectionUAD.Down),
-			]),				
+			], EKey.Flat1),				
 			
 		]));
 	}

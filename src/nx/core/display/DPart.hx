@@ -5,6 +5,7 @@ import nx.Constants;
 import nx.core.element.Part;
 import nme.ObjectHash;
 import nx.enums.EPartType;
+import nx.enums.EVoiceType;
 
 /**
  * ...
@@ -126,9 +127,23 @@ class DPart
 	public var rectKey(get_rectKey, null):Rectangle;
 	private function get_rectKey():Rectangle {
 		if (this._rectKey != null) return this._rectKey;
-		var keyInt:Int = (this.part.key != null) ? Std.int(Math.abs(this.part.key.levelShift)) : 0;		
+		if (this.part.type != EPartType.Normal) {
+			this._rectKey = new Rectangle(0, -2, Constants.ATTRIBUTE_NULL_WIDTH, 4);
+			return this._rectKey;
+		}
 		
-		if ((keyInt == 0) || (this.part.type != EPartType.Normal)) {
+		var key = this.part.key;		
+
+#if (flash || windows)		
+		var keyValue = key.levelShift;
+#else
+		var keyValue = (key.levelShift != null) ? key.levelShift : 0;
+#end
+
+		
+		var keyInt = Std.int(Math.abs(keyValue));
+		
+		if (keyInt == 0) {
 			this._rectKey = new Rectangle(0, -2, Constants.ATTRIBUTE_NULL_WIDTH, 4);
 		} else {
 			this._rectKey = new Rectangle(0, -6, (keyInt * Constants.SIGN_WIDTH) + Constants.ATTRIBUTE_NULL_WIDTH, 12);
@@ -145,6 +160,9 @@ class DPart
 		if (this._rectDPartHeight != null) return this._rectDPartHeight;
 		
 		var rect = new Rectangle(0, 0, 0, 0);
+		for (dvoice in dvoices) {
+			if (dvoice.voice.type == EVoiceType.Barpause) rect.union(new Rectangle(0, -10, 2, 20));
+		}
 		for (complex in this.complexes) {
 			rect = rect.union(complex.rectFull);			
 		}

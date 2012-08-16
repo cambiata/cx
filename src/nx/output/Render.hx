@@ -15,6 +15,7 @@ import nx.core.display.DVoice;
 import nx.display.beam.BeamTools;
 import nx.display.beam.IBeamGroup;
 import nx.display.DisplayNote;
+import nx.enums.EBarline;
 import nx.enums.EClef;
 import nx.enums.EDirectionUAD;
 import nx.enums.EDirectionUD;
@@ -58,13 +59,22 @@ class Render extends RenderBase, implements IRender
 	}	
 	
 	
-	public function lines(x:Float, y:Float, width:Float) {
+	public function lines(x:Float, y:Float, width:Float, dbar:DBar=null, dpart:DPart=null) {
+		
+		var x2 = x;
+		if (dbar != null) {
+			var ackodladeOffset = scaling.scaleX2(dbar.rectAckolademargin.x);
+			x2 += ackodladeOffset;
+			width -= ackodladeOffset;
+		}
+		
 		target.graphics.lineStyle(scaling.linesWidth, 0);
 		for (f in -2...3) {
 			var yPos = f * scaling.space;
-			target.graphics.moveTo(x, y - yPos);
-			target.graphics.lineTo(x + width, y - yPos);
+			target.graphics.moveTo(x2, y - yPos);
+			target.graphics.lineTo(x2 + width, y - yPos);
 		}		
+		
 	}
 	
 	public function clefG(x:Float, y:Float) {
@@ -266,14 +276,44 @@ class Render extends RenderBase, implements IRender
 		
 		
 		var x2 = attrRightX + attrRightWidth - x;
+		
 		for (dpart in dbar.dparts) {			
 			y2 = Std.int(y + scaling.scaleY(dbar.dpartTop.get(dpart)));									
 			
+			barline(attrRightX, y2, dbar, dpart, rects);
+			
 			dbarAttributesRight(attrRightX, y2, dbar, rects);                        
-			if (dpart.part.type == EPartType.Normal) lines(x, y2, x2);
+			if (dpart.part.type == EPartType.Normal) lines(x, y2, x2, dbar, dpart);
 		}
+	}
+	
+	private function barline(x:Float, y:Float, dbar:DBar, dpart:DPart, rects:Bool) {
 		
+		if (dpart.part.type != EPartType.Normal) return;
 		
+		var x2 = x + scaling.scaleX2(dbar.rectBarline.x + dbar.rectBarline.width);
+		var lineThickness = scaling.linesWidth * 1.5;
+		gr.lineStyle(lineThickness, 0x000000);
+
+		var barlineHeight = scaling.scaleY(2 * Constants.HEAD_HEIGHT) ;
+		
+		var barline = dbar.bar.barline;
+		if (barline == null) barline = EBarline.Normal;
+		
+		switch (barline) {
+			case EBarline.Normal:
+				gr.moveTo(x2, y - barlineHeight);
+				gr.lineTo(x2, y + barlineHeight);
+			case EBarline.Double: 
+				gr.moveTo(x2, y - barlineHeight);
+				gr.lineTo(x2, y + barlineHeight);
+				x2 -= scaling.scaleX2(Constants.BARLINE_DOUBLE_WIDTH);
+				gr.moveTo(x2, y - barlineHeight);
+				gr.lineTo(x2, y + barlineHeight);
+			default: 
+				gr.moveTo(x2, y - barlineHeight);
+				gr.lineTo(x2, y + barlineHeight);
+		}
 		
 	}
 	
@@ -283,16 +323,20 @@ class Render extends RenderBase, implements IRender
 		if (!rects) return;
 		this.gr.endFill();
 		this.drawRect(x, y, dbar.attributesRectLeft, 4, 0xaaaaaa);
-		this.drawRect(x, y, dbar.rectClef, 2, 0x00FF00);
+		this.drawRect(x, y, dbar.rectLabels, 1, 0x00FF00);
+		this.drawRect(x, y, dbar.rectAckolade, 1, 0x0000FF);
+		this.drawRect(x, y, dbar.rectAckolademargin, 1, 0x0000FF);
+		this.drawRect(x, y, dbar.rectClef, 1, 0x00FF00);
 		//attributeClef(x, y, dbar, rects);
-		this.drawRect(x, y, dbar.rectKey, 2, 0xFF0000);
-		this.drawRect(x, y, dbar.rectTime, 2, 0x0000FF);
+		this.drawRect(x, y, dbar.rectKey, 1, 0xFF0000);
+		this.drawRect(x, y, dbar.rectTime, 1, 0x0000FF);
 		this.drawRect(x, y, dbar.rectMarginLeft, 1, 0xFF0000);
 	}
 	
 	public function attributeClef(x:Float, y:Float, dbar:DBar, dpart:DPart, rects:Bool = true) {
 		if (dpart.part.type != EPartType.Normal) return;
 		if (dpart.part.clef == null) return;
+		//trace(dbar.rectClef);
 		var x2 = x + this.scaling.scaleX2(dbar.rectClef.x);
 		
 		var shape:Shape = null;
@@ -316,8 +360,17 @@ class Render extends RenderBase, implements IRender
 		var x2 = x + this.scaling.scaleX2(dbar.rectKey.x);
 		
 		var shape:Shape = null;
+		var key = dpart.part.key;		
 		
-		var keyValue = dpart.part.key.levelShift;
+		//var keyValue = (key.levelShift != null) ? key.levelShift : 0;
+#if (flash || windows)
+		var keyValue = key.levelShift;
+#else
+		var keyValue = (key.levelShift != null) ? key.levelShift : 0;
+#end		
+		
+		
+		//trace(keyValue);
 		var absValue = Std.int(Math.abs(keyValue));
 		if (absValue == 0) return;
 		

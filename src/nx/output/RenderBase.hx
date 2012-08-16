@@ -51,7 +51,7 @@ class RenderBase
 		this.target = target;
 		this.gr = target.graphics;
 		this.scaling = scaling;
-		this.textOutput = new Text(this.scaling);
+		//this.textOutput = new Text(this.scaling);
 	}
 	
 	private function drawRect(x:Float, y:Float, rect:Rectangle, lineWidth = 1.0, lineColor = 0xFF0000) {
@@ -261,7 +261,7 @@ class RenderBase
 	public function tie(graphics:Graphics, x:Float, y:Float, width:Float, height:Float, delta:Float=8.0, thickness:Float=4.0) {
 		var x2 = x + width;
 		var deltaX = width / delta;
-		trace('deltaX: ' + deltaX);
+		//trace('deltaX: ' + deltaX);
 		var cx1:Float = x + deltaX;
 		var cx2:Float = x2 - deltaX;
 		var halfThickness = thickness / 2;			
@@ -345,6 +345,10 @@ class RenderBase
 		if (text.endsWith('-')) text.replace('-', '');
 		if (text.endsWith('_')) text.replace('-', '');
 		
+		if (this.textOutput == null) {
+			this.textOutput = new Text(this.scaling);
+		}
+		
 		var bmp = textOutput.getStringBitmap(text);
 		bmp.x = x + this.scaling.scaleX2(dnote.rectText.x) - this.scaling.scaleX2(Constants.TEXT_XADJUST);
 		bmp.y = y + this.scaling.scaleY(dnote.rectText.y)- this.scaling.scaleX2(Constants.TEXT_YADJUST);
@@ -366,7 +370,7 @@ class RenderBase
 				var y1 = y + scaling.scaleY(-level);
 				this.gr.moveTo(x1, y1);
 				this.gr.lineTo(x2, y1);	
-				trace(x1, y1, x2);
+				//trace(x1, y1, x2);
 			}
 			
 		}

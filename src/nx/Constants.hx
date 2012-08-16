@@ -53,16 +53,22 @@ class Constants {
 	static public inline var TIME_WIDTH:Float = 5;
 	static public inline var ATTRIBUTE_NULL_WIDTH:Float = 1;
 	
-	static public inline var BARLINE_NORMAL_WIDTH:Float = 2;
-	static public inline var BARLINE_DOUBLE_WIDTH:Float = 3;
-	static public inline var BAR_MARGIN_LEFT:Float = 5;
-	static public inline var BAR_MARGIN_RIGHT:Float = 3;
+	static public inline var BARLINE_NORMAL_WIDTH:Float = 1.0;
+	static public inline var BARLINE_DOUBLE_WIDTH:Float = 2.2;
+	static public inline var BARLINE_THICKNESS:Float = .4;
+	
+	
+	static public inline var BAR_MARGIN_LEFT:Float = 8;
+	static public inline var BAR_MARGIN_RIGHT:Float = 2;
 	static public inline var SIGN_WIDTH:Float = 3.2;
 	
 	static public inline var TEXT_XADJUST:Float = 0.8;
 	static public inline var TEXT_YADJUST:Float = 2.8;
 	
-	static public inline var PART_MIN_DISTANCE:Float = 1;
+	
+	static public inline var PART_MIN_DISTANCE:Float = 2;
+	static public inline var ACKOLADE_CLEF_MARGIN:Float = 2;
+	
 	
 	
 	

@@ -117,7 +117,7 @@ class PageData {
 				for (result in results) {
 					if (result.tag != null) {
 						if (result.tag == 'sidemenu') {
-							data.sidemenu = { tag:result.tag, id: result.rowid, text: StringTools.htmlEscape(result.text) } ;
+							data.sidemenu = { tag:result.tag, id: result.rowid, text: result.text } ;
 							//State.messages.errors.push(data.sidemenu);
 							return data;
 						}
