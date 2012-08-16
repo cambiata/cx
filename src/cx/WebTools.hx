@@ -27,7 +27,9 @@ class WebTools {
 	}
 	
 	static public function getUri() {
-		return Web.getURI();
+		var uri = Web.getURI();
+		if (uri.endsWith('/')) uri = uri.substr(0, uri.length - 1);
+		return uri;
 	}
 	
 	static public function getPostValue(key:String):String {

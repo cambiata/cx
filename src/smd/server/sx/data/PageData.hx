@@ -92,15 +92,52 @@ class PageData {
 		return data;		
 	}
 	
-	static public function getSidmenuData(data:Dynamic, domainStr:String, templateDir:String) {
+	static public function getSidmenuData(data:Dynamic, domainStr:String, templateDir:String, sqlitefile:String = 'data/pages.sqlite') {
 		if (data.sidemenu == null) {
-			var sidemenuFile = Web.getCwd() + templateDir + 'sidemenu/' + domainStr + '.html';
+			
+			var file = Web.getCwd() + Config.filesDir + sqlitefile;
+			
+			//State.messages.infos.push(WebTools.getUri().substr(1));
+			var segments = WebTools.getUri().substr(1).split('/');
+			
+			//State.messages.infos.push(Std.string(segments));
+			var checks:Array<String> = [];
+			//var segementList:Array<String> = [];
+			
+			while (segments.length > 0) {
+				checks.push('/' + segments.join('/'));
+				segments.pop();				
+			}
+			//State.messages.infos.push(Std.string(checks));
+			
+			for (check in checks) {
+				var sql = "select rowid, * from pagecontent where (tag = 'sidemenu' and domain = '" + State.domaintag + "' and page = '" + check + "')";
+				//State.messages.infos.push(sql);
+				var results = SqliteTools.execute(file, sql);								
+				for (result in results) {
+					data.sidemenu = { tag:result.tag, id: result.rowid, text: StringTools.htmlEscape(result.text) } ;
+					//State.messages.errors.push(data.sidemenu);
+					return data;
+				}
+			}
+			
+			/*
+			for (segment in segments) {
+				segementList.push(segment)
+			}
+			*/
+			
+			
+			//var sidemenuFile = Web.getCwd() + templateDir + 'sidemenu/' + domainStr + '.html';
+			
+			/*
 			if (FileTools.exists(sidemenuFile)) {
 				var content = FileTools.getContent(sidemenuFile);
 				data.sidemenu = {tag:'sidemenu', text:content}
 			} else {
 				data.sidemenu = {tag:'sidemenu', text:'no data: ' + sidemenuFile}
 			}
+			*/
 		}		
 		return data;
 	}
