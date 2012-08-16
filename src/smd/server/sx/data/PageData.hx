@@ -86,7 +86,22 @@ class PageData {
 		Reflect.setField(data, 'domain', State.domaintag);
 		Reflect.setField(data, 'uri', WebTools.getUri());
 		
+		//-----------------------------------------------------------------------------------------------------
+
+		
 		return data;		
+	}
+	
+	static public function getSidmenuData(data:Dynamic, domainStr:String, templateDir:String) {
+		
+		if (data.sidemenu == null) {
+			var sidemenuFile = Web.getCwd() + templateDir + 'sidemenu/' + domainStr + '.html';
+			if (FileTools.exists(sidemenuFile)) {
+				var content = FileTools.getContent(sidemenuFile);
+				data.sidemenu = {tag:'sidemenu', text:content}
+			}
+		}		
+		return data;
 	}
 	
 }

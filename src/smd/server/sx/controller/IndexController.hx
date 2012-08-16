@@ -26,6 +26,8 @@ class IndexController extends AbstractController
 	
 	override public function handleBefore()	{
 		this.data = PageData.getData();
+		this.data = PageData.getSidmenuData(this.data, State.domaintag, Config.templatesDir);
+
 	}
 	
 	@URL("^/$")
@@ -50,18 +52,3 @@ class IndexController extends AbstractController
 	}
 	
 }
-
-/*
-typedef TPageData = {
-	?title:TPageTextElement, 
-	?korakademin:TPageTextElement, 
-	?sensus30:TPageTextElement, 
-	?projektinloggning:TPageTextElement,
-	?content:TPageTextElement, 
-}
-
-typedef TPageTextElement = {
-	tag:String,
-	text:String,
-}
-*/
