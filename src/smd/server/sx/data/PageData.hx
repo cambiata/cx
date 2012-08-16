@@ -93,12 +93,13 @@ class PageData {
 	}
 	
 	static public function getSidmenuData(data:Dynamic, domainStr:String, templateDir:String) {
-		
 		if (data.sidemenu == null) {
 			var sidemenuFile = Web.getCwd() + templateDir + 'sidemenu/' + domainStr + '.html';
 			if (FileTools.exists(sidemenuFile)) {
 				var content = FileTools.getContent(sidemenuFile);
 				data.sidemenu = {tag:'sidemenu', text:content}
+			} else {
+				data.sidemenu = {tag:'sidemenu', text:'no data: ' + sidemenuFile}
 			}
 		}		
 		return data;
