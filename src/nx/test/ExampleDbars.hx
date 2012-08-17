@@ -1,13 +1,20 @@
 package nx.test;
 import nx.core.display.DBar;
+import nx.core.display.DPart;
 import nx.core.element.Bar;
 import nx.core.element.Bars;
 import nx.core.element.Head;
 import nx.core.element.Note;
 import nx.core.element.Part;
 import nx.core.element.Voice;
+import nx.core.display.DBar;
+import nx.core.display.DBar.TBarDisplaySettings;
+import nx.core.display.DPart;
+import nx.core.display.DPart.TPartDisplaySettings;
+import nx.enums.EAckolade;
 import nx.enums.EAttributeDisplay;
 import nx.enums.EBarline;
+import nx.enums.EBarlineLeft;
 import nx.enums.EClef;
 import nx.enums.EDirectionUAD;
 import nx.enums.EKey;
@@ -45,7 +52,48 @@ import nx.enums.EVoiceType;
  
 class ExampleDbars 
 {
+	
+	static public function barsTest1() {
+		return new Bars([
+			new Bar([
+				new Part([
+					new Voice([
+						new Note([new Head(2)], ENoteValue.Nv4, null, ENoteType.Normal),
+						new Note([new Head(3)], ENoteValue.Nv8, null, ENoteType.Normal),
+						new Note([new Head(4)], ENoteValue.Nv8, null, ENoteType.Normal),
+						new Note([new Head(2)], ENoteValue.Nv4, null, ENoteType.Normal),
+						new Note([new Head(0)], ENoteValue.Nv4, null, ENoteType.Normal),
+					]),
+				], EClef.ClefG, EKey.Sharp2),
+			], ETime.Time4_4),
+		
+			new Bar([
+				new Part([
+					new Voice([
+						new Note([new Head(2)], ENoteValue.Nv2, null, ENoteType.Normal),					
+						new Note([new Head(-3)], ENoteValue.Nv8, null, ENoteType.Normal),					
+						new Note([new Head(-1)], ENoteValue.Nv8, null, ENoteType.Normal),					
+						new Note([new Head(0)], ENoteValue.Nv8, null, ENoteType.Normal),					
+						new Note([new Head(1)], ENoteValue.Nv8, null, ENoteType.Normal),										
+					]),
+				]),
+			]),		
+			
+			new Bar([
+				new Part([
+					new Voice([
+						new Note([new Head(2)], ENoteValue.Nv2dot, null, ENoteType.Normal),					
+						new Note([new Head(1)], ENoteValue.Nv4, null, ENoteType.Pause),										
+					]),
+				]),
+			]),
+		]);
+	}
+	
+	//-----------------------------------------------------------------------------------------------------
+
 	static public function dbarVoiceEmpty() {
+		
 		return new DBar(new Bar([
 			new Part([
 				new Voice(EVoiceType.Barpause)
@@ -71,7 +119,8 @@ class ExampleDbars
 			], EClef.ClefF, EAttributeDisplay.Always, EKey.Flat3, EAttributeDisplay.Layout, 'Part1'),
 			*/			
 			
-		], ETime.T3_4, null));				
+		], ETime.Time3_4, null));				
+		
 	}	
 
 	static public function dbarFourpart() {
@@ -128,7 +177,7 @@ class ExampleDbars
 					new Note([new Head(0)], ENoteValue.Nv4), 
 				], EDirectionUAD.Down),
 			], EClef.ClefF, EKey.Sharp2),
-		], ETime.T4_4));
+		], ETime.Time4_4));
 	}					
 					
 	
@@ -155,16 +204,33 @@ class ExampleDbars
 					new Note(ENoteValue.Nv8, ENoteType.Lyric, 'där'), 					
 				])
 			]),
-		], ETime.T3_4, null));				
+		], ETime.Time3_4, null));				
 	}
 	
 	
 	static public function dbarAttributes() {
+
+		var firstPartDisplaySettings:TPartDisplaySettings = {
+			dType:				null,
+			dKey:				EKey.Flat2,
+			dClef:				EClef.ClefF,
+			dLabel:				'Hello world!',			
+		}
+		
+		var barDisplayStettings:TBarDisplaySettings = {
+			dTime:				null,
+			dBarline:			EBarline.Final,
+			dBarlineLeft:		EBarlineLeft.Single,
+			dAckolade:			EAckolade.None, //EAckolade,
+			dIndentLeft:		null, // Float,
+			dIndentRight:		8.0, //Float,	
+			partsDisplaySettings: [firstPartDisplaySettings, firstPartDisplaySettings]
+		};
+		
 		return new DBar(new Bar([
 			new Part([
 				new Voice([
 					new Note(), 
-					
 					new Note(null, ENoteValue.Nv8),
 					new Note(null, ENoteValue.Nv8),
 					new Note(null, ENoteValue.Nv16),
@@ -174,12 +240,13 @@ class ExampleDbars
 					new Note(null, ENoteValue.Nv8dot),
 					new Note(null, ENoteValue.Nv16),
 					new Note(),
-					
 				])
-			], EClef.ClefG, EAttributeDisplay.Always, EKey.Flat3, EAttributeDisplay.Layout, 'Part1'),
-			new Part(null, EClef.ClefC, EAttributeDisplay.Layout, EKey.Sharp5, EAttributeDisplay.Never, 'part two'),
-			new Part(null, EClef.ClefF, EAttributeDisplay.Never, EKey.Sharp4, EAttributeDisplay.Always),
-		], ETime.T3_4, EAttributeDisplay.Always, EBarline.Double));
+			], EClef.ClefG, EAttributeDisplay.Layout, EKey.Flat3, EAttributeDisplay.Layout, 'Part1'),
+			new Part(null, EClef.ClefC, EAttributeDisplay.Layout, EKey.Sharp5, EAttributeDisplay.Layout, 'part two'),
+			new Part(null, EClef.ClefF, EAttributeDisplay.Layout, EKey.Sharp4, EAttributeDisplay.Layout),
+		], ETime.Time3_4, EAttributeDisplay.Layout, EBarline.Double, EAckolade.Curly, 3.0, 2.2), 
+		
+		barDisplayStettings);
 	}
 	
 	
@@ -249,7 +316,7 @@ class ExampleDbars
 			], EClef.ClefG, null, EKey.Flat4, null),			
 			
 			
-		], ETime.T3_4));	
+		], ETime.Time6_8, EBarline.Normal));	
 	}
 	
 	static public function dbarFlags() {

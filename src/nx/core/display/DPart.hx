@@ -4,6 +4,9 @@ import nme.geom.Rectangle;
 import nx.Constants;
 import nx.core.element.Part;
 import nme.ObjectHash;
+import nx.enums.EAttributeDisplay;
+import nx.enums.EClef;
+import nx.enums.EKey;
 import nx.enums.EPartType;
 import nx.enums.EVoiceType;
 
@@ -24,11 +27,14 @@ class DPart
 	public var complexDistance(default, null)	:ObjectHash<Complex, Float>;
 	public var positionComplex(default, null)	:IntHash<Complex>;
 	
-
+	public var dType(default, null)				:EPartType;
+	public var dKey(default, null)				:EKey;
+	public var dClef(default, null)				:EClef;
+	public var dLabel(default, null)				:Null<String>;
 	
 	public function dplex(idx:Int)  return this.complexes[idx]
 	
-	public function new(part:Part=null) {		
+	public function new(part:Part=null, partDisplaySettings:TPartDisplaySettings=null) {		
 		this.part = (part != null) ? part : new Part();		
 		this._value = 0;
 		
@@ -37,9 +43,59 @@ class DPart
 			this.dvoices.push(new DVoice(voice, voice.direction));
 		}
 
+		//-----------------------------------------------------------------------------------------------------
+		// display settings		
+		var pds = partDisplaySettings;
+		if (partDisplaySettings != null) {
+			this.setDisplaySettings(partDisplaySettings);
+			/*
+			his.dType = 			(pds.dType != null) 			? pds.dType 			: part.type;
+			this.dClef = 			(pds.dClef != null) 			? pds.dClef 			: part.clef;
+			this.dKey = 			(pds.dKey != null) 			? pds.dKey 			: part.key;
+			this.dLabel =			(pds.dLabel != null)			? pds.dLabel			: part.label;
+			*/
+		} else {
+			this.dType = 			part.type;
+			this.dClef = 			part.clef;
+			this.dKey = 			part.key;
+			this.dLabel =			part.label;
+			if (part.clefDisplay == EAttributeDisplay.Always) 		this.dClef = part.clef;
+			if (part.clefDisplay == EAttributeDisplay.Never) 		this.dClef = null;
+			if (part.keyDisplay == EAttributeDisplay.Always) 		this.dKey = part.key;
+			if (part.keyDisplay == EAttributeDisplay.Never) 		this.dKey = null;				
+		}
+		
+	
+		
+		/*
+		trace([this.dType, pds.dType,	part.type]);
+		trace([this.dClef, pds.dClef,		part.clef]);
+		trace([this.dKey, pds.dKey,		part.key]);
+		trace([this.dLabel, pds.dLabel,	part.label]);
+		*/
+		
+		//-----------------------------------------------------------------------------------------------------
+		
 		this._calcPositions();
 		this._calcDComplexs();
 		this._calcDistances();
+	}
+	
+	
+	public function setDisplaySettings(settings:TPartDisplaySettings) {
+		this._rectClef = null;
+		this._rectKey = null;
+		/// Not implemented yet...
+		//this._rectLabel = null; 
+		
+		this.dType = 			(settings.dType != null) 			? settings.dType 			: part.type;
+		this.dClef = 			(settings.dClef != null) 			? settings.dClef 				: part.clef;
+		this.dKey = 			(settings.dKey != null) 			? settings.dKey 				: part.key;
+		this.dLabel =			(settings.dLabel != null)			? settings.dLabel			: part.label;
+		if (part.clefDisplay == EAttributeDisplay.Always) 		this.dClef = part.clef;
+		if (part.clefDisplay == EAttributeDisplay.Never) 		this.dClef = null;
+		if (part.keyDisplay == EAttributeDisplay.Always) 		this.dKey = part.key;
+		if (part.keyDisplay == EAttributeDisplay.Never) 		this.dKey = null;		
 	}
 	
 	
@@ -107,19 +163,15 @@ class DPart
 	public var rectClef(get_rectClef, null):Rectangle;
 	private function get_rectClef():Rectangle 
 	{
-		if (this._rectClef != null) return this._rectClef;
-		var rect:Rectangle = null;
+		if (this._rectClef != null) return this._rectClef;		
+		this._rectClef = new Rectangle(0, -2, Constants.ATTRIBUTE_NULL_WIDTH, 4);
+		if (this.dType != EPartType.Normal) return this._rectClef;
+		if (this.dClef == null) return this._rectClef;
 		
-		
-		if ((this.part.clef == null) || (this.part.type != EPartType.Normal)) {
-			rect = new Rectangle(0, -2, Constants.ATTRIBUTE_NULL_WIDTH, 4);
-			this._rectClef = rect;
-			return this._rectClef;
+		switch(this.dClef) {			
+			default: this._rectClef = new Rectangle(0, -7, Constants.CLEF_WIDTH, 14);
 		}
-		switch(this.part.clef) {			
-			default: rect = new Rectangle(0, -7, Constants.CLEF_WIDTH, 14);
-		}
-		this._rectClef = rect;		
+			
 		return this._rectClef;
 	}
 	
@@ -127,27 +179,20 @@ class DPart
 	public var rectKey(get_rectKey, null):Rectangle;
 	private function get_rectKey():Rectangle {
 		if (this._rectKey != null) return this._rectKey;
-		if (this.part.type != EPartType.Normal) {
-			this._rectKey = new Rectangle(0, -2, Constants.ATTRIBUTE_NULL_WIDTH, 4);
-			return this._rectKey;
-		}
-		
-		var key = this.part.key;		
+
+		if (this.dType != EPartType.Normal) 	return this._rectKey = new Rectangle(0, -2, Constants.ATTRIBUTE_NULL_WIDTH, 4);			
+		if (this.dKey == null) 							return this._rectKey = new Rectangle(0, -2, Constants.ATTRIBUTE_NULL_WIDTH, 4);			
+		if (this.dKey.levelShift == 0) 				return this._rectKey = new Rectangle(0, -2, Constants.ATTRIBUTE_NULL_WIDTH, 4);			
+	
 
 #if (flash || windows)		
-		var keyValue = key.levelShift;
+		var keyValue = this.dKey.levelShift;
 #else
-		var keyValue = (key.levelShift != null) ? key.levelShift : 0;
+		var keyValue = (this.dKey.levelShift != null) ? this.dKey.levelShift : 0;
 #end
 
-		
 		var keyInt = Std.int(Math.abs(keyValue));
-		
-		if (keyInt == 0) {
-			this._rectKey = new Rectangle(0, -2, Constants.ATTRIBUTE_NULL_WIDTH, 4);
-		} else {
-			this._rectKey = new Rectangle(0, -6, (keyInt * Constants.SIGN_WIDTH) + Constants.ATTRIBUTE_NULL_WIDTH, 12);
-		}
+		this._rectKey = new Rectangle(0, -6, (keyInt * Constants.SIGN_WIDTH) + Constants.ATTRIBUTE_NULL_WIDTH, 12);
 		
 		return this._rectKey;
 	}
@@ -157,12 +202,15 @@ class DPart
 	private var _rectDPartHeight:Rectangle;
 	public var rectDPartHeight(get_rectDPartHeight, null):Rectangle;
 	private function get_rectDPartHeight():Rectangle 	{
+		
 		if (this._rectDPartHeight != null) return this._rectDPartHeight;
 		
 		var rect = new Rectangle(0, 0, 0, 0);
+		
 		for (dvoice in dvoices) {
 			if (dvoice.voice.type == EVoiceType.Barpause) rect.union(new Rectangle(0, -10, 2, 20));
 		}
+		
 		for (complex in this.complexes) {
 			rect = rect.union(complex.rectFull);			
 		}
@@ -179,4 +227,11 @@ class DPart
 	
 	
 	
+}
+
+typedef TPartDisplaySettings = {	
+	dType		:EPartType,
+	dKey			:EKey,
+	dClef			:EClef,
+	dLabel		:Null<String>,
 }

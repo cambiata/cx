@@ -1,49 +1,69 @@
 package nx.enums;
-import haxe.Timer;
-import nx.Constants;
 
 /**
  * ...
  * @author Jonas Nyström
  */
 
-class ETime {
+enum ETime
+{
+	Time4_4;
+	Time3_4;
+	Time2_4;
 	
-	static public var T4_4 			= 	new ETime('4/4', Constants.BASE_NOTE_VALUE * 4);
-	static public var T3_4 			= 	new ETime('3/4', Constants.BASE_NOTE_VALUE * 3);
-	static public var T2_4 			= 	new ETime('2/4', Constants.BASE_NOTE_VALUE * 2);
+	Time3_8;
+	Time4_8;
+	Time5_8;
+	Time6_8;
+	Time9_8;
+	Time12_8;
 	
-	static public var T3_8 			= 	new ETime('3/8', Std.int(Constants.BASE_NOTE_VALUE * 1.5));
-	static public var T6_8 			= 	new ETime('6/8', Constants.BASE_NOTE_VALUE * 3);
-	static public var T9_8 			= 	new ETime('9/8', Std.int(Constants.BASE_NOTE_VALUE * 4.5));
-	static public var T12_8 		= 	new ETime('12/8', Constants.BASE_NOTE_VALUE * 6);
+	TimeCommon;
+	TimeAllabreve;
+}
+
+
+class ETimeUtils {
 	
-	static public var TCommon 	= 	new ETime('Common', Constants.BASE_NOTE_VALUE * 4);
-	static public var TAllabreve 	= 	new ETime('Allabreve', Constants.BASE_NOTE_VALUE * 4);
-	
-	public function new(id:String, value:Int) {
-		this.id = id;
-		this.value = value;
+	static public function toString(time:ETime):String {
+		switch(time) {
+			case Time4_4: 	return '4/4';
+			case Time3_4:	return '3/4';
+			case Time2_4:	return '2/4';
+			
+			case Time3_8: 	return '3/8';
+			case Time4_8: 	return '4/8';
+			case Time5_8: 	return '5/8';
+			case Time6_8: 	return '6/8';
+			case Time9_8: 	return '9/8';
+			case Time12_8: 	return '12/8';
+			
+			case TimeCommon: return 'Common';
+			case TimeAllabreve: return 'Allabreve';
+		}
+		return "time-unknown";
+	}
+
+	static public function fromString(str:String):ETime {
+		if (str == null) return null;
+		switch(str) {
+			case '4/4':		return ETime.Time4_4;
+			case '3/4':		return ETime.Time3_4;
+			case '2/4':		return ETime.Time2_4;
+			
+			case '3/8':		return ETime.Time3_8;
+			case '4/8':		return ETime.Time4_8;
+			case '5/8':		return ETime.Time5_8;
+			case '6/8':		return ETime.Time6_8;
+			case '9/8':		return ETime.Time9_8;
+			case '12/8':		return ETime.Time12_8;
+			
+			case 'Common': return ETime.TimeCommon;
+			case 'Allabreve': return ETime.TimeAllabreve;
+			default: 			return null;			
+		}
+		return null;
 	}
 	
-	public var id:String;
-	public var value:Int;
 	
-	static public function getFromId(id:String): ETime {
-		var ret:ETime = null;
-		switch (id) {
-			case '4/4': ret = ETime.T4_4;
-			case '3/4': ret = ETime.T3_4;
-			case '2/4': ret = ETime.T2_4;
-			case '3/8': ret = ETime.T3_8;
-			case '6/8': ret = ETime.T6_8;
-			case '9/8': ret = ETime.T9_8;
-			case '12/8': ret = ETime.T12_8;	
-			
-			case 'Common': ret = ETime.TCommon;	
-			case 'Allabreve': ret = ETime.TAllabreve;	
-			
-		}
-		return ret;
-	}	
 }

@@ -1,7 +1,7 @@
 package nx.display.beam;
 import nx.Constants;
 import nx.enums.EDirectionUD;
-import nx.enums.ETime;
+//import nx.enums.ETime;
 import nx.display.beam.BeamGroupFrame.BeamGroupStave;
 import nx.display.beam.BeamGroupFrame.BeamGroupStaves;
 import nx.display.beam.BeamGroupFrame.ESubBeam;
@@ -13,7 +13,8 @@ import nx.display.beam.BeamGroupFrame.ESubBeam;
 
 class BeamTools 
 {
-	static public function getBeamingForTime(time:ETime):IBeamingProcessor {
+	/*
+	static public function getBeamingForTime(time:ETimeX):IBeamingProcessor {
 		var ret:IBeamingProcessor = null;
 		switch (time) {
 			case ETime.T2_4:
@@ -29,6 +30,7 @@ class BeamTools
 		}
 		return ret;
 	}
+	*/
 	
 	static public function getSlope(beamGroup:IBeamGroup):Int {
 		var levels = beamGroup.getTopHeadsLevels();

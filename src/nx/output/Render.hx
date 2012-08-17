@@ -29,6 +29,8 @@ import nx.enums.utils.EDirectionTools;
 import nx.svg.SvgAssets;
 import nx.output.Scaling;
 import nx.display.beam.BeamGroupFrame;
+import nx.enums.ETime;
+import nx.enums.ETime.ETimeUtils;
 
 /**
  * ...
@@ -60,12 +62,15 @@ class Render extends RenderBase, implements IRender
 	
 	
 	public function lines(x:Float, y:Float, width:Float, dbar:DBar=null, dpart:DPart=null) {
-		
+		if (dpart.dType != EPartType.Normal) return;
 		var x2 = x;
+		
 		if (dbar != null) {
+			
 			var ackodladeOffset = scaling.scaleX2(dbar.rectAckolademargin.x);
+			var indentRightOffset = scaling.scaleX2(dbar.rectRightindent.width);
 			x2 += ackodladeOffset;
-			width -= ackodladeOffset;
+			width -= (ackodladeOffset + indentRightOffset);
 		}
 		
 		target.graphics.lineStyle(scaling.linesWidth, 0);
@@ -136,7 +141,7 @@ class Render extends RenderBase, implements IRender
 		
 		for (dpart in dbar.dparts) {
 			y2 = y + scaling.scaleY(dbar.dpartTop.get(dpart));					
-			switch (dpart.part.type) {
+			switch (dpart.dType) {
 				case EPartType.Normal:
 					for (dvoice in dpart.dvoices) {
 						var voiceIdx = ArrayTools.index(dpart.dvoices, dvoice);
@@ -283,21 +288,21 @@ class Render extends RenderBase, implements IRender
 			barline(attrRightX, y2, dbar, dpart, rects);
 			
 			dbarAttributesRight(attrRightX, y2, dbar, rects);                        
-			if (dpart.part.type == EPartType.Normal) lines(x, y2, x2, dbar, dpart);
+			lines(x, y2, x2, dbar, dpart);
 		}
 	}
 	
 	private function barline(x:Float, y:Float, dbar:DBar, dpart:DPart, rects:Bool) {
 		
-		if (dpart.part.type != EPartType.Normal) return;
+		if (dpart.dType != EPartType.Normal) return;
 		
-		var x2 = x + scaling.scaleX2(dbar.rectBarline.x + dbar.rectBarline.width);
+		var x2 =x + scaling.scaleX2(dbar.rectBarline.x + dbar.rectBarline.width);
 		var lineThickness = scaling.linesWidth * 1.5;
 		gr.lineStyle(lineThickness, 0x000000);
 
 		var barlineHeight = scaling.scaleY(2 * Constants.HEAD_HEIGHT) ;
 		
-		var barline = dbar.bar.barline;
+		var barline = dbar.dBarline;
 		if (barline == null) barline = EBarline.Normal;
 		
 		switch (barline) {
@@ -322,7 +327,9 @@ class Render extends RenderBase, implements IRender
 		//var rClef = this.scaling.scaleRect(dbar.rectClef);
 		if (!rects) return;
 		this.gr.endFill();
-		this.drawRect(x, y, dbar.attributesRectLeft, 4, 0xaaaaaa);
+		this.drawRect(x, y, dbar.attributesRectLeft, 1, 0xaaaaaa);
+
+		this.drawRect(x, y, dbar.rectLeftindent, 1, 0x0000FF);
 		this.drawRect(x, y, dbar.rectLabels, 1, 0x00FF00);
 		this.drawRect(x, y, dbar.rectAckolade, 1, 0x0000FF);
 		this.drawRect(x, y, dbar.rectAckolademargin, 1, 0x0000FF);
@@ -330,17 +337,18 @@ class Render extends RenderBase, implements IRender
 		//attributeClef(x, y, dbar, rects);
 		this.drawRect(x, y, dbar.rectKey, 1, 0xFF0000);
 		this.drawRect(x, y, dbar.rectTime, 1, 0x0000FF);
+		this.drawRect(x, y, dbar.rectBarlineleft, 1, 0x00FF00);
 		this.drawRect(x, y, dbar.rectMarginLeft, 1, 0xFF0000);
 	}
 	
 	public function attributeClef(x:Float, y:Float, dbar:DBar, dpart:DPart, rects:Bool = true) {
-		if (dpart.part.type != EPartType.Normal) return;
-		if (dpart.part.clef == null) return;
+		if (dpart.dType != EPartType.Normal) return;
+		if (dpart.dClef == null) return;
 		//trace(dbar.rectClef);
 		var x2 = x + this.scaling.scaleX2(dbar.rectClef.x);
 		
 		var shape:Shape = null;
-		switch(dpart.part.clef) {
+		switch(dpart.dClef) {
 			case EClef.ClefG:
 				shape = SvgAssets.getSvgShape('clefG', this.scaling);
 			case EClef.ClefC:
@@ -355,20 +363,19 @@ class Render extends RenderBase, implements IRender
 	}
 	
 	public function attributeKey(x:Float, y:Float, dbar:DBar, dpart:DPart, rects:Bool = true) {
-		if (dpart.part.type != EPartType.Normal) return;
-		if (dpart.part.key == null) return;
+		if (dpart.dType != EPartType.Normal) return;
+		if (dpart.dKey == null) return;
+		if (dpart.dKey.levelShift == 0) return;
+		
 		var x2 = x + this.scaling.scaleX2(dbar.rectKey.x);
 		
 		var shape:Shape = null;
-		var key = dpart.part.key;		
-		
-		//var keyValue = (key.levelShift != null) ? key.levelShift : 0;
+		var key = dpart.dKey;				
 #if (flash || windows)
 		var keyValue = key.levelShift;
 #else
 		var keyValue = (key.levelShift != null) ? key.levelShift : 0;
 #end		
-		
 		
 		//trace(keyValue);
 		var absValue = Std.int(Math.abs(keyValue));
@@ -385,7 +392,7 @@ class Render extends RenderBase, implements IRender
 			}				
 			
 			var x3 = x2 + scaling.svgX + (i * this.scaling.scaleX2(Constants.SIGN_WIDTH)) + this.scaling.scaleX2(Constants.HEAD_HALFWIDTH);
-			var y2 = y + scaling.svgY + this.scaling.scaleY(EKey.getSignLevel(keyValue, i, dpart.part.clef));
+			var y2 = y + scaling.svgY + this.scaling.scaleY(EKey.getSignLevel(keyValue, i, dpart.dClef));
 			shape.x = x3;
 			shape.y = y2;
 			target.addChild(shape);
@@ -393,8 +400,10 @@ class Render extends RenderBase, implements IRender
 	}
 
 	public function attributeTime(x:Float, y:Float, dbar:DBar, dpart:DPart, rects:Bool = true) {
-		if (dpart.part.type != EPartType.Normal) return;
-		if (dbar.bar.time == null) return;
+		if (dpart.dType != EPartType.Normal) return;
+		if (dbar.dTime == null) return;
+		
+		
 		var x2 = x + this.scaling.scaleX2(dbar.rectTime.x);
 		
 		var shape:Shape = null;
@@ -403,7 +412,7 @@ class Render extends RenderBase, implements IRender
 		var x3 = x2 + scaling.svgX + scaling.scaleX2(Constants.HEAD_HALFWIDTH);
 		var y2 = y + scaling.svgY;
 		
-		var timeId = dbar.bar.time.id;
+		var timeId = ETimeUtils.toString(dbar.dTime);
 		switch (timeId) {
 			case 'Common': 
 				shape = SvgAssets.getSvgShape('timeCommon', this.scaling);
@@ -431,9 +440,12 @@ class Render extends RenderBase, implements IRender
 		if (!rects) return;
 		//var rClef = this.scaling.scaleRect(dbar.rectClef);
 		this.gr.endFill();
-		this.drawRect(x, y, dbar.attributesRectRight, 4, 0xaaaaaa);
-		this.drawRect(x, y, dbar.rectMarginRight, 2, 0x00FF00);
-		this.drawRect(x, y, dbar.rectBarline, 2, 0xFF0000);
+		this.drawRect(x, y, dbar.attributesRectRight, 1, 0xaaaaaa);
+		
+		this.drawRect(x, y, dbar.rectMarginRight, 1, 0x00FF00);
+		this.drawRect(x, y, dbar.rectBarline, 1, 0xFF0000);
+		this.drawRect(x, y, dbar.rectCautionaries, 1, 0x00FF00);
+		this.drawRect(x, y, dbar.rectRightindent, 1, 0x0000FF);
 	}
 		
 	

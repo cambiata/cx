@@ -13,10 +13,6 @@ enum ESystemicBarline {
 	BraceStart;
 	BraceEnd;
 	
-	NormalBreakBL;
-	BracketStartBreakBL;
-	BracketEndBreakBL;
-	BraceStartBreakBL;
-	BraceEndBreakBL;
+
 	
 }
