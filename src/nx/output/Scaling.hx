@@ -97,19 +97,23 @@ class Scaling  {
 		
 	}
 	
-	static public inline function scaleRectangle(rectangle:Rectangle, ms:TScaling):Rectangle {
+	/*
+	static public inline function scaleRectangleX(rectangle:Rectangle, ms:TScaling):Rectangle {
 		return new Rectangle(rectangle.x*ms.quarterNoteWidth, rectangle.y*ms.halfSpace, rectangle.width*ms.quarterNoteWidth, rectangle.height*ms.halfSpace);
-	}
+	}	
+	*/
 	
-	static public inline function scaleX(displayX:Float, ms:TScaling):Float {
+	/*
+	static public inline function scaleXX(displayX:Float, ms:TScaling):Float {
 		return displayX * ms.quarterNoteWidth;
 	}	
+	*/
 	
 	static public inline function scaleRect(ms:TScaling, rectangle:Rectangle):Rectangle {
 		return new Rectangle(rectangle.x*ms.quarterNoteWidth, rectangle.y*ms.halfSpace, rectangle.width*ms.quarterNoteWidth, rectangle.height*ms.halfSpace);		
 	}
 	
-	static public inline function scaleX2(ms:TScaling, displayX:Float):Float {
+	static public inline function scaleX(ms:TScaling, displayX:Float):Float {
 		return displayX * ms.quarterNoteWidth;
 	}
 	

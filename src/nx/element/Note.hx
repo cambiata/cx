@@ -1,156 +1,85 @@
 package nx.element;
-import nx.element.base.Node;
-import nx.element.pre.PreArpeggio;
-import nx.element.pre.PreClef;
-import nx.enums.ENoteValue;
+import cx.EnumTools;
+import nx.Constants;
+import nx.enums.EDirectionUAD;
 import nx.enums.ENoteType;
+import nx.enums.ENoteValue;
 
 /**
  * ...
  * @author Jonas Nyström
  */
-
-interface INote {
-	function getLevelTop():Int;
-	function getLevelBottom():Int;	
-	function getValue():ENoteValue;
-	function getType():ENoteType;
-	function getText():String;
-}
- 
-class Note < T:Head<Dynamic> > extends Node<Head<Dynamic>>
+using cx.EnumTools;
+class Note  
 {
-	static public function getNew(?children:Array<Head<Dynamic>>, ?value:ENoteValue, ?type:ENoteType, ?text:String) {	
-		var item = new Note<Head<Dynamic>>();
-		if (children != null) {
-			for (child in children) item.add(child);
-			item.sortHeads();
-		} else {
-			item.children.push(Head.getNew());
-		}
-		
-		if (value != null) 		item.value = value;
-		if (type != null) 		item.type = type;
-		if (text != null) 		item.text = text;
-		return item;				
-	}	
-	
-	
-	public function new() 
-	{
-		this.children = new Array<Head<Dynamic>>(); 	
-		this.value = ENoteValue.Nv4;
-		this.type = ENoteType.Normal;
-		this.text = '';		
+
+	public function new(heads:Iterable<Head>=null, notevalue:ENoteValue=null, direction:EDirectionUAD=null, type:ENoteType=null, text='') {
+		this.heads 				= (heads != null) ? Lambda.array(heads) : [new Head()];
+		this.notevalue		= (notevalue != null) ? notevalue : ENoteValue.Nv4;
+		this.direction 			= (direction != null) ? direction : EDirectionUAD.Auto;
+		this.type				= (type != null) ? type : ENoteType.Normal ;
+		this.text				= text;
+
+		this._sortHeads();
 	}
-	
-	public function getChildren():Array<Head<Dynamic>> {
-		return this.children;
-	}
-	
-	public function getLevelTop():Int {
-		return this.first.getLevel();
-	}
-	
-	public function getLevelBottom():Int {
-		return this.last.getLevel();
-	}	
-	
-	public var value(default, null):ENoteValue;
-	public function getValue():ENoteValue {
-		return this.value;
-	}
-	
-	public var type:ENoteType;
-	public function getType():ENoteType {
-		return this.type;
-	}
-	
-	private var clef:PreClef; 
-	public function setClef(clef:PreClef) {
-		this.clef = clef;
-		return this;
-	}
-	public function getClef():PreClef {
-		return this.clef;
-	}
-	
-	private var arpeggio:PreArpeggio; 
-	public function setArpeggio(arpeggio:PreArpeggio) {
-		this.arpeggio = arpeggio;
-		return this;
-	}
-	public function getArpeggio():PreArpeggio {
-		return this.arpeggio;
-	}
-	
-	private var text:String;
-	public function setText(text:String) {
-		this.text = text;
-		return this;
-	}
-	
-	public function getText():String {
-		return this.text;
-	}
-	
-	//-----------------------------------------------------------------------------------------------------
-	override public function toString():String {
-		return super.toString() + '\t' + 'value:' + this.value + ', type:' + this.type;
-	}	
-	
-	private function sortHeads() {
-		this.children.sort(function(h1, h2) { 
-			return Reflect.compare(h1.getLevel(), h2.getLevel());
-		});
-	}	
-	
+
 	//-----------------------------------------------------------------------------------------------------
 	
+	public var heads(default, null):Array<Head>;
+	public var notevalue(default, null):ENoteValue;
+	public var direction(default, null):EDirectionUAD;
+	public var type(default, null):ENoteType;
+	public var text(default, null):String;
+
+	//-----------------------------------------------------------------------------------------------------
+	
+	private function _sortHeads()  {
+		this.heads.sort(function(a, b) { return Reflect.compare(a.level, b.level); } );
+	}
+	
+	/************************************************************************
+	 * XML functions
+	 * 
+	 ************************************************************************/
+	
+	static public var XNOTE 			= 'note'; 
+	static public var XVALUE 			= 'value';
+	static public var XDIRECTION	= 'direction';
+	static public var XTYPE				= 'type';
+	static public var XTEXT				= 'text';
+	 
 	public function toXml():Xml {		
+		var xml:Xml = Xml.createElement(XNOTE);				
 		
-		var xml:Xml = Xml.createElement('note');				
-		
-		for (head in this.children) {
+		for (head in this.heads) {
 			var headXml = head.toXml();
 			xml.addChild(headXml);
 		}
 		
-		xml.set('value', Std.string(this.getValue().value));
-		xml.set('type', Std.string(this.getType()));			
-		xml.set('text', Std.string(this.getText()));			
+		if (this.notevalue != ENoteValue.Nv4) 		xml.set(XVALUE, 			Std.string(this.notevalue.value));
+		if (this.direction != EDirectionUAD.Auto) 	xml.set(XDIRECTION, 		Std.string(this.direction));
+		if (this.type != ENoteType.Normal)			xml.set(XTYPE, 				Std.string(this.type));			
+		if (this.text != '')									xml.set(XTYPE, 				Std.string(this.text));			
 		
 		return xml;
 	}
 	
-	static public function fromXml(xmlStr:String):Note<Head<Dynamic>> {
-		
-		var xml = Xml.parse(xmlStr).firstElement();
-		
-		var heads = new Array<Head<Dynamic>>();
-		
-		for (h in xml.elementsNamed('head')) {
-			var head = Head.fromXml(h.toString());
+	static public function fromXmlStr(xmlStr:String):Note {
+		var xml = Xml.parse(xmlStr).firstElement();		
+		var heads:Array<Head> = [];		
+		for (h in xml.elementsNamed(Head.XHEAD)) {
+			var head = Head.fromXmlStr(h.toString());
 			heads.push(head);
 		}
 
-		var text:String;
-		try text = xml.get('text');			
+		var value = 			ENoteValue.getFromValue(Std.parseInt(xml.get(XVALUE)));		
+		var direction = 		EDirectionUAD.createFromString(xml.get(XDIRECTION));
+		var type = 				ENoteType.createFromString(xml.get(XTYPE));
+		var text = 				xml.get(XTYPE);
 		
-		var value:ENoteValue= null;
-		var int = Std.parseInt(xml.get('value'));
-		if (int != null) try value = ENoteValue.getFromValue(int);		
-		
-		var type:ENoteType = null;
-		var str = xml.get('type');
-		if (str != null) try type = Type.createEnum(ENoteType, str);
-		
-		var note = Note.getNew(heads, value, type, text);
+		var note = new Note(heads, value, direction, type, text);
 		
 		return note;
-	}	
-	
-	
+	}		 
+	 
 }
-
-

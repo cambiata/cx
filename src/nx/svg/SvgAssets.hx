@@ -46,7 +46,7 @@ class SvgAssets
 		// if doesnt exist:
 		return NoteElements.clefG();
 		*/
-		return NoteElements.getSvg(tag);
+		return MusicElements.getSvg(tag);
 	}
 	
 }

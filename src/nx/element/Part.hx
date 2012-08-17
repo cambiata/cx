@@ -1,129 +1,97 @@
 package nx.element;
-import nx.display.beam.IBeamingProcessor;
-import nx.element.base.Node;
 import nx.enums.EAttributeDisplay;
 import nx.enums.EClef;
 import nx.enums.EKey;
-import nx.enums.ESystemicBarline;
+import nx.enums.EPartType;
+//import nx.enums.ETime;
+
 /**
  * ...
  * @author Jonas Nyström
  */
-
-class Part < T:Voice<Note<Head<Dynamic>>> > extends Node<Voice<Note<Head<Dynamic>>>> {
-	public var clef:EClef;
-	public var clefDisplay:EAttributeDisplay;
-	public var key:EKey;
-	public var keyDisplay:EAttributeDisplay;
-	public var label:String;
-	public var systemicBarline:ESystemicBarline;
-	private var beaming:IBeamingProcessor;
-	
-	public function new() { 
-		this.children = new Array<Voice<Note<Head<Dynamic>>>>(); 
-		this.clef = EClef.ClefG;
-		this.clefDisplay = EAttributeDisplay.Layout;
-		this.key = EKey.Sharp2;
-		this.keyDisplay = EAttributeDisplay.Layout;
-		this.systemicBarline = ESystemicBarline.Normal;
+using cx.EnumTools;
+class Part 
+{
+	public function new(type:EPartType=null, voices:Iterable<Voice>=null, clef:EClef=null, clefDisplay:EAttributeDisplay=null, key:EKey=null, keyDisplay:EAttributeDisplay=null, label:String='') {
+		this.type = (type != null) ? type : EPartType.Normal;
+		this.voices = (voices != null) ? Lambda.array(voices) : [new Voice()];
+		this.key = key; // (key != null) ? key : EKey.Flat2;
+		this.keyDisplay = (keyDisplay != null) ? keyDisplay : EAttributeDisplay.Layout;
+		this.clef = clef; // (clef != null) ? clef : EClef.ClefC;
+		this.clefDisplay = (clefDisplay != null) ? clefDisplay : EAttributeDisplay.Layout;
+		
+		this.label = label;
 	}
 	
-	static public function getNew(?children:Array<Voice<Note<Head<Dynamic>>>>=null, ?clef:EClef, ?clefDisplay:EAttributeDisplay, ?key:EKey, ?keyDisplay:EAttributeDisplay,?systemicBarline:ESystemicBarline) {
-		var item = new Part<Voice<Note<Head<Dynamic>>>>();
-		if (children != null) 			for (child in children) item.add(child);
-		if (clef != null)				item.clef = clef;
-		if (clefDisplay != null)		item.clefDisplay = clefDisplay;
-		if (key != null)				item.key = key;
-		if (keyDisplay != null)			item.keyDisplay = keyDisplay;
-		if (systemicBarline != null)	item.systemicBarline = systemicBarline;
-		return item;
-	}
+	public var type(default, null):EPartType;	
+	public var voices(default, null):Array<Voice>;
+	public var key(default, null): EKey;
+	public var keyDisplay(default, null):EAttributeDisplay;
+	public var clef(default, null): EClef;
+	public var clefDisplay(default, null):EAttributeDisplay;
 	
-	public function getClef():EClef {
-		return this.clef;
-	}
-	
-	public function getClefDisplay():EAttributeDisplay {
-		return this.clefDisplay;
-	}
-	
-	public function getKey():EKey {
-		return this.key;
-	}
-	
-	public function getKeyDisplay(): EAttributeDisplay {
-		return this.keyDisplay;
-	}
-	
-	public function getSystemicBarline():ESystemicBarline {
-		return this.systemicBarline;
-	}
+	public var label(default, null):String;
 	
 	
+	/*************************************************************
+	 * XML functions
+	 */
 	
-	//-----------------------------------------------------------------------------------------------------
+	static public var XPART 				= 'part';
+	static public var XTYPE					= 'type';
+	static public var XCLEF					= 'clef';
+	static public var XCLEFDISPLAY		= 'clefdisplay';
+	static public var XKEY					= 'key';
+	static public var XKEYDISPLAY		= 'keydisplay';
+	static public var XLABEL				= 'label';
+	
 	
 	public function toXml():Xml {		
-		var xml:Xml = Xml.createElement('part');				
 		
-		for (child in this.children) {
-			var cxml = child.toXml();
-			xml.addChild(cxml);
+		var xml:Xml = Xml.createElement(XPART);				
+		
+		for (voice in this.voices) {
+			var itemXml = voice.toXml();
+			xml.addChild(itemXml);
 		}
 		
-		xml.set('clef', Std.string(this.getClef ()));
-		xml.set('clefdisplay', Std.string(this.getClefDisplay ()));
-		xml.set('key', Std.string(this.getKey().levelShift));
-		xml.set('keydisplay', Std.string(this.getKeyDisplay()));
-		xml.set('systemicbarline', Std.string(this.getSystemicBarline ()));
+		if (this.type != EPartType.Normal) 						xml.set(XTYPE, 				Std.string(this.type));
+		if (this.clef != null) 												xml.set(XCLEF, 				Std.string(this.clef));
+		if (this.clefDisplay != EAttributeDisplay.Layout)		xml.set(XCLEFDISPLAY,	Std.string(this.clefDisplay));		
 		
-		return xml;		
+		if (this.key != null) 												xml.set(XKEY, 				Std.string(this.key.levelShift));
+		if (this.keyDisplay != EAttributeDisplay.Layout)		xml.set(XKEYDISPLAY,		Std.string(this.keyDisplay));		
+		
+		if (this.label != '')												xml.set(XLABEL, 				this.label);
+		
+		return xml;
 	}
 	
-	static public function fromXml(xmlStr:String):Part<Voice<Note<Head<Dynamic>>>> {
+	static public function fromXmlStr(xmlStr:String):Part {	
+		
 		var xml = Xml.parse(xmlStr).firstElement();
 		
-		var children = new Array<Voice<Note<Head<Dynamic>>>>();
+		var voices:Array<Voice> = [];
 		
-		for (child in xml.elementsNamed('voice')) {
-			var voice = Voice.fromXml(child.toString());
-			children.push(voice);
+		for (itemXml in xml.elementsNamed(Voice.XVOICE)) {
+			var item = Voice.fromXmlStr(itemXml.toString());
+			voices.push(item);
 		}	
-		
-		var clef:EClef = null;
-		var str = xml.get('clef');
-		if (str != null) try clef = Type.createEnum(EClef, str);		
-		
-		var clefDisplay:EAttributeDisplay = null;
-		var str = xml.get('clefdisplay');
-		if (str != null) try clefDisplay = Type.createEnum(EAttributeDisplay, str);			
-		
-		var key:EKey = null;
-		var str = xml.get('key');
-		if (str != null) try key = new EKey(Std.parseInt(str));
 
-		var keyDisplay:EAttributeDisplay = null;
-		var str = xml.get('keydisplay');
-		if (str != null) try keyDisplay = Type.createEnum(EAttributeDisplay, str);			
+		var type = EPartType.createFromString(xml.get(XTYPE));
 		
-		var systemicBarline:ESystemicBarline = null;
-		var str = xml.get('systemicbarline');
-		if (str != null) try systemicBarline = Type.createEnum(ESystemicBarline, str);			
+		var clefDisplay = EAttributeDisplay.createFromString(xml.get(XCLEFDISPLAY));
+		var clef = EClef.createFromString(xml.get(XCLEF));
 		
-		var part = Part.getNew(children, clef, clefDisplay, key, keyDisplay, systemicBarline);
+		var keyDispaly = EAttributeDisplay.createFromString(xml.get(XKEYDISPLAY));		
+		var keyValue = Std.parseInt(xml.get(XKEY));
+		var key = new EKey(keyValue);
 		
-		return part;
+		var label = xml.get(XLABEL);
+		
+		return new Part(type, voices, clef, clefDisplay, key, keyDispaly, label);
+		
 	}
 	
-	override public function toString():String {
-		return super.toString() + '\t' 
-		+ 'label:' + this.label 
-		+ ', clef:' + this.clef 
-		+ ', clefDisplay:' + this.clefDisplay
-		+ ', key:' + this.key
-		+ ', keyDisplay:' + this.keyDisplay
-		+ ', systemicBarline:' + this.systemicBarline
-		;
-	}		
-	
 }
+

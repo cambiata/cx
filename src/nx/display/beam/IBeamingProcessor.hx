@@ -1,6 +1,6 @@
 package nx.display.beam;
 import nx.enums.EDirectionUAD;
-import nx.core.display.DVoice;
+import nx.display.DVoice;
 /**
  * ...
  * @author Jonas Nyström

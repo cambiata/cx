@@ -1,16 +1,16 @@
 package nx.test;
-import nx.core.display.DBar;
-import nx.core.display.DPart;
-import nx.core.element.Bar;
-import nx.core.element.Bars;
-import nx.core.element.Head;
-import nx.core.element.Note;
-import nx.core.element.Part;
-import nx.core.element.Voice;
-import nx.core.display.DBar;
-import nx.core.display.DBar.TBarDisplaySettings;
-import nx.core.display.DPart;
-import nx.core.display.DPart.TPartDisplaySettings;
+import nx.display.DBar;
+import nx.display.DPart;
+import nx.element.Bar;
+import nx.element.Bars;
+import nx.element.Head;
+import nx.element.Note;
+import nx.element.Part;
+import nx.element.Voice;
+import nx.display.DBar;
+import nx.display.DPart;
+import nx.display.type.TBarDisplaySettings;
+import nx.display.type.TPartDisplaySettings;
 import nx.enums.EAckolade;
 import nx.enums.EAttributeDisplay;
 import nx.enums.EBarline;
@@ -55,38 +55,92 @@ class ExampleDbars
 	
 	static public function barsTest1() {
 		return new Bars([
+			
+			// bar 1
 			new Bar([
 				new Part([
 					new Voice([
 						new Note([new Head(2)], ENoteValue.Nv4, null, ENoteType.Normal),
 						new Note([new Head(3)], ENoteValue.Nv8, null, ENoteType.Normal),
-						new Note([new Head(4)], ENoteValue.Nv8, null, ENoteType.Normal),
+						new Note([new Head(7, ESign.Flat)], ENoteValue.Nv8, null, ENoteType.Normal),
 						new Note([new Head(2)], ENoteValue.Nv4, null, ENoteType.Normal),
 						new Note([new Head(0)], ENoteValue.Nv4, null, ENoteType.Normal),
 					]),
 				], EClef.ClefG, EKey.Sharp2),
-			], ETime.Time4_4),
+				
+				new Part([
+					new Voice([
+						new Note([new Head(0)], ENoteValue.Nv2),				
+						new Note([new Head(0)], ENoteValue.Nv2),				
+					]),
+				], EClef.ClefF, EKey.Flat3),					
+				
+				
+			], ETime.Time4_4, EAckolade.Curly),
 		
+			// bar 2
 			new Bar([
 				new Part([
 					new Voice([
-						new Note([new Head(2)], ENoteValue.Nv2, null, ENoteType.Normal),					
+						new Note([new Head(1)], ENoteValue.Nv2, null, ENoteType.Normal),					
 						new Note([new Head(-3)], ENoteValue.Nv8, null, ENoteType.Normal),					
-						new Note([new Head(-1)], ENoteValue.Nv8, null, ENoteType.Normal),					
-						new Note([new Head(0)], ENoteValue.Nv8, null, ENoteType.Normal),					
-						new Note([new Head(1)], ENoteValue.Nv8, null, ENoteType.Normal),										
+						new Note([new Head(-2)], ENoteValue.Nv16, null, ENoteType.Normal),					
+						new Note([new Head(-1, ESign.Sharp)] , ENoteValue.Nv16, null, ENoteType.Normal),					
+						new Note([new Head(0)], ENoteValue.Nv8dot, null, ENoteType.Normal),					
+						new Note([new Head(1)], ENoteValue.Nv16, null, ENoteType.Normal),										
 					]),
 				]),
+				
+				new Part([
+					new Voice([
+						new Note([new Head(0)], ENoteValue.Nv2dot),				
+						new Note([new Head(0)], ENoteValue.Nv4),				
+					]),
+				]/*, EClef.ClefC*/),							
+				
 			]),		
 			
+			// bar 3
+			new Bar([
+				new Part([
+					new Voice([
+						new Note([new Head(0)], ENoteValue.Nv8),
+						new Note([new Head(0)], ENoteValue.Nv16),
+						new Note([new Head(0)], ENoteValue.Nv16),
+						new Note([new Head(0)], ENoteValue.Nv2dot),				
+					]),
+				]/*, EKey.Flat4*/),
+				
+				new Part([
+					new Voice([
+						new Note([new Head(1)], ENoteValue.Nv2, null, ENoteType.Normal),					
+						new Note([new Head(-3)], ENoteValue.Nv8, null, ENoteType.Normal),					
+						new Note([new Head(-2)], ENoteValue.Nv16, null, ENoteType.Normal),					
+						new Note([new Head(-1)], ENoteValue.Nv16, null, ENoteType.Normal),					
+						new Note([new Head(0)], ENoteValue.Nv8dot, null, ENoteType.Normal),					
+						new Note([new Head(1)], ENoteValue.Nv16, null, ENoteType.Normal),
+		
+					]),
+				]),							
+				
+			]/*, ETime.Time3_8*/),					
+			
+			// bar 4
 			new Bar([
 				new Part([
 					new Voice([
 						new Note([new Head(2)], ENoteValue.Nv2dot, null, ENoteType.Normal),					
-						new Note([new Head(1)], ENoteValue.Nv4, null, ENoteType.Pause),										
+						new Note([new Head(0)], ENoteValue.Nv4, null, ENoteType.Pause),										
 					]),
 				]),
-			]),
+				
+				new Part([
+					new Voice([
+						new Note([new Head(0)], ENoteValue.Nv1),				
+					]),
+				]),							
+				
+			]/*, EAckolade.Curly*/),
 		]);
 	}
 	
@@ -180,6 +234,104 @@ class ExampleDbars
 		], ETime.Time4_4));
 	}					
 					
+	static public function barsLyrics() {
+		return new Bars([
+			new Bar([
+				new Part([
+					new Voice([
+						new Note([new Head(0)], ENoteValue.Nv8dot), 
+						new Note([new Head(0)], ENoteValue.Nv16), 
+						new Note([new Head(2)], ENoteValue.Nv8), 
+						new Note([new Head(-1)], ENoteValue.Nv8), 
+						new Note(ENoteValue.Nv8), 
+						new Note(ENoteValue.Nv8), 
+					])
+				], EClef.ClefG, EAttributeDisplay.Layout, EKey.Flat3, EAttributeDisplay.Layout, 'Part1'),
+				
+				new Part(EPartType.Lyrics, [
+					new Voice([
+						new Note(ENoteValue.Nv8dot, ENoteType.Lyric, 'Ut-'), 
+						new Note(ENoteValue.Nv16, ENoteType.Lyric, 'i'), 
+						new Note(ENoteValue.Nv8, ENoteType.Lyric, 'vår'), 
+						new Note(ENoteValue.Nv8, ENoteType.Lyric, 'ha-'), 					
+						new Note(ENoteValue.Nv8, ENoteType.Lyric, 'gé'), 					
+						new Note(ENoteValue.Nv8, ENoteType.Lyric, 'där'), 					
+					])
+				]),
+			]),
+			
+			new Bar([
+				new Part([
+					new Voice([
+						new Note([new Head(0)], ENoteValue.Nv2), 
+						new Note([new Head(2)], ENoteValue.Nv8), 
+						new Note([new Head(-1)], ENoteValue.Nv8), 
+					])
+				]),
+				
+				new Part(EPartType.Lyrics, [
+					new Voice([
+						new Note(ENoteValue.Nv2, ENoteType.Lyric, 'hop-'), 
+						new Note(ENoteValue.Nv4, ENoteType.Lyric, 'pas'), 
+					])
+				]),
+			]),
+			
+			new Bar([
+				new Part([
+					new Voice([
+						new Note([new Head(-4)], ENoteValue.Nv2), 
+						new Note([new Head(2)], ENoteValue.Nv4, ENoteType.Pause), 
+					])
+				]),
+				
+				new Part(EPartType.Lyrics, [
+					new Voice([
+						new Note(ENoteValue.Nv2, ENoteType.Lyric, 'vi.'), 
+					])
+				]),
+			]),		
+			
+			new Bar([
+				new Part([
+					new Voice([
+						new Note([new Head(3)], ENoteValue.Nv8dot), 
+						new Note([new Head(2)], ENoteValue.Nv16), 
+						new Note([new Head(0)], ENoteValue.Nv4dot), 
+						new Note([new Head(1)], ENoteValue.Nv8), 
+					])
+				]),
+				
+				new Part(EPartType.Lyrics, [
+					new Voice([
+						new Note(ENoteValue.Nv8dot, ENoteType.Lyric, 'Dom'), 
+						new Note(ENoteValue.Nv16, ENoteType.Lyric, 'ska'), 
+						new Note(ENoteValue.Nv4, ENoteType.Lyric, 'int-'), 
+						new Note(ENoteValue.Nv4, ENoteType.Lyric, 'te'), 					
+					])
+				]),
+			]),			
+			
+			new Bar([
+				new Part([
+					new Voice([
+						new Note([new Head(4)], ENoteValue.Nv4), 
+						new Note([new Head(5)], ENoteValue.Nv2), 
+					])
+				]),
+				
+				new Part(EPartType.Lyrics, [
+					new Voice([
+						new Note(ENoteValue.Nv4, ENoteType.Lyric, 'so-'), 
+						new Note(ENoteValue.Nv2, ENoteType.Lyric, 'va.'), 
+					])
+				]),
+			]),			
+			
+			
+		]);
+	}	
+	
 	
 	static public function dbarLyrics() {
 		return new DBar(new Bar([
@@ -200,7 +352,7 @@ class ExampleDbars
 					new Note(ENoteValue.Nv16, ENoteType.Lyric, 'i'), 
 					new Note(ENoteValue.Nv8, ENoteType.Lyric, 'vår'), 
 					new Note(ENoteValue.Nv8, ENoteType.Lyric, 'ha-'), 					
-					new Note(ENoteValue.Nv8, ENoteType.Lyric, 'ge'), 					
+					new Note(ENoteValue.Nv8, ENoteType.Lyric, 'gé'), 					
 					new Note(ENoteValue.Nv8, ENoteType.Lyric, 'där'), 					
 				])
 			]),

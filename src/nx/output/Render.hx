@@ -7,14 +7,13 @@ import nme.display.Sprite;
 import nme.geom.Rectangle;
 import nme.Vector;
 import nx.Constants;
-import nx.core.display.DBar;
-import nx.core.display.DNote;
-import nx.core.display.DPart;
-import nx.core.display.Complex;
-import nx.core.display.DVoice;
+import nx.display.DBar;
+import nx.display.DNote;
+import nx.display.DPart;
+import nx.display.Complex;
+import nx.display.DVoice;
 import nx.display.beam.BeamTools;
 import nx.display.beam.IBeamGroup;
-import nx.display.DisplayNote;
 import nx.enums.EBarline;
 import nx.enums.EClef;
 import nx.enums.EDirectionUAD;
@@ -38,7 +37,7 @@ import nx.enums.ETime.ETimeUtils;
  */
 using nx.output.Scaling;
 using cx.ArrayTools;
-using nx.core.display.DBar;
+using nx.display.DBar;
 using Lambda;
 
 class Render extends RenderBase, implements IRender
@@ -66,9 +65,8 @@ class Render extends RenderBase, implements IRender
 		var x2 = x;
 		
 		if (dbar != null) {
-			
-			var ackodladeOffset = scaling.scaleX2(dbar.rectAckolademargin.x);
-			var indentRightOffset = scaling.scaleX2(dbar.rectRightindent.width);
+			var ackodladeOffset = scaling.scaleX(dbar.rectAckolademargin.x);
+			var indentRightOffset = scaling.scaleX(dbar.rectRightindent.width);
 			x2 += ackodladeOffset;
 			width -= (ackodladeOffset + indentRightOffset);
 		}
@@ -108,11 +106,11 @@ class Render extends RenderBase, implements IRender
 		this.gr.endFill();
 		
 		// Stretch		
-		var currentWidth = this.scaling.scaleX2(dbar.columnsRectAlloted.width);
+		var currentWidth = this.scaling.scaleX(dbar.columnsRectAlloted.width);
 		dbar.stretchContentTo( this.scaling.descaleX(stretchToWidth));		
 		
 		// STRETCHED WIDTH:
-		// trace(this.scaling.scaleX2(dbar.columnsRectStretched.width));		
+		// trace(this.scaling.scaleX(dbar.columnsRectStretched.width));		
 		
 		//-----------------------------------------------------------------
 		
@@ -128,7 +126,8 @@ class Render extends RenderBase, implements IRender
 		// Draw complexes...
 		
 		for (column in dbar.columns) {
-			x2 = x + Scaling.scaleX(column.sPositionX, this.scaling);
+			//x2 = x + Scaling.scaleX(column.sPositionX, this.scaling);
+			x2 = x + this.scaling.scaleX(column.sPositionX);
 			for (partComplex in column.complexes) {
 				if (partComplex != null) {					
 					y2 = y + scaling.scaleY(dbar.dpartTop.get(partComplex.dpart));					
@@ -154,7 +153,8 @@ class Render extends RenderBase, implements IRender
 								var adjustX = dbar.dnoteComplexXadjust.get(dnote); // justera för sekundkrockar etc...						
 								var rectStaveX:Float = 0;
 								if (dnote.rectStave != null) rectStaveX = dnote.rectStave.x;
-								var posX = Scaling.scaleX(column.sPositionX + rectStaveX + adjustX, this.scaling);
+								//var posX = Scaling.scaleX(column.sPositionX + rectStaveX + adjustX, this.scaling);
+								var posX = this.scaling.scaleX(column.sPositionX + rectStaveX + adjustX);
 								
 								dnotesPositionsX.push(posX);
 							}
@@ -173,11 +173,12 @@ class Render extends RenderBase, implements IRender
 			
 			/*
 			var heightRect = dpart.rectDPartHeight;
-			heightRect.width = 200;
-			gr.lineStyle(2, 0x00FF00);
-			drawRect(x, y2, heightRect, 2, 0x00FF00);						
+			heightRect.width = 10;
+			drawRect(x, y2, heightRect, 1, 0x00FF00);						
 			*/
 		}
+		
+		
 		
 		// Draw voice stuff...
 		
@@ -200,7 +201,7 @@ class Render extends RenderBase, implements IRender
 		//-----------------------------------------------------------------------------------------------------
 		
 		if (rects) {		
-			var r = Scaling.scaleRectangle(dbar.columnsRectStretched, this.scaling);
+			var r = this.scaling.scaleRect(dbar.columnsRectStretched);
 			r.y = -20;
 			r.height = 20;
 			
@@ -217,8 +218,8 @@ class Render extends RenderBase, implements IRender
 		var ry = level - 2 - (level % 2);
 		var r = this.scaling.scaleRect( new Rectangle(-Constants.HEAD_HALFWIDTH, ry, Constants.HEAD_WIDTH , Constants.HEAD_HALFHEIGHT));
 
-		var width = this.scaling.scaleX2(dbar.columnsRectStretched.width) ;
-		var x2 = x + this.scaling.scaleX2(dbar.columnsRectStretched.x);
+		var width = this.scaling.scaleX(dbar.columnsRectStretched.width) ;
+		var x2 = x + this.scaling.scaleX(dbar.columnsRectStretched.x);
 		var x3 = x2 + ((width - r.width) / 2);
 		
 		r.offset(x3, y2);
@@ -240,9 +241,9 @@ class Render extends RenderBase, implements IRender
 		
 		var barMeas = dbar.getTotalWidthAlloted();
 		
-		var scaledAttrLeftWidth = this.scaling.scaleX2(barMeas.attribLeftWidth);
-		var scaledAttrRightWidth	= this.scaling.scaleX2(barMeas.attribRightWidth);
-		var contentUnstretchedWidth = this.scaling.scaleX2(barMeas.columnsWidth);
+		var scaledAttrLeftWidth = this.scaling.scaleX(barMeas.attribLeftWidth);
+		var scaledAttrRightWidth	= this.scaling.scaleX(barMeas.attribRightWidth);
+		var contentUnstretchedWidth = this.scaling.scaleX(barMeas.columnsWidth);
 		
 		var minWidth = scaledAttrLeftWidth + contentUnstretchedWidth + scaledAttrRightWidth;
 		stretchToWidth = Math.max(minWidth, stretchToWidth);
@@ -252,7 +253,7 @@ class Render extends RenderBase, implements IRender
 		//trace(stretchToWidth2);
 		
 		var attrLeftX = x;
-		var attrLeftWidth = this.scaling.scaleX2(barMeas.attribLeftWidth);
+		var attrLeftWidth = this.scaling.scaleX(barMeas.attribLeftWidth);
 		//var y2 = y;
 		
 		
@@ -268,16 +269,16 @@ class Render extends RenderBase, implements IRender
 		}
 		
 		var columnsX = x + attrLeftWidth;		
-		var columnsXAdjust = this.scaling.scaleX2(-dbar.columnsRectStretched.x);
+		var columnsXAdjust = this.scaling.scaleX(-dbar.columnsRectStretched.x);
 		this.dbar(columnsX+columnsXAdjust, y, dbar, stretchToWidth2, rects);
 		
 		//trace(dbar.columnsRectAlloted.width);
 		//trace(dbar.columnsRectStretched.width);
 		
-		var columnsWidth = this.scaling.scaleX2(dbar.columnsRectStretched.width);
+		var columnsWidth = this.scaling.scaleX(dbar.columnsRectStretched.width);
 
 		var attrRightX = columnsX + columnsWidth;
-		var attrRightWidth =  this.scaling.scaleX2(barMeas.attribRightWidth);
+		var attrRightWidth =  this.scaling.scaleX(barMeas.attribRightWidth);
 		
 		
 		var x2 = attrRightX + attrRightWidth - x;
@@ -296,7 +297,7 @@ class Render extends RenderBase, implements IRender
 		
 		if (dpart.dType != EPartType.Normal) return;
 		
-		var x2 =x + scaling.scaleX2(dbar.rectBarline.x + dbar.rectBarline.width);
+		var x2 =x + scaling.scaleX(dbar.rectBarline.x + dbar.rectBarline.width);
 		var lineThickness = scaling.linesWidth * 1.5;
 		gr.lineStyle(lineThickness, 0x000000);
 
@@ -312,7 +313,7 @@ class Render extends RenderBase, implements IRender
 			case EBarline.Double: 
 				gr.moveTo(x2, y - barlineHeight);
 				gr.lineTo(x2, y + barlineHeight);
-				x2 -= scaling.scaleX2(Constants.BARLINE_DOUBLE_WIDTH);
+				x2 -= scaling.scaleX(Constants.BARLINE_DOUBLE_WIDTH);
 				gr.moveTo(x2, y - barlineHeight);
 				gr.lineTo(x2, y + barlineHeight);
 			default: 
@@ -345,7 +346,7 @@ class Render extends RenderBase, implements IRender
 		if (dpart.dType != EPartType.Normal) return;
 		if (dpart.dClef == null) return;
 		//trace(dbar.rectClef);
-		var x2 = x + this.scaling.scaleX2(dbar.rectClef.x);
+		var x2 = x + this.scaling.scaleX(dbar.rectClef.x);
 		
 		var shape:Shape = null;
 		switch(dpart.dClef) {
@@ -357,7 +358,7 @@ class Render extends RenderBase, implements IRender
 				shape = SvgAssets.getSvgShape('clefF', this.scaling);
 		}
 		
-		shape.x = x2 + scaling.svgX + this.scaling.scaleX2(Constants.HEAD_HALFWIDTH);
+		shape.x = x2 + scaling.svgX + this.scaling.scaleX(Constants.HEAD_HALFWIDTH);
 		shape.y = y + scaling.svgY + this.scaling.scaleY(Constants.HEAD_HEIGHT);
 		target.addChild(shape);
 	}
@@ -367,7 +368,7 @@ class Render extends RenderBase, implements IRender
 		if (dpart.dKey == null) return;
 		if (dpart.dKey.levelShift == 0) return;
 		
-		var x2 = x + this.scaling.scaleX2(dbar.rectKey.x);
+		var x2 = x + this.scaling.scaleX(dbar.rectKey.x);
 		
 		var shape:Shape = null;
 		var key = dpart.dKey;				
@@ -391,7 +392,7 @@ class Render extends RenderBase, implements IRender
 				shape = SvgAssets.getSvgShape('signFlat', this.scaling);
 			}				
 			
-			var x3 = x2 + scaling.svgX + (i * this.scaling.scaleX2(Constants.SIGN_WIDTH)) + this.scaling.scaleX2(Constants.HEAD_HALFWIDTH);
+			var x3 = x2 + scaling.svgX + (i * this.scaling.scaleX(Constants.SIGN_WIDTH)) + this.scaling.scaleX(Constants.HEAD_HALFWIDTH);
 			var y2 = y + scaling.svgY + this.scaling.scaleY(EKey.getSignLevel(keyValue, i, dpart.dClef));
 			shape.x = x3;
 			shape.y = y2;
@@ -404,12 +405,12 @@ class Render extends RenderBase, implements IRender
 		if (dbar.dTime == null) return;
 		
 		
-		var x2 = x + this.scaling.scaleX2(dbar.rectTime.x);
+		var x2 = x + this.scaling.scaleX(dbar.rectTime.x);
 		
 		var shape:Shape = null;
 		var shapeLower:Shape = null;
 		
-		var x3 = x2 + scaling.svgX + scaling.scaleX2(Constants.HEAD_HALFWIDTH);
+		var x3 = x2 + scaling.svgX + scaling.scaleX(Constants.HEAD_HALFWIDTH);
 		var y2 = y + scaling.svgY;
 		
 		var timeId = ETimeUtils.toString(dbar.dTime);

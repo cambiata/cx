@@ -1,5 +1,5 @@
 package nx.display.beam;
-import nx.core.display.DNote;
+import nx.display.DNote;
 import nx.enums.EDirectionUD;
 import nx.enums.ENoteType;
 import nx.enums.ENoteValue;

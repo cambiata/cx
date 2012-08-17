@@ -1,5 +1,6 @@
 package nx.layout;
-import nx.core.display.DSystem;
+import nx.display.DBars;
+import nx.display.DSystem;
 
 /**
  * ...
@@ -16,14 +17,14 @@ class LayoutWebpage extends LayoutBase, implements ILayoutProcessor
 	 *
 	*/
 	
-	public function new() {
-		
+	public function new(systemWidth:Float = 400.0, systemsHeight=800.0) {
+		super();
 	}
 	
 	/* INTERFACE nx.layout.ILayoutProcessor */
 	
-	public function doLayout(systemWidth:Float = 800.0, firstBarNr:Int = 0):Array<DSystem> {
-		
+	public function doLayout(dbars:DBars, firstBarNr:Int=0):Array<DSystem> {
+		return null;
 	}
 	
 	/*

@@ -1,5 +1,5 @@
 package nx.display.beam;
-import nx.core.display.DVoice;
+import nx.display.DVoice;
 import nx.enums.EDirectionUAD;
 import nx.enums.ENoteValue;
 

@@ -8,24 +8,26 @@ import nme.display.Sprite;
 import nme.geom.Rectangle;
 import nme.Vector;
 import nx.Constants;
-import nx.core.display.DBar;
-import nx.core.display.DNote;
-import nx.core.display.DPart;
-import nx.core.display.Complex;
-import nx.core.display.DVoice;
+import nx.display.DBar;
+import nx.display.DNote;
+import nx.display.DPart;
+import nx.display.Complex;
+import nx.display.DVoice;
 import nx.display.beam.BeamTools;
 import nx.display.beam.IBeamGroup;
-import nx.display.DisplayNote;
 import nx.enums.EDirectionUAD;
 import nx.enums.EDirectionUD;
 import nx.enums.EHeadType;
 import nx.enums.ENoteType;
 import nx.enums.ENoteValue;
+import nx.enums.ESign;
 import nx.enums.utils.EDirectionTools;
 import nx.output.text.TextBitmap;
 import nx.svg.SvgAssets;
 import nx.output.Scaling;
 import nx.display.beam.BeamGroupFrame;
+import nx.display.type.TSign;
+import nx.display.type.TSigns;
 
 /**
  * ...
@@ -34,7 +36,7 @@ import nx.display.beam.BeamGroupFrame;
 
 using nx.output.Scaling;
 using cx.ArrayTools;
-using nx.core.display.DBar;
+using nx.display.DBar;
 using Lambda;
 using StringTools;
  
@@ -89,14 +91,14 @@ class RenderBase
 					var leftColumn = dbar.dnoteColumn.get(leftDNote);
 					
 					var leftX = leftColumn.sPositionX + leftDNote.rectTiesfrom.x;
-					var tieX 			= x + this.scaling.scaleX2(leftX);					
+					var tieX 			= x + this.scaling.scaleX(leftX);					
 					
 					
 					var tieXHanging = tieX;
 					if (dbar.columns.last() != leftColumn) {
-						tieXHanging 	+= this.scaling.scaleX2(Constants.TIE_WIDTH);						
+						tieXHanging 	+= this.scaling.scaleX(Constants.TIE_WIDTH);						
 					} else {
-						tieXHanging 	+= this.scaling.scaleX2(Constants.TIE_WIDTH_LASTHANGING);						
+						tieXHanging 	+= this.scaling.scaleX(Constants.TIE_WIDTH_LASTHANGING);						
 					}
 					
 					
@@ -134,7 +136,7 @@ class RenderBase
 						
 						
 						rightX += (rightDNote.signs.count() > 0) ? rightComplex.rectSigns.x : rightComplex.rectHeads.x;
-						tieXRigthNote 	= x + this.scaling.scaleX2(rightX);
+						tieXRigthNote 	= x + this.scaling.scaleX(rightX);
 					}
 					var tieConnectLength = rightX - leftX;
 					
@@ -153,13 +155,13 @@ class RenderBase
 						case EDirectionUAD.Up:
 							//trace('VoiceUp = tieUp true');
 							tieUp = true;
-							if (tieSingle) tieXRigthNote += this.scaling.scaleX2(Constants.HEAD_QUARTERWIDTH + Constants.TIE_SINGLE_XCOMP);
+							if (tieSingle) tieXRigthNote += this.scaling.scaleX(Constants.HEAD_QUARTERWIDTH + Constants.TIE_SINGLE_XCOMP);
 						case EDirectionUAD.Down:
 							//trace('VoiceDown = tieUp false');
 							tieUp = false;
 							if (tieSingle) {
 								leftX = leftColumn.sPositionX + leftDNote.rectHeads.x + leftDNote.rectHeads.width - Constants.TIE_SINGLE_XCOMP;
-								tieX = x + this.scaling.scaleX2(leftX);										
+								tieX = x + this.scaling.scaleX(leftX);										
 							}
 						default:							
 							if (leftDNote.direction == EDirectionUD.Up) {
@@ -172,8 +174,8 @@ class RenderBase
 							// move y
 							if (tieSingle) {								
 								leftX = leftColumn.sPositionX + leftDNote.rectHeads.x + leftDNote.rectHeads.width - Constants.TIE_SINGLE_XCOMP;
-								tieX = x + this.scaling.scaleX2(leftX);		
-								tieXRigthNote += this.scaling.scaleX2(Constants.HEAD_QUARTERWIDTH + Constants.TIE_SINGLE_XCOMP);
+								tieX = x + this.scaling.scaleX(leftX);		
+								tieXRigthNote += this.scaling.scaleX(Constants.HEAD_QUARTERWIDTH + Constants.TIE_SINGLE_XCOMP);
 							}
 					}
 					
@@ -225,7 +227,7 @@ class RenderBase
 		function _scaleCoords(coords:Vector<Float>) {				
 			var i = 0;
 			do {
-				coords[i] 		= this.scaling.scaleX2(coords[i]);
+				coords[i] 		= this.scaling.scaleX(coords[i]);
 				coords[i + 1] 	= this.scaling.scaleY(coords[i + 1]);
 				i += 2;					
 			} while (i < Std.int(coords.length));
@@ -301,7 +303,7 @@ class RenderBase
 				
 				for (dhead in dnote.dheads) {
 					var position = positions.shift();
-					var xshift = scaling.scaleX2(collisionShiftX);
+					var xshift = scaling.scaleX(collisionShiftX);
 					this._drawHead(x + xshift, y, dhead.level, position, dnote.notevalue.headType);					
 					
 					
@@ -350,17 +352,17 @@ class RenderBase
 		}
 		
 		var bmp = textOutput.getStringBitmap(text);
-		bmp.x = x + this.scaling.scaleX2(dnote.rectText.x) - this.scaling.scaleX2(Constants.TEXT_XADJUST);
-		bmp.y = y + this.scaling.scaleY(dnote.rectText.y)- this.scaling.scaleX2(Constants.TEXT_YADJUST);
+		bmp.x = x + this.scaling.scaleX(dnote.rectText.x) - this.scaling.scaleX(Constants.TEXT_XADJUST);
+		bmp.y = y + this.scaling.scaleY(dnote.rectText.y)- this.scaling.scaleX(Constants.TEXT_YADJUST);
 		trace([text, bmp.width]);
 		this.target.addChild(bmp);
 	}
 	
 	private function _drawLegers(x:Float, y:Float, dnote:DNote) {
 		
-		var x1 = x + scaling.scaleX2(dnote.rectHeads.x - Constants.HEAD_LEGER_LEFT) ;
-		var x2 = x1 + scaling.scaleX2(dnote.rectHeads.width + Constants.HEAD_LEGER_RIGHT);
-		if (dnote.notevalue.stavingLevel == 0) x2 += scaling.scaleX2(Constants.HEAD_LEGER_RIGHT_WHOLE);
+		var x1 = x + scaling.scaleX(dnote.rectHeads.x - Constants.HEAD_LEGER_LEFT) ;
+		var x2 = x1 + scaling.scaleX(dnote.rectHeads.width + Constants.HEAD_LEGER_RIGHT);
+		if (dnote.notevalue.stavingLevel == 0) x2 += scaling.scaleX(Constants.HEAD_LEGER_RIGHT_WHOLE);
 		
 		
 		this.gr.lineStyle(scaling.linesWidth);
@@ -390,14 +392,14 @@ class RenderBase
 		
 		//trace([level, dlevel]);
 		
-		var x2 = x + this.scaling.scaleX2(dnote.rectDots.x + Constants.HEAD_QUARTERWIDTH);
+		var x2 = x + this.scaling.scaleX(dnote.rectDots.x + Constants.HEAD_QUARTERWIDTH);
 		var y2 = y + this.scaling.scaleY(level);
 		
 		//trace(['dot', x, dnote.rectDots.x, x, y, x2, y2]);
 		
 		this.gr.beginFill(0x000000);	
 		this.gr.lineStyle(0);
-		var radius = this.scaling.scaleX2(Constants.HEAD_DOTRADIUS);
+		var radius = this.scaling.scaleX(Constants.HEAD_DOTRADIUS);
 		this.gr.drawCircle(x2, y2, radius);
 		//var r = new Rectangle(x2 - radius, y2 - radius, 2 * radius, 2 * radius);
 		//trace(r);
@@ -426,7 +428,7 @@ class RenderBase
 		
 		//if (dnote.type != ENoteType.Normal) return;		
 		
-		var r = Scaling.scaleRectangle(dnote.rectStave, this.scaling);
+		var r = this.scaling.scaleRect(dnote.rectStave);
 		r.offset(x, y);
 
 		/*
@@ -445,7 +447,7 @@ class RenderBase
 	private function _drawHead(x:Float, y:Float, level:Int, position:Int, headType:EHeadType) {
 		
 		var headY = y + (level * scaling.halfSpace);
-		var headX = x + position * this.scaling.scaleX2(Constants.HEAD_WIDTH);
+		var headX = x + position * this.scaling.scaleX(Constants.HEAD_WIDTH);
 		
 		var shape:Shape; // = SvgAssets.getSvgShape("noteBlack", scaling);			
 		switch(headType) {
@@ -548,7 +550,7 @@ class RenderBase
 
 		shape.y = y + scaling.svgY + fy;
 		
-		shape.x = x + scaling.svgX + scaling.scaleX2(1.15);  
+		shape.x = x + scaling.svgX + scaling.scaleX(1.15);  
 		
 		target.addChild(shape);	 		
 		
@@ -557,7 +559,7 @@ class RenderBase
 	
 	
 	public function complex(x:Float, y:Float, dplex:Complex, rects:Bool=true, moveX:Float=0, teststaves:Bool=true) {		
-		if (moveX != 0) x += Scaling.scaleX(moveX, this.scaling);
+		if (moveX != 0) x += this.scaling.scaleX(moveX); // Scaling.scaleX(moveX, this.scaling);
 		
 		if (rects) {
 			this.gr.lineStyle(1, 0xaaaaaa);
@@ -573,7 +575,8 @@ class RenderBase
 
 		if (rects) {			
 			this.gr.lineStyle(1, 0xFF0000);
-			var r = Scaling.scaleRectangle(dplex.rectHeads, this.scaling);
+			var r = this.scaling.scaleRect(dplex.rectHeads); // Scaling.scaleRectangle(dplex.rectHeads, this.scaling);
+			
 			r.offset(x, y);
 			r.inflate(2, 2);		
 			
@@ -581,13 +584,13 @@ class RenderBase
 			
 			if (dplex.rectSigns != null) {
 				this.gr.lineStyle(1, 0x00FF00);		
-				var r = Scaling.scaleRectangle(dplex.rectSigns, this.scaling);
+				var r = this.scaling.scaleRect(dplex.rectSigns);
 				r.offset(x, y);
 				this.gr.drawRect(r.x, r.y, r.width, r.height);
 			}
 			
 			this.gr.lineStyle(1, 0x0000FF);
-			var r = Scaling.scaleRectangle(dplex.rectFull, this.scaling);
+			var r = this.scaling.scaleRect(dplex.rectFull);
 			r.offset(x, y);
 			r.inflate(2, 2);
 			this.gr.drawRect(r.x, r.y, r.width, r.height);
@@ -611,7 +614,7 @@ class RenderBase
 		if (dplex.rectSigns == null) return;
 		
 		var signs = dplex.signs;
-		var xShift = Scaling.scaleX(dplex.rectSigns.x, this.scaling);
+		var xShift = this.scaling.scaleX(dplex.rectSigns.x);
 		
 		var maxPos = 0;
 		for (sign in signs) {
@@ -677,6 +680,7 @@ class RenderBase
 		}
 	}		
 
+	/*
 	public function note(noteX:Float, noteY:Float, displayNote:DisplayNote) {		
 		//if (drawRects) this.noteRects(noteX, noteY, displayNote);
 		//if (meas == null) meas = new scaling();
@@ -721,18 +725,14 @@ class RenderBase
 		// Signs
 		var signsDisplayRect = displayNote.getDisplayRectSigns();
 		if (signsDisplayRect != null) {
-			var r = Scaling.scaleRectangle(signsDisplayRect, scaling); 
+			var r = this.scaling.scaleRect(signsDisplayRect); 
 			xsigns(displayNote.getSigns(), noteX + r.left, noteY);			
 		}
 		
-		/*
-		gr.lineStyle(1, 0xccffcc);
-		var r = Scaling.toDRect(displayNote.getDisplayStaveRect(),scaling); 
-		gr.drawRect(x + r.x, y + r.y, r.width, r.height);
-		*/
+
 
 	}	
-	
+	*/
 	
 	
 	
@@ -846,9 +846,9 @@ class RenderBase
 								
 								switch(stave.flag16) {
 									case ESubBeam.ShortLeft:										
-										x2 = prevStaveX + this.scaling.scaleX2(Constants.BEAM_SUBWIDTH);
+										x2 = prevStaveX + this.scaling.scaleX(Constants.BEAM_SUBWIDTH);
 									case ESubBeam.ShortRight:										
-										x1 = staveX - this.scaling.scaleX2(Constants.BEAM_SUBWIDTH);
+										x1 = staveX - this.scaling.scaleX(Constants.BEAM_SUBWIDTH);
 									default:
 										
 								}
@@ -936,9 +936,9 @@ class RenderBase
 								
 								switch(stave.flag16) {
 									case ESubBeam.ShortLeft:										
-										x2 = prevStaveX + this.scaling.scaleX2(Constants.BEAM_SUBWIDTH);
+										x2 = prevStaveX + this.scaling.scaleX(Constants.BEAM_SUBWIDTH);
 									case ESubBeam.ShortRight:										
-										x1 = staveX - this.scaling.scaleX2(Constants.BEAM_SUBWIDTH);
+										x1 = staveX - this.scaling.scaleX(Constants.BEAM_SUBWIDTH);
 									default:
 										
 								}
@@ -983,11 +983,13 @@ class RenderBase
 		
 	}
 	
-	
+	/*
 	public function noteARects(noteX:Float, noteY:Float, displayNote:DisplayNote, color:Int=0xFF0000) {
 		nx.display.utils.DisplayNoteUtils.drawAODR(displayNote.getArrayOfDisplayRects() , this.target, noteX, noteY, this.scaling, color);		
 	}
+	*/
 	
+	/*
 	public function noteRects(noteX:Float, noteY:Float, displayNote:DisplayNote) {
 		var graphics = target.graphics;
 		
@@ -1004,7 +1006,7 @@ class RenderBase
 		// heads
 		graphics.lineStyle(1, 0xFF0000);
 		for (h in displayNote.getDisplayHeads()) {			
-			var r = Scaling.scaleRectangle(h.getDisplayRect(), scaling); 		
+			var r = this.scaling.scaleRect(h.getDisplayRect()); 		
 			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);			
 		}
 		
@@ -1018,7 +1020,7 @@ class RenderBase
 		graphics.lineStyle(1, 0x00FFFF);
 		var signsDisplayRect = displayNote.getDisplayRectSigns();
 		if (signsDisplayRect != null) {		
-			var r = Scaling.scaleRectangle(signsDisplayRect, scaling); 
+			var r = this.scaling.scaleRect(signsDisplayRect); 
 			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);				
 		}
 		
@@ -1026,7 +1028,7 @@ class RenderBase
 		graphics.lineStyle(1, 0xff0000);
 		var staveDisplayRect = displayNote.getDisplayRectStave();
 		if (staveDisplayRect != null) {
-			var r = staveDisplayRect.scaleRectangle(this.scaling);
+			var r = this.scaling.scaleRect(staveDisplayRect);
 			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);				
 		}
 		
@@ -1034,7 +1036,7 @@ class RenderBase
 		graphics.lineStyle(1, 0x00ff00);
 		var r = displayNote.getDisplayRectDots();
 		if (r != null) {
-			var r = r.scaleRectangle(this.scaling);
+			var r = this.scaling.scaleRect(r);
 			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);	
 		}
 		
@@ -1042,7 +1044,7 @@ class RenderBase
 		graphics.lineStyle(1, 0x0000ff);
 		var r = displayNote.getDisplayRectTieFrom();
 		if (r != null) {
-			var r = r.scaleRectangle(this.scaling);
+			var r = this.scaling.scaleRect(r);
 			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);	
 		}
 		
@@ -1050,7 +1052,7 @@ class RenderBase
 		graphics.lineStyle(1, 0xff0000);
 		var r = displayNote.getDisplayRectAppogiatura();
 		if (r != null) {
-			var r = r.scaleRectangle(this.scaling);
+			var r = this.scaling.scaleRect(r);
 			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);	
 		}
 
@@ -1058,7 +1060,7 @@ class RenderBase
 		graphics.lineStyle(1, 0x000000);
 		var r = displayNote.getDisplayRectArpeggio();
 		if (r != null) {
-			var r = r.scaleRectangle(this.scaling);
+			var r = this.scaling.scaleRect(r);
 			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);	
 		}
 
@@ -1066,7 +1068,7 @@ class RenderBase
 		graphics.lineStyle(1, 0x0000ff);
 		var r = displayNote.getDisplayRectTieTo();
 		if (r != null) {
-			var r = r.scaleRectangle(this.scaling);
+			var r = this.scaling.scaleRect(r);
 			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);	
 		}		
 		
@@ -1074,7 +1076,7 @@ class RenderBase
 		graphics.lineStyle(1, 0xff00ff);
 		var r = displayNote.getDisplayRectClef();
 		if (r != null) {
-			var r = r.scaleRectangle(this.scaling);
+			var r = this.scaling.scaleRect(r);
 			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);	
 		}		
 		
@@ -1082,13 +1084,23 @@ class RenderBase
 		graphics.lineStyle(2, 0x000000);
 		var r = displayNote.getTotalRect();
 		if (r != null) {
-			var r = r.scaleRectangle(this.scaling);
+			var r = this.scaling.scaleRect(r);
 			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);	
 		}			
 		
 		
 	}
-	
+	*/
 	
 	
 }
+
+/*
+typedef TSign = {
+	sign:ESign,
+	level:Int,	
+	position:Int,
+}
+
+typedef TSigns = Array<TSign>;
+*/

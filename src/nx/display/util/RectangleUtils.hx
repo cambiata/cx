@@ -1,13 +1,12 @@
-package nx.layout;
-import nx.display.DBars;
-import nx.display.DSystem;
+package nx.display.util;
+import nme.geom.Rectangle;
 
 /**
  * ...
  * @author Jonas Nyström
  */
 
-class LayoutPanorama extends LayoutBase, implements ILayoutProcessor
+class RectangleUtils 
 {
 
 	/*
@@ -17,14 +16,9 @@ class LayoutPanorama extends LayoutBase, implements ILayoutProcessor
 	 *
 	*/
 	
-	public function new() {
-		super();
-	}
-	
-	/* INTERFACE nx.layout.ILayoutProcessor */
-	
-	public function doLayout(dbars:DBars, firstBarNr:Int=0):Array<DSystem> {
-		return null;
+	static public function toString(rect:Rectangle) {
+		return "nme.geom.Rectanlge(x=" + rect.x + ", y=" + rect.y + ", width=" + rect.width + ", height=" + rect.height;
+		
 	}
 	
 	/*

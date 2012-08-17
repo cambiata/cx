@@ -1,7 +1,7 @@
 package nx.display.beam;
 
-import nx.core.display.DNote;
-import nx.core.display.DVoice;
+import nx.display.DNote;
+import nx.display.DVoice;
 import nx.enums.ENoteType;
 import nx.enums.ENoteValue;
 import nx.enums.EDirectionUAD;
