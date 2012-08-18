@@ -7,6 +7,24 @@ import nme.geom.Rectangle;
 
 class Scaling  {
 
+	static public inline function getPrint1():TScaling  {
+		return {
+			linesWidth:			3,
+			space:					32.0,
+			halfSpace: 				16.0,
+			noteWidth:				44.0,
+			halfNoteWidth:		22.0,
+			quarterNoteWidth: 	11.0,
+			signPosWidth:		38.0,
+			svgScale:				.72,
+			svgX:					-23.0,
+			svgY:					-164.0,
+			fontScaling:			16.0,
+		}
+	}	
+	
+	
+	
 	static public inline function getBig():TScaling  {
 		return {
 			linesWidth:			1.5,
@@ -81,7 +99,43 @@ class Scaling  {
 			fontScaling:			3.0,
 		}
 	}
+
+	static public inline function getMini():TScaling {
+		return {
+			linesWidth:			.3,
+			space:					4.0,
+			halfSpace: 				2.0,
+			noteWidth:				6.0,
+			halfNoteWidth:		3.0,
+			quarterNoteWidth: 	1.5,
+			signPosWidth:		5.0,
+			svgScale:				.09,
+			svgX:					-3.0,
+			svgY:					-20.0,
+			fontScaling:			2.0,
+		}
+	}
+
+	static public inline function getMicro():TScaling {
+		return {
+			linesWidth:			.1,
+			space:					2.0,
+			halfSpace: 				1.0,
+			noteWidth:				3.0,
+			halfNoteWidth:		1.5,
+			quarterNoteWidth: 	0.75,
+			signPosWidth:		2.5,
+			svgScale:				.05,
+			svgX:					-1.0,
+			svgY:					-12.0,
+			fontScaling:			1.0,
+		}
+	}
+		
 	
+	
+	
+	/*
 	static public inline function getLinear(): TScaling {
 		return {
 			linesWidth:			0.0,
@@ -97,7 +151,8 @@ class Scaling  {
 			fontScaling:			0.0,
 		}		
 		
-	}
+	}*/
+	
 	
 	/*
 	static public inline function scaleRectangleX(rectangle:Rectangle, ms:TScaling):Rectangle {
