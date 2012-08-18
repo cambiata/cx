@@ -31,8 +31,7 @@ class LayoutTest extends LayoutBase, implements ILayoutProcessor
 	
 	public function doLayout(dbars:DBars, firstBarNr:Int=0):Array<DSystem> {
 		
-		
-		var dsystem = new DSystem(true);
+		var dsystem = new DSystem(false);
 		this.systems.push(dsystem);
 		
 		var prevbarSettings:TBarDisplaySettings = null;
@@ -48,6 +47,9 @@ class LayoutTest extends LayoutBase, implements ILayoutProcessor
 				
 			} else {
 				//trace('dbar couldnt be added');
+				
+				dsystem.stretch = true;
+				
 				//trace('create a new system...');
 				dsystem = new DSystem(false);
 				this.systems.push(dsystem);

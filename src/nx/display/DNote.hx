@@ -265,6 +265,11 @@ class DNote
 		return this._rectText;
 	}
 	
+	public function setRectText(rect:Rectangle) {
+		this._rectText = rect;
+	}
+	
+	
 	
 	private var _rectStave:Rectangle;
 	public var rectStave(get_rectStave, null):Rectangle;

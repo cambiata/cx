@@ -27,6 +27,8 @@ class Scaling  {
 		return {
 #if js			
 			linesWidth:			0.8,
+#elseif flash
+			linesWidth:			1.3,
 #else
 			linesWidth:			1.25,
 #end			
@@ -37,8 +39,8 @@ class Scaling  {
 			quarterNoteWidth: 	4.124,
 			signPosWidth:		14.0,
 			svgScale:				.27,
-			svgX:					-8.0,
-			svgY:					-60.5,
+			svgX:					-8.5,
+			svgY:					-61.0,
 			fontScaling:			6.0,
 		}
 	}	
@@ -117,14 +119,17 @@ class Scaling  {
 		return displayX * ms.quarterNoteWidth;
 	}
 	
-	static public inline function descaleX(ms:TScaling, displayX:Float):Float {
-		return displayX / ms.quarterNoteWidth;
+	static public inline function descaleX(ms:TScaling, realX:Float):Float {
+		return realX / ms.quarterNoteWidth;
 	}
 	
 	static public inline function scaleY(ms:TScaling, displayY:Float):Float {
 		return displayY * ms.halfSpace;
 	}	
 	
+	static public inline function descaleY(ms:TScaling, realY:Float):Float {
+		return realY / ms.halfSpace;
+	}	
 	
 }
 

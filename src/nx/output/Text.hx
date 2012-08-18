@@ -1,5 +1,6 @@
 package nx.output;
 import cx.nme.display.utils.StringBitmap;
+import haxe.Utf8;
 import nme.text.TextFormat;
 import nme.display.Bitmap;
 import nme.geom.Rectangle;
@@ -30,7 +31,7 @@ class Text
 		var scalefactor:Float = 3.6;
 #end		
 		//var fontsize = scaling.fontScaling * (size / scaling.fontScaling) * scalefactor;
-		var fontsize = scaling.fontScaling * scalefactor * 1.5;
+		var fontsize = scaling.fontScaling * scalefactor * 1.3;
 		trace('fontsize' + fontsize);
 		this.stringBitmap = new StringBitmap(font, fontsize, color, bold, italic);
 		this.rectCache = new Hash<Rectangle>();

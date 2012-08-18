@@ -50,7 +50,7 @@ class EKey {
 			}
 		}
 		
-		if (level < -4) level += 7;
+		if (level < -5) level += 7;
 		
 		return level;
 		

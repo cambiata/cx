@@ -46,7 +46,6 @@ class DBar
 	
 	public var allotment						(default, null)	: 	EAllotment;	
 	
-	
 	public var dTime							(default, null)	:	ETime;
 	public var dBarline						(default, null)	:	EBarline;
 	public var dBarlineLeft					(default, null)	:	EBarlineLeft;
@@ -54,38 +53,11 @@ class DBar
 	public var dIndentLeft					(default, null)	:	Null<Float>;
 	public var dIndentRight				(default, null)	:	Null<Float>;
 	
-	
 	public function new(bar:Bar=null, barDisplaySettings:TBarDisplaySettings=null) {				
 		this.bar 					= (bar != null) ? bar : new Bar();				
 		this.allotment 		= EAllotment.Logaritmic;
 		this._value 			= 0;
 
-		//-----------------------------------------------------------------------------------------------------
-		// display settings
-		
-		if (barDisplaySettings != null) {
-			this.setDisplaySettings(barDisplaySettings);
-		} else {
-			this.dTime = 			bar.time;
-			this.dBarline = 		bar.barline;
-			this.dBarlineLeft = 	bar.barlineLeft;
-			this.dAckolade = 	bar.ackolade;
-			this.dIndentLeft = 	bar.indentLeft;
-			this.dIndentRight = bar.indentRight;
-			if (bar.timeDisplay == EAttributeDisplay.Always) 		this.dTime = bar.time;
-			if (bar.timeDisplay == EAttributeDisplay.Never) 		this.dTime = null;
-		}
-		
-		
-		/*
-		trace([this.dTime, bar.time]);
-		trace([this.dBarline, bar.barline]);
-		trace([this.dBarlineLeft, bar.barlineLeft]);
-		trace([this.dAckolade, bar.ackolade]);
-		trace([this.dIndentLeft, bar.indentLeft]);
-		trace([this.dIndentRight, bar.indentRight]);
-		*/
-		
 		//-----------------------------------------------------------------------------------------------------
 		
 		this.dparts = [];
@@ -100,10 +72,9 @@ class DBar
 			}
 			
 			this.dparts.push(new DPart(part, partDisplaySettings));
-		}				
-		
+		}		
+
 		//-----------------------------------------------------------------------------------------------------
-		
 		
 		this._calcPositions();		
 		this._calcColumns();
@@ -113,16 +84,25 @@ class DBar
 		this._calcDnotesComplexXadjust();
 		this._calcColumnsDistancesX();
 		this._calcColumnsPositionsX();		
+		/*
 		this._calcColumnsSpacing();
-		this._calcColumnsRects();		
+		this._calcColumnsRects();	
+		*/
 		
+		//-----------------------------------------------------------------------------------------------------
+		
+		this.setDisplaySettings();
+
 	}
 	
 
-	public function setDisplaySettings(settings:TBarDisplaySettings) {
+	public function setDisplaySettings(settings:TBarDisplaySettings = null) {
+		
+		this._dpartTop = null;
+		
+		//----------------------------------------
 		
 		this._attributesRectLeft 		= null;
-
 		this._rectLeftindent 			= null;
 		this._rectLabels 					= null;
 		this._rectAckolade 				= null;
@@ -135,13 +115,25 @@ class DBar
 		
 		//----------------------------------------
 		
-		this._attributesRectRight 		= null;
-		
+		this._attributesRectRight 		= null;		
 		this._rectMarginRight			= null;
 		this._rectBarline 					= null;
 		this._rectCautionaries			= null;
 		this._rectRightindent 			= null;
+
+		//----------------------------------------
 		
+		if (settings == null) {
+			settings = {
+				dTime:				null,
+				dBarline:			null,
+				dBarlineLeft:		null,
+				dAckolade:			null,
+				dIndentLeft:		null,
+				dIndentRight:		null,	
+				partsDisplaySettings: null,			
+			}
+		}
 		
 		if (settings.partsDisplaySettings != null && this.dparts != null) {			
 			for (dpart in this.dparts) {
@@ -150,18 +142,40 @@ class DBar
 					dpart.setDisplaySettings(settings.partsDisplaySettings[idx]);
 				}
 			}
+		} else {
+			for (dpart in this.dparts) {
+				dpart.setDisplaySettings();
+			}			
 		}
+		
+		//-----------------------------------------------------------------------------------------------------
 			
 		this.dTime = 			(settings.dTime != null) 				? settings.dTime 			: bar.time;
 		this.dBarline = 		(settings.dBarline != null) 			? settings.dBarline 			: bar.barline;
 		this.dBarlineLeft = 	(settings.dBarlineLeft != null) 		? settings.dBarlineLeft 	: bar.barlineLeft;
-		this.dAckolade = 	(settings.dAckolade != null) 			? settings.dAckolade 		: bar.ackolade;
-		//this.dAckolademargin = 	(settings.dAckolademargin != null) 			? settings.dAckolademargin 		: bar.ackolade;
+		this.dAckolade = 	(settings.dAckolade != null) 			? settings.dAckolade 		: bar.ackolade;		
 		this.dIndentLeft = 	(settings.dIndentLeft != null) 		? settings.dIndentLeft 	: bar.indentLeft;
 		this.dIndentRight = (settings.dIndentRight != null) 	? settings.dIndentRight 	: bar.indentRight;
 		
 		if (bar.timeDisplay == EAttributeDisplay.Always) 		this.dTime = bar.time;
 		if (bar.timeDisplay == EAttributeDisplay.Never) 		this.dTime = null;		
+		
+		//-----------------------------------------------------------------------------------------------------
+
+		/*
+		this._calcPositions();		
+		this._calcColumns();
+		this._calcColumnValues();
+		this._calcColumValueWeight();
+		this._calcDnotesColumnsAndComplexes();
+		this._calcDnotesComplexXadjust();
+		this._calcColumnsDistancesX();
+		this._calcColumnsPositionsX();		
+		*/
+		
+		this._calcColumnsSpacing();		
+		this._calcColumnsRects();			
+		
 	}
 	
 	public function getDisplaySettings():TBarDisplaySettings {	
@@ -180,7 +194,6 @@ class DBar
 		return settings;
 	}
 	
-
 	/************************************************************************
 	 * Private methods
 	 * 
@@ -765,7 +778,6 @@ class DBar
 		return ret;		
 	}
 	
-	
 	public function getTotalWidthAlloted() {
 		var ret:TBarMeasurement = {
 			attribLeftWidth: 		this.attributesRectLeft.width,
@@ -775,7 +787,16 @@ class DBar
 		}
 		return ret;		
 	}	
-
+	
+	public function getTotalWidthStretched() {
+		var ret:TBarMeasurement = {
+			attribLeftWidth: 		this.attributesRectLeft.width,
+			columnsWidth: 		this.columnsRectStretched.width,
+			attribRightWidth:	this.attributesRectRight.width, 
+			totalWidth:			this.attributesRectLeft.width + this.columnsRectStretched.width + this.attributesRectRight.width,			
+		}	
+		return ret;
+	}
 	
 	//-----------------------------------------------------------------------------------------------------
 	

@@ -118,8 +118,7 @@ class DVoice
 				highest = Math.min(highest, beamGroup.getLevelTop());
 				lowest = Math.max(lowest, beamGroup.getLevelBottom() + Constants.STAVE_LENGTH);			
 			}			
-		}
-		
+		}		
 		this._heightRect = new Rectangle( -1, highest, 2, -highest + lowest);
 		trace(this._heightRect);
 		return this._heightRect;

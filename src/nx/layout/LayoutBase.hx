@@ -10,17 +10,10 @@ import nx.display.type.TBarDisplaySettings;
 class LayoutBase 
 {
 
-	
+	/*
 	public function new() {
 	}
-	
-	/*
-	 * *********************************************************
-	 * 
-	 * *********************************************************
-	 *
-	*/	
-	
+	*/
 	
 	private var currentSettings:TBarDisplaySettings;
 	private function updateSettings(settings:TBarDisplaySettings) {

@@ -11,6 +11,7 @@ import nx.display.DBar;
 import nx.display.DNote;
 import nx.display.DPart;
 import nx.display.Complex;
+import nx.display.DSystems;
 import nx.display.DVoice;
 import nx.display.beam.BeamTools;
 import nx.display.beam.IBeamGroup;
@@ -171,11 +172,11 @@ class Render extends RenderBase, implements IRender
 		for (dpart in dbar.dparts) {
 			y2 = y + scaling.scaleY(dbar.dpartTop.get(dpart));				
 			
-			/*
-			var heightRect = dpart.rectDPartHeight;
-			heightRect.width = 10;
-			drawRect(x, y2, heightRect, 1, 0x00FF00);						
-			*/
+			if (rects) {
+				var heightRect = dpart.rectDPartHeight;
+				heightRect.width = 10;
+				drawRect(x, y2, heightRect, 1, 0x00FF00);						
+			}
 		}
 		
 		
@@ -448,6 +449,29 @@ class Render extends RenderBase, implements IRender
 		this.drawRect(x, y, dbar.rectCautionaries, 1, 0x00FF00);
 		this.drawRect(x, y, dbar.rectRightindent, 1, 0x0000FF);
 	}
+	
+	//-----------------------------------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------------------------------
+	
+	public function systems(x:Float, y:Float, dsystems:DSystems, rects:Bool = true) {		
+		
+		for (system in dsystems.systems) {
+			for (dbar in system.dbars) {
+				var meas = system.getDbarMeasurments(dbar);
+				var dbX 				= this.scaling.scaleX(meas.x);
+				var dbWidth 		= this.scaling.scaleX(meas.width);
+				var x2 = x + dbX;				
+				//this.dbarFull(x2, y-50, dbar, 0, rects);
+				this.dbarFull(x2, y, dbar, dbWidth, rects);
+			}
+			y += scaling.scaleY(80);
+		}		
+		
+	}
+	
+	
 		
 	
 }

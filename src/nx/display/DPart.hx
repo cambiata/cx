@@ -7,6 +7,7 @@ import nme.ObjectHash;
 import nx.enums.EAttributeDisplay;
 import nx.enums.EClef;
 import nx.enums.EKey;
+import nx.enums.ENoteType;
 import nx.enums.EPartType;
 import nx.enums.EVoiceType;
 import nx.display.type.TPartDisplaySettings;
@@ -15,7 +16,7 @@ import nx.display.type.TPartDisplaySettings;
  * ...
  * @author Jonas Nyström
  */
-
+using cx.ArrayTools;
 class DPart 
 {
 	private var _posDNotes:IntHash<Array<DNote>>;
@@ -80,19 +81,31 @@ class DPart
 		this._calcPositions();
 		this._calcDComplexs();
 		this._calcDistances();
+		this._calcTextAdjustments();
 	}
 	
+
 	
-	public function setDisplaySettings(settings:TPartDisplaySettings) {
+	public function setDisplaySettings(settings:TPartDisplaySettings=null) {
 		this._rectClef = null;
 		this._rectKey = null;
 		/// Not implemented yet...
 		//this._rectLabel = null; 
 		
+		if (settings == null) {
+			settings = {
+				dType		:null,
+				dKey			:null,
+				dClef			:null,
+				dLabel		:null,
+			}
+		}
+		
 		this.dType = 			(settings.dType != null) 			? settings.dType 			: part.type;
 		this.dClef = 			(settings.dClef != null) 			? settings.dClef 				: part.clef;
 		this.dKey = 			(settings.dKey != null) 			? settings.dKey 				: part.key;
 		this.dLabel =			(settings.dLabel != null)			? settings.dLabel			: part.label;
+		
 		if (part.clefDisplay == EAttributeDisplay.Always) 		this.dClef = part.clef;
 		if (part.clefDisplay == EAttributeDisplay.Never) 		this.dClef = null;
 		if (part.keyDisplay == EAttributeDisplay.Always) 		this.dKey = part.key;
@@ -167,6 +180,35 @@ class DPart
 			this.complexDistance.set(plexNext, distanceX);
 		}			
 	}
+	
+	private function _calcTextAdjustments() {
+		if (this.part.type == EPartType.Normal) return;
+		
+		/*
+		trace('calc text adjustments');
+		
+		for (dvoice in this.dvoices) {
+			var dnote = dvoice.dnotes.first();
+			switch (dnote.notetype) {
+				case  ENoteType.Lyric:
+					var rectText = dnote.rectText;
+					trace(rectText);
+					var newWidth = rectText.width + rectText.x;
+					var newX = 0;
+					var newRect = new Rectangle(newX, rectText.y, newWidth, rectText.height);
+					dnote.setRectText(newRect);
+					trace(dnote.rectText);
+					
+					
+				//case ENoteType.Tpl:
+				
+				default:
+					trace('SOMETIING WRONG HERE - THE PART IS A TEXT ONE BUT THE NOTE IS NOT!');				
+			}
+		}
+		*/
+	}
+		
 	
 	//-----------------------------------------------------------------------------------------------------
 	

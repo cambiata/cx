@@ -352,9 +352,20 @@ class RenderBase
 		}
 		
 		var bmp = textOutput.getStringBitmap(text);
-		bmp.x = x + this.scaling.scaleX(dnote.rectText.x) - this.scaling.scaleX(Constants.TEXT_XADJUST);
+		
+		/*
+		var bmpWidth = this.scaling.descaleX(bmp.width);
+		trace(' - - - ');
+		trace(dnote.rectText.x);
+		trace(dnote.rectText.width);
+		trace(bmpWidth);
+		*/
+		
+		var bmpX = dnote.rectText.x;
+		
+		bmp.x = x + this.scaling.scaleX(bmpX) - this.scaling.scaleX(Constants.TEXT_XADJUST);
 		bmp.y = y + this.scaling.scaleY(dnote.rectText.y)- this.scaling.scaleX(Constants.TEXT_YADJUST);
-		trace([text, bmp.width]);
+		//trace([text, bmp.width]);
 		this.target.addChild(bmp);
 	}
 	
