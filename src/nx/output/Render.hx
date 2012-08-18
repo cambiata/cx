@@ -405,7 +405,6 @@ class Render extends RenderBase, implements IRender
 		if (dpart.dType != EPartType.Normal) return;
 		if (dbar.dTime == null) return;
 		
-		
 		var x2 = x + this.scaling.scaleX(dbar.rectTime.x);
 		
 		var shape:Shape = null;
@@ -471,7 +470,7 @@ class Render extends RenderBase, implements IRender
 		
 	}
 	
-	
+
 		
 	
 }
