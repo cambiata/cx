@@ -1,5 +1,7 @@
 package nx.output;
 import cx.ArrayTools;
+import cx.FileTools;
+import nme.display.BitmapData;
 import nme.display.GradientType;
 import nme.display.Graphics;
 import nme.display.Shape;
@@ -470,6 +472,16 @@ class Render extends RenderBase, implements IRender
 		
 	}
 	
+	public function savePng(filename:String='test.png') 
+	{
+#if (windows || neko)		
+		var bitmapData = new BitmapData(Std.int(this.target.width), Std.int(this.target.height), false);
+		bitmapData.draw(this.target);		
+		FileTools.putBinaryContent(filename, bitmapData.encode('png').asString());
+#else
+		trace('Cant save sprite to bitmap from this target');
+#end
+	}
 
 		
 	
