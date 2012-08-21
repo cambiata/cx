@@ -87,7 +87,8 @@ class PersonTools
 		loggstudier:null,
 		loggpersonligt:null,
 		anteckningar:null,
-		xpass:null };		
+		scorxtillg:null,
+		xpass:null };	
 		return p;				
 	}
 	
@@ -114,6 +115,7 @@ class PersonTools
 		loggstudier:null,
 		loggpersonligt:null,
 		anteckningar:null,
+		scorxtillg:null,
 		xpass:null };		
 		return p;				
 	}	

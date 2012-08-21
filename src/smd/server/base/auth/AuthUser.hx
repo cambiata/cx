@@ -15,5 +15,6 @@ typedef AuthUser = {
 	scorxids:Array<Int>,
 	scorxdirs:Array<String>,
 	role:String,
+	logins:Int,
 }
 

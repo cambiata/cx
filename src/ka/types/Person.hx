@@ -20,4 +20,6 @@ typedef Person = {
 	loggpersonligt:String,
 	anteckningar:String,
 	xpass:String,
+	
+	scorxtillg:String,
 }

@@ -25,6 +25,7 @@ class UserConfiguration extends AbstractServerConfiguration {
 		
 		ConfigTools.loadConfig(Config, Web.getCwd() + Config.configFile);
 		new Functions();
+		User.updateUserdata();
 		User.getCurrentUser();
 		User.checkRedirect();
 		

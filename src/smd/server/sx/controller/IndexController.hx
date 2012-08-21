@@ -6,6 +6,7 @@ import harfang.controller.AbstractController;
 import harfang.exceptions.Exception;
 import neko.Web;
 import smd.server.base.result.TemplateResult;
+import smd.server.ka.data.KaAccess;
 import smd.server.sx.Config;
 import smd.server.sx.data.DocumentData;
 import smd.server.sx.data.DocumentData.TDocument;
@@ -50,5 +51,20 @@ class IndexController extends AbstractController
 		this.data.layout = { tag:'document', text:'document' };
 		return new IndexResult(State.indexPage, this.data, Config.templatesDir);
 	}
+	
+	@URL("^/access/$")
+	public function access() {		
+		//return new IndexResult(State.indexPage, this.data, Config.templatesDir);
+		//return 'access';
+		
+		var m = '';
+		KaAccess.update(Web.getCwd() + 'auth.txt', function(msg:String) {
+			//Firebug.trace(msg);
+			m = msg;
+		});		
+		return m + ' - access';
+		
+	}
+	
 	
 }

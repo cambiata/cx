@@ -15,6 +15,7 @@ class KalleConfig
 	static public var pageDataAdmingrupper = 1;
 	static public var pageDataKorer = 2;
 	static public var pageScorxtillgangligheter = 3;
+	static public var pageDataRoller = 4;
 	
 	static public var sheetPersoner2 = '0Au1rVoKCIviQdHZxRFR1ZzIxMUtKaW9wNXJ4amNBbUE';
 	

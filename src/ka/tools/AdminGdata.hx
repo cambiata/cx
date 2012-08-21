@@ -8,7 +8,9 @@ import ka.types.Kor;
 import ka.types.Korer;
 import ka.types.Person;
 import ka.types.Personer;
+import ka.types.Roll;
 import ka.types.Scorxtillganglighet;
+import ka.types.Roller;
 
 import ka.types.Scorxtillgangligheter;
 import ka.types.Studietermin;
@@ -43,7 +45,10 @@ class AdminGdata
 	static var pageDataStudieterminer = KalleConfig.pageDataStudieterminer  ;
 	static var pageDataAdmingrupper = KalleConfig.pageDataAdmingrupper  ;
 	static var pageDataKorer = KalleConfig.pageDataKorer  ;	
+	static var pageDataRoller = KalleConfig.pageDataRoller  ;	
 	static var pageDatagetScorxtillgangligheter = KalleConfig.pageScorxtillgangligheter;
+	
+	
 	
 	static private var studieterminer:Studieterminer;
 	
@@ -58,6 +63,8 @@ class AdminGdata
 		var studieterminerExt = new StudieterminerExt();
 		
 		for (cell in cells) {
+			if (cell == null) continue;
+			
 			var studieterminExt:StudieterminExt = {namn:null, start:null, slut:null};
 			studieterminExt.namn = cell[0];
 			try {
@@ -89,6 +96,7 @@ class AdminGdata
 		var cells = g.getCells();				
 		var admingrupper = new Admingrupper();
 		for (cell in cells) {
+			if (cell == null) continue;
 			if (cell[0].trim() == '') continue;
 			var gruppnamn = cell[0];
 			var studieterminer:Studieterminer = cx.StrTools.splitTrim(cell[1]);			
@@ -103,6 +111,7 @@ class AdminGdata
 		var cells = g.getCells();				
 		var korer = new Korer();
 		for (cell in cells) {
+			if (cell == null) continue;
 			if (cell[0].trim() == '') continue;
 			var namn = cell[0];			
 			var studieterminer:Studieterminer = StrTools.splitTrim(cell[1]);			
@@ -112,12 +121,30 @@ class AdminGdata
 		return korer;
 	}
 	
+	static public function getRoller():Roller {
+		var g = new cx.GoogleTools.Spreadsheet(email, passwd, sheetData, pageDataRoller);
+		var cells = g.getCells();				
+		var roller = new Roller();
+		for (cell in cells) {
+			if (cell == null) continue;
+			if (cell[0].trim() == '') continue;
+			var namn = cell[0];			
+			var info = cell[1];			
+			//var kor:Kor = { namn:namn, studieterminer:studieterminer };
+			var roll:Roll = { namn: namn, info:info };
+			roller.push(roll);
+		}	
+		
+		return roller;
+	}	
+	
 	static public function getScorxtillgangligheter():Scorxtillgangligheter {
 		var g = new cx.GoogleTools.Spreadsheet(email, passwd, sheetData, pageDatagetScorxtillgangligheter);
 		var cells = g.getCells();				
 		var scorxtillgangligheter = new Scorxtillgangligheter();		
 		
 		for (cell in cells) {
+			if (cell == null) continue;
 			if (cell[0].trim() == '') continue;		
 			var kat = cell[0];			
 			var mappar = cell[1];
@@ -210,8 +237,9 @@ class AdminGdata
 		var rowNr = 1;
 		var dataPersoner = new Personer();		
 		for (cell in cells) {			
-			var p:Person = PersonTools.getPersonNull();
+			if (cell == null) continue;
 			
+			var p:Person = PersonTools.getPersonNull();
 			p.xpass = cell[3];
 			p.roll = cell[4];
 			p.kor = cell[5];
@@ -227,8 +255,6 @@ class AdminGdata
 			if ((p.xpass == null)||(p.xpass == '')) {
 				if (p.personnr != null) p.xpass = p.personnr.substr(-4);				
 			}		
-			
-			//trace(p);
 			
 			dataPersoner.push(p);			
 			rowNr++;

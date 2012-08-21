@@ -4,6 +4,8 @@ import neko.Web;
 import smd.server.base.auth.AuthUser;
 import cx.neko.NekoSession;
 import smd.server.sx.State;
+import smd.server.sx.Config;
+
 /**
  * ...
  * @author Jonas Nyström
@@ -18,6 +20,7 @@ class User
 		var authUser:AuthUser = getUserNull();
 		var sessionDir = Web.getCwd() + Config.filesDir + 'sessions/';		
 		var auth = new AuthDummy();		
+		var auth = new AuthSqlite(Web.getCwd() + Config.filesDir + Config.authSqliteFile);
 		
 		NekoSession.setSavePath(sessionDir);		
 		NekoSession.domain = '.' + WebTools.getDomainInfo().maintop;
@@ -60,28 +63,52 @@ class User
 	}
 	
 	static public function getUserNull():AuthUser {
-		return {success:false, user:null, pass:null, msg:null, person:null, scorxids:[], scorxdirs:[], role:null};
+		return {success:false, user:null, pass:null, msg:null, person:null, scorxids:[], scorxdirs:[], role:null, logins:0};
 	}	
 	
+	
+	
+	
 	static public function checkRedirect() {
-		
+
 		if (User.user == null) return;
 		
+		
+		
 		if (User.user.success) {
-
 			var currentDomain = WebTools.getDomainInfo().submain;
 			var top = WebTools.getDomainInfo().topdomain;			
+			var domain = Config.homedomain;
 			
-			var domain = '';
+			
 			if (user.user == 'kak') domain = 'korakademin.scorx';
 			if (user.user == 'sensus') domain = 'sensus.scorx';
 			if (user.user == 'projekt' && user.pass == 'vivaldi') domain = 'projekt.scorx';
+
+			
+			
+			if (user.role == 'Deltagare-KSU') domain = 'korakademin.scorx';
+			if (user.role == 'Korledare-KSU') domain = 'korakademin.scorx';
+			if (user.role == 'Deltagare-RKK') domain = 'korakademin.scorx';
+			if (user.role == 'Administratör') domain = 'korakademin.scorx';
+			if (user.role == 'Kantorsstuderande') domain = 'korakademin.scorx';
+			if (user.role == 'Kantorsstuderande') domain = 'korakademin.scorx';
+			
+			if (user.role == 'Sensus30') domain = 'sensus.scorx';
+			
+			
+			if (user.role == 'Projekt-Vivaldi') domain = 'projekt.scorx';
+			
+			
+			//trace([user.user, user.role, domain]);
 			
 			
 			if (currentDomain != domain) {				
 				var url = 'http://' + domain + '.' + top;
 				Web.redirect(url);
 			}
+			
+			
 		}
 		
 		if (!User.user.success) {
@@ -93,11 +120,31 @@ class User
 				Web.redirect(url);
 			}			
 		}
+	}
+
+	static public function updateUserdata() {		
+		var updateaccess = (Web.getParams().get('access') == Config.secretKey);
+		if (!updateaccess) return;
+		
+		try {
+			Access.saveAuthInfoToSqlite(Web.getCwd() + Config.filesDir + Config.authSqliteFile);
+			State.messages.success.push('User database updated!');
+		} catch (e:Dynamic) {
+			State.messages.errors.push('Problem updating user database: ' + Std.string(e));
+		}
+		
+		
 		
 	}
+	
+	
+	
+	
 }
 
 import smd.server.base.auth.IAuth;
+
+
 class AuthDummy implements IAuth {
 	public function new() { }
 	public function check(_user:String, _pass:String):AuthUser {
@@ -112,3 +159,5 @@ class AuthDummy implements IAuth {
 		return user;
 	}
 }
+
+

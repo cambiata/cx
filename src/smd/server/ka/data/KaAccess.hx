@@ -31,18 +31,16 @@ class KaAccess
 	static var passwd = KalleConfig.passwd  ;
 	static var sheetPersoner = KalleConfig.sheetPersoner  ;
 	static var sheetData = KalleConfig.sheetData  ;
-	static var pageDataStudieterminer = KalleConfig.pageDataStudieterminer  ;
-	static var pageDataAdmingrupper = KalleConfig.pageDataAdmingrupper  ;
-	static var pageDataKorer = KalleConfig.pageDataKorer  ;	
+	static var pageDataStudieterminer = KalleConfig.pageDataStudieterminer;
+	static var pageDataAdmingrupper = KalleConfig.pageDataAdmingrupper;
+	static var pageDataKorer = KalleConfig.pageDataKorer;	
 	
 	static public var fieldsPerson:Person;
 	static public var dataPersoner:Personer;	
 	static public var dataScorxtillgangligheter:Scorxtillgangligheter;	
 	static public var dataStudieterminerExt:StudieterminerExt;
-
 	static public var filterStudieterminer:Studieterminer;	
 	static public var resultPersoner:Personer;	
-	
 	
 	
 	
@@ -78,10 +76,12 @@ class KaAccess
 	
 			if (logCallback != null) logCallback('Finished updating authfile...');
 			
+		
 		} catch (e:Dynamic) {
 			
-			if (logCallback != null) logCallback('ERROR updating authfile...');			
+			if (logCallback != null) logCallback('ERROR updating authfile: ' + Std.string(e));			
 		}
+		
 		
 		
 	}
