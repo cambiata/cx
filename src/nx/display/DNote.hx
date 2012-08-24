@@ -199,6 +199,12 @@ class DNote
 	//-----------------------------------------------------------------------------------------------------
 	
 	private function _calcSigns():TSigns {
+		
+		switch(this.notetype) {
+			default: return null;
+			case ENoteType.Normal: {} // continue;
+		}
+		
 		var ret:TSigns = [];
 		for (head in this.note.heads) {
 			ret.push( { position:0, sign:head.sign, level:head.level} );			
@@ -225,12 +231,13 @@ class DNote
 			case ENoteType.Pause:
 				var pauseLevel = this.dheads[0].level;
 				this._rectHeads = new Rectangle( -Constants.HEAD_QUARTERWIDTH, -3, Constants.HEAD_HALFWIDTH, 6);			
-				this._rectHeads.offset(0, pauseLevel * Constants.HEAD_HALFHEIGHT);
-			
+				this._rectHeads.offset(0, pauseLevel * Constants.HEAD_HALFHEIGHT);			
 			case ENoteType.Lyric:
 				this._rectHeads = new Rectangle( -0.1, -1, 0.2, 2);
-				
-			default:
+			case ENoteType.Tpl, ENoteType.TplChain:
+				this._rectHeads = new Rectangle( -1, -1, 2, 2);
+			
+			default: // Normal
 				this._rectHeads = this.dheads[0].rect;
 				this._rectHeads.offset(this.headPositions[0]*Constants.HEAD_WIDTH, 0);
 				if (this.dheads.length > 1) {
@@ -249,18 +256,27 @@ class DNote
 	public var rectText(get_rectText, null):Rectangle;
 	private function get_rectText():Rectangle 	{
 		if (this._rectText != null) return this._rectText;
-		if (this.notetype != ENoteType.Lyric) return null;
-		var lyricLevel = this.dheads[0].level;
-		var text = this.note.text;
-		if (text.endsWith('-')) text = text.replace('-', '');
-		if (text.endsWith('_')) text = text.replace('-', '');
-		var textProcessor:Text = Text.getInstance();		
-		var rect = textProcessor.getStringRect(text).clone();		
-		var w:Float = rect.width / 3;
-		var h:Float = rect.height / 6;				
-
-		this._rectText = new Rectangle( -w/2, -h/2, w + Constants.HEAD_HALFWIDTH, h);		
-		this._rectText.offset(0, lyricLevel * Constants.HEAD_HALFHEIGHT);		
+		
+		switch (this.notetype) {
+			default: return null;
+			case ENoteType.Lyric: { } // continue
+				if (this.notetype != ENoteType.Lyric) return null;
+				var lyricLevel = this.dheads[0].level;
+				var text = this.note.text;
+				if (text.endsWith('-')) text = text.replace('-', '');
+				if (text.endsWith('_')) text = text.replace('-', '');
+				var textProcessor:Text = Text.getInstance();		
+				var rect = textProcessor.getStringRect(text).clone();		
+				var w:Float = rect.width / 3;
+				var h:Float = rect.height / 6;				
+				this._rectText = new Rectangle( -w/2, -h/2, w + Constants.HEAD_HALFWIDTH, h);		
+				this._rectText.offset(0, lyricLevel * Constants.HEAD_HALFHEIGHT);					
+			case ENoteType.Tpl: { }	// continue
+				this._rectText = new Rectangle( -Constants.TPL_RECT_X, -Constants.TPL_RECT_Y, 2 * Constants.TPL_RECT_X, 2 * Constants.TPL_RECT_Y);		
+			case ENoteType.TplChain:	
+				this._rectText = new Rectangle( -Constants.TPL_RECT_X, -Constants.TPL_RECT_Y, 2 * Constants.TPL_RECT_X, 2 * Constants.TPL_RECT_Y);
+				this._rectText.offset(0, this.levelTop * Constants.TPLCHAIN_Y_SHIFT);
+		}
 		
 		return this._rectText;
 	}

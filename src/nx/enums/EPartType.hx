@@ -10,7 +10,7 @@ enum EPartType
 	Normal;
 	Lyrics;
 	Tpl;
-	Tplow;
+	Tplchain;
 	Dynamics;
 	Chords;
 }

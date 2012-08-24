@@ -42,39 +42,27 @@ using StringTools;
  
 class RenderBase 
 {
-
-	private var target:Sprite;
-	private var scaling:TScaling;
-	private var gr:Graphics;
 	
 	private var textOutput:Text;
+
+	public function new() {	}
 	
-	public function new(target:Sprite, scaling:TScaling) {
-		this.target = target;
-		this.gr = target.graphics;
-		this.scaling = scaling;
-		//this.textOutput = new Text(this.scaling);
-	}
 	
-	private function drawRect(x:Float, y:Float, rect:Rectangle, lineWidth = 1.0, lineColor = 0xFF0000) {
+	
+	
+	
+	static public function drawRect(target:Sprite, scaling:TScaling, x:Float, y:Float, rect:Rectangle, lineWidth = 1.0, lineColor = 0xFF0000) {
 		if (rect == null) return;
-		var r = this.scaling.scaleRect(rect);
+		var graphics = target.graphics;
+		
+		var r = scaling.scaleRect(rect);
 		r.offset(x, y);
-		this.gr.lineStyle(lineWidth, lineColor);
-		this.gr.drawRect(r.x, r.y, r.width, r.height);
+		graphics.lineStyle(lineWidth, lineColor);
+		graphics.drawRect(r.x, r.y, r.width, r.height);
 	}		
 	
-	
-	/*
-	 * *********************************************************
-	 * 
-	 * *********************************************************
-	 *
-	*/	
-	
-
-	
-	private function dvoiceTies(x:Float, y:Float, dbar:DBar, dvoice:DVoice) {
+	static public function dvoiceTies(target:Sprite, scaling:TScaling, x:Float, y:Float, dbar:DBar, dvoice:DVoice) {
+		var graphics = target.graphics;
 		
 		// Local function: 
 		function _drawTie(rightDNote:DNote, leftDNote:DNote) {
@@ -91,14 +79,14 @@ class RenderBase
 					var leftColumn = dbar.dnoteColumn.get(leftDNote);
 					
 					var leftX = leftColumn.sPositionX + leftDNote.rectTiesfrom.x;
-					var tieX 			= x + this.scaling.scaleX(leftX);					
+					var tieX 			= x + scaling.scaleX(leftX);					
 					
 					
 					var tieXHanging = tieX;
 					if (dbar.columns.last() != leftColumn) {
-						tieXHanging 	+= this.scaling.scaleX(Constants.TIE_WIDTH);						
+						tieXHanging 	+= scaling.scaleX(Constants.TIE_WIDTH);						
 					} else {
-						tieXHanging 	+= this.scaling.scaleX(Constants.TIE_WIDTH_LASTHANGING);						
+						tieXHanging 	+= scaling.scaleX(Constants.TIE_WIDTH_LASTHANGING);						
 					}
 					
 					
@@ -136,13 +124,13 @@ class RenderBase
 						
 						
 						rightX += (rightDNote.signs.count() > 0) ? rightComplex.rectSigns.x : rightComplex.rectHeads.x;
-						tieXRigthNote 	= x + this.scaling.scaleX(rightX);
+						tieXRigthNote 	= x + scaling.scaleX(rightX);
 					}
 					var tieConnectLength = rightX - leftX;
 					
 					
 					var tieY:Float = 0.0;
-					var tieThickness:Float = this.scaling.scaleY(Constants.TIE_THICKNESS);					
+					var tieThickness:Float = scaling.scaleY(Constants.TIE_THICKNESS);					
 					var tieHeight:Float = 0.0;
 					
 					//-----------------------------------------------------------------------------------------
@@ -155,13 +143,13 @@ class RenderBase
 						case EDirectionUAD.Up:
 							//trace('VoiceUp = tieUp true');
 							tieUp = true;
-							if (tieSingle) tieXRigthNote += this.scaling.scaleX(Constants.HEAD_QUARTERWIDTH + Constants.TIE_SINGLE_XCOMP);
+							if (tieSingle) tieXRigthNote += scaling.scaleX(Constants.HEAD_QUARTERWIDTH + Constants.TIE_SINGLE_XCOMP);
 						case EDirectionUAD.Down:
 							//trace('VoiceDown = tieUp false');
 							tieUp = false;
 							if (tieSingle) {
 								leftX = leftColumn.sPositionX + leftDNote.rectHeads.x + leftDNote.rectHeads.width - Constants.TIE_SINGLE_XCOMP;
-								tieX = x + this.scaling.scaleX(leftX);										
+								tieX = x + scaling.scaleX(leftX);										
 							}
 						default:							
 							if (leftDNote.direction == EDirectionUD.Up) {
@@ -174,37 +162,37 @@ class RenderBase
 							// move y
 							if (tieSingle) {								
 								leftX = leftColumn.sPositionX + leftDNote.rectHeads.x + leftDNote.rectHeads.width - Constants.TIE_SINGLE_XCOMP;
-								tieX = x + this.scaling.scaleX(leftX);		
-								tieXRigthNote += this.scaling.scaleX(Constants.HEAD_QUARTERWIDTH + Constants.TIE_SINGLE_XCOMP);
+								tieX = x + scaling.scaleX(leftX);		
+								tieXRigthNote += scaling.scaleX(Constants.HEAD_QUARTERWIDTH + Constants.TIE_SINGLE_XCOMP);
 							}
 					}
 					
-					tieHeight = this.scaling.scaleY((tieUp) ? -Constants.TIE_HEIGHT : Constants.TIE_HEIGHT);
+					tieHeight = scaling.scaleY((tieUp) ? -Constants.TIE_HEIGHT : Constants.TIE_HEIGHT);
 					
 					if (tieSingle) {
-						tieY = this.scaling.scaleY((tieUp) ? -Constants.TIE_SINGLE_YMOVE : Constants.TIE_SINGLE_YMOVE);
+						tieY = scaling.scaleY((tieUp) ? -Constants.TIE_SINGLE_YMOVE : Constants.TIE_SINGLE_YMOVE);
 					} else {
-						tieY = this.scaling.scaleY((tieUp) ? -Constants.TIE_MULTI_YMOVE : Constants.TIE_MULTI_YMOVE);
+						tieY = scaling.scaleY((tieUp) ? -Constants.TIE_MULTI_YMOVE : Constants.TIE_MULTI_YMOVE);
 					}
 					
 					//-----------------------------------------------------------------------------------------
 
 					var ty:Float = tieY;
-					//this.gr.lineStyle(4, 0xFF0000);
+					//gr.lineStyle(4, 0xFF0000);
 					for (tieLevel in tieLevels) {
-						ty = tieY + y +  this.scaling.scaleY(tieLevel * Constants.HEAD_HALFHEIGHT);
+						ty = tieY + y +  scaling.scaleY(tieLevel * Constants.HEAD_HALFHEIGHT);
 						if (tieConnectLevels.has(tieLevel)) {
 							
 							if (tieConnectLength < Constants.TIE_SHORT) {
-								tieHeight = this.scaling.scaleY((tieUp) ? -Constants.TIE_SHORT_HEIGHT : Constants.TIE_SHORT_HEIGHT);
+								tieHeight = scaling.scaleY((tieUp) ? -Constants.TIE_SHORT_HEIGHT : Constants.TIE_SHORT_HEIGHT);
 							}
 							//trace(tieConnectLength, tieHeight);
 							
 							// connect to next note
-							this.tie(this.gr, tieX, ty, tieXRigthNote-tieX, tieHeight, Constants.TIE_DELTA, tieThickness);
+							tie(graphics, scaling, tieX, ty, tieXRigthNote-tieX, tieHeight, Constants.TIE_DELTA, tieThickness);
 						} else {
 							// hanging from this note
-							this.tie(this.gr, tieX, ty, tieXHanging-tieX, tieHeight, Constants.TIE_DELTA, tieThickness);
+							tie(graphics, scaling, tieX, ty, tieXHanging-tieX, tieHeight, Constants.TIE_DELTA, tieThickness);
 						}
 					}
 				}
@@ -223,12 +211,12 @@ class RenderBase
 		
 	}
 	
-	public function cubicCurveTo(graphics:Graphics, anchorX1 : Float, anchorY1 : Float, controlX1 : Float, controlY1 : Float, controlX2 : Float, controlY2 : Float, anchorX2 : Float, anchorY2 : Float) {
+	static public function cubicCurveTo(graphics:Graphics, scaling:TScaling, anchorX1 : Float, anchorY1 : Float, controlX1 : Float, controlY1 : Float, controlX2 : Float, controlY2 : Float, anchorX2 : Float, anchorY2 : Float) {
 		function _scaleCoords(coords:Vector<Float>) {				
 			var i = 0;
 			do {
-				coords[i] 		= this.scaling.scaleX(coords[i]);
-				coords[i + 1] 	= this.scaling.scaleY(coords[i + 1]);
+				coords[i] 		= scaling.scaleX(coords[i]);
+				coords[i + 1] 	= scaling.scaleY(coords[i + 1]);
 				i += 2;					
 			} while (i < Std.int(coords.length));
 		}
@@ -256,11 +244,11 @@ class RenderBase
 		} while (u <= 1);
 
 		// graphics.drawPath(cmds, coords);
-		this.graphicsDrawPath(this.gr, cmds, coords);
+		graphicsDrawPath(graphics, scaling, cmds, coords);
 
 	}	
 	
-	public function tie(graphics:Graphics, x:Float, y:Float, width:Float, height:Float, delta:Float=8.0, thickness:Float=4.0) {
+	static public function tie(graphics:Graphics, scaling:TScaling, x:Float, y:Float, width:Float, height:Float, delta:Float=8.0, thickness:Float=4.0) {
 		var x2 = x + width;
 		var deltaX = width / delta;
 		//trace('deltaX: ' + deltaX);
@@ -270,13 +258,12 @@ class RenderBase
 		graphics.moveTo(x, y);
 		graphics.beginFill(0x000000);
 		graphics.lineStyle(0); // , 0x000000, 0);
-		this.cubicCurveTo(graphics, x, y-0, cx1, y + height - halfThickness, cx2, y + height - halfThickness, x2, y-0);
-		this.cubicCurveTo(graphics, x2, y+0, cx2, y + height + halfThickness, cx1, y + height + halfThickness, x, y+0);
+		cubicCurveTo(graphics, scaling, x, y-0, cx1, y + height - halfThickness, cx2, y + height - halfThickness, x2, y-0);
+		cubicCurveTo(graphics, scaling, x2, y+0, cx2, y + height + halfThickness, cx1, y + height + halfThickness, x, y+0);
 		graphics.endFill();
 	}	
-	
 	// Js drawPath
-	private function graphicsDrawPath(graphics:Graphics, cmds:Vector<Int>, coords:Vector<Float>) {
+	static private function graphicsDrawPath(graphics:Graphics, scaling:TScaling, cmds:Vector<Int>, coords:Vector<Float>) {
 		for (i in 0...cmds.length) {
 			var j = i * 2;
 			var cmd = cmds[i];
@@ -290,24 +277,26 @@ class RenderBase
 		}
 	}	
 	
-	public function dnote(x:Float, y:Float, dnote:DNote, rects:Bool=false, collisionShiftX:Float=0, dvoice:DVoice=null) {
+	static public function dnote(target:Sprite, scaling:TScaling, x:Float, y:Float, dnote:DNote, rects:Bool=false, collisionShiftX:Float=0, dvoice:DVoice=null) {
+		var graphics = target.graphics;
+		
 		var positions = dnote.headPositions.copy();
 		
 		switch (dnote.notetype) {
+			
+			case ENoteType.Tpl, ENoteType.TplChain: 
+				_drawTpl(target, scaling, x, y, dnote);			
 			case ENoteType.Lyric:
-				this._drawLyric(x, y, dnote);
+				_drawLyric(target, scaling, x, y, dnote);
 			case ENoteType.Pause:
-				this._drawPause(x, y, dnote);
+				_drawPause(target, scaling, x, y, dnote);
 			
 			case ENoteType.Normal:
 				
 				for (dhead in dnote.dheads) {
 					var position = positions.shift();
 					var xshift = scaling.scaleX(collisionShiftX);
-					this._drawHead(x + xshift, y, dhead.level, position, dnote.notevalue.headType);					
-					
-					
-					
+					_drawHead(target, scaling, x + xshift, y, dhead.level, position, dnote.notevalue.headType);					
 					
 					if (dnote.notevalue.dotLevel > 0) {
 						
@@ -320,41 +309,101 @@ class RenderBase
 							dotLevel = dhead.level-1 + (dhead.level % 2) ;
 						}
 						
-						this._drawHeadDot(x, y, dotLevel, position, dnote);
+						_drawHeadDot(target, scaling, x, y, dotLevel, position, dnote);
 					}					
 					
 				}
 				
-				_drawLegers(x, y, dnote);
+				_drawLegers(target, scaling, x, y, dnote);
 				
 			default:
 		}
 		
-		this.dnoteDots(x, y, dnote, rects);
+		//dnoteDots(target, scaling, x, y, dnote, rects);
 		
 		
 		if (rects) {
-			//this.drawRect(x, y, dnote.rectHeads, 3, 0x0000FF);
+			//drawRect(x, y, dnote.rectHeads, 3, 0x0000FF);
 			
-			this.drawRect(x, y, dnote.rectStave, 1, 0xFF0000);
-			if (dnote.rectDots != null)   this.drawRect(x, y, dnote.rectDots, 3, 0x00FF00);
-			if (dnote.rectTiesfrom != null)  this.drawRect(x, y, dnote.rectTiesfrom, 3, 0xFF0000);
+			drawRect(target, scaling, x, y, dnote.rectStave, 1, 0xFF0000);
+			if (dnote.rectDots != null)   drawRect(target, scaling, x, y, dnote.rectDots, 3, 0x00FF00);
+			if (dnote.rectTiesfrom != null)  drawRect(target, scaling, x, y, dnote.rectTiesfrom, 3, 0xFF0000);
 		}
 	}
 	
-	private function _drawLyric(x:Float, y:Float, dnote:DNote) {
+	static private function _drawTpl(target:Sprite, scaling:TScaling, x:Float, y:Float, dnote:DNote) {
+		var graphics = target.graphics;
+		
+		var level = dnote.levelTop;
+		var tpl = 'tpl' + (7-((level + 48) % 7));
+		var octave = Std.int(level / 7);
+		
+		//trace(tpl);
+		
+		var tplX = x + scaling.svgX + scaling.scaleX(Constants.TPL_X);  
+		var tplY = y + scaling.svgY + scaling.scaleY(Constants.TPL_Y);
+		
+		// Chain?
+		if (dnote.notetype == ENoteType.TplChain) 
+			tplY += scaling.scaleY(level * Constants.TPLCHAIN_Y_SHIFT);		
+		
+		
+		// circle
+#if js
+		var cx = tplX + scaling.scaleX(Constants.TPL_CIRCLE_X);
+		var cy = tplY + scaling.scaleY(Constants.TPL_CIRCLE_Y);
+		var radius = scaling.scaleX(Constants.TPL_CIRCLE_RADIUS);
+		var linethickness = scaling.scaleX(Constants.TPL_CIRCLE_THICKNESS);
+		graphics.lineStyle(linethickness, 0x000000);
+		graphics.endFill();
+		//gr.beginFill(0xFFFFFF);
+		graphics.drawCircle(cx, cy, radius);
+		graphics.endFill();
+#else
+		var shape:Shape = SvgAssets.getSvgShape('tplCircle', scaling);				
+		shape.x = tplX;
+		shape.y = tplY;		
+		target.addChild(shape);
+#end
+		// number
+		var shape = SvgAssets.getSvgShape(tpl, scaling);		
+		shape.x = tplX;
+		shape.y = tplY;		
+		target.addChild(shape);
+		
+		
+		// arrow
+		switch (dnote.note.heads.first().sign) {
+			case ESign.Sharp:
+				var shape = SvgAssets.getSvgShape('tplArrowUp', scaling);		
+				shape.x = tplX;
+				shape.y = tplY;		
+				target.addChild(shape);
+			case ESign.Flat:
+				var shape = SvgAssets.getSvgShape('tplArrowDown', scaling);		
+				shape.x = tplX;
+				shape.y = tplY;		
+				target.addChild(shape);
+			default:	
+		}		
+		
+	}
+	
+	static private function _drawLyric(target:Sprite, scaling:TScaling, x:Float, y:Float, dnote:DNote) {
+		var graphics = target.graphics;
+		
 		var text:String = dnote.note.text;
 		if (text.endsWith('-')) text.replace('-', '');
 		if (text.endsWith('_')) text.replace('-', '');
 		
-		if (this.textOutput == null) {
-			this.textOutput = new Text(this.scaling);
+		if (textOutput == null) {
+			textOutput = new Text(scaling);
 		}
 		
 		var bmp = textOutput.getStringBitmap(text);
 		
 		/*
-		var bmpWidth = this.scaling.descaleX(bmp.width);
+		var bmpWidth = scaling.descaleX(bmp.width);
 		trace(' - - - ');
 		trace(dnote.rectText.x);
 		trace(dnote.rectText.width);
@@ -363,26 +412,27 @@ class RenderBase
 		
 		var bmpX = dnote.rectText.x;
 		
-		bmp.x = x + this.scaling.scaleX(bmpX) - this.scaling.scaleX(Constants.TEXT_XADJUST);
-		bmp.y = y + this.scaling.scaleY(dnote.rectText.y)- this.scaling.scaleX(Constants.TEXT_YADJUST);
+		bmp.x = x + scaling.scaleX(bmpX) - scaling.scaleX(Constants.TEXT_XADJUST);
+		bmp.y = y + scaling.scaleY(dnote.rectText.y)- scaling.scaleX(Constants.TEXT_YADJUST);
 		//trace([text, bmp.width]);
-		this.target.addChild(bmp);
+		target.addChild(bmp);
 	}
 	
-	private function _drawLegers(x:Float, y:Float, dnote:DNote) {
+	static private function _drawLegers(target:Sprite, scaling:TScaling, x:Float, y:Float, dnote:DNote) {
+		var graphics = target.graphics;
 		
 		var x1 = x + scaling.scaleX(dnote.rectHeads.x - Constants.HEAD_LEGER_LEFT) ;
 		var x2 = x1 + scaling.scaleX(dnote.rectHeads.width + Constants.HEAD_LEGER_RIGHT);
 		if (dnote.notevalue.stavingLevel == 0) x2 += scaling.scaleX(Constants.HEAD_LEGER_RIGHT_WHOLE);
 		
 		
-		this.gr.lineStyle(scaling.linesWidth);
+		graphics.lineStyle(scaling.linesWidth);
 		if (dnote.levelTop <= -6) {
 			for (level in 5...-dnote.levelTop+1) {
 				if (level % 2 == 1) continue;
 				var y1 = y + scaling.scaleY(-level);
-				this.gr.moveTo(x1, y1);
-				this.gr.lineTo(x2, y1);	
+				graphics.moveTo(x1, y1);
+				graphics.lineTo(x2, y1);	
 				//trace(x1, y1, x2);
 			}
 			
@@ -392,73 +442,48 @@ class RenderBase
 			for (level in 5...dnote.levelBottom+1) {
 				if (level % 2 == 1) continue;
 				var y1 = y + scaling.scaleY(level);
-				this.gr.moveTo(x1, y1);
-				this.gr.lineTo(x2, y1);	
+				graphics.moveTo(x1, y1);
+				graphics.lineTo(x2, y1);	
 			}
 		}
 	}
 	
-	private function _drawHeadDot(x:Float, y:Float, level:Int, position:Int, dnote:DNote) {
-		
+	static private function _drawHeadDot(target:Sprite, scaling:TScaling, x:Float, y:Float, level:Int, position:Int, dnote:DNote) {
+		var graphics = target.graphics;
 		
 		//trace([level, dlevel]);
 		
-		var x2 = x + this.scaling.scaleX(dnote.rectDots.x + Constants.HEAD_QUARTERWIDTH);
-		var y2 = y + this.scaling.scaleY(level);
+		var x2 = x + scaling.scaleX(dnote.rectDots.x + Constants.HEAD_QUARTERWIDTH);
+		var y2 = y + scaling.scaleY(level);
 		
-		//trace(['dot', x, dnote.rectDots.x, x, y, x2, y2]);
-		
-		this.gr.beginFill(0x000000);	
-		this.gr.lineStyle(0);
-		var radius = this.scaling.scaleX(Constants.HEAD_DOTRADIUS);
-		this.gr.drawCircle(x2, y2, radius);
-		//var r = new Rectangle(x2 - radius, y2 - radius, 2 * radius, 2 * radius);
-		//trace(r);
-		//this.gr.drawEllipse(r.x, r.y, r.width, r.height);
-		this.gr.endFill();
+		graphics.beginFill(0x000000);	
+		graphics.lineStyle(0);
+		var radius = scaling.scaleX(Constants.HEAD_DOTRADIUS);
+		graphics.drawCircle(x2, y2, radius);
+		graphics.endFill();
 		
 	}
 	
-
-	
-	private function dnoteDots(x:Float, y:Float, dnote:DNote, rects:Bool) {
-		if (dnote.rectDots == null) return;
-		/*
-		if (rects) {
-			this.gr.lineStyle(1, 0x00FFFF);		
-			var r = Scaling.scaleRectangle(dnote.rectDots, this.scaling);
-			r.offset(x, y);
-			this.gr.drawRect(r.x, r.y, r.width, r.height);		
-		}	
-		*/
-		
-	}
-	
-	private function dnoteStave(x:Float, y:Float, dnote:DNote, rects:Bool) {		
+	static private function dnoteStave(target:Sprite, scaling:TScaling, x:Float, y:Float, dnote:DNote, rects:Bool) {		
 		if (dnote.rectStave == null) return;
-		
+
+		var graphics = target.graphics;
 		//if (dnote.type != ENoteType.Normal) return;		
 		
-		var r = this.scaling.scaleRect(dnote.rectStave);
+		var r = scaling.scaleRect(dnote.rectStave);
 		r.offset(x, y);
 
-		/*
-		if (rects) {
-			this.gr.lineStyle(1, 0xFF0000);					
-			this.gr.drawRect(r.x, r.y, r.width, r.height);		
-		}				
-		*/
 		
-		this.gr.lineStyle(this.scaling.linesWidth, 0x000000);
-		this.gr.moveTo(r.x, r.y);
-		this.gr.lineTo(r.x, r.y + r.height);
+		graphics.lineStyle(scaling.linesWidth, 0x000000);
+		graphics.moveTo(r.x, r.y);
+		graphics.lineTo(r.x, r.y + r.height);
 
 	}
 
-	private function _drawHead(x:Float, y:Float, level:Int, position:Int, headType:EHeadType) {
+	static private function _drawHead(target:Sprite, scaling:TScaling, x:Float, y:Float, level:Int, position:Int, headType:EHeadType) {
 		
 		var headY = y + (level * scaling.halfSpace);
-		var headX = x + position * this.scaling.scaleX(Constants.HEAD_WIDTH);
+		var headX = x + position * scaling.scaleX(Constants.HEAD_WIDTH);
 		
 		var shape:Shape; // = SvgAssets.getSvgShape("noteBlack", scaling);			
 		switch(headType) {
@@ -475,7 +500,8 @@ class RenderBase
 		target.addChild(shape);	  	
 	}		
 	
-	private function _drawPause(x:Float, y:Float, dnote:DNote) {
+	static private function _drawPause(target:Sprite, scaling:TScaling, x:Float, y:Float, dnote:DNote) {
+		var graphics = target.graphics;
 		
 		var shape:Shape = null; // SvgAssets.getSvgShape("pauseNv16", scaling);		
 		//trace(dnote.notevalue);
@@ -492,18 +518,18 @@ class RenderBase
 				
 			case ENoteValue.Nv2, ENoteValue.Nv2dot, ENoteValue.Nv2tri:
 				var ry = level - 1 - (level % 2);
-				var r = this.scaling.scaleRect( new Rectangle(-Constants.HEAD_HALFWIDTH, ry, Constants.HEAD_WIDTH * 0.9, Constants.HEAD_HALFHEIGHT));
+				var r = scaling.scaleRect( new Rectangle(-Constants.HEAD_HALFWIDTH, ry, Constants.HEAD_WIDTH * 0.9, Constants.HEAD_HALFHEIGHT));
 				r.offset(x, y);
-				this.gr.beginFill(0x000000);
-				this.gr.drawRect(r.x, r.y, r.width, r.height);
-				this.gr.endFill();
+				graphics.beginFill(0x000000);
+				graphics.drawRect(r.x, r.y, r.width, r.height);
+				graphics.endFill();
 			case ENoteValue.Nv1, ENoteValue.Nv1dot, ENoteValue.Nv1tri:
 				var ry = level - 2 - (level % 2);
-				var r = this.scaling.scaleRect( new Rectangle(-Constants.HEAD_HALFWIDTH, ry, Constants.HEAD_WIDTH , Constants.HEAD_HALFHEIGHT));
+				var r = scaling.scaleRect( new Rectangle(-Constants.HEAD_HALFWIDTH, ry, Constants.HEAD_WIDTH , Constants.HEAD_HALFHEIGHT));
 				r.offset(x, y);
-				this.gr.beginFill(0x000000);
-				this.gr.drawRect(r.x, r.y, r.width, r.height);
-				this.gr.endFill();				
+				graphics.beginFill(0x000000);
+				graphics.drawRect(r.x, r.y, r.width, r.height);
+				graphics.endFill();				
 			default: 
 				shape = SvgAssets.getSvgShape("noteBlack", scaling);		
 		}
@@ -519,7 +545,8 @@ class RenderBase
 		
 	}	
 	
-	private function _drawFlag(x:Float, y:Float, frame:BeamGroupFrame) {
+	static private function _drawFlag(target:Sprite, scaling:TScaling, x:Float, y:Float, frame:BeamGroupFrame) {
+		//var graphics = target.graphics;
 		
 		if (frame.firstNotevalue.beamingLevel < 1) return;
 		
@@ -543,7 +570,7 @@ class RenderBase
 		}
 		
 		
-		//var shape = SvgAssets.getSvgShape('flagUp8', this.scaling);
+		//var shape = SvgAssets.getSvgShape('flagUp8', scaling);
 		
 
 		var fy = 0.0;
@@ -567,57 +594,58 @@ class RenderBase
 		
 	}	
 	
+	static public function complex(target:Sprite, scaling:TScaling, x:Float, y:Float, dplex:Complex, rects:Bool=true, moveX:Float=0, teststaves:Bool=true) {		
+		var gr = target.graphics;
+		
 	
-	
-	public function complex(x:Float, y:Float, dplex:Complex, rects:Bool=true, moveX:Float=0, teststaves:Bool=true) {		
-		if (moveX != 0) x += this.scaling.scaleX(moveX); // Scaling.scaleX(moveX, this.scaling);
+		if (moveX != 0) x += scaling.scaleX(moveX); // Scaling.scaleX(moveX, scaling);
 		
 		if (rects) {
-			this.gr.lineStyle(1, 0xaaaaaa);
-			this.gr.moveTo(x, y + -60);
-			this.gr.lineTo(x, y + 60);
+			gr.lineStyle(1, 0xaaaaaa);
+			gr.moveTo(x, y + -60);
+			gr.lineTo(x, y + 60);
 		}
 		
 		for (i in 0...dplex.dnotes.length) {			
-			this.dnote(x, y, dplex.dnote(i), rects, dplex.dnoteXshift(i));	
+			dnote(target, scaling, x, y, dplex.dnote(i), rects, dplex.dnoteXshift(i));	
 		}		
 		
-		this.signs(dplex, x, y);
+		signs(target, scaling, dplex, x, y);
 
 		if (rects) {			
-			this.gr.lineStyle(1, 0xFF0000);
-			var r = this.scaling.scaleRect(dplex.rectHeads); // Scaling.scaleRectangle(dplex.rectHeads, this.scaling);
+			gr.lineStyle(1, 0xFF0000);
+			var r = scaling.scaleRect(dplex.rectHeads); // Scaling.scaleRectangle(dplex.rectHeads, scaling);
 			
 			r.offset(x, y);
 			r.inflate(2, 2);		
 			
-			this.gr.drawRect(r.x, r.y, r.width, r.height);
+			gr.drawRect(r.x, r.y, r.width, r.height);
 			
 			if (dplex.rectSigns != null) {
-				this.gr.lineStyle(1, 0x00FF00);		
-				var r = this.scaling.scaleRect(dplex.rectSigns);
+				gr.lineStyle(1, 0x00FF00);		
+				var r = scaling.scaleRect(dplex.rectSigns);
 				r.offset(x, y);
-				this.gr.drawRect(r.x, r.y, r.width, r.height);
+				gr.drawRect(r.x, r.y, r.width, r.height);
 			}
 			
-			this.gr.lineStyle(1, 0x0000FF);
-			var r = this.scaling.scaleRect(dplex.rectFull);
+			gr.lineStyle(1, 0x0000FF);
+			var r = scaling.scaleRect(dplex.rectFull);
 			r.offset(x, y);
 			r.inflate(2, 2);
-			this.gr.drawRect(r.x, r.y, r.width, r.height);
+			gr.drawRect(r.x, r.y, r.width, r.height);
 		}		
 	}
 	
-	public function dpart(x:Float, y:Float, dpart:DPart, rects:Bool = true) {		
+	static public function dpart(target, scaling, x:Float, y:Float, dpart:DPart, rects:Bool = true) {				
 		var xpos = 0.0;
 		for (dplex in dpart.complexes) {
 			var dist = dpart.complexDistance.get(dplex);
 			xpos += dist;			
-			this.complex(x, y, dplex, rects, xpos);	
+			complex(target, scaling, x, y, dplex, rects, xpos);	
 		}		
 	}	
 	
-	public function signs(dplex:Complex, x:Float, y:Float) {
+	static public function signs(target:Sprite, scaling:TScaling, dplex:Complex, x:Float, y:Float) {
 		var gr = target.graphics;
 		var posSpace = scaling.signPosWidth;
 		
@@ -625,7 +653,7 @@ class RenderBase
 		if (dplex.rectSigns == null) return;
 		
 		var signs = dplex.signs;
-		var xShift = this.scaling.scaleX(dplex.rectSigns.x);
+		var xShift = scaling.scaleX(dplex.rectSigns.x);
 		
 		var maxPos = 0;
 		for (sign in signs) {
@@ -657,7 +685,7 @@ class RenderBase
 		}
 	}	
 	
-	public function xsigns(signs:TSigns, x:Float, y:Float) {
+	static public function xsigns(target:Sprite, scaling:TScaling, signs:TSigns, x:Float, y:Float) {
 		var gr = target.graphics;
 		var posSpace = scaling.signPosWidth;
 
@@ -670,7 +698,7 @@ class RenderBase
 		var xOffset = (maxPos * scaling.signPosWidth) + scaling.halfNoteWidth;
 
 
-		function drawSign(x:Float, y:Float, level:Int, position:Int, sign:nx.enums.ESign) {	
+		function __drawSign(x:Float, y:Float, level:Int, position:Int, sign:nx.enums.ESign) {	
 			//trace('drawSign x:' + x);
 			var shape:Shape;	
 			switch(sign) {
@@ -687,73 +715,17 @@ class RenderBase
 		}
 
 		for (sign in signs) {
-			drawSign(x, y, sign.level, sign.position, sign.sign);	
+			__drawSign(x, y, sign.level, sign.position, sign.sign);	
 		}
 	}		
-
-	/*
-	public function note(noteX:Float, noteY:Float, displayNote:DisplayNote) {		
-		//if (drawRects) this.noteRects(noteX, noteY, displayNote);
-		//if (meas == null) meas = new scaling();
-		var graphics = target.graphics;
-		//var noteW = scaling.noteWidth;
-
-		function drawHead(x:Float, y:Float, level:Int, position:Int, headType:EHeadType) {
-			var headY = y + (level * scaling.halfSpace);
-			var headX = x + position * scaling.noteWidth;
-			var shape:Shape; // = SvgAssets.getSvgShape("noteBlack", scaling);
-			//if (headType == EHeadType.Whole) shape = SvgAssets.getSvgShape("noteWhole", scaling);
-			//if (headType == EHeadType.White) shape = SvgAssets.getSvgShape("noteWhite", scaling);
-			
-			switch(headType) {
-				case EHeadType.Whole:
-					shape = SvgAssets.getSvgShape("snoteWhole", scaling);
-				case EHeadType.White:
-					shape = SvgAssets.getSvgShape("noteWhite", scaling);
-				default:
-					shape = SvgAssets.getSvgShape("noteBlack", scaling);
-			}
-			
-			shape.x = headX + scaling.svgX;  
-			shape.y = headY + scaling.svgY;
-			target.addChild(shape);	  			
-		}
-		
-
-		if (displayNote == null) return;
-		
-
-		
-		// Heads
-		//var r = Scaling.scaleRectangle(displayNote.getDisplayRect(), scaling); 
-		//graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);		
-		for (dHead in displayNote.getDisplayHeads()) 
-		{
-			//trace(dHead.getPosition());
-			drawHead(noteX, noteY, dHead.getLevel(), dHead.getPosition(), displayNote.getNote().value.headType);
-		}
-		
-		// Signs
-		var signsDisplayRect = displayNote.getDisplayRectSigns();
-		if (signsDisplayRect != null) {
-			var r = this.scaling.scaleRect(signsDisplayRect); 
-			xsigns(displayNote.getSigns(), noteX + r.left, noteY);			
-		}
-		
-
-
-	}	
-	*/
 	
-	
-	
-	
-	
-	public function beamGroup(xpos:Float, y:Float, frame:BeamGroupFrame, dnotePositionsX:Array<Float>) {
+	static public function beamGroup(target:Sprite, scaling:TScaling, xpos:Float, y:Float, frame:BeamGroupFrame, dnotePositionsX:Array<Float>) {
+		var gr = target.graphics;
+		
 		
 		function _dStave(sX:Float, sTopY:Float, sBottomY:Float) {
-			this.target.graphics.moveTo(sX , sTopY);
-			this.target.graphics.lineTo(sX , sBottomY);			
+			gr.moveTo(sX , sTopY);
+			gr.lineTo(sX , sBottomY);			
 		}	
 		
 		if (frame.firstNotevalue.stavingLevel < 1) return;
@@ -781,33 +753,33 @@ class RenderBase
 		//trace([frame.firstStave, xfirstStave]);
 		//trace([frame.lastStave, xlastStave]);
 		
-		var adjustX = 0; // this.scaling.halfNoteWidth; // frame.adjustX * this.scaling.halfNoteWidth;
+		var adjustX = 0; // scaling.halfNoteWidth; // frame.adjustX * scaling.halfNoteWidth;
 		var firstTopY = y + (xfirstStave.topY * scaling.halfSpace);
 		var lastTopY = y + (xlastStave.topY * scaling.halfSpace); 
 		var firstBottomY = y + (xfirstStave.bottomY  * scaling.halfSpace);
 		var lastBottomY = y + (xlastStave.bottomY * scaling.halfSpace);
 		
 		
-		var beamHeight = this.scaling.scaleY(Constants.BEAM_HEIGHT);
+		var beamHeight = scaling.scaleY(Constants.BEAM_HEIGHT);
 		
 		switch (frame.firstType) {
 			
 			case ENoteType.Normal: 
 				
-				this.target.graphics.lineStyle(this.scaling.linesWidth, 0x000000);
+				gr.lineStyle(scaling.linesWidth, 0x000000);
 				
 				if (frame.direction == EDirectionUD.Up) {			
 					
 					beamH = lastTopY - firstTopY;
 					
 					// Staves
-					//this.target.graphics.moveTo(firstX , firstTopY);
-					//this.target.graphics.lineTo(firstX , firstBottomY);
+					//gr.moveTo(firstX , firstTopY);
+					//gr.lineTo(firstX , firstBottomY);
 					_dStave(firstX, firstTopY, firstBottomY);
 					
 					if (count > 1) {
-						//this.target.graphics.moveTo(lastX , lastTopY);				
-						//this.target.graphics.lineTo(lastX , lastBottomY);							
+						//gr.moveTo(lastX , lastTopY);				
+						//gr.lineTo(lastX , lastBottomY);							
 						_dStave(lastX, lastTopY, lastBottomY);
 					}
 
@@ -817,9 +789,9 @@ class RenderBase
 							var staveX = (xpos + dnotePositionsX[idx]);
 							var slopeDelta = (staveX - firstX) / beamW;
 							var innerTopY = firstTopY + beamH * slopeDelta;
-							var innerBottomY = y + this.scaling.scaleY(innerStave.bottomY);
-							this.gr.moveTo(staveX, innerBottomY);
-							this.gr.lineTo(staveX, innerTopY);			
+							var innerBottomY = y + scaling.scaleY(innerStave.bottomY);
+							gr.moveTo(staveX, innerBottomY);
+							gr.lineTo(staveX, innerTopY);			
 							idx++;
 						}							
 					}
@@ -829,13 +801,13 @@ class RenderBase
 					if ((count > 1) && (frame.firstNotevalue.beamingLevel > 0)) {
 						// 8th beam
 						
-							this.target.graphics.beginFill(0x000000);
-							this.target.graphics.moveTo(firstX		, firstTopY);
-							this.target.graphics.lineTo(lastX 	, lastTopY);
-							this.target.graphics.lineTo(lastX 	, lastTopY + beamHeight);
-							this.target.graphics.lineTo(firstX 		, firstTopY + beamHeight);
-							this.target.graphics.lineTo(firstX 		, firstTopY);
-							this.target.graphics.endFill();	
+							gr.beginFill(0x000000);
+							gr.moveTo(firstX		, firstTopY);
+							gr.lineTo(lastX 	, lastTopY);
+							gr.lineTo(lastX 	, lastTopY + beamHeight);
+							gr.lineTo(firstX 		, firstTopY + beamHeight);
+							gr.lineTo(firstX 		, firstTopY);
+							gr.endFill();	
 							
 							
 							
@@ -857,14 +829,14 @@ class RenderBase
 								
 								switch(stave.flag16) {
 									case ESubBeam.ShortLeft:										
-										x2 = prevStaveX + this.scaling.scaleX(Constants.BEAM_SUBWIDTH);
+										x2 = prevStaveX + scaling.scaleX(Constants.BEAM_SUBWIDTH);
 									case ESubBeam.ShortRight:										
-										x1 = staveX - this.scaling.scaleX(Constants.BEAM_SUBWIDTH);
+										x1 = staveX - scaling.scaleX(Constants.BEAM_SUBWIDTH);
 									default:
 										
 								}
 								
-								var yshift = this.scaling.scaleY(Constants.BEAM_SUBDISTANCE);
+								var yshift = scaling.scaleY(Constants.BEAM_SUBDISTANCE);
 								
 								var subW:Float = x2 - x1;								
 								var subH = beamH * (subW / beamW);
@@ -873,13 +845,13 @@ class RenderBase
 								
 								
 								if (stave.flag16 != ESubBeam.None) {
-									this.target.graphics.beginFill(0x000000);
-									this.target.graphics.moveTo(x1		, y1);
-									this.target.graphics.lineTo(x2 		, y2);
-									this.target.graphics.lineTo(x2 		, y2 + beamHeight);
-									this.target.graphics.lineTo(x1 		, y1 + beamHeight);
-									this.target.graphics.lineTo(x1 		, y1);
-									this.target.graphics.endFill();									
+									gr.beginFill(0x000000);
+									gr.moveTo(x1		, y1);
+									gr.lineTo(x2 		, y2);
+									gr.lineTo(x2 		, y2 + beamHeight);
+									gr.lineTo(x1 		, y1 + beamHeight);
+									gr.lineTo(x1 		, y1);
+									gr.endFill();									
 								}
 								
 								
@@ -890,17 +862,17 @@ class RenderBase
 						
 						
 					} else {
-						this._drawFlag(firstX, y, frame);
+						_drawFlag(target, scaling, firstX, y, frame);
 					}
 				} else {
 					
 					beamH = lastBottomY - firstBottomY;
 					
-					this.target.graphics.moveTo(firstX , firstBottomY);
-					this.target.graphics.lineTo(firstX , firstTopY);			
+					gr.moveTo(firstX , firstBottomY);
+					gr.lineTo(firstX , firstTopY);			
 					if (count > 1) {
-						this.target.graphics.moveTo(lastX , lastBottomY);				
-						this.target.graphics.lineTo(lastX , lastTopY);				
+						gr.moveTo(lastX , lastBottomY);				
+						gr.lineTo(lastX , lastTopY);				
 					}
 					if (count > 2) {
 						var idx = 1;
@@ -908,9 +880,9 @@ class RenderBase
 							var staveX = xpos + dnotePositionsX[idx];
 							var slopeDelta = (staveX - firstX) / beamW;
 							var innerBottomY = firstBottomY + beamH * slopeDelta;
-							var innerTopY = y + this.scaling.scaleY(innerStave.topY);
-							this.gr.moveTo(staveX, innerBottomY);
-							this.gr.lineTo(staveX, innerTopY);			
+							var innerTopY = y + scaling.scaleY(innerStave.topY);
+							gr.moveTo(staveX, innerBottomY);
+							gr.lineTo(staveX, innerTopY);			
 							idx++;
 						}
 					}	
@@ -919,13 +891,13 @@ class RenderBase
 					if ((count > 1) && (frame.firstNotevalue.beamingLevel > 0)) {
 					
 					
-						this.target.graphics.beginFill(0x000000);
-						this.target.graphics.moveTo(firstX 		, firstBottomY);
-						this.target.graphics.lineTo(lastX 	, lastBottomY);
-						this.target.graphics.lineTo(lastX 	, lastBottomY - beamHeight);
-						this.target.graphics.lineTo(firstX		, firstBottomY - beamHeight);
-						this.target.graphics.lineTo(firstX 		, firstBottomY);
-						this.target.graphics.endFill();		
+						gr.beginFill(0x000000);
+						gr.moveTo(firstX 		, firstBottomY);
+						gr.lineTo(lastX 	, lastBottomY);
+						gr.lineTo(lastX 	, lastBottomY - beamHeight);
+						gr.lineTo(firstX		, firstBottomY - beamHeight);
+						gr.lineTo(firstX 		, firstBottomY);
+						gr.endFill();		
 						
 						
 							var prevStave:BeamGroupStave = null;
@@ -947,14 +919,14 @@ class RenderBase
 								
 								switch(stave.flag16) {
 									case ESubBeam.ShortLeft:										
-										x2 = prevStaveX + this.scaling.scaleX(Constants.BEAM_SUBWIDTH);
+										x2 = prevStaveX + scaling.scaleX(Constants.BEAM_SUBWIDTH);
 									case ESubBeam.ShortRight:										
-										x1 = staveX - this.scaling.scaleX(Constants.BEAM_SUBWIDTH);
+										x1 = staveX - scaling.scaleX(Constants.BEAM_SUBWIDTH);
 									default:
 										
 								}
 								
-								var yshift = this.scaling.scaleY(Constants.BEAM_SUBDISTANCE);
+								var yshift = scaling.scaleY(Constants.BEAM_SUBDISTANCE);
 								
 								var subW:Float = x2 - x1;								
 								var subH = beamH * (subW / beamW);
@@ -962,13 +934,13 @@ class RenderBase
 								var y2 = firstBottomY + ((x2-firstX) / beamW) * beamH - yshift;
 								
 								if (stave.flag16 != ESubBeam.None) {
-									this.target.graphics.beginFill(0x000000);
-									this.target.graphics.moveTo(x1		, y1);
-									this.target.graphics.lineTo(x2 		, y2);
-									this.target.graphics.lineTo(x2 		, y2 - beamHeight);
-									this.target.graphics.lineTo(x1 		, y1 - beamHeight);
-									this.target.graphics.lineTo(x1 		, y1);
-									this.target.graphics.endFill();									
+									gr.beginFill(0x000000);
+									gr.moveTo(x1		, y1);
+									gr.lineTo(x2 		, y2);
+									gr.lineTo(x2 		, y2 - beamHeight);
+									gr.lineTo(x1 		, y1 - beamHeight);
+									gr.lineTo(x1 		, y1);
+									gr.endFill();									
 								}
 								
 								
@@ -981,7 +953,7 @@ class RenderBase
 						
 						
 					} else {
-						this._drawFlag(firstX, y, frame);
+						_drawFlag(target, scaling, firstX, y, frame);
 					}
 				}
 				
@@ -994,124 +966,6 @@ class RenderBase
 		
 	}
 	
-	/*
-	public function noteARects(noteX:Float, noteY:Float, displayNote:DisplayNote, color:Int=0xFF0000) {
-		nx.display.utils.DisplayNoteUtils.drawAODR(displayNote.getArrayOfDisplayRects() , this.target, noteX, noteY, this.scaling, color);		
-	}
-	*/
-	
-	/*
-	public function noteRects(noteX:Float, noteY:Float, displayNote:DisplayNote) {
-		var graphics = target.graphics;
-		
-		//graphics.beginFill(0, 0);
-		graphics.endFill();
-		
-		
-		// Zero line
-		graphics.lineStyle(1, 0xCCCCCC);
-		graphics.moveTo(noteX, noteY - 60);
-		graphics.lineTo(noteX, noteY + 60);				
-		
-		
-		// heads
-		graphics.lineStyle(1, 0xFF0000);
-		for (h in displayNote.getDisplayHeads()) {			
-			var r = this.scaling.scaleRect(h.getDisplayRect()); 		
-			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);			
-		}
-		
-		
-		
-		// note
-		//var r = Scaling.scaleRectangle(displayNote.getDisplayRect(), scaling); 		
-		//graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);			
-		
-		// signs
-		graphics.lineStyle(1, 0x00FFFF);
-		var signsDisplayRect = displayNote.getDisplayRectSigns();
-		if (signsDisplayRect != null) {		
-			var r = this.scaling.scaleRect(signsDisplayRect); 
-			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);				
-		}
-		
-		// stave
-		graphics.lineStyle(1, 0xff0000);
-		var staveDisplayRect = displayNote.getDisplayRectStave();
-		if (staveDisplayRect != null) {
-			var r = this.scaling.scaleRect(staveDisplayRect);
-			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);				
-		}
-		
-		// dots
-		graphics.lineStyle(1, 0x00ff00);
-		var r = displayNote.getDisplayRectDots();
-		if (r != null) {
-			var r = this.scaling.scaleRect(r);
-			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);	
-		}
-		
-		// tieFrom
-		graphics.lineStyle(1, 0x0000ff);
-		var r = displayNote.getDisplayRectTieFrom();
-		if (r != null) {
-			var r = this.scaling.scaleRect(r);
-			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);	
-		}
-		
-		// apoggiatura 
-		graphics.lineStyle(1, 0xff0000);
-		var r = displayNote.getDisplayRectAppogiatura();
-		if (r != null) {
-			var r = this.scaling.scaleRect(r);
-			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);	
-		}
-
-		// arpeggio 
-		graphics.lineStyle(1, 0x000000);
-		var r = displayNote.getDisplayRectArpeggio();
-		if (r != null) {
-			var r = this.scaling.scaleRect(r);
-			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);	
-		}
-
-		// tieTo
-		graphics.lineStyle(1, 0x0000ff);
-		var r = displayNote.getDisplayRectTieTo();
-		if (r != null) {
-			var r = this.scaling.scaleRect(r);
-			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);	
-		}		
-		
-		// clef
-		graphics.lineStyle(1, 0xff00ff);
-		var r = displayNote.getDisplayRectClef();
-		if (r != null) {
-			var r = this.scaling.scaleRect(r);
-			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);	
-		}		
-		
-		// total
-		graphics.lineStyle(2, 0x000000);
-		var r = displayNote.getTotalRect();
-		if (r != null) {
-			var r = this.scaling.scaleRect(r);
-			graphics.drawRect(noteX + r.x, noteY + r.y, r.width, r.height);	
-		}			
-		
-		
-	}
-	*/
-	
 	
 }
 
-/*
-typedef TSign = {
-	sign:ESign,
-	level:Int,	
-	position:Int,
-}
-
-typedef TSigns = Array<TSign>;
-*/

@@ -69,7 +69,15 @@ class Constants {
 	static public inline var PART_MIN_DISTANCE:Float = 2;
 	static public inline var ACKOLADE_CLEF_MARGIN:Float = 1;
 	
-	
+	static public inline var TPL_RECT_X:Float = 6;
+	static public inline var TPL_RECT_Y:Float = 8;
+	static public inline var TPL_X:Float = -4;
+	static public inline var TPL_Y:Float = 2;
+	static public inline var TPLCHAIN_Y_SHIFT:Float = 4;
+	static public inline var TPL_CIRCLE_RADIUS:Float = 5;
+	static public inline var TPL_CIRCLE_THICKNESS:Float = 0.6;
+	static public inline var TPL_CIRCLE_X:Float = 5.9;
+	static public inline var TPL_CIRCLE_Y:Float = 7.6;
 	
 	
 }

@@ -7,6 +7,7 @@ import nx.display.type.TSigns;
 import nx.display.util.GeomUtils;
 import nx.display.util.SignsUtil;
 import nx.enums.EDirectionUAD;
+import nx.enums.ENoteType;
 
 /**
  * ...
@@ -66,8 +67,12 @@ class Complex
 	private function _calculateSigns():TSigns {
 		var sgs:TSigns = [];
 		for (dnote in this.dnotes) {
-			for (dhead in dnote.dheads) {
-				sgs.push({sign:dhead.head.sign, level:dhead.head.level, position:0});
+			switch (dnote.notetype) {
+				case ENoteType.Normal:
+					for (dhead in dnote.dheads) {
+						sgs.push({sign:dhead.head.sign, level:dhead.head.level, position:0});
+					}
+				default: {} // nothing!
 			}
 		}	
 		return SignsUtil.adjustPositions(sgs);

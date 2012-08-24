@@ -13,6 +13,7 @@ enum ENoteType {
 	StaveOnly;
 	Rythmic;
 	Tpl;
+	TplChain;
 	Lyric;
 	Chord;
 	Dynam;

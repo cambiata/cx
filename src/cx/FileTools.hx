@@ -212,7 +212,7 @@ class FileTools
 	}
 #end
 
-	static public function getFileAgeSeconds(filename:String) {
+	static public function getFileAgeSeconds(filename:String):Null<Int> {
 		if (FileSystem.exists(filename)) {
 			var stat = FileSystem.stat(filename);
 			var a = stat.atime;

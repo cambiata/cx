@@ -16,7 +16,7 @@ class DSystems extends LayoutBase
 	public var systems(default, null):			Array<DSystem>;
 	public var systemWidth(default, null):	Float;
 	
-	public function new(bars:Bars, systemWidth:Float, firstBarNr:Int=0) {
+	public function new(bars:Bars, systemWidth:Float, firstBarNr:Int=0, nrOfBars:Int=999) {
 		//super();
 		this.dbars = [];
 		this.systemWidth = systemWidth;
@@ -24,17 +24,19 @@ class DSystems extends LayoutBase
 			var dbar = new DBar(bar);		
 			this.dbars.push(dbar);
 		}
-		this.systems = getLayoutSystems(firstBarNr);		
+		this.systems = getLayoutSystems(firstBarNr, nrOfBars);		
 	}
 	
-	public function doLayout(firstBarNr:Int = 0) {
-		this.systems = getLayoutSystems(firstBarNr);		
+	public function doLayout(firstBarNr:Int = 0, nrOfBars=999) {
+		this.systems = getLayoutSystems(firstBarNr, nrOfBars);		
 	}
 	
 	private var prevFirstBarNr:Int = -1;
 	
-	public function getLayoutSystems(firstBarNr:Int=0):Array<DSystem> {		
+	public function getLayoutSystems(firstBarNr:Int=0, nrOfBars=999):Array<DSystem> {		
 		firstBarNr = Std.int(Math.min(Math.max(firstBarNr, 0), this.dbars.length-1));
+		nrOfBars = Std.int(Math.max(1, nrOfBars));
+		
 		if (firstBarNr == prevFirstBarNr) return systems;
 		
 		var dsystem = new DSystem(this.systemWidth, false);
@@ -67,7 +69,12 @@ class DSystems extends LayoutBase
 			
 			prevbarSettings = this.currentSettings;
 			barIdx++;
+			
+			if (barIdx-firstBarNr >= nrOfBars) return systems;
+			
 		}		
+		
+
 		
 		prevFirstBarNr = firstBarNr;
 		return systems;

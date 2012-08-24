@@ -52,7 +52,45 @@ import nx.enums.EVoiceType;
  
 class ExampleDbars 
 {
-	
+	static public function barsTpl() { 
+		return new Bars([		
+			new Bar([			
+				
+				new Part([				
+					new Voice([
+						new Note([new Head(0)]),
+						new Note([new Head(0)]),
+						new Note([new Head(0)]),
+						new Note([new Head(0)]),
+					], EDirectionUAD.Up), 		
+				]),							
+				
+				new Part(EPartType.Tpl, [
+					new Voice([
+						new Note([new Head(0)], ENoteValue.Nv4, ENoteType.TplChain), 
+						new Note([new Head(-1)], ENoteValue.Nv4, ENoteType.TplChain), 
+						new Note([new Head(-2, ESign.Sharp)], ENoteValue.Nv4, ENoteType.TplChain), 
+						new Note([new Head(-3)], ENoteValue.Nv4, ENoteType.TplChain), 
+						new Note([new Head(-4)], ENoteValue.Nv4, ENoteType.TplChain), 
+						new Note([new Head(-5)], ENoteValue.Nv4, ENoteType.TplChain), 
+						new Note([new Head(-6, ESign.Flat)], ENoteValue.Nv4, ENoteType.TplChain), 
+						new Note([new Head(-7)], ENoteValue.Nv4, ENoteType.TplChain), 
+						new Note([new Head(0)], ENoteValue.Nv4, ENoteType.TplChain),
+						new Note([new Head(1)], ENoteValue.Nv4, ENoteType.TplChain),
+						new Note([new Head(2)], ENoteValue.Nv4, ENoteType.TplChain),
+						new Note([new Head(3)], ENoteValue.Nv4, ENoteType.TplChain),
+						new Note([new Head(4)], ENoteValue.Nv4, ENoteType.TplChain),
+						new Note([new Head(5)], ENoteValue.Nv4, ENoteType.TplChain),
+						new Note([new Head(6)], ENoteValue.Nv4, ENoteType.TplChain),
+						new Note([new Head(7)], ENoteValue.Nv4, ENoteType.TplChain),
+						new Note([new Head(8)], ENoteValue.Nv4, ENoteType.TplChain),
+					])
+				]),				
+				
+			]),
+		]);			
+		
+	}
 	
 	static public function barsComplex1() { 
 		return new Bars([
