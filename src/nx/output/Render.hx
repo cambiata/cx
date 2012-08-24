@@ -1,5 +1,6 @@
 package nx.output;
 import cx.ArrayTools;
+import cx.ReflectTools;
 import nme.display.BitmapData;
 import nme.display.GradientType;
 import nme.display.Graphics;
@@ -27,13 +28,13 @@ import nx.enums.ENoteValue;
 import nx.enums.EPartType;
 import nx.enums.EVoiceType;
 import nx.enums.utils.EDirectionTools;
-import nx.svg.SvgAssets;
 import nx.output.Scaling;
 import nx.display.beam.BeamGroupFrame;
 import nx.enums.ETime;
 import nx.enums.ETime.ETimeUtils;
 import nx.display.type.TSign;
 import nx.display.type.TSigns;
+import nx.svg.MusicElements;
 
 /**
  * ...
@@ -44,6 +45,7 @@ using cx.ArrayTools;
 using nx.display.DBar;
 using Lambda;
 using StringTools;
+using nx.svg.MusicElements;
 
 class Render 
 {
@@ -258,7 +260,7 @@ class Render
 		}
 	}
 	
-	static private function barline(target:Sprite, scaling:TScaling, x:Float, y:Float, dbar:DBar, dpart:DPart, rects:Bool) {
+	static public function barline(target:Sprite, scaling:TScaling, x:Float, y:Float, dbar:DBar, dpart:DPart, rects:Bool) {
 		
 		if (dpart.dType != EPartType.Normal) return;
 		
@@ -317,11 +319,11 @@ class Render
 		var shape:Shape = null;
 		switch(dpart.dClef) {
 			case EClef.ClefG:
-				shape = SvgAssets.getSvgShape('clefG', scaling);
+				shape = MusicElements.clefG.getShape(scaling);
 			case EClef.ClefC:
-				shape = SvgAssets.getSvgShape('clefC', scaling);
+				shape = MusicElements.clefC.getShape(scaling);
 			case EClef.ClefF:
-				shape = SvgAssets.getSvgShape('clefF', scaling);
+				shape = MusicElements.clefF.getShape(scaling);
 		}
 		
 		shape.x = x2 + scaling.svgX + scaling.scaleX(Constants.HEAD_HALFWIDTH);
@@ -353,9 +355,9 @@ class Render
 				
 		for (i in 0...absValue) {
 			if (keySharp) {
-				shape = SvgAssets.getSvgShape('signSharp', scaling);
+				shape = MusicElements.signSharp.getShape(scaling);
 			} else {
-				shape = SvgAssets.getSvgShape('signFlat', scaling);
+				shape = MusicElements.signFlat.getShape(scaling);
 			}				
 			
 			var x3 = x2 + scaling.svgX + (i * scaling.scaleX(Constants.SIGN_WIDTH)) + scaling.scaleX(Constants.HEAD_HALFWIDTH);
@@ -381,25 +383,28 @@ class Render
 		var timeId = ETimeUtils.toString(dbar.dTime);
 		switch (timeId) {
 			case 'Common': 
-				shape = SvgAssets.getSvgShape('timeCommon', scaling);
+				shape = MusicElements.timeCommon.getShape(scaling);
 			case 'Allabreve': 
-				shape = SvgAssets.getSvgShape('timeAllabreve', scaling);
+				shape = MusicElements.timeAllabreve.getShape(scaling);
 			default: 
 				var ids = timeId.split('/');
 				var upper = 'time' + ids[0];
 				var lower = 'time' + ids[1];
-				shape = SvgAssets.getSvgShape(upper, scaling);
-				y2 -= scaling.scaleY(Constants.HEAD_HEIGHT);
 				
-				shapeLower = SvgAssets.getSvgShape(lower, scaling);
+				shape = MusicElements.getSvg(upper).getShape(scaling);
+				y2 -= scaling.scaleY(Constants.HEAD_HEIGHT);
+				shapeLower = MusicElements.getSvg(lower).getShape(scaling);
 				shapeLower.x = x3;
 				shapeLower.y = y2 + scaling.scaleY(Constants.HEAD_HEIGHT*2);
 				target.addChild(shapeLower);
+				
 		}
+		
 		
 		shape.x = x3 ;
 		shape.y = y2;		
 		target.addChild(shape);
+		
 	}
 
 	static public function dbarAttributesRight(target:Sprite, scaling:TScaling, x:Float, y:Float, dbar:DBar, rects:Bool = true) {		
@@ -652,7 +657,7 @@ class Render
 		graphics.endFill();
 	}	
 	// Js drawPath
-	static private function graphicsDrawPath(graphics:Graphics, scaling:TScaling, cmds:Vector<Int>, coords:Vector<Float>) {
+	static public function graphicsDrawPath(graphics:Graphics, scaling:TScaling, cmds:Vector<Int>, coords:Vector<Float>) {
 		for (i in 0...cmds.length) {
 			var j = i * 2;
 			var cmd = cmds[i];
@@ -720,7 +725,7 @@ class Render
 		}
 	}
 	
-	static private function _drawTpl(target:Sprite, scaling:TScaling, x:Float, y:Float, dnote:DNote) {
+	static public function _drawTpl(target:Sprite, scaling:TScaling, x:Float, y:Float, dnote:DNote) {
 		var graphics = target.graphics;
 		
 		var level = dnote.levelTop;
@@ -749,27 +754,26 @@ class Render
 		graphics.drawCircle(cx, cy, radius);
 		graphics.endFill();
 #else
-		var shape:Shape = SvgAssets.getSvgShape('tplCircle', scaling);				
+		var shape:Shape = MusicElements.tplCircle.getShape(scaling);				
 		shape.x = tplX;
 		shape.y = tplY;		
 		target.addChild(shape);
 #end
 		// number
-		var shape = SvgAssets.getSvgShape(tpl, scaling);		
+		var shape = MusicElements.getSvg(tpl).getShape(scaling);
 		shape.x = tplX;
 		shape.y = tplY;		
 		target.addChild(shape);
 		
-		
 		// arrow
 		switch (dnote.note.heads.first().sign) {
 			case ESign.Sharp:
-				var shape = SvgAssets.getSvgShape('tplArrowUp', scaling);		
+				var shape = MusicElements.tplArrowUp.getShape(scaling);		
 				shape.x = tplX;
 				shape.y = tplY;		
 				target.addChild(shape);
 			case ESign.Flat:
-				var shape = SvgAssets.getSvgShape('tplArrowDown', scaling);		
+				var shape = MusicElements.tplArrowDown.getShape(scaling);		
 				shape.x = tplX;
 				shape.y = tplY;		
 				target.addChild(shape);
@@ -778,7 +782,7 @@ class Render
 		
 	}
 	
-	static private function _drawLyric(target:Sprite, scaling:TScaling, x:Float, y:Float, dnote:DNote) {
+	static public function _drawLyric(target:Sprite, scaling:TScaling, x:Float, y:Float, dnote:DNote) {
 		var graphics = target.graphics;
 		
 		var text:String = dnote.note.text;
@@ -807,7 +811,7 @@ class Render
 		target.addChild(bmp);
 	}
 	
-	static private function _drawLegers(target:Sprite, scaling:TScaling, x:Float, y:Float, dnote:DNote) {
+	static public function _drawLegers(target:Sprite, scaling:TScaling, x:Float, y:Float, dnote:DNote) {
 		var graphics = target.graphics;
 		
 		var x1 = x + scaling.scaleX(dnote.rectHeads.x - Constants.HEAD_LEGER_LEFT) ;
@@ -837,7 +841,7 @@ class Render
 		}
 	}
 	
-	static private function _drawHeadDot(target:Sprite, scaling:TScaling, x:Float, y:Float, level:Int, position:Int, dnote:DNote) {
+	static public function _drawHeadDot(target:Sprite, scaling:TScaling, x:Float, y:Float, level:Int, position:Int, dnote:DNote) {
 		var graphics = target.graphics;
 		
 		//trace([level, dlevel]);
@@ -853,7 +857,7 @@ class Render
 		
 	}
 	
-	static private function dnoteStave(target:Sprite, scaling:TScaling, x:Float, y:Float, dnote:DNote, rects:Bool) {		
+	static public function dnoteStave(target:Sprite, scaling:TScaling, x:Float, y:Float, dnote:DNote, rects:Bool) {		
 		if (dnote.rectStave == null) return;
 
 		var graphics = target.graphics;
@@ -869,19 +873,19 @@ class Render
 
 	}
 
-	static private function _drawHead(target:Sprite, scaling:TScaling, x:Float, y:Float, level:Int, position:Int, headType:EHeadType) {
+	static public function _drawHead(target:Sprite, scaling:TScaling, x:Float, y:Float, level:Int, position:Int, headType:EHeadType) {
 		
 		var headY = y + (level * scaling.halfSpace);
 		var headX = x + position * scaling.scaleX(Constants.HEAD_WIDTH);
 		
-		var shape:Shape; // = SvgAssets.getSvgShape("noteBlack", scaling);			
+		var shape:Shape; // = SvgAssets.getShape(MusicElements.noteBlack", scaling);			
 		switch(headType) {
 			case EHeadType.Whole:
-				shape = SvgAssets.getSvgShape("noteWhole", scaling);
+				shape = MusicElements.noteWhole.getShape(scaling);
 			case EHeadType.White:
-				shape = SvgAssets.getSvgShape("noteWhite", scaling);
+				shape = MusicElements.noteWhite.getShape(scaling);
 			default:
-				shape = SvgAssets.getSvgShape("noteBlack", scaling);
+				shape = MusicElements.noteBlack.getShape(scaling);
 		}
 		
 		shape.x = headX + scaling.svgX;  
@@ -889,21 +893,21 @@ class Render
 		target.addChild(shape);	  	
 	}		
 	
-	static private function _drawPause(target:Sprite, scaling:TScaling, x:Float, y:Float, dnote:DNote) {
+	static public function _drawPause(target:Sprite, scaling:TScaling, x:Float, y:Float, dnote:DNote) {
 		var graphics = target.graphics;
 		
-		var shape:Shape = null; // SvgAssets.getSvgShape("pauseNv16", scaling);		
+		var shape:Shape = null; // SvgAssets.getShape(MusicElements.pauseNv16", scaling);		
 		//trace(dnote.notevalue);
 		
 		var level = dnote.dheads[0].level;
 		
 		switch (dnote.notevalue) {
 			case ENoteValue.Nv16 , ENoteValue.Nv16dot, ENoteValue.Nv16tri:
-				shape = SvgAssets.getSvgShape("pauseNv16", scaling);			
+				shape = MusicElements.pauseNv16.getShape(scaling);			
 			case ENoteValue.Nv8 , ENoteValue.Nv8dot, ENoteValue.Nv8tri:
-				shape = SvgAssets.getSvgShape("pauseNv8", scaling);
+				shape = MusicElements.pauseNv8.getShape(scaling);
 			case ENoteValue.Nv4, ENoteValue.Nv4dot, ENoteValue.Nv4ddot, ENoteValue.Nv4tri:
-				shape = SvgAssets.getSvgShape("pauseNv4", scaling);
+				shape = MusicElements.pauseNv4.getShape(scaling);
 				
 			case ENoteValue.Nv2, ENoteValue.Nv2dot, ENoteValue.Nv2tri:
 				var ry = level - 1 - (level % 2);
@@ -920,7 +924,7 @@ class Render
 				graphics.drawRect(r.x, r.y, r.width, r.height);
 				graphics.endFill();				
 			default: 
-				shape = SvgAssets.getSvgShape("noteBlack", scaling);		
+				shape = MusicElements.noteBlack.getShape(scaling);		
 		}
 		
 		if (shape != null) {
@@ -934,32 +938,32 @@ class Render
 		
 	}	
 	
-	static private function _drawFlag(target:Sprite, scaling:TScaling, x:Float, y:Float, frame:BeamGroupFrame) {
+	static public function _drawFlag(target:Sprite, scaling:TScaling, x:Float, y:Float, frame:BeamGroupFrame) {
 		//var graphics = target.graphics;
 		
 		if (frame.firstNotevalue.beamingLevel < 1) return;
 		
 		//trace('draw flag!');
 		
-		var shape:Shape = new nme.display.Shape(); // = SvgAssets.getSvgShape("flaggor", scaling);
+		var shape:Shape = new nme.display.Shape(); // = SvgAssets.getShape(MusicElements.flaggor", scaling);
 		
 		
 		if (frame.firstNotevalue.beamingLevel == 1) {
 			if (frame.direction == EDirectionUD.Up) {				
-				shape = SvgAssets.getSvgShape("flagUp8", scaling);				
+				shape = MusicElements.flagUp8.getShape(scaling);				
 			} else {
-				shape = SvgAssets.getSvgShape("flagDown8", scaling);				
+				shape = MusicElements.flagDown8.getShape( scaling);				
 			}
 		} else if (frame.firstNotevalue.beamingLevel == 2) {
 				if (frame.direction == EDirectionUD.Up) {				
-				shape = SvgAssets.getSvgShape("flagUp16", scaling);				
+				shape = MusicElements.flagUp16.getShape(scaling);				
 			} else {
-				shape = SvgAssets.getSvgShape("flagDown16", scaling);				
+				shape = MusicElements.flagDown16.getShape(scaling);				
 			}		
 		}
 		
 		
-		//var shape = SvgAssets.getSvgShape('flagUp8', scaling);
+		//var shape = SvgAssets.getShape(MusicElements.flagUp8', scaling);
 		
 
 		var fy = 0.0;
@@ -1057,9 +1061,9 @@ class Render
 			//trace('drawSign x:' + x);
 			var shape:Shape;			
 			switch(sign) {
-				case ESign.Sharp: shape = SvgAssets.getSvgShape('signSharp', scaling);
-				case ESign.Flat: shape = SvgAssets.getSvgShape('signFlat', scaling);
-				default: shape = SvgAssets.getSvgShape('signNatural', scaling);
+				case ESign.Sharp: shape = MusicElements.signSharp.getShape(scaling);
+				case ESign.Flat: shape = MusicElements.signFlat.getShape(scaling);
+				default: shape = MusicElements.signNatural.getShape(scaling);
 			}
 			y = y + (scaling.halfSpace * level);
 			x = x - (position * scaling.signPosWidth) + xOffset;
@@ -1091,9 +1095,9 @@ class Render
 			//trace('drawSign x:' + x);
 			var shape:Shape;	
 			switch(sign) {
-				case ESign.Sharp: shape = SvgAssets.getSvgShape('signSharp', scaling);
-				case ESign.Flat: shape = SvgAssets.getSvgShape('signFlat', scaling);
-				default: shape = SvgAssets.getSvgShape('signNatural', scaling);
+				case ESign.Sharp: shape = MusicElements.signSharp.getShape(scaling);
+				case ESign.Flat: shape = MusicElements.signFlat.getShape(scaling);
+				default: shape = MusicElements.signNatural.getShape(scaling);
 			}
 			y = y + (scaling.halfSpace * level);
 			x = x - (position * scaling.signPosWidth) + xOffset;

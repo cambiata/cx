@@ -1,4 +1,7 @@
 package nx.svg;
+import nme.display.Shape;
+import nx.output.Scaling;
+import nx.output.TScaling;
 
 /**
  * ...
@@ -8,8 +11,10 @@ package nx.svg;
 class MusicElements 
 {
 
+	
 	static public function getSvg(tag:String):String {
 		switch(tag) {
+			/*
 			case 'clefG': 				return clefG;
 			case 'clefF': 				return clefF;
 			case 'clefC': 				return clefC;
@@ -26,9 +31,8 @@ class MusicElements
 			case 'flagUp16': 		return flagUp16;
 			case 'flagDown8': 		return flagDown8;
 			case 'flagDown16': 	return flagDown16;
-			
+			*/
 			case 'time0':				return time0;
-			
 			case 'time1':				return time1;
 			case 'time2':				return time2;
 			case 'time3':				return time3;
@@ -40,7 +44,7 @@ class MusicElements
 			case 'time9':				return time9;
 			case 'timeCommon':	return timeCommon;
 			case 'timeAllabreve':	return timeAllabreve;
-			
+			/*
 			case 'tplCircle':			return tplCircle;
 			case 'tplArrowUp':		return tplArrowUp;
 			case 'tplArrowDown':return tplArrowDown;
@@ -51,10 +55,11 @@ class MusicElements
 			case 'tpl5':				return tpl5;
 			case 'tpl6':				return tpl6;
 			case 'tpl7':				return tpl7;
-			
+			*/
 			default:						return noteBlack;
 		}
 	}
+	
 	
 	static public var clefG:String = 
 		'<svg><g><path style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none"
@@ -272,6 +277,15 @@ class MusicElements
 <svg ><g visibility="visible" id="page1"><desc>Slide</desc><g><desc>Drawing</desc><g><g style="stroke:none;fill:none"><rect x="0" y="464" width="503" height="1205"/></g><g/></g></g><g><desc>Drawing</desc><g><g style="stroke:none;fill:#000000"><path d="M 61,138 L 61,125 126,125 126,136 C 120,142 114,152 108,163 102,174 97,186 94,197 91,206 90,215 89,225 L 76,225 C 76,217 78,208 81,196 83,185 87,175 93,164 98,154 104,145 110,138 L 61,138 Z"/></g><g style="stroke:none;fill:none"><rect x="61" y="125" width="67" height="101"/></g><g/></g></g></g></svg>	
 	';
 
+	
+	static public function getShape(svgXmlStr:String, ms:TScaling):Shape {
+		var svg = new SVG2Gfx(Xml.parse(svgXmlStr));
+		var shape = svg.CreateShape();
+		shape.cacheAsBitmap = true;
+		shape.scaleX = shape.scaleY = ms.svgScale;	
+		return shape;
+	}	
+	
 }
 
 
