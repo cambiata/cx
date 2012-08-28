@@ -16,7 +16,8 @@ import ka.app.KalleConfig;
  * ...
  * @author Jonas Nyström
  */
-
+using cx.HtmlTools;
+using StringTools;
 class DocumentData 
 {
 
@@ -68,7 +69,7 @@ class DocumentData
 		var insertObject = {
 			tag: doc.tag,
 			title: doc.title,
-			text: StringTools.urlDecode(doc.text),
+			text: StringTools.urlDecode(doc.text.replaceGoogleStyles()),
 		}
 		var sql = SqliteTools.getInsertStatement(insertObject, 'documents');
 		var insertId = SqliteTools.insert(sqlitefile, sql);		
