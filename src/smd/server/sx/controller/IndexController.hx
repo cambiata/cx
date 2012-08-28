@@ -37,9 +37,23 @@ class IndexController extends AbstractController
 	}
 	
 	@URL("/info/([a-zA-Z]+)", "g")
-	public function info(param : String = 'default') {			
+	public function info(param : String = 'default') {				
 		return new IndexResult(State.indexPage, this.data, Config.templatesDir);
 	}
+
+	@URL("/nav/([a-zA-Z]+)", "g")
+	public function nav(param : String = 'default') {					
+		return new IndexResult(State.indexPage, this.data, Config.templatesDir);
+	}
+	
+	
+	@URL("/scorx")
+	public function scorx() {			
+		this.data.layout = { id:0, text:'list' };
+		return new IndexResult(State.indexPage, this.data, Config.templatesDir);
+	}	
+	
+	
 	
 	@URL("/dok/([a-zA-Z]+)", "g")
 	public function dok(param : String = 'default') {					

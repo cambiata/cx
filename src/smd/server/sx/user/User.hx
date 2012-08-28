@@ -72,7 +72,7 @@ class User
 	static public function checkRedirect() {
 
 		if (User.user == null) return;
-		
+		if (Web.getParams().get('editpage') == Config.secretKey) return;
 		
 		
 		if (User.user.success) {

@@ -29,7 +29,6 @@ class UserConfiguration extends AbstractServerConfiguration {
 		User.getCurrentUser();
 		User.checkRedirect();
 		
-		
 		//State.messages.infos.push(Std.string(User.user));
 		//State.messages.infos.push('Hello World');
 		//State.messages.errors.push('This is an error');

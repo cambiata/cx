@@ -3,6 +3,7 @@ import cx.FileTools;
 import cx.SqliteTools;
 import cx.WebTools;
 import harfang.exceptions.Exception;
+import haxe.Utf8;
 import smd.server.sx.Config;
 import neko.Web;
 import smd.server.sx.State;
@@ -25,12 +26,19 @@ class PageData {
 		var type:String = WebTools.getPostValue('type');
 		switch (type) {
 			case 'tag-update':
+				//try {
 				var text = WebTools.getPostValue('text');
 				var id = WebTools.getPostValue('id');			
 				var tag = WebTools.getPostValue('tag');
-				var sql = "UPDATE pagecontent set text='" + StringTools.urlDecode(text) + "' where rowid='" + id + "'";
+				
+				text = text.urlDecode().replace("'", '&rsquo;');
+				
+				var sql = "UPDATE pagecontent set text='" + text + "' where rowid='" + id + "'";
 				var updateID = SqliteTools.execute(file, sql);			
 				State.messages.infos.push('Texttagg <b>' + tag + '</b> uppdaterad!');			
+				//} catch (e:Dynamic) {
+				//	State.messages.errors.push('ERROR: ' + Std.string(e));
+				//}
 			case 'tag-new':
 				var insertObject = {
 					domain: WebTools.getPostValue('domain'),
