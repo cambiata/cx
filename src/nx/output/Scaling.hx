@@ -23,8 +23,6 @@ class Scaling  {
 		}
 	}	
 	
-	
-	
 	static public inline function getBig():TScaling  {
 		return {
 			linesWidth:			1.5,
@@ -62,7 +60,6 @@ class Scaling  {
 			fontScaling:			6.0,
 		}
 	}	
-	
 	
 	static public inline function getNormal():TScaling {
 		return {
@@ -131,40 +128,6 @@ class Scaling  {
 			fontScaling:			1.0,
 		}
 	}
-		
-	
-	
-	
-	/*
-	static public inline function getLinear(): TScaling {
-		return {
-			linesWidth:			0.0,
-			space:					0.0,
-			halfSpace: 				10.0,
-			noteWidth:				0.0,
-			halfNoteWidth:		0.0,
-			quarterNoteWidth: 	10.0,
-			signPosWidth:		0.0,
-			svgScale:				0.0,
-			svgX:					-2.0,
-			svgY:					0.0,
-			fontScaling:			0.0,
-		}		
-		
-	}*/
-	
-	
-	/*
-	static public inline function scaleRectangleX(rectangle:Rectangle, ms:TScaling):Rectangle {
-		return new Rectangle(rectangle.x*ms.quarterNoteWidth, rectangle.y*ms.halfSpace, rectangle.width*ms.quarterNoteWidth, rectangle.height*ms.halfSpace);
-	}	
-	*/
-	
-	/*
-	static public inline function scaleXX(displayX:Float, ms:TScaling):Float {
-		return displayX * ms.quarterNoteWidth;
-	}	
-	*/
 	
 	static public inline function scaleRect(ms:TScaling, rectangle:Rectangle):Rectangle {
 		return new Rectangle(rectangle.x*ms.quarterNoteWidth, rectangle.y*ms.halfSpace, rectangle.width*ms.quarterNoteWidth, rectangle.height*ms.halfSpace);		
@@ -185,6 +148,17 @@ class Scaling  {
 	static public inline function descaleY(ms:TScaling, realY:Float):Float {
 		return realY / ms.halfSpace;
 	}	
+	
+	static public function scaleUp(scaling:TScaling) :TScaling {
+		switch(scaling.space) {
+			case getMicro().space: return getMini();
+			case getMini().space: return getNormal();
+			case getNormal().space: return getMid();
+			case getMid().space: return getBig();
+			case getBig().space: return getPrint1();
+			default: return getNormal();
+		}
+	}
 	
 }
 

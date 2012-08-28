@@ -12,7 +12,7 @@ class MusicElements
 {
 
 	
-	static public function getSvg(tag:String):String {
+	static public function getSvgString(tag:String):String {
 		switch(tag) {
 			/*
 			case 'clefG': 				return clefG;

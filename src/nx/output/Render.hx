@@ -390,16 +390,13 @@ class Render
 				var ids = timeId.split('/');
 				var upper = 'time' + ids[0];
 				var lower = 'time' + ids[1];
-				
-				shape = MusicElements.getSvg(upper).getShape(scaling);
+				shape = MusicElements.getSvgString(upper).getShape(scaling);
 				y2 -= scaling.scaleY(Constants.HEAD_HEIGHT);
-				shapeLower = MusicElements.getSvg(lower).getShape(scaling);
+				shapeLower = MusicElements.getSvgString(lower).getShape(scaling);
 				shapeLower.x = x3;
 				shapeLower.y = y2 + scaling.scaleY(Constants.HEAD_HEIGHT*2);
 				target.addChild(shapeLower);
-				
 		}
-		
 		
 		shape.x = x3 ;
 		shape.y = y2;		
@@ -760,7 +757,7 @@ class Render
 		target.addChild(shape);
 #end
 		// number
-		var shape = MusicElements.getSvg(tpl).getShape(scaling);
+		var shape = MusicElements.getSvgString(tpl).getShape(scaling);
 		shape.x = tplX;
 		shape.y = tplY;		
 		target.addChild(shape);

@@ -317,8 +317,8 @@ class Documents  {
 	
 	public  function getCleanHtml(content:String): String {
 		
-		content = RegexTools.closeImageTags(content);
-		content = RegexTools.closeHrTags(content);
+		content = HtmlTools.closeImageTags(content);
+		content = HtmlTools.closeHrTags(content);
 		
 		var xml = Xml.parse(content).firstElement();
 		var bodyXml = XmlTools.getFirstElement (xml, 'body');
