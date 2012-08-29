@@ -21,6 +21,7 @@ class Config
 	static public var homedomain = 'scorx.xe';
 	
 	static public var authSqliteFile = 'data/access.sqlite';
+	static public var loginSqliteFile = 'data/logins.sqlite';
 	
 	
 	/*

@@ -1,5 +1,6 @@
 package smd.server.sx.data;
 import cx.FileTools;
+import cx.HtmlTools;
 import cx.SqliteTools;
 import harfang.exceptions.Exception;
 import harfang.exceptions.HTTPException;
@@ -107,7 +108,8 @@ class DocumentData
 			FileTools.putContent(fn, content);
 			*/
 			
-			content = d.getCleanHtml(content);		
+			//content = d.getCleanHtml(content);		
+			content = HtmlTools.replaceGoogleStyles(content);
 			
 			doc.tag = tag;
 			doc.title = tag;

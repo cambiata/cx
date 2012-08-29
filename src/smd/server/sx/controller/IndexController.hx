@@ -45,13 +45,21 @@ class IndexController extends AbstractController
 	public function nav(param : String = 'default') {					
 		return new IndexResult(State.indexPage, this.data, Config.templatesDir);
 	}
-	
+
 	
 	@URL("/scorx")
 	public function scorx() {			
 		this.data.layout = { id:0, text:'list' };
 		return new IndexResult(State.indexPage, this.data, Config.templatesDir);
 	}	
+	
+	
+	@URL("/firstlogin")
+	public function firstlogin() {			
+		this.data.layout = { id:0, text:'nav' };
+		return new IndexResult(State.indexPage, this.data, Config.templatesDir);
+	}		
+	
 	
 	
 	
