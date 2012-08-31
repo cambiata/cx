@@ -23,7 +23,7 @@ class User
 		var auth = new AuthSqlite(Web.getCwd() + Config.filesDir + Config.authSqliteFile, Web.getCwd() + Config.filesDir + Config.loginSqliteFile);
 		
 		NekoSession.setSavePath(sessionDir);		
-		NekoSession.domain = '.' + WebTools.getDomainInfo().maintop;
+		NekoSession.domain = '.' + WebTools.getDomainInfo().mainTop;
 		// logga in eller logga ut...		
 		
 		if (Web.getMethod() == 'POST') {						
@@ -71,52 +71,57 @@ class User
 
 	static public function checkRedirect() {
 
-		if (User.user == null) return;
+		function redirectTo(uri:String) {
+			var url = 'http://' + uri;		
+			Web.redirect(url);
+		}		
+		
 		
 		if (Web.getParams().get('editpage') == Config.secretKey) return;
 		
-		if (User.user.success) {
-			
-			var currentDomain = WebTools.getDomainInfo().submain;
-			var top = WebTools.getDomainInfo().topdomain;			
-			var domain = Config.homedomain;
-			
-			if (user.user == 'kak') domain = 'korakademin.scorx';
-			if (user.user == 'sensus') domain = 'sensus.scorx';
-			if (user.user == 'projekt' && user.pass == 'vivaldi') domain = 'projekt.scorx';
-			
-			if (user.role == 'Deltagare-KSU') domain = 'korakademin.scorx';
-			if (user.role == 'Korledare-KSU') domain = 'korakademin.scorx';
-			if (user.role == 'Deltagare-RKK') domain = 'korakademin.scorx';
-			if (user.role == 'Administratör') domain = 'korakademin.scorx';
-			if (user.role == 'Kantorsstuderande') domain = 'korakademin.scorx';
-			if (user.role == 'Kantorsstuderande') domain = 'korakademin.scorx';
-			
-			if (user.role == 'Sensus30') domain = 'sensus.scorx';
-			if (user.role == 'Projekt-Vivaldi') domain = 'projekt.scorx';
-			
+		var currentDomain = WebTools.getHostName();
+		var top = WebTools.getDomainInfo().topdomain;			
+		var domain = Config.homedomain; // WebTools.domainparts(Config.homedomain).maindomain;
+		var redirect = '';
+		
+		if (User.user == null) {
+			if (currentDomain != Config.homedomain) redirect = domain;						
+		} else if (!User.user.success) {
+			if (currentDomain != Config.homedomain) redirect = domain;						
+		} else if (User.user.success) {
+		
+			switch (user.role) {				
+				case 
+				'Deltagare-KSU',
+				'Korledare-KSU',
+				'Deltagare-RKK',
+				'Administratör',
+				'Kantorsstuderande'				
+				: domain = 'korakademin.scorx';								
+				case 'Sensus30': domain = 'sensus.scorx';
+				case 'Projekt-Vivaldi': domain = 'projekt.scorx';				
+				default : domain = 'scorx';
+			}
+		
 			var page = '';
 			
-			if (domain ==  'korakademin.scorx' && user.logins < 2) {
-				page = '/firstlogin';				
+			if (domain ==  'korakademin.scorx' && user.logins < 1) {
+				page = '/dok/kurs/first';				
 			}
 			
-			if (currentDomain != domain) {				
-				var url = 'http://' + domain + '.' + top + page;
-				Web.redirect(url);
+			if (WebTools.getDomainInfo().subMain != domain) {
+				redirect = domain + '.' + top + page;
 			}
 			
+			//State.messages.infos.push(WebTools.getDomainInfo().subMain + ' ' + domain );
+			//if (currentDomain != domain) redirect = domain + '.' + top + page;		
+			//if (currentDomain != domain
 		}
+
+		//State.messages.infos.push(WebTools.getDomainInfo().subMain + ' ' + currentDomain + ' ' + domain + '  redirect:' + redirect);
 		
-		if (!User.user.success) {
-			var domain = WebTools.getDomainInfo().submain;
-			var top = WebTools.getDomainInfo().topdomain;
-			if (domain != 'scorx') {
-				//var url = 'http://scorx.' + top
-				var url = 'http://' + Config.homedomain;				
-				Web.redirect(url);
-			}			
-		}
+		if (redirect != '') redirectTo(redirect);
+		
 	}
 
 

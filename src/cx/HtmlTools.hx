@@ -123,6 +123,11 @@ class HtmlTools
 	
 		return return xml.toString();
 	}
+	
+	static public function replaceRootLinks(htmlString:String):String {
+		return htmlString.replace('http:///', '/');
+	}
+	
 }
 
 typedef TCssStyle = {

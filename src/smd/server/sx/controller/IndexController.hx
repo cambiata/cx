@@ -53,14 +53,18 @@ class IndexController extends AbstractController
 		return new IndexResult(State.indexPage, this.data, Config.templatesDir);
 	}	
 	
+	@URL("/video/([a-zA-Z0-9/]+)", "g")
+	public function video(param : String = 'default') {	
+		this.data.layout = { id:0, text:'video' };
+		this.data.param = param.substr(0, param.length-1);
+		return new IndexResult(State.indexPage, this.data, Config.templatesDir);
+	}
 	
 	@URL("/firstlogin")
 	public function firstlogin() {			
 		this.data.layout = { id:0, text:'nav' };
 		return new IndexResult(State.indexPage, this.data, Config.templatesDir);
 	}		
-	
-	
 	
 	
 	@URL("/dok/([a-zA-Z]+)", "g")

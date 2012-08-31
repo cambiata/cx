@@ -4,12 +4,23 @@ using StringTools;
 
 class WebTools {
 	
+	
+	
 	static public function stripBaseDirAndIndexFile(uri:String, baseDir:String, indexFile:String) {
 		return uri.replace(baseDir, '').replace(indexFile, '').replace('//', '');	
 	}
 	
+	static public function getHostName() {
+		return Web.getHostName();
+	}
+	
+	
 	static public function getDomainInfo() {		
 		var hostname = neko.Web.getHostName();
+		return domainparts(hostname);
+	}
+	
+	static public function domainparts(hostname:String) {
 		var parts = hostname.split('.');		
 		if (parts.length == 1) parts.push('');
 		if (parts.length == 2) parts.unshift('');				
@@ -21,10 +32,12 @@ class WebTools {
 			topdomain: parts[2],
 			maindomain: parts[1],
 			subdomain: parts[0],
-			submain: (parts[0] > '') ? parts[0] + '.' + parts[1] : parts[1],
-			maintop: (parts[2] > '') ? parts[1] + '.' + parts[2] : parts[1],
+			subMain: (parts[0] > '') ? parts[0] + '.' + parts[1] : parts[1],
+			mainTop: (parts[2] > '') ? parts[1] + '.' + parts[2] : parts[1],
 		}
 	}
+	
+	
 	
 	static public function getUri() {
 		var uri = Web.getURI();
@@ -44,6 +57,8 @@ class WebTools {
 		}
 		return null;
 	}
+	
+	
 	
 	
 	

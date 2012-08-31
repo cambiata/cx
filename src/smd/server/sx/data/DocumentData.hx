@@ -110,6 +110,7 @@ class DocumentData
 			
 			//content = d.getCleanHtml(content);		
 			content = HtmlTools.replaceGoogleStyles(content);
+			content = HtmlTools.replaceRootLinks(content);
 			
 			doc.tag = tag;
 			doc.title = tag;
