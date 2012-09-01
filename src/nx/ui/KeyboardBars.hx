@@ -11,6 +11,7 @@ import nx.element.Note;
 import nx.element.Part;
 import nx.element.Voice;
 import nx.enums.EDirectionUAD;
+import nx.enums.ENoteType;
 import nx.enums.ENoteValue;
 import nx.enums.ESign;
 import nx.enums.ETie;
@@ -98,6 +99,26 @@ class KeyboardBars
 			setBar(barNr, partNr, voiceNr, newNoteNr);
 		}
 	}	
+	
+	
+	private function keyCtrl(keyCode:Int):Bool {
+		var render:Bool = false;
+		switch(keyCode) {
+			
+			// Ctrl+Insert
+			case 45: {
+				var newBar = bar.cloneContent();
+				bars.bars.push(newBar);
+				setBar(barNr + 1, partNr, voiceNr, noteNr);
+				render = true;				
+			}
+			
+			default:
+		}
+		
+		return render;			
+	}
+				
 	
 	private function key(keyCode:Int):Bool {
 		var render:Bool = false;
@@ -242,17 +263,34 @@ class KeyboardBars
 			}
 			
 			// -
-			case 191: {
+			case 189, 191: {
 				var tie = (note.heads[0].tie != null) ? null : ETie.Tie(EDirectionUAD.Auto);
 				note.setTie(tie);
 				bar = bar.clone();
 				render = true;				
 			}
 			
+			// P
+			case 80: {
+				var type:ENoteType = null;
+				switch (note.type) {
+					case ENoteType.Normal: type = ENoteType.Pause;
+					case ENoteType.Pause: type = ENoteType.Normal;
+					default:
+				}
+				if (type != null) {
+					note.setType(type);
+					bar = bar.clone();
+					render = true;				
+				}
+				
+			}
+			
 			// X
-			case 120: {
-				var newBar = bar.clone();
+			case 88: {
+				var newBar = bar.cloneContent();
 				bars.bars.push(newBar);
+				setBar(barNr + 1, partNr, voiceNr, noteNr);
 				render = true;
 			}
 			
@@ -272,6 +310,8 @@ class KeyboardBars
 		var render = false;
 		
 		if (!e.ctrlKey && !e.altKey && !e.shiftKey) render = key(e.keyCode);
+		if (e.ctrlKey && !e.altKey && !e.shiftKey) render = keyCtrl(e.keyCode);
+		
 		
 		trace([e.keyCode, barNr, partNr, voiceNr, noteNr, headNr]);
 		
@@ -290,13 +330,11 @@ class KeyboardBars
 		this.renderCallback = renderCallback;
 		timer = new Timer(300);
 		timer.addEventListener(TimerEvent.TIMER, onKeyTimer);
-		
 		setBarNr(0);
 		stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);
 	}
 	
 	private function onKeyTimer(e:TimerEvent):Void {
-		trace('TIMER');
 		timer.stop();
 		this.renderCallback();
 	}

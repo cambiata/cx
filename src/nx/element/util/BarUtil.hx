@@ -1,6 +1,7 @@
 package nx.element.util;
 import nx.element.Bar;
 import nx.element.Note;
+import nx.element.Part;
 
 /**
  * ...
@@ -13,8 +14,19 @@ class BarUtil
 		return Bar.fromXmlStr(bar.toXml().toString());
 	}
 	
-	/*
+	
 	static public function cloneContent(bar:Bar):Bar {
+		var parts: Array<Part> = [];
+		
+		for (part in bar.parts) {
+			var voices = Part.fromXmlStr(part.toXml().toString()).voices;
+			parts.push(new Part(part.type, voices));
+		}
+		
+		var newBar = new Bar(parts);
+		return newBar;
+		
+		/*
 		var newBar = Bar.fromXmlStr(bar.toXml().toString());
 		newBar.time = null;
 		newBar.timeDisplay = null;
@@ -33,8 +45,8 @@ class BarUtil
 			
 		}
 		return newBar;
+		*/
 	}	
-	*/
 	
 	
 	static public function removeNotes(bar:Bar) {
