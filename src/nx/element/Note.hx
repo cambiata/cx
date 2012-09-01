@@ -26,9 +26,9 @@ class Note
 	//-----------------------------------------------------------------------------------------------------
 	
 	public var heads(default, null):Array<Head>;
-	public var notevalue(default, null):ENoteValue;
+	public var notevalue(default, default):ENoteValue;
 	public var direction(default, null):EDirectionUAD;
-	public var type(default, null):ENoteType;
+	public var type(default, default):ENoteType;
 	public var text(default, null):String;
 
 	//-----------------------------------------------------------------------------------------------------
@@ -36,6 +36,8 @@ class Note
 	private function _sortHeads()  {
 		this.heads.sort(function(a, b) { return Reflect.compare(a.level, b.level); } );
 	}
+	
+
 	
 	/************************************************************************
 	 * XML functions

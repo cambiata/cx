@@ -2,6 +2,8 @@ package nx.display;
 import cx.ArrayTools;
 import nme.geom.Rectangle;
 import nx.Constants;
+import nx.display.beam.IBeamingProcessor;
+import nx.display.type.TPartsYMeasurements;
 import nx.element.Bar;
 import nme.ObjectHash;
 import nx.enums.EAckolade;
@@ -53,11 +55,14 @@ class DBar
 	public var dIndentLeft					(default, null)	:	Null<Float>;
 	public var dIndentRight				(default, null)	:	Null<Float>;
 	
-	public function new(bar:Bar=null, barDisplaySettings:TBarDisplaySettings=null) {				
+	//private var beamingProcessor		(default, null)	:	IBeamingProcessor;
+	
+	
+	public function new(bar:Bar=null, barDisplaySettings:TBarDisplaySettings=null, beamingProcessor:IBeamingProcessor=null) {				
 		this.bar 					= (bar != null) ? bar : new Bar();				
 		this.allotment 		= EAllotment.Logaritmic;
 		this._value 			= 0;
-
+		
 		//-----------------------------------------------------------------------------------------------------
 		
 		this.dparts = [];
@@ -98,7 +103,7 @@ class DBar
 
 	public function setDisplaySettings(settings:TBarDisplaySettings = null) {
 		
-		this._dpartTop = null;
+		//this._dpartTop = null;
 		
 		//----------------------------------------
 		
@@ -800,6 +805,7 @@ class DBar
 	
 	//-----------------------------------------------------------------------------------------------------
 	
+	/*
 	private var _dpartTop:ObjectHash<DPart, Float>;
 	public var dpartTop(get_dpartTop, null):ObjectHash<DPart, Float>;
 	private function get_dpartTop():ObjectHash<DPart, Float> {
@@ -827,6 +833,78 @@ class DBar
 	public function resetDpartTop() {
 		this._dpartTop = null;
 		//var dummy = this.dpartTop;
+	}
+	*/
+	
+	//-------------------------------------------------------------------------------------------------
+	
+	private var _dpartsRects:Array<Rectangle>;	
+	public var dpartsRects(get_dpartsRects, null):Array<Rectangle>;
+	private function get_dpartsRects():Array<Rectangle> {
+		if (this._dpartsRects != null) return this._dpartsRects;
+		this._dpartsRects = [];
+		for (dpart in this.dparts) {
+			this._dpartsRects.push(dpart.rectDPartHeight);
+		}
+		return this._dpartsRects;
+	}
+	
+	
+	private var _dpartTypes:Array<EPartType>;
+	public var dpartTypes(get_dpartTypes, null):Array<EPartType>;
+	private function get_dpartTypes():Array<EPartType> {
+		if (this._dpartTypes != null) return this._dpartTypes;
+		this._dpartTypes = [];
+		for (dpart in this.dparts) {
+			this._dpartTypes.push(dpart.part.type);
+		}
+		return this._dpartTypes;
+	}
+	
+	private var _dpartYPositions:Array<Float>;
+	public var dpartYPositions(get_dpartYPositions, null):Array<Float>;
+
+	private function get_dpartYPositions():Array<Float> {
+		if (this._dpartYPositions != null) return this._dpartYPositions;		
+		var meas:TPartsYMeasurements = calcPartsMeasurements(this.dpartsRects, this.dpartTypes);
+		this._dpartYPositions = meas.partYPositions;
+		this._dpartsHeight = meas.partsHeight;
+		return this._dpartYPositions;
+	}	
+	
+	private var _dpartsHeight:Null<Float>;
+	public var dpartsHeight(get_dpartsHeight, null):Float;
+	private function get_dpartsHeight():Float {
+		if (this._dpartsHeight != null) return this._dpartsHeight;
+		this._dpartYPositions = null; // force recalculation of dpartYPositions		
+		return this._dpartsHeight;
+	}
+	
+	static public function calcPartsMeasurements(partRects:Array<Rectangle>, partTypes:Array<EPartType>=null):TPartsYMeasurements{			
+		var distance = 0.0;
+		var prevPRect:Rectangle = null;
+		var tops:Array<Float> = [];
+		for (pRect in partRects) {
+			var pIdx = partRects.index(pRect);			
+			if (prevPRect == null) {
+				distance += -(pRect.y);
+				tops.push(distance);
+			} else {
+				var increase = (prevPRect.height + prevPRect.y) + -pRect.y + Constants.PART_MIN_DISTANCE;												
+				var minDistance:Float = 0.0;
+				if (partTypes == null) {
+					minDistance = EPartTypeDistances.getMinDistance(EPartType.Normal);
+				} else {
+					minDistance = EPartTypeDistances.getMinDistance(partTypes[pIdx]);
+				}
+				distance += Math.max(minDistance, increase);
+				
+				tops.push(distance);
+			}			
+			prevPRect = pRect;
+		}		
+		var partsHeight = distance  + (prevPRect.y + prevPRect.height);
+		return {partYPositions: tops, partsHeight:partsHeight};		
 	}
 
 	/*
@@ -875,6 +953,7 @@ typedef TPosComplex = {
 	rectsAll: Array<Array<Rectangle>>,	
 	rectsHeadW:Array<Float>,
 }
+
 
 /*
 typedef TBarDisplaySettings = {

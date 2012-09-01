@@ -1,4 +1,5 @@
 package nx.display.type;
+import nme.geom.Rectangle;
 
 /**
  * ...
@@ -7,7 +8,7 @@ package nx.display.type;
 
 typedef TDBarSystemMeasurments = {
 	width: Float,
-	//y: Float,
 	x: Float,
+	partRects:Array<Rectangle>,
 	stretch: Bool,	
 }

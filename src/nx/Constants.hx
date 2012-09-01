@@ -66,7 +66,7 @@ class Constants {
 	static public inline var TEXT_YADJUST:Float = 2.8;
 	
 	
-	static public inline var PART_MIN_DISTANCE:Float = 2;
+	static public inline var PART_MIN_DISTANCE:Float = 0;
 	static public inline var ACKOLADE_CLEF_MARGIN:Float = 1;
 	
 	static public inline var TPL_RECT_X:Float = 6;

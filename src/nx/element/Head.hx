@@ -19,9 +19,9 @@ class Head
 		//trace(this.sign);
 	}
 	
-	public var level(default, null):Int;
-	public var sign(default, null):ESign;
-	public var tie(default, null):ETie;
+	public var level(default, default):Int;
+	public var sign(default, default):ESign;
+	public var tie(default, default):ETie;
 	
 	//-----------------------------------------------------------------------------------------------------
 	/*

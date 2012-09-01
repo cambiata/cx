@@ -149,6 +149,7 @@ class Scaling  {
 		return realY / ms.halfSpace;
 	}	
 	
+	/*
 	static public function scaleUp(scaling:TScaling) :TScaling {
 		switch(scaling.space) {
 			case getMicro().space: return getMini();
@@ -156,9 +157,10 @@ class Scaling  {
 			case getNormal().space: return getMid();
 			case getMid().space: return getBig();
 			case getBig().space: return getPrint1();
-			default: return getNormal();
+			default: return getMicro();
 		}
 	}
+	*/
 	
 }
 

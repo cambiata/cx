@@ -19,7 +19,7 @@ class Voice
 		this.direction =(direction!= null) ? direction : EDirectionUAD.Auto;
 	}
 
-	public var type(default, null):EVoiceType;
+	public var type(default, default):EVoiceType;
 	public var notes(default, null):Array<Note>;
 	public var direction(default, null):EDirectionUAD;
 	

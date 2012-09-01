@@ -52,9 +52,33 @@ import nx.enums.EVoiceType;
  
 class ExampleDbars 
 {
+	static public function barsStart() {
+		return new Bars([		
+			new Bar([		
+				new Part([
+					new Voice([
+						new Note(), 
+					])
+				], EClef.ClefG, EKey.Flat3),				
+			], ETime.Time3_4),
+		]);			
+		
+	}
+	
+	
+	
 	static public function barsTpl() { 
 		return new Bars([		
-			new Bar([			
+			new Bar([		
+				new Part(EPartType.Tpl, [
+					new Voice([
+						new Note([new Head(0)], ENoteValue.Nv4, ENoteType.Tpl), 
+						new Note([new Head(-1)], ENoteValue.Nv4, ENoteType.Tpl), 
+						new Note([new Head(-2, ESign.Sharp)], ENoteValue.Nv4, ENoteType.Tpl), 
+						new Note([new Head(-3)], ENoteValue.Nv4, ENoteType.Tpl), 
+						new Note([new Head(-4)], ENoteValue.Nv4, ENoteType.Tpl), 
+					])
+				]),				
 				
 				new Part([				
 					new Voice([
@@ -624,7 +648,6 @@ class ExampleDbars
 	
 	static public function barsTest1() {
 		return new Bars([
-			
 			// bar 1
 			new Bar([
 				new Part([
@@ -643,15 +666,13 @@ class ExampleDbars
 						new Note([new Head(0)], ENoteValue.Nv2),				
 					]),
 				], EClef.ClefF, EKey.Flat3),					
-				
-				
 			], ETime.Time4_4, EAckolade.Curly),
 		
 			// bar 2
 			new Bar([
 				new Part([
 					new Voice([
-						new Note([new Head(1)], ENoteValue.Nv2, null, ENoteType.Normal),					
+						new Note([new Head(1)], ENoteValue.Nv4, null, ENoteType.Normal),					
 						new Note([new Head(-3)], ENoteValue.Nv8, null, ENoteType.Normal),					
 						new Note([new Head(-2)], ENoteValue.Nv16, null, ENoteType.Normal),					
 						new Note([new Head(-1, ESign.Sharp)] , ENoteValue.Nv16, null, ENoteType.Normal),					
@@ -662,12 +683,40 @@ class ExampleDbars
 				
 				new Part([
 					new Voice([
-						new Note([new Head(0)], ENoteValue.Nv2dot),				
-						new Note([new Head(0)], ENoteValue.Nv4),				
+						new Note([new Head(0)], ENoteValue.Nv8),				
+						new Note([new Head(0)], ENoteValue.Nv8),				
+						new Note([new Head(0)], ENoteValue.Nv8),				
+						new Note([new Head(0)], ENoteValue.Nv8),				
+						new Note([new Head(0)], ENoteValue.Nv8),				
+						new Note([new Head(0)], ENoteValue.Nv8),				
+						
 					]),
 				]/*, EClef.ClefC*/),							
 				
 			]),		
+			
+			// bar 2b
+			new Bar([
+				new Part([
+					new Voice([
+						new Note([new Head(1)], ENoteValue.Nv8, null, ENoteType.Normal),					
+						new Note([new Head(-3)], ENoteValue.Nv8, null, ENoteType.Normal),					
+						new Note([new Head(-2)], ENoteValue.Nv8, null, ENoteType.Normal),					
+						new Note([new Head(-1, ESign.Sharp)] , ENoteValue.Nv8dot, null, ENoteType.Normal),					
+						new Note([new Head(0)], ENoteValue.Nv16, null, ENoteType.Normal),					
+						new Note([new Head(1)], ENoteValue.Nv8, null, ENoteType.Normal),										
+					]),
+				]),
+				
+				new Part([
+					new Voice([
+						new Note([new Head(0)], ENoteValue.Nv4dot),				
+						new Note([new Head(0)], ENoteValue.Nv4dot),				
+					]),
+				]/*, EClef.ClefC*/),							
+				
+			]),					
+			
 			
 			// bar 3
 			new Bar([

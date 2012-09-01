@@ -74,9 +74,14 @@ class Render
 		
 	}
 	
-	static public function dbar(target:Sprite, scaling:TScaling, x:Float, y:Float, dbar:DBar, stretchToWidth:Float=0, rects:Bool = true) {
+	static public function dbarContent(target:Sprite, scaling:TScaling, x:Float, y:Float, dbar:DBar, stretchToWidth:Float=0, partYPositions:Array<Float>=null, rects:Bool = true) {
 		var gr = target.graphics;
 		gr.endFill();
+		
+		
+		if (partYPositions == null) {
+			partYPositions = dbar.dpartYPositions; //DBar.getDpartYPositions(dbar.dpartsRects, dbar.dpartTypes);			
+		}		
 		
 		// Stretch		
 		var currentWidth = scaling.scaleX(dbar.columnsRectAlloted.width);
@@ -103,7 +108,10 @@ class Render
 			x2 = x + scaling.scaleX(column.sPositionX);
 			for (partComplex in column.complexes) {
 				if (partComplex != null) {					
-					y2 = y + scaling.scaleY(dbar.dpartTop.get(partComplex.dpart));					
+					//y2 = y + scaling.scaleY(dbar.dpartTop.get(partComplex.dpart));	
+					
+					var partIdx = dbar.dparts.index(partComplex.dpart);
+					y2 = y + scaling.scaleY(partYPositions[partIdx]);
 					complex(target, scaling, x2, y2, partComplex, rects, 0, false);
 				}
 			}
@@ -112,7 +120,11 @@ class Render
 		// Draw beams...
 		
 		for (dpart in dbar.dparts) {
-			y2 = y + scaling.scaleY(dbar.dpartTop.get(dpart));					
+			
+			//y2 = y + scaling.scaleY(dbar.dpartTop.get(dpart));			
+			var partIdx = dbar.dparts.index(dpart);
+			y2 = y + scaling.scaleY(partYPositions[partIdx]);			
+			
 			switch (dpart.dType) {
 				case EPartType.Normal:
 					for (dvoice in dpart.dvoices) {
@@ -142,9 +154,11 @@ class Render
 		// Draw part stuff...
 		
 		for (dpart in dbar.dparts) {
-			y2 = y + scaling.scaleY(dbar.dpartTop.get(dpart));				
+			//y2 = y + scaling.scaleY(dbar.dpartTop.get(dpart));				
+			var partIdx = dbar.dparts.index(dpart);
+			y2 = y + scaling.scaleY(partYPositions[partIdx]);				
 			
-			if (rects) {
+			if (true) {
 				var heightRect = dpart.rectDPartHeight;
 				heightRect.width = 10;
 				drawRect(target, scaling, x, y2, heightRect, 1, 0x00FF00);						
@@ -156,7 +170,10 @@ class Render
 		// Draw voice stuff...
 		
 		for (dpart in dbar.dparts) {
-			y2 = y + scaling.scaleY(dbar.dpartTop.get(dpart));			
+			//y2 = y + scaling.scaleY(dbar.dpartTop.get(dpart));			
+			var partIdx = dbar.dparts.index(dpart);
+			y2 = y + scaling.scaleY(partYPositions[partIdx]);				
+			
 			for (dvoice in dpart.dvoices) {
 				dvoiceBarpause(target, scaling, x, y2, dbar, dvoice);
 				dvoiceTies(target, scaling, x, y2, dbar, dvoice);
@@ -204,7 +221,14 @@ class Render
 		gr.endFill();				
 	}
 	
-	static public function dbarFull(target:Sprite, scaling:TScaling, x:Float, y:Float, dbar:DBar, stretchToWidth:Float=0,  rects:Bool = true ) {
+	static public function dbarFull(target:Sprite, scaling:TScaling, x:Float, y:Float, dbar:DBar, stretchToWidth:Float = 0,  partYPositions:Array<Float> = null, rects:Bool = true ) {
+		
+		
+		//var partYPositions:Array<Float>
+		if (partYPositions == null) {
+			partYPositions = dbar.dpartYPositions; // DBar.getDpartYPositions(dbar.dpartsRects, dbar.dpartTypes);			
+		}
+		
 		
 		var barMeas = dbar.getTotalWidthAlloted();
 		
@@ -221,12 +245,14 @@ class Render
 		
 		var attrLeftX = x;
 		var attrLeftWidth = scaling.scaleX(barMeas.attribLeftWidth);
-		//var y2 = y;
 		
 		
-		var y2:Float = 0.0;
-		for (dpart in dbar.dparts) {			
-			y2 = y + scaling.scaleY(dbar.dpartTop.get(dpart));			
+		var y2:Float = 0.0;		
+		for (dpart in dbar.dparts) {	
+			
+			//y2 = y + scaling.scaleY(dbar.dpartTop.get(dpart));
+			var partIdx = dbar.dparts.index(dpart);
+			y2 = y + scaling.scaleY(partYPositions[partIdx]);
 			
 			dbarAttributesLeft(target, scaling, x, y2, dbar, dpart, rects);									
 			attributeClef(target, scaling, x, y2, dbar, dpart, rects);
@@ -237,13 +263,9 @@ class Render
 		
 		var columnsX = x + attrLeftWidth;		
 		var columnsXAdjust = scaling.scaleX(-dbar.columnsRectStretched.x);
-		Render.dbar(target, scaling, columnsX + columnsXAdjust, y, dbar, stretchToWidth2, rects);
-		
-		//trace(dbar.columnsRectAlloted.width);
-		//trace(dbar.columnsRectStretched.width);
+		Render.dbarContent(target, scaling, columnsX + columnsXAdjust, y, dbar, stretchToWidth2, partYPositions, rects);
 		
 		var columnsWidth = scaling.scaleX(dbar.columnsRectStretched.width);
-
 		var attrRightX = columnsX + columnsWidth;
 		var attrRightWidth =  scaling.scaleX(barMeas.attribRightWidth);
 		
@@ -251,7 +273,9 @@ class Render
 		var x2 = attrRightX + attrRightWidth - x;
 		
 		for (dpart in dbar.dparts) {			
-			y2 = Std.int(y + scaling.scaleY(dbar.dpartTop.get(dpart)));									
+			//y2 = Std.int(y + scaling.scaleY(dbar.dpartTop.get(dpart)));									
+			var partIdx = dbar.dparts.index(dpart);
+			y2 = y + scaling.scaleY(partYPositions[partIdx]);
 			
 			barline(target, scaling, attrRightX, y2, dbar, dpart, rects);
 			
@@ -416,21 +440,51 @@ class Render
 		drawRect(target, scaling, x, y, dbar.rectRightindent, 1, 0x0000FF);
 	}
 	
-	static public function systems(target:Sprite, scaling:TScaling, x:Float, y:Float, dsystems:DSystems, rects:Bool = true) {		
-		
-		for (system in dsystems.systems) {
+	static public function systems(target:Sprite, scaling:TScaling, x:Float, y:Float, dsystems:DSystems, partYPositions:Array<Float>=null, rects:Bool = true) {				
+	
+		var systemPartYPositions:Array<Float> = partYPositions;		
+		for (system in dsystems.systems) {			
+			drawRect(target, scaling, x, y, system.rectFull);
 			for (dbar in system.dbars) {
-				var meas = system.getDbarMeasurments(dbar);
+				var meas = system.dbarMeasurments.get(dbar);
 				var dbX 				= scaling.scaleX(meas.x);
 				var dbWidth 		= scaling.scaleX(meas.width);
 				var x2 = x + dbX;				
-				//dbarFull(x2, y-50, dbar, 0, rects);
-				dbarFull(target, scaling, x2, y, dbar, dbWidth, rects);
+				
+				if (partYPositions == null) {
+					systemPartYPositions = system.dpartYPositions;
+				}
+				
+				dbarFull(target, scaling, x2, y, dbar, dbWidth, systemPartYPositions, rects);
 			}
-			y += scaling.scaleY(80);
+			y += scaling.scaleY(system.dpartsHeight);
 		}		
 		
 	}
+
+	static public function systems2(target:Sprite, scaling:TScaling, x:Float, y:Float, dsystems:DSystems, partYPositions:Array<Float>=null, rects:Bool = true) {				
+		var systemPartYPositions:Array<Float> = partYPositions;		
+		for (system in dsystems.systems) {			
+			drawRect(target, scaling, x, y, system.rectFull);
+			for (dbar in system.dbars) {				
+				var barSprite:Sprite = new Sprite();				
+				var meas = system.dbarMeasurments.get(dbar);
+				var dbX 				= scaling.scaleX(meas.x);
+				var dbWidth 		= scaling.scaleX(meas.width);
+				var x2 = x + dbX;				
+				
+				if (partYPositions == null) {
+					systemPartYPositions = system.dpartYPositions;
+				}
+				
+				dbarFull(barSprite, scaling, x2, y, dbar, dbWidth, systemPartYPositions, rects);
+				target.addChild(barSprite);
+			}
+			y += scaling.scaleY(system.dpartsHeight);
+		}		
+		
+	}	
+	
 	
 	static public function savePng(target:Sprite, filename:String='test.png') 	{
 #if (windows || neko)		

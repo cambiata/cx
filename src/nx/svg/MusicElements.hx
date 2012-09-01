@@ -14,24 +14,6 @@ class MusicElements
 	
 	static public function getSvgString(tag:String):String {
 		switch(tag) {
-			/*
-			case 'clefG': 				return clefG;
-			case 'clefF': 				return clefF;
-			case 'clefC': 				return clefC;
-			case 'noteBlack': 		return noteBlack;
-			case 'noteWhite': 		return noteWhite;
-			case 'noteWhole': 		return noteWhole;
-			case 'signNatural': 	return signNatural;
-			case 'signSharp': 		return signSharp;
-			case 'signFlat': 			return signFlat;
-			case 'pauseNv4': 		return pauseNv4;
-			case 'pauseNv8': 		return pauseNv8;
-			case 'pauseNv16': 	return pauseNv16;
-			case 'flagUp8': 			return flagUp8;
-			case 'flagUp16': 		return flagUp16;
-			case 'flagDown8': 		return flagDown8;
-			case 'flagDown16': 	return flagDown16;
-			*/
 			case 'time0':				return time0;
 			case 'time1':				return time1;
 			case 'time2':				return time2;
@@ -44,10 +26,8 @@ class MusicElements
 			case 'time9':				return time9;
 			case 'timeCommon':	return timeCommon;
 			case 'timeAllabreve':	return timeAllabreve;
-			/*
-			case 'tplCircle':			return tplCircle;
-			case 'tplArrowUp':		return tplArrowUp;
-			case 'tplArrowDown':return tplArrowDown;
+
+			
 			case 'tpl1':				return tpl1;
 			case 'tpl2':				return tpl2;
 			case 'tpl3':				return tpl3;
@@ -55,7 +35,7 @@ class MusicElements
 			case 'tpl5':				return tpl5;
 			case 'tpl6':				return tpl6;
 			case 'tpl7':				return tpl7;
-			*/
+			
 			default:						return noteBlack;
 		}
 	}

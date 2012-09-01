@@ -2,6 +2,7 @@ package nx.display;
 import cx.ArrayTools;
 import nme.geom.Rectangle;
 import nx.Constants;
+import nx.display.beam.IBeamingProcessor;
 import nx.element.Part;
 import nme.ObjectHash;
 import nx.enums.EAttributeDisplay;
@@ -21,41 +22,36 @@ class DPart
 {
 	private var _posDNotes:IntHash<Array<DNote>>;
 
-	public var part			(default, null)		:Part;
-	public var dvoices		(default, null)		:Array<DVoice>;
-	public var complexes	(default, null)		:Array<Complex>;	
-	public var positions		(default, null)		:Array<Int>;
+	public var part			(default, null)			:Part;
+	public var dvoices		(default, null)			:Array<DVoice>;
+	public var complexes	(default, null)			:Array<Complex>;	
+	public var positions		(default, null)			:Array<Int>;
 	public var complexPosition(default, null)		:ObjectHash<Complex, Int>;
 	public var complexDistance(default, null)	:ObjectHash<Complex, Float>;
 	public var positionComplex(default, null)	:IntHash<Complex>;
 	
-	public var dType(default, null)				:EPartType;
-	public var dKey(default, null)				:EKey;
-	public var dClef(default, null)				:EClef;
-	public var dLabel(default, null)				:Null<String>;
+	public var dType(default, null)					:EPartType;
+	public var dKey(default, null)					:EKey;
+	public var dClef(default, null)					:EClef;
+	public var dLabel(default, null)					:Null<String>;
 	
 	public function dplex(idx:Int)  return this.complexes[idx]
 	
-	public function new(part:Part=null, partDisplaySettings:TPartDisplaySettings=null) {		
+	public function new(part:Part=null, partDisplaySettings:TPartDisplaySettings=null, beamingProcessor:IBeamingProcessor=null) {		
 		this.part = (part != null) ? part : new Part();		
 		this._value = 0;
 		
 		this.dvoices = [];
 		for (voice in this.part.voices) {
-			this.dvoices.push(new DVoice(voice, voice.direction));
+			this.dvoices.push(new DVoice(voice, voice.direction, beamingProcessor));
 		}
 
-		//-----------------------------------------------------------------------------------------------------
+		//----------------------------------------------------------------------------------------
 		// display settings		
+		
 		var pds = partDisplaySettings;
 		if (partDisplaySettings != null) {
 			this.setDisplaySettings(partDisplaySettings);
-			/*
-			his.dType = 			(pds.dType != null) 			? pds.dType 			: part.type;
-			this.dClef = 			(pds.dClef != null) 			? pds.dClef 			: part.clef;
-			this.dKey = 			(pds.dKey != null) 			? pds.dKey 			: part.key;
-			this.dLabel =			(pds.dLabel != null)			? pds.dLabel			: part.label;
-			*/
 		} else {
 			this.dType = 			part.type;
 			this.dClef = 			part.clef;
@@ -67,21 +63,13 @@ class DPart
 			if (part.keyDisplay == EAttributeDisplay.Never) 		this.dKey = null;				
 		}
 		
-	
-		
-		/*
-		trace([this.dType, pds.dType,	part.type]);
-		trace([this.dClef, pds.dClef,		part.clef]);
-		trace([this.dKey, pds.dKey,		part.key]);
-		trace([this.dLabel, pds.dLabel,	part.label]);
-		*/
-		
-		//-----------------------------------------------------------------------------------------------------
+		//----------------------------------------------------------------------------------------
 		
 		this._calcPositions();
 		this._calcDComplexs();
 		this._calcDistances();
 		this._calcTextAdjustments();
+		
 	}
 	
 
@@ -258,24 +246,29 @@ class DPart
 		
 		if (this._rectDPartHeight != null) return this._rectDPartHeight;
 		
-		var rect = new Rectangle(0, 0, 0, 0);
-		
-		for (dvoice in dvoices) {
-			if (dvoice.voice.type == EVoiceType.Barpause) rect.union(new Rectangle(0, -10, 2, 20));
+		var rect:Rectangle;  
+		switch(this.part.type) {
+			case EPartType.Lyrics:
+				Constants.PART_MIN_DISTANCE;
+				rect = new Rectangle(0, -3, 10, 6);			
+			default: {
+				rect = new Rectangle(0, -8, 10, 16);	
+				for (dvoice in dvoices) {
+					if (dvoice.voice.type == EVoiceType.Barpause) rect.union(new Rectangle(0, -10, 2, 20));
+				}
+			}
 		}
 		
-		for (complex in this.complexes) {
-			rect = rect.union(complex.rectFull);			
+		switch(this.part.type) {
+			case EPartType.Lyrics:
+			default: 
+				for (complex in this.complexes) {
+					rect = rect.union(complex.rectFull);			
+				}				
 		}
-		
-		/*
-		rect = rect.union(this.rectKey);
-		rect = rect.union(this.rectClef);		
-		*/
 		
 		this._rectDPartHeight = rect;
 		return this._rectDPartHeight;
-		
 	}
 	
 	

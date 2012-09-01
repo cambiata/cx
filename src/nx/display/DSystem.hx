@@ -4,6 +4,7 @@ import nme.geom.Rectangle;
 import nme.ObjectHash;
 import nx.display.type.TBarDisplaySettings;
 import nx.display.type.TDBarSystemMeasurments;
+import nx.display.type.TPartsYMeasurements;
 import nx.enums.ETime;
 /**
  * ...
@@ -11,8 +12,7 @@ import nx.enums.ETime;
  */
 using cx.ArrayTools;
 class DSystem 
-{
-	
+{	
 	public var dbars(default, null)					: DBars;
 	public var settings(default, null)				: Array<TBarDisplaySettings>;
 	public var width(default, null) 					: Float;
@@ -45,32 +45,10 @@ class DSystem
 	}
 	
 	public function tryAddingDBar(dbar:DBar, newbarSettings:TBarDisplaySettings, prevbarSettings:TBarDisplaySettings=null):Bool {						
-
-		/*
-		var settings = this.checkSettings(this.currentSettings, newbarSettings, prevbarSettings);		
-		dbar.setDisplaySettings(settings);
-		
-		var dbarWidth:Float = dbar.getTotalWidthAlloted().totalWidth;
-		
-		if (this.dbarsWidthAlloted + dbarWidth > systemBreakWidth) {
-			// system must accept at least one bar!
-			if (this.dbars.length > 0) {
-				//trace('bar is rejected!');
-				return false;
-			}
-		}
-		*/
-		
 		var check:TCheckReturn = this.checkAddingDBar(dbar, newbarSettings, prevbarSettings);
 		if (!check.success) return false;
-		
-
 		this.dbars.push(dbar);
 		this.currentSettings = check.settings;
-		
-		/// Should this be here..? 
-		this.calcDbarsTopPositionX();
-		
 		return true;
 	}
 
@@ -161,6 +139,7 @@ class DSystem
 
 	private var _dbarsPositionXStrecthed:Array<Float>;
 	public var dbarsPositionXStrecthed(get_dbarsPositionXStrecthed, null):Array<Float>;
+
 	private function get_dbarsPositionXStrecthed():Array<Float> {
 		if (this._dbarsPositionXStrecthed != null) return this._dbarsPositionXStrecthed;
 		this._dbarsPositionXStrecthed = [];
@@ -222,51 +201,80 @@ class DSystem
 	
 	//-----------------------------------------------------------------------------------------------------
 	
-	private var _dbarMeasurments:nme.ObjectHash<DBar, TDBarSystemMeasurments>;
-	public function getDbarMeasurments(dbar:DBar):TDBarSystemMeasurments {
-		if (this._dbarMeasurments != null) return this._dbarMeasurments.get(dbar);		
-		
-		///trace('CALC DBAR MEASURMENTS');
-		///trace('STRETCH:' + this.stretch);
-		
+	private var _dbarMeasurments:nme.ObjectHash<DBar, TDBarSystemMeasurments>;	
+	public var dbarMeasurments(get_dbarMeasurments, null):nme.ObjectHash<DBar, TDBarSystemMeasurments>;
+	private function get_dbarMeasurments():nme.ObjectHash<DBar, TDBarSystemMeasurments> {
+		if (this._dbarMeasurments != null) return this._dbarMeasurments;		
 		this._dbarMeasurments = new ObjectHash<DBar, TDBarSystemMeasurments>();
-		this.calcDbarsTopPositionX();
-		
 		for (dbar in this.dbars) {
-			var meas:TDBarSystemMeasurments = { x:0, width:0, stretch:false };
+			var meas:TDBarSystemMeasurments = { x:0, width:0, stretch:false, partRects:[] };
 			meas.width = 	(this.stretch) ?		this.getDbarStretchedWidth(dbar) : 		dbar.getTotalWidthAlloted().totalWidth;		
 			meas.x = 			(this.stretch) ?		this.getDbarPositionXStretched(dbar) :	this.getDbarPositionXAlloted(dbar);
 			//meas.y = 12345;
+			meas.partRects = this.systemPartsRects;
 			this._dbarMeasurments.set(dbar, meas);
-		}
-		
-		return this._dbarMeasurments.get(dbar);
+		}		
+		return this._dbarMeasurments;
 	}
 	
 	//-----------------------------------------------------------------------------------------------------
-	 
-	
-	/// CHANGE THIS LOGIC that sets the top position values TO THE DBAR instead of keeping them in a system property
-	public function calcDbarsTopPositionX() {
-		var systemPartsRect:Array<Rectangle> = [];
+
+	private var _systemPartsRects:Array<Rectangle>;
+	public var systemPartsRects(get_systemPartsRects, null):Array<Rectangle>;	
+	private function get_systemPartsRects():Array<Rectangle> {
+		if (this._systemPartsRects != null) return this._systemPartsRects;
+		this._systemPartsRects = [];
 		
-		for (i in 0...dbars.first().dparts.length) systemPartsRect.push(new Rectangle(0, 0, 10, 0));
+		for (i in 0...dbars.first().dparts.length) _systemPartsRects.push(new Rectangle(0, 0, 2, 0));
 		
 		for (dbar in dbars) {
+			//trace('- BAR');
 			for (dpart in dbar.dparts) {
 				var pidx = dbar.dparts.index(dpart);
-				systemPartsRect[pidx] = systemPartsRect[pidx].union(dpart.rectDPartHeight);
+				var partRectHeight = dpart.rectDPartHeight;				
+				_systemPartsRects[pidx] = _systemPartsRects[pidx].union(partRectHeight);
 			}
+		}		
+		for (sysRect in _systemPartsRects) {
+			sysRect.x = 0; // dummy Values
+			sysRect.width = 10; // dummy values
 		}
-		
-		for (dbar in dbars) {			
-			for (dpart in dbar.dparts) {		
-				var pidx = dbar.dparts.index(dpart);
-				dpart.setRectDPartHeight(systemPartsRect[pidx]);
-			}
-		}
+		return this._systemPartsRects;
 	}
+	
+	private var _dpartYPositions:Array<Float>;
+	public var dpartYPositions(get_dpartYPositions, null):Array<Float>;
+	private function get_dpartYPositions():Array<Float> {
+		if (this._dpartYPositions != null) return this._dpartYPositions;		
+		var meas:TPartsYMeasurements = DBar.calcPartsMeasurements(this.systemPartsRects, this.dbars.first().dpartTypes);
+		this._dpartYPositions = meas.partYPositions;
+		this._dpartsHeight = meas.partsHeight;		
+		return this._dpartYPositions;
+	}		
 
+	private var _dpartsHeight:Null<Float>;
+	public var dpartsHeight(get_dpartsHeight, null):Float;
+	private function get_dpartsHeight():Float {
+		if (this._dpartsHeight != null) return this._dpartsHeight;
+		this._dpartYPositions = null; // force recalculation of dpartYPositions		
+		this.dpartYPositions;
+		return this._dpartsHeight;
+	}	
+	
+	private var _rectFull:Rectangle;
+	public var rectFull(get_rectFull, null):Rectangle;
+	private function get_rectFull():Rectangle {
+		if (this._rectFull != null) return this._rectFull;		
+		this._rectFull = new Rectangle(0, 0, 1, 1);
+		if (this.stretch) {
+			this._rectFull.width = this.width;
+		} else {
+			this._rectFull.width = this.dbarsWidthAlloted;
+		}		
+		this._rectFull.y = 0; // this.systemPartsRects[0].y;
+		this._rectFull.height = this.dpartsHeight;				
+		return this._rectFull;
+	}
 	
 }
 
