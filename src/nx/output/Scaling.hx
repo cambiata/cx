@@ -76,7 +76,7 @@ class Scaling  {
 			signPosWidth:		9.5,
 			svgScale:				.175,
 			svgX:					-5.5,
-			svgY:					-39.0,
+			svgY:					-40.0,
 			fontScaling:			4.0,
 		}
 	}

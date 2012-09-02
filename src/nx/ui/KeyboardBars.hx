@@ -122,6 +122,7 @@ class KeyboardBars
 					var xmlStr = FileTools.getContent('F2.xml');
 					trace(xmlStr);
 					bars = Bars.fromXmlStr(xmlStr);
+					setBar(0, 0, 0, 0);
 					render = true;
 				#end
 			}			
@@ -161,10 +162,9 @@ class KeyboardBars
 			
 			// Ctrl + F2
 			case 113: {
-#if (neko || cpp)
-	FileTools.putContent('F2.xml', bars.toXml().toString());
-#end
-				
+				#if (neko || cpp)
+					FileTools.putContent('F2.xml', bars.toXml().toString());
+				#end
 			}
 			
 			
