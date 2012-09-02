@@ -1,4 +1,5 @@
 package nx.ui;
+import cx.FileTools;
 import nme.display.Stage;
 import nme.events.KeyboardEvent;
 import nme.events.TimerEvent;
@@ -9,20 +10,31 @@ import nx.element.Bars;
 import nx.element.Head;
 import nx.element.Note;
 import nx.element.Part;
+import nx.element.util.PartUtil;
 import nx.element.Voice;
+import nx.enums.EBarline;
+import nx.enums.EClef;
 import nx.enums.EDirectionUAD;
+import nx.enums.EKey;
 import nx.enums.ENoteType;
 import nx.enums.ENoteValue;
 import nx.enums.ESign;
 import nx.enums.ETie;
+import nx.enums.ETime;
 import nx.enums.EVoiceType;
 
 /**
  * ...
  * @author Jonas Nyström
  */
+using nx.element.util.BarsUtil;
 using nx.element.util.BarUtil;
+using nx.element.util.PartUtil;
 using nx.element.util.NoteUtil;
+using nx.enums.utils.EKeyTools;
+using nx.enums.utils.EClefTools;
+using nx.enums.utils.ETimeTools;
+using nx.enums.utils.EBarlineTools;
 using cx.ArrayTools;
 
 class KeyboardBars 
@@ -99,19 +111,62 @@ class KeyboardBars
 			setBar(barNr, partNr, voiceNr, newNoteNr);
 		}
 	}	
+
 	
+	private function keyShift(keyCode:Int):Bool {
+		var render:Bool = false;
+		switch(keyCode) {	
+			// Ctrl + F2
+			case 113: {
+				#if (neko || cpp)
+					var xmlStr = FileTools.getContent('F2.xml');
+					trace(xmlStr);
+					bars = Bars.fromXmlStr(xmlStr);
+					render = true;
+				#end
+			}			
+		}
+		
+		return render;
+	}
 	
 	private function keyCtrl(keyCode:Int):Bool {
 		var render:Bool = false;
 		switch(keyCode) {
 			
-			// Ctrl+Insert
-			case 45: {
+			// Ctrl + PageDown
+			case 34 : {
+				bars.addPart();
+				bar = bar.clone();
+				render = true;
+				
+			}
+			
+			// Ctrl + Insert, Ctrl + Enter
+			case 45, 13: {
 				var newBar = bar.cloneContent();
 				bars.bars.push(newBar);
 				setBar(barNr + 1, partNr, voiceNr, noteNr);
 				render = true;				
 			}
+
+			// Ctrl + V
+			case 118: {
+				if (part.voices.length == 1) {
+					part.addVoice();
+					bar = bar.clone();
+					render = true;
+				}
+			}			
+			
+			// Ctrl + F2
+			case 113: {
+#if (neko || cpp)
+	FileTools.putContent('F2.xml', bars.toXml().toString());
+#end
+				
+			}
+			
 			
 			default:
 		}
@@ -176,8 +231,8 @@ class KeyboardBars
 				render = true;
 			}
 			
-			// Insert
-			case 45: {
+			// Insert, Enter
+			case 45, 13: {
 				if (voice.type == EVoiceType.Barpause) {
 					voice.type = EVoiceType.Normal;
 					setBar(barNr, partNr, voiceNr, noteNr);
@@ -271,7 +326,7 @@ class KeyboardBars
 			}
 			
 			// P
-			case 80: {
+			case 80, 112: {
 				var type:ENoteType = null;
 				switch (note.type) {
 					case ENoteType.Normal: type = ENoteType.Pause;
@@ -285,6 +340,48 @@ class KeyboardBars
 				}
 				
 			}
+			
+			
+			// F2
+			case 113: {
+				part.setClef(part.clef.nextClef());
+				setBar(barNr, partNr, voiceNr, noteNr);
+				bar = bar.clone();
+				render = true;
+			}
+			
+			// F3
+			case 114: {
+				part.setKey(part.key.prevKey());
+				setBar(barNr, partNr, voiceNr, noteNr);
+				bar = bar.clone();
+				render = true;
+			}
+			
+			// F4
+			case 115: {
+				part.setKey(part.key.nextKey());
+				setBar(barNr, partNr, voiceNr, noteNr);
+				bar = bar.clone();
+				render = true;
+			}
+
+			// F5
+			case 116: {
+				bar.setTime(bar.time.nextTime());
+				setBar(barNr, partNr, voiceNr, noteNr);
+				bar = bar.clone();
+				render = true;
+			}
+			
+			// F6
+			case 117: {
+				bar.setBarline(bar.barline.nextBarline());
+				bar = bar.clone();
+				setBar(barNr, partNr, voiceNr, noteNr);
+				render = true;
+			}
+			
 			
 			// X
 			case 88: {
@@ -311,6 +408,7 @@ class KeyboardBars
 		
 		if (!e.ctrlKey && !e.altKey && !e.shiftKey) render = key(e.keyCode);
 		if (e.ctrlKey && !e.altKey && !e.shiftKey) render = keyCtrl(e.keyCode);
+		if (!e.ctrlKey && !e.altKey && e.shiftKey) render = keyShift(e.keyCode);
 		
 		
 		trace([e.keyCode, barNr, partNr, voiceNr, noteNr, headNr]);
@@ -328,7 +426,7 @@ class KeyboardBars
 	public function new(stage:Stage, bars:Bars, renderCallback:Void->Void=null) {
 		this.bars = bars;
 		this.renderCallback = renderCallback;
-		timer = new Timer(300);
+		timer = new Timer(200);
 		timer.addEventListener(TimerEvent.TIMER, onKeyTimer);
 		setBarNr(0);
 		stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyDown);

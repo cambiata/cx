@@ -31,9 +31,9 @@ class Bar
 	}
 	
 	//public var time(default, null): ETime;
-	public var time(default, null): ETime;
+	public var time(default, default): ETime;
 	public var timeDisplay(default, null):EAttributeDisplay;	
-	public var barline(default, null):EBarline;	
+	public var barline(default, default):EBarline;	
 	public var barlineLeft(default, null):EBarlineLeft;
 	public var ackolade(default, null):EAckolade;
 	public var indentLeft(default, null):Float;

@@ -75,8 +75,8 @@ class Scaling  {
 			quarterNoteWidth: 	2.75,
 			signPosWidth:		9.5,
 			svgScale:				.175,
-			svgX:					-6.0,
-			svgY:					-40.0,
+			svgX:					-5.5,
+			svgY:					-39.0,
 			fontScaling:			4.0,
 		}
 	}

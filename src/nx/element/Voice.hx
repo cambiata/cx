@@ -21,7 +21,7 @@ class Voice
 
 	public var type(default, default):EVoiceType;
 	public var notes(default, null):Array<Note>;
-	public var direction(default, null):EDirectionUAD;
+	public var direction(default, default):EDirectionUAD;
 	
 	/*************************************************************
 	 * XML functions

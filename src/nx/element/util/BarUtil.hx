@@ -2,6 +2,11 @@ package nx.element.util;
 import nx.element.Bar;
 import nx.element.Note;
 import nx.element.Part;
+import nx.element.Voice;
+import nx.enums.EBarline;
+import nx.enums.EClef;
+import nx.enums.EPartType;
+import nx.enums.ETime;
 
 /**
  * ...
@@ -48,6 +53,19 @@ class BarUtil
 		*/
 	}	
 	
+	static public function addPart(bar:Bar, newIdx:Int=-1, type:EPartType=null) {
+		if (newIdx == -1) newIdx = bar.parts.length;
+		newIdx = Std.int(Math.max(0, Math.min(newIdx, bar.parts.length)));
+		bar.parts.insert(newIdx, new Part(type, [new Voice()]));
+	}
+	
+	static public function setTime(bar:Bar, time:ETime) {
+		bar.time = time;	
+	}
+	
+	static public function setBarline(bar:Bar, barline:EBarline) {
+		bar.barline = barline;
+	}
 	
 	static public function removeNotes(bar:Bar) {
 		for (part in bar.parts) {

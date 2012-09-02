@@ -25,9 +25,9 @@ class Part
 	
 	public var type(default, null):EPartType;	
 	public var voices(default, null):Array<Voice>;
-	public var key(default, null): EKey;
+	public var key(default, default): EKey;
 	public var keyDisplay(default, null):EAttributeDisplay;
-	public var clef(default, null): EClef;
+	public var clef(default, default): EClef;
 	public var clefDisplay(default, null):EAttributeDisplay;
 	
 	public var label(default, null):String;
