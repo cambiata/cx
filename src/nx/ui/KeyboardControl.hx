@@ -1,5 +1,6 @@
 package nx.ui;
 import cx.FileTools;
+import cx.NmeTools;
 import nme.display.Stage;
 import nme.events.KeyboardEvent;
 import nme.events.TimerEvent;
@@ -86,7 +87,6 @@ class KeyboardControl
 		noteNr = Std.int(Math.min(voice.notes.length-1, _noteNr));
 		note = voice.notes[noteNr];							
 	}
-	
 	
 	private function setNoteNr(newNoteNr:Int) {
 		if (newNoteNr < 0) {
@@ -177,7 +177,6 @@ class KeyboardControl
 		
 		return render;			
 	}
-				
 	
 	private function key(keyCode:Int):Bool {
 		var render:Bool = false;
@@ -410,9 +409,11 @@ class KeyboardControl
 		
 		var render = false;
 		
-		if (!e.ctrlKey && !e.altKey && !e.shiftKey) render = key(e.keyCode);
-		if (e.ctrlKey && !e.altKey && !e.shiftKey) render = keyCtrl(e.keyCode);
-		if (!e.ctrlKey && !e.altKey && e.shiftKey) render = keyShift(e.keyCode);
+		var keyCode = NmeTools.getKeyCode(e);
+		
+		if (!e.ctrlKey && !e.altKey && !e.shiftKey) render = key(keyCode);
+		if (e.ctrlKey && !e.altKey && !e.shiftKey) render = keyCtrl(keyCode);
+		if (!e.ctrlKey && !e.altKey && e.shiftKey) render = keyShift(keyCode);
 		
 		
 		trace([e.keyCode, barNr, partNr, voiceNr, noteNr, headNr]);
