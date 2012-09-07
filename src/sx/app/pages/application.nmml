@@ -21,7 +21,7 @@
 	
 	<!-- assets -->
 	<icon path="assets/nme.svg" />
-	<assets path="assets/img" rename="img" />
+	<assets path="assets"/>
 	
 	<!-- DLLs -->
 	<ndll name="std" />

@@ -6,6 +6,7 @@ import nx.element.Bars;
 import nx.element.Head;
 import nx.element.Note;
 import nx.element.Part;
+import nx.element.Score;
 import nx.element.Voice;
 import nx.display.DBar;
 import nx.display.DPart;
@@ -50,10 +51,10 @@ import nx.enums.EVoiceType;
 	}
 */
  
-class ExampleDbars 
+class Examples
 {
-	static public function barsStart() {
-		return new Bars([		
+	static public function scoreStart():Score {
+		return new Score(new Bars([		
 			new Bar([		
 				new Part([
 					new Voice([
@@ -61,7 +62,7 @@ class ExampleDbars
 					])
 				], EClef.ClefG, EKey.Flat3),				
 			], ETime.Time3_4),
-		]);			
+		]));			
 		
 	}
 	

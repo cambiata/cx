@@ -25,7 +25,7 @@ import sx.type.TPage;
 import sx.util.ScorxZip;
 import sx.nme.display.type.TPageSize;
 
-#if neko
+#if (neko )
 import cx.FileTools;
 import cx.SqliteTools;
 import neko.FileSystem;
@@ -33,6 +33,8 @@ import sys.io.File;
 import sx.util.ScorxDb;
 import neko.db.Sqlite;
 #end
+
+
 
 
 
@@ -98,34 +100,30 @@ class Main extends Sprite
 		this.editGrid = new SXEditGrid(this.pages, this._pageSize);
 		
 		scrollPane.addChild(editGrid);
-		scrollPane.setScrollHorizontal(500);
+		//scrollPane.setScrollHorizontal(500);
 		
 		new LayoutBehavior(scrollPane, AlignHorizontal.Fill, AlignVertical.Fill, 0, 0, 200, 0);
-		
-		var scorxZip = new ScorxZip(filename);		
-		scorxZip.loadZip(function() {
-			trace('onLoaded');		
-			this.pages.setPages(scorxZip.getPages());	
-			this.editGrid.setGrid(scorxZip.getGrid());
-			
-			trace(editGrid._getPageRect(0));
-			trace(editGrid._getPageRect(10));
-			
-		});		
+
 		
 		#if neko 
+		trace('neko');
 		
 		/*
-		trace('neko');
 		var filedir = 'D:/dropbox_scorxmedia/My Dropbox/smd/smdfiles/scorx/kvintessens/';
 		var filename = '00000209.alaha-ruha.nyberg.PEACE.sqlite';
 		
 		var example:TExample = ScorxDb.getExample(filedir + filename);
+		*/
+		
+		/*
 		var grid = ScorxDb.getGrid(filedir + filename);
 		var quickstarts = ScorxDb.getQuickstarts(filedir + filename);
 		var channels = ScorxDb.getChannels(filedir + filename);
 		var pages = ScorxDb.getPages(filedir + filename);		
+		*/
 		
+		
+		/*
 		var page:TPage = pages[0];
 		
 		trace(page.data.length);
@@ -133,7 +131,7 @@ class Main extends Sprite
 		this.addChild(loader);
 		loader.loadBytes(ByteArray.fromBytes(page.data));		
 		*/
-		
+
 		/*
 		var loader = new Loader();
 		this.addChild(loader);				
@@ -180,16 +178,18 @@ class Main extends Sprite
 		
 		#if windows
 		
-		/*
+		
 		var filedir = 'D:/dropbox_scorxmedia/My Dropbox/smd/smdfiles/scorx/kvintessens/';
 		var filename = '00000209.alaha-ruha.nyberg.PEACE.sqlite';
+		
+		
 		
 		var example:TExample = ScorxDb.getExample(filedir + filename);
 		var grid = ScorxDb.getGrid(filedir + filename);
 		var quickstarts = ScorxDb.getQuickstarts(filedir + filename);
 		var channels = ScorxDb.getChannels(filedir + filename);
 		var pages = ScorxDb.getPages(filedir + filename);		
-		*/
+		
 		
 		//-----------------------------------------------------------------------------------------------------
 		// works!
@@ -256,6 +256,7 @@ class Main extends Sprite
 	
 	private function onMouseWheel(e:MouseEvent)
 	{
+		/*
 		if (!e.ctrlKey) {
 			if (this._pageSize.horizontalMode == true) {
 				this.scrollPane.setScrollHorizontal(this.scrollPane.getScrollHorizontal() - (e.delta * 400));
@@ -267,6 +268,7 @@ class Main extends Sprite
 			this._zoom = this._zoom + (e.delta * 0.05);
 			setPageZoom(this._zoom);
 		}
+		*/
 	}
 	
 	private function setPageZoom(zoom:Float) {

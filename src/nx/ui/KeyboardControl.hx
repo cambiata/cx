@@ -1,5 +1,6 @@
 package nx.ui;
 import cx.FileTools;
+import cx.NmeTools;
 import nme.display.Stage;
 import nme.events.KeyboardEvent;
 import nme.events.TimerEvent;
@@ -10,6 +11,7 @@ import nx.element.Bars;
 import nx.element.Head;
 import nx.element.Note;
 import nx.element.Part;
+import nx.element.Score;
 import nx.element.util.PartUtil;
 import nx.element.Voice;
 import nx.enums.EBarline;
@@ -37,7 +39,7 @@ using nx.enums.utils.ETimeTools;
 using nx.enums.utils.EBarlineTools;
 using cx.ArrayTools;
 
-class KeyboardBars 
+class KeyboardControl
 {
 	
 	private var barNr:Int = 0;
@@ -46,6 +48,7 @@ class KeyboardBars
 	private var noteNr:Int = 0;
 	private var headNr:Int = 0;
 	
+	private var score:Score;
 	private var bars:Bars;
 	private var bar:Bar;
 	private var part:Part;
@@ -54,6 +57,8 @@ class KeyboardBars
 	private var head:Head;
 	
 	private function setBarNr(newBarNr:Int) {
+		bars = this.score.bars;
+		
 		newBarNr = Std.int(Math.max(0, Math.min(bars.bars.length-1, newBarNr)));
 		trace(newBarNr);
 		//if (newBarNr == barNr) return barNr;
@@ -82,7 +87,6 @@ class KeyboardBars
 		noteNr = Std.int(Math.min(voice.notes.length-1, _noteNr));
 		note = voice.notes[noteNr];							
 	}
-	
 	
 	private function setNoteNr(newNoteNr:Int) {
 		if (newNoteNr < 0) {
@@ -173,7 +177,6 @@ class KeyboardBars
 		
 		return render;			
 	}
-				
 	
 	private function key(keyCode:Int):Bool {
 		var render:Bool = false;
@@ -406,9 +409,11 @@ class KeyboardBars
 		
 		var render = false;
 		
-		if (!e.ctrlKey && !e.altKey && !e.shiftKey) render = key(e.keyCode);
-		if (e.ctrlKey && !e.altKey && !e.shiftKey) render = keyCtrl(e.keyCode);
-		if (!e.ctrlKey && !e.altKey && e.shiftKey) render = keyShift(e.keyCode);
+		var keyCode = NmeTools.getKeyCode(e);
+		
+		if (!e.ctrlKey && !e.altKey && !e.shiftKey) render = key(keyCode);
+		if (e.ctrlKey && !e.altKey && !e.shiftKey) render = keyCtrl(keyCode);
+		if (!e.ctrlKey && !e.altKey && e.shiftKey) render = keyShift(keyCode);
 		
 		
 		trace([e.keyCode, barNr, partNr, voiceNr, noteNr, headNr]);
@@ -423,8 +428,8 @@ class KeyboardBars
 	private var timer:Timer;
 	private var renderCallback:Void->Void;
 	
-	public function new(stage:Stage, bars:Bars, renderCallback:Void->Void=null) {
-		this.bars = bars;
+	public function new(stage:Stage, score:Score, renderCallback:Void->Void=null) {
+		this.score = score;		
 		this.renderCallback = renderCallback;
 		timer = new Timer(200);
 		timer.addEventListener(TimerEvent.TIMER, onKeyTimer);
