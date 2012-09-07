@@ -17,41 +17,37 @@
 // You should have received a copy of the GNU General Public License
 // along with Harfang.  If not, see <http://www.gnu.org/licenses/>.
 
-package harfang.configuration;
-
-import harfang.module.Module;
-import harfang.url.URLMapping;
-import harfang.exception.Exception;
-import harfang.exception.HTTPException;
-import harfang.server.event.ServerEventListener;
-
+package harfang.exception;
 
 /**
- * The configuration specifies pretty much everything that the framework needs
- * to work.
+ * An exception is thrown when an error occurs somewhere in the application and
+ * the message is displayed.
  */
-interface ServerConfiguration {
+class Exception {
+
+    private var message : String;
 
     /**
-     * Init event - called when the server starts
+     * Creates a new exception
+     * @param message The error message
      */
-    public function init() : Void;
+    public function new(message : String) {
+        this.message = message;
+    }
 
     /**
-     * Returns the modules contained in the application
-     * @return The modules contained in the application
+     * Sets the error message
+     * @param message The error message
      */
-    public function getModules() : Iterable<Module>;
+    private function setMessage(message : String) : Void {
+        this.message = message;
+    }
 
     /**
-     * Returns the components that listens to server events
-     * @return The components that listens to server events
+     * Returns the Exception's message
+     * @return the Exception's message
      */
-    public function getServerEventListeners() : Iterable<ServerEventListener>;
-
-    /**
-     * Close event - called when the server closes
-     */
-    public function onClose() : Void;
-
+    public function getMessage() : String {
+        return this.message;
+    }
 }

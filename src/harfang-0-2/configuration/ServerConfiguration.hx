@@ -21,21 +21,15 @@ package harfang.configuration;
 
 import harfang.module.Module;
 import harfang.url.URLMapping;
-import harfang.exception.Exception;
-import harfang.exception.HTTPException;
-import harfang.server.event.ServerEventListener;
+import harfang.exceptions.Exception;
+import harfang.exceptions.HTTPException;
 
 
 /**
  * The configuration specifies pretty much everything that the framework needs
- * to work.
+ * to work. It is a singleton class.
  */
 interface ServerConfiguration {
-
-    /**
-     * Init event - called when the server starts
-     */
-    public function init() : Void;
 
     /**
      * Returns the modules contained in the application
@@ -44,10 +38,31 @@ interface ServerConfiguration {
     public function getModules() : Iterable<Module>;
 
     /**
-     * Returns the components that listens to server events
-     * @return The components that listens to server events
+     * Dispatch event - called when the queried URL corresponds to a controller
+     * (the URL has been dispatched). Call done before the controller is called
+     *
+     * @param urlMapping The URL mapping that was matched
      */
-    public function getServerEventListeners() : Iterable<ServerEventListener>;
+    public function onDispatch(urlMapping : URLMapping) : Void;
+
+    /**
+     * HTTP Error event - called when the server encounters a HTTP error
+     * during URL dispatching or controller operations. Usually, these are
+     * 404 or 500 errors.
+     *
+     * @param exception The exception that was thrown
+     */
+    public function onHTTPError(exception : HTTPException) : Void;
+
+    /**
+     * Error event - called when the server encounters an error during URL
+     * dispatching or controller operations that are not covered by the 404
+     * and 500 errors. (Although the 500 error is pretty broad, the user could
+     * throw other types of exceptions that would lead to this event)
+     *
+     * @param exception The exception that was thrown
+     */
+    public function onError(exception : Exception) : Void;
 
     /**
      * Close event - called when the server closes

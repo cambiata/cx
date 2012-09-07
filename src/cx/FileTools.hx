@@ -6,9 +6,10 @@ import haxe.io.Eof;
 import haxe.io.Bytes;
 //import neko.Sys;
 
-
+#if (neko||cpp) 
 import sys.FileSystem;
 import sys.io.File;
+#end
 
 using StringTools;
 /**

@@ -3,8 +3,8 @@ package smd.server.sx;
 
 import cx.ConfigTools;
 import harfang.configuration.AbstractServerConfiguration;
-import harfang.exceptions.Exception;
-import harfang.exceptions.HTTPException;
+import harfang.exception.Exception;
+import harfang.exception.HTTPException;
 import neko.Lib;
 import neko.Web;
 import smd.server.base.result.TemplateResult;
@@ -20,52 +20,64 @@ class UserConfiguration extends AbstractServerConfiguration {
 
     public function new() {
         super();
-		this.addModule(new Site());			
 		
+		/*
+		ConfigTools.loadConfig(Config, Web.getCwd() + Config.configFile);
+		new Functions();
+		User.updateUserdata();
+		User.getCurrentUser();
+		User.checkRedirect();		
+		*/
+		
+		/*
+		this.addModule(new Site());			
 		
 		ConfigTools.loadConfig(Config, Web.getCwd() + Config.configFile);
 		new Functions();
 		User.updateUserdata();
 		User.getCurrentUser();
 		User.checkRedirect();
+		*/
 		
 		//State.messages.infos.push(Std.string(User.user));
 		//State.messages.infos.push('Hello World');
 		//State.messages.errors.push('This is an error');
 		
-		/*
-		try {
-			ConfigTools.loadConfig(Config, Web.getCwd() + Config.configFile);
-			new Functions();
-			SiteState.user = AuthTools.getCurrentUser(new KaAuth(Config.authFile, Config.scorxroot), Config.sessionDir);						
-		} catch (e:String) {
-			SiteState.messages.errors.push(e);
-		}
-		*/
     }
+	
+	
+    public override function init() {
+        super.init();
+        this.addModule(new Site());
+		
+
+		
+    }	
+		
+	
 	
 	
 	override public function onHTTPError(error : HTTPException) : Void {
 		
-		//Lib.println(error.getMessage());
-		
+		Lib.println(error.getMessage());
+		/*
 		State.messages.errors.push(error.getErrorCode() + ': ' + error.getMessage());
 		//error.uri = Web.getURI();
 		var output = new IndexResult(State.indexPage, PageData.getData(), Config.templatesDir).execute();
 		Lib.print(output);
-		
+		*/
 	}
 	
 	
 	
 	override public function onError(exception : Exception) : Void {		
 		Lib.println(exception.getMessage());
-		
+		/*
 		State.messages.errors.push(exception.getMessage());
 		//exception.uri = Web.getURI();
 		var output = new IndexResult(State.indexPage, PageData.getData(), Config.templatesDir).execute();
 		Lib.print(output);
-		
+		*/
 	}
 	
 	

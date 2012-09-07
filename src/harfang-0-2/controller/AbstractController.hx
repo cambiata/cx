@@ -23,22 +23,21 @@ import harfang.module.Module;
 
 /**
  * Provides a default implementation for the Controller interface. In this
- * implementation, the init method memorises the controller's belonging module,
- * handleRequest always return true (always providing access to mapped
- * controller methods) and handlePostRequest does nothing.
- *
- * Refer to the Controller interface for more details.
+ * implementation, the init method memorises the configuration and handleRequest
+ * always return true, always providing access to the controller functions.
  */
 class AbstractController implements Controller {
 
     private var module : Module;
 
-	public function handleBefore() {}	
+	
+	public function handleBefore() {}
 	
 	
     /**
      * Called by the URL dispatcher, just after constructing the controller.
-     * Use this method to permorm initialisation mechanics.
+     * In this implementation, we memorise the module in an attribute, later
+     * accessible with the getModule method.
      *
      * @param module The module that owns that controller
      */
@@ -47,24 +46,18 @@ class AbstractController implements Controller {
     }
 
     /**
-     * Handles the HTTP request - called just before the URL dipstacher
-     * calls the mapped controller function.
+     * Handles the HTTP request - called when the URL dispatcher calls the
+     * controller, just before dispatching the call to the controller function
      *
      * @param controllerMethodName The name of the method that will be called
      * in the controller
-     * @return This implementation of handleRequest will always return true,
-     * thus allowing access to all the mapped controller methods.
+     * @return True if you want the dispatcher to call the controller function
+     * associated with it in the URL mapping. False if you want to prevent it
+     * from calling the controller function. By default, it returns true.
      */
     public function handleRequest(controllerMethodName : String) : Bool {
         return true;
     }
-
-    /**
-     * This is called after the mapped controller method has been called.
-     *
-     * This particular implementation does nothing.
-     */
-    public function handlePostRequest() : Void {}
 
     /**
      * Returns the module that owns this controller
@@ -73,5 +66,9 @@ class AbstractController implements Controller {
     private function getModule() : Module {
         return this.module;
     }
-
+	
+	/*
+	public function before(): Void {}
+	public function after(): Void {}
+	*/
 }

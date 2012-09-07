@@ -20,20 +20,16 @@
 package harfang.configuration;
 
 import harfang.url.URLMapping;
-import harfang.exception.Exception;
-import harfang.exception.HTTPException;
+import harfang.exceptions.Exception;
+import harfang.exceptions.HTTPException;
 import harfang.module.Module;
-import harfang.server.event.ServerEventListener;
 
 /**
  * Provides a default implementation for the ServerConfiguration interface,
  * providing helper functions so you don't have to worry about how the data
  * is contained behind the scenes.
- *
- * By default, this implementation of the ServerConfiguration is a
- * ServerEventListener, for convenience.
  */
-class AbstractServerConfiguration implements ServerConfiguration, implements ServerEventListener {
+class AbstractServerConfiguration implements ServerConfiguration {
 
     /**************************************************************************/
     /*                             PRIVATE FIELDS                             */
@@ -42,9 +38,6 @@ class AbstractServerConfiguration implements ServerConfiguration, implements Ser
     // The list of modules of the server side of your application
     private var modules : List<Module>;
 
-    // The list of server event listeners
-    private var serverEventListeners : List<ServerEventListener>;
-
     /**************************************************************************/
     /*                            PUBLIC METHODS                              */
     /**************************************************************************/
@@ -52,15 +45,8 @@ class AbstractServerConfiguration implements ServerConfiguration, implements Ser
     /**
      * Constructs a default implementation of the server configuration
      */
-    public function new() {}
-
-    /**
-     * Init event - called when the server starts
-     */
-    public function init() {
+    public function new() {
         this.modules = new List<Module>();
-        this.serverEventListeners = new List<ServerEventListener>();
-        this.serverEventListeners.add(this);
     }
 
     /**
@@ -108,10 +94,6 @@ class AbstractServerConfiguration implements ServerConfiguration, implements Ser
         return this.modules;
     }
 
-    public function getServerEventListeners() : Iterable<ServerEventListener> {
-        return this.serverEventListeners;
-    }
-
     /**************************************************************************/
     /*                            PRIVATE METHODS                             */
     /**************************************************************************/
@@ -120,16 +102,7 @@ class AbstractServerConfiguration implements ServerConfiguration, implements Ser
      * Adds a server module in the configuration's list of modules
      * @param module The module to add in the list
      */
-    private function addModule(module : Module) : Void {
+    private function addModule(module : Module) {
         this.modules.add(module);
-    }
-
-    /**
-     * Adds a server event listener in the configuration's list of event
-     * listeners
-     * @param The listener to add to the list
-     */
-    private function addServerEventListener(listener : ServerEventListener) : Void {
-        this.serverEventListeners.add(listener);
     }
 }

@@ -17,41 +17,38 @@
 // You should have received a copy of the GNU General Public License
 // along with Harfang.  If not, see <http://www.gnu.org/licenses/>.
 
-package harfang.configuration;
+package harfang.test.serverconfiguration.mock;
 
-import harfang.module.Module;
-import harfang.url.URLMapping;
+import harfang.controller.AbstractController;
 import harfang.exception.Exception;
 import harfang.exception.HTTPException;
-import harfang.server.event.ServerEventListener;
-
 
 /**
- * The configuration specifies pretty much everything that the framework needs
- * to work.
+ * Mock controller to use with the server configuration test
  */
-interface ServerConfiguration {
+class MockServerConfigurationController extends AbstractController {
+
+    public static inline var SERVER_ERROR_MESSAGE : String = "!!!";
+    public static inline var ERROR_MESSAGE_303 : String = "Unothorized";
+    public static inline var ERROR_CODE_303 : Int = 303;
 
     /**
-     * Init event - called when the server starts
+     * Normal handle, does nothing.
      */
-    public function init() : Void;
+    public function handleNormal() : Void {}
 
     /**
-     * Returns the modules contained in the application
-     * @return The modules contained in the application
+     * This one throws a server error, outside of the scope of HTTP errors
      */
-    public function getModules() : Iterable<Module>;
+    public function handleServerError() : Void {
+        throw new Exception(SERVER_ERROR_MESSAGE);
+    }
 
     /**
-     * Returns the components that listens to server events
-     * @return The components that listens to server events
+     * This one throws a server error, inside the scope of HTTP errors
      */
-    public function getServerEventListeners() : Iterable<ServerEventListener>;
-
-    /**
-     * Close event - called when the server closes
-     */
-    public function onClose() : Void;
+    public function handleHTTPError() : Void {
+        throw new HTTPException(ERROR_MESSAGE_303, ERROR_CODE_303);
+    }
 
 }

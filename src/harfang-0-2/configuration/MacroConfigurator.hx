@@ -54,19 +54,19 @@ class MacroConfigurator {
      * URLs.
      */
     @:macro public static function mapController(eThis : Expr, clExpr : Expr, metaTag : String, ? prefix : String) : Expr {
-        var pos : Position = Context.currentPos();
-        var block : Array<Expr> = new Array<Expr>();
-
+      
+		var pos : Position = Context.currentPos();
+        var block : Array<Expr> = new Array<Expr>();		
         switch(clExpr.expr) {
             case EConst(c):
                 switch(c) {
-                    case CIdent(s):
+                    case CType(s):
                         // A type has been sent. Extract Class.
-                        var type = Context.getType(s);
+                        var type = Context.getType(s);						
                         switch(type) {
                             case TInst(t, params):
                                 var calls : Array<Expr> = processClassMeta(eThis, t.get(), metaTag, pos, prefix);
-                                for(call in calls) {
+                                for (call in calls) {									
                                     block.push(call);
                                 }
                             default:
@@ -92,8 +92,7 @@ class MacroConfigurator {
      * @return A list of addURLMapping call expressions for the given class
      */
     private static function processClassMeta(eThis : Expr, cl : ClassType, metaTag : String, pos : Position, ? prefix : String) : Array<Expr> {
-        var calls : Array<Expr> = new Array<Expr>();
-
+        var calls : Array<Expr> = new Array<Expr>();		
         // Scan for all the class' methods
         for(field in cl.fields.get()) {
             switch(field.kind) {
@@ -157,7 +156,7 @@ class MacroConfigurator {
 
                                 // If we have at least the URL regex, do the
                                 // mapping.
-                                if(urlEReg != null) {
+                                if (urlEReg != null) {									
                                     var call : Expr = createAddExpr(eThis, cl, field, urlEReg, pos, eregOpts, prefix, urlPrefixVar);
                                     calls.push(call);
                                 }
@@ -167,8 +166,7 @@ class MacroConfigurator {
                     }
                 default:
             }
-        }
-
+        }		
         // Return some useful expression
         return calls;
     }
@@ -191,7 +189,7 @@ class MacroConfigurator {
         // Process prefix
         if(prefix != null && prefixVar != null) {
             url = StringTools.replace(url, prefixVar, prefix);
-        }
+        }		
 
         params.push({pos : pos, expr : EConst(CRegexp(url, eregOptions))});
         params.push({pos : pos, expr : EConst(CType(cl.name))});

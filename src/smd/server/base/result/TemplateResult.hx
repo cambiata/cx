@@ -14,7 +14,7 @@ class TemplateResult extends ActionResult
 	public function new(templateFile:String, ?data:Dynamic=null, directory:String='') {
 		this.templateFile = (FileTools.exists(directory + templateFile)) ? directory + templateFile : cx.Web.getCwd() + '/' + directory + templateFile;
 		this.data = data;
-		if (!FileTools.exists(this.templateFile)) throw new harfang.exceptions.Exception("Can't find templateFile " + this.templateFile);		
+		if (!FileTools.exists(this.templateFile)) throw new harfang.exception.Exception("Can't find templateFile " + this.templateFile);		
 	}
 	
 	override public function execute() {		

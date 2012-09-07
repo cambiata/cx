@@ -17,41 +17,19 @@
 // You should have received a copy of the GNU General Public License
 // along with Harfang.  If not, see <http://www.gnu.org/licenses/>.
 
-package harfang.configuration;
+package harfang.module;
 
-import harfang.module.Module;
 import harfang.url.URLMapping;
-import harfang.exception.Exception;
-import harfang.exception.HTTPException;
-import harfang.server.event.ServerEventListener;
-
 
 /**
- * The configuration specifies pretty much everything that the framework needs
- * to work.
+ * A module consist af a set of models, views and controllers. Modules are the
+ * core of your Web site.
  */
-interface ServerConfiguration {
+interface Module {
 
     /**
-     * Init event - called when the server starts
+     * Returns all the URLs mapping that belongs to this module
+     * @return A list of all the URL mappings contained in the module
      */
-    public function init() : Void;
-
-    /**
-     * Returns the modules contained in the application
-     * @return The modules contained in the application
-     */
-    public function getModules() : Iterable<Module>;
-
-    /**
-     * Returns the components that listens to server events
-     * @return The components that listens to server events
-     */
-    public function getServerEventListeners() : Iterable<ServerEventListener>;
-
-    /**
-     * Close event - called when the server closes
-     */
-    public function onClose() : Void;
-
+    public function getURLMappings() : Iterable<URLMapping>;
 }

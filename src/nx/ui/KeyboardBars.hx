@@ -189,13 +189,13 @@ class KeyboardBars
 				setBar(barNr + 1, partNr, voiceNr, 0);
 			}
 			
-			// Right, Ö
-			case 39, 186: {
+			// Right, Ö, L
+			case 39, 186, 76: {
 				setNoteNr(noteNr + 1);
 			}
 			
-			// Left, K:
-			case 37, 107: {
+			// Left, K, J:
+			case 37, 107, 74: {
 				setNoteNr(noteNr - 1);
 			}
 			
@@ -217,15 +217,15 @@ class KeyboardBars
 				}
 			}
 			
-			// Up, O
-			case 38, 111: {
+			// Up, O, I
+			case 38, 111, 73: {
 				note.setLevel( -1);					
 				bar = bar.clone();
 				render = true;
 			}
 			
-			// Down, L
-			case 40, 108: {
+			// Down, L, K
+			case 40, 108, 75: {
 				note.setLevel(1);					
 				bar = bar.clone();
 				render = true;

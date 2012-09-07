@@ -19,24 +19,17 @@
 
 package harfang.url;
 
+import cx.Lib;
+import cx.Web;
 import harfang.module.Module;
 import harfang.controller.Controller;
 import harfang.configuration.ServerConfiguration;
-import harfang.exception.NotFoundException;
-import harfang.exception.ServerErrorException;
-import harfang.server.event.ServerEventListener;
-import harfang.controller.result.ActionResult;
-import neko.Lib;
+import harfang.exceptions.NotFoundException;
+import harfang.exceptions.ServerErrorException;
+import smd.server.base.result.ActionResult;
 
 /**
- * This class handles the request made to your application. The dispatcher
- * scans for a method that may be matched to the URL it has been told to
- * dispatch. It does do by asking each of the URL mappings it has if they can
- * resolve the given URL.
- *
- * Once a mapping reports that it matches an URL, the dispatcher constructs the
- * Controller associated to the URL in the mapping and asks it to handle the
- * request.
+ * This class handles the request made to your application
  */
 class URLDispatcher {
 
@@ -54,6 +47,7 @@ class URLDispatcher {
     /**
      * Constructor
      * @param serverConfiguration The server's configuration
+     * @param modules The modules you want this dispatcher to handle
      */
     public function new(serverConfiguration : ServerConfiguration) {
         this.serverConfiguration = serverConfiguration;
@@ -64,7 +58,7 @@ class URLDispatcher {
     /**************************************************************************/
 
     /**
-     * Dipatches the URL to the correct controller
+     * Dipatches the URL to the correct view
      * @param url The URL to process
      */
     public function dispatch(url : String) : Void {
@@ -98,7 +92,6 @@ class URLDispatcher {
         var controller : Controller = null;
         var controllerMethod : Dynamic = null;
         var controllerMethodParams : Array<String> = null;
-        var serverEventListeners : Iterable<ServerEventListener> = this.serverConfiguration.getServerEventListeners();
 
         // Try matching a pattern
         while(!foundURL && mappingIterator.hasNext()) {
@@ -109,31 +102,48 @@ class URLDispatcher {
 
         // Call the controller
         if(foundURL) {
-            // Call the dispatch event on all listeners
-            for(listener in serverEventListeners) {
-                listener.onDispatch(currentMapping);
-            }
+            // Call the dispatch event
+            this.serverConfiguration.onDispatch(currentMapping);
 
             // Create the controller instance and find its function
             controller = Type.createEmptyInstance(currentMapping.getControllerClass());
-            
+			var methodName = currentMapping.getControllerMethodName();			
 			
+			
+			//-----------------------------------------------------------------------------------------------------
+			// some RESTlike experiments
+			
+			/*
+			if (StringTools.startsWith(methodName, 'get')) {
+				switch(Web.getMethod()) {
+					case 'POST':
+						methodName = StringTools.replace(methodName, 'get', 'post');				
+					case 'PUT':
+						methodName = StringTools.replace(methodName, 'get', 'put');
+					case 'DELETE':
+						methodName = StringTools.replace(methodName, 'get', 'delete');
+				}
+			}
+			*/
 			
 			//-----------------------------------------------------------------------------------------------------
 			// controller before method
 			var beforeMethod = Reflect.field(controller, 'handleBefore');
 			 if (Reflect.isFunction(beforeMethod)) {
 				 Reflect.callMethod(controller, beforeMethod, []);
-			 }			
+				 
+			 }
 			
+			//-----------------------------------------------------------------------------------------------------
+			// controller request method
 			
-			controllerMethod = Reflect.field(controller, currentMapping.getControllerMethodName());
+			controllerMethod = Reflect.field(controller, methodName);
 
             // Make the call with the correct parameters
             if(Reflect.isFunction(controllerMethod)) {
                 // Init module
                 controller.init(module);
-
+				
                 // Handle request
                 if(controller.handleRequest(currentMapping.getControllerMethodName())) {
                     var result = Reflect.callMethod(
@@ -142,19 +152,19 @@ class URLDispatcher {
                             currentMapping.extractParameters(this.currentURL)
                     );
 					
+					
 					if (Std.is(result, ActionResult)) {
 						Lib.println(cast(result, ActionResult).execute());						
 					} else if (result != null) {
 						Lib.println(result);
 					}					
+					
                 }
-
-                // Post request
-                controller.handlePostRequest();
+				
             } else {
-                // Controller function was not found - this should not be
-                // happening. Throw an error!
+                // Controller function was not found - error!
                 throw new ServerErrorException();
+				//trace('error');
             }
         }
 
@@ -165,7 +175,8 @@ class URLDispatcher {
 
     /**
      * Appends a slash to the URL if it doesn't have one at the end.
-     * It won't appear in browsers, but it will unify the regular expressions.
+     * It won't appear in browsers, but it will simplify the regular expressions
+     * a lot.
      *
      * @param url The url in which to append the slash
      * @return The url, with the trailing slash

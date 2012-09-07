@@ -17,41 +17,25 @@
 // You should have received a copy of the GNU General Public License
 // along with Harfang.  If not, see <http://www.gnu.org/licenses/>.
 
-package harfang.configuration;
+package harfang.exception;
 
-import harfang.module.Module;
-import harfang.url.URLMapping;
-import harfang.exception.Exception;
 import harfang.exception.HTTPException;
-import harfang.server.event.ServerEventListener;
-
 
 /**
- * The configuration specifies pretty much everything that the framework needs
- * to work.
+ * The 404 exception is thrown whenever something is not found, server-side.
  */
-interface ServerConfiguration {
+class NotFoundException extends HTTPException {
 
     /**
-     * Init event - called when the server starts
+     * Creates a new 404 not found HTTP error
+     * @param message The message you want to show to the user (optional)
      */
-    public function init() : Void;
+    public function new(? message : String) {
+        super("The requested resource could not be found", 404);
 
-    /**
-     * Returns the modules contained in the application
-     * @return The modules contained in the application
-     */
-    public function getModules() : Iterable<Module>;
-
-    /**
-     * Returns the components that listens to server events
-     * @return The components that listens to server events
-     */
-    public function getServerEventListeners() : Iterable<ServerEventListener>;
-
-    /**
-     * Close event - called when the server closes
-     */
-    public function onClose() : Void;
-
+        // If no default message is sent, put a default one
+        if(message != null) {
+            this.setMessage(message);
+        }
+    }
 }

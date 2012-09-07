@@ -17,41 +17,24 @@
 // You should have received a copy of the GNU General Public License
 // along with Harfang.  If not, see <http://www.gnu.org/licenses/>.
 
-package harfang.configuration;
+package harfang.exception;
 
-import harfang.module.Module;
-import harfang.url.URLMapping;
-import harfang.exception.Exception;
 import harfang.exception.HTTPException;
-import harfang.server.event.ServerEventListener;
-
 
 /**
- * The configuration specifies pretty much everything that the framework needs
- * to work.
+ * The 505 exception is called whenever something went wrong server-side.
  */
-interface ServerConfiguration {
+class ServerErrorException extends HTTPException {
 
     /**
-     * Init event - called when the server starts
+     * Creates a new 500 HTTP error
+     * @param message The message you want to show to the user (optional)
      */
-    public function init() : Void;
+    public function new(? message : String) {
+        super("Internal server error", 500);
 
-    /**
-     * Returns the modules contained in the application
-     * @return The modules contained in the application
-     */
-    public function getModules() : Iterable<Module>;
-
-    /**
-     * Returns the components that listens to server events
-     * @return The components that listens to server events
-     */
-    public function getServerEventListeners() : Iterable<ServerEventListener>;
-
-    /**
-     * Close event - called when the server closes
-     */
-    public function onClose() : Void;
-
+        if(message != null) {
+            this.setMessage(message);
+        }
+    }
 }

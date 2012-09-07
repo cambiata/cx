@@ -29,9 +29,8 @@ import neko.Web;
 
 import harfang.configuration.ServerConfiguration;
 import harfang.url.URLDispatcher;
-import harfang.exception.Exception;
-import harfang.exception.HTTPException;
-import harfang.server.event.ServerEventListener;
+import harfang.exceptions.Exception;
+import harfang.exceptions.HTTPException;
 
 import server.UserConfiguration;
 
@@ -48,6 +47,7 @@ class ServerMain {
      */
     public static function main() : Void {
         // Load the configuration and start the application
+		//trace('server');
         launch(new UserConfiguration(), Web.getURI());
     }
 
@@ -58,24 +58,18 @@ class ServerMain {
      * @param uri The URI that has been requested
      */
     public static function launch(userConfiguration : ServerConfiguration, uri : String) : Void {
-        userConfiguration.init();
         var urlDispatcher : URLDispatcher = new URLDispatcher(userConfiguration);
-        var serverEventListeners : Iterable<ServerEventListener> = userConfiguration.getServerEventListeners();
 
         try {
             // Dispatch the URL
             urlDispatcher.dispatch(uri);
         } catch(he : HTTPException) {
-            // Send HTTP error event to all listeners
-            for(listener in serverEventListeners) {
-                listener.onHTTPError(he);
-            }
+            // Send HTTP error event
+            userConfiguration.onHTTPError(he);
         } catch(e : Exception) {
             // Error does not lead to a 404 or 500 error and may need further
             // processing
-            for(listener in serverEventListeners) {
-                listener.onError(e);
-            }
+            userConfiguration.onError(e);
         }
 
         // Close the application

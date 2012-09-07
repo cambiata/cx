@@ -2,7 +2,7 @@ package smd.server.sx.data;
 import cx.FileTools;
 import cx.SqliteTools;
 import cx.WebTools;
-import harfang.exceptions.Exception;
+import harfang.exception.Exception;
 import haxe.Utf8;
 import smd.server.sx.Config;
 import neko.Web;
