@@ -3,8 +3,10 @@ import cx.FileTools;
 import cx.SqliteTools;
 import cx.WebTools;
 import harfang.controller.AbstractController;
+import harfang.controller.result.ActionResult;
 import harfang.exception.Exception;
 import neko.Web;
+//
 import smd.server.base.result.TemplateResult;
 import smd.server.ka.data.KaAccess;
 import smd.server.sx.Config;
@@ -33,7 +35,6 @@ class IndexController extends AbstractController
 	
 	@URL("^/")
 	public function index() { 			
-		//return 'hello';
 		return new IndexResult(State.indexPage, this.data, Config.templatesDir);
 	}
 	

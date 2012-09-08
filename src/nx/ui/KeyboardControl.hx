@@ -1,5 +1,9 @@
 package nx.ui;
+
+#if (neko || cpp) 
 import cx.FileTools;
+#end
+
 import cx.NmeTools;
 import nme.display.Stage;
 import nme.events.KeyboardEvent;
@@ -192,13 +196,13 @@ class KeyboardControl
 				setBar(barNr + 1, partNr, voiceNr, 0);
 			}
 			
-			// Right, Ö, L
-			case 39, 186, 76: {
+			// Right, L
+			case 39, 76: {
 				setNoteNr(noteNr + 1);
 			}
 			
-			// Left, K, J:
-			case 37, 107, 74: {
+			// Left, J:
+			case 37, 74: {
 				setNoteNr(noteNr - 1);
 			}
 			
@@ -220,15 +224,15 @@ class KeyboardControl
 				}
 			}
 			
-			// Up, O, I
-			case 38, 111, 73: {
+			// Up, I
+			case 38, 73: {
 				note.setLevel( -1);					
 				bar = bar.clone();
 				render = true;
 			}
 			
-			// Down, L, K
-			case 40, 108, 75: {
+			// Down, K
+			case 40, 75: {
 				note.setLevel(1);					
 				bar = bar.clone();
 				render = true;
@@ -321,7 +325,7 @@ class KeyboardControl
 			}
 			
 			// -
-			case 189, 191: {
+			case 189: {
 				var tie = (note.heads[0].tie != null) ? null : ETie.Tie(EDirectionUAD.Auto);
 				note.setTie(tie);
 				bar = bar.clone();
@@ -329,7 +333,7 @@ class KeyboardControl
 			}
 			
 			// P
-			case 80, 112: {
+			case 80: {
 				var type:ENoteType = null;
 				switch (note.type) {
 					case ENoteType.Normal: type = ENoteType.Pause;
@@ -416,7 +420,7 @@ class KeyboardControl
 		if (!e.ctrlKey && !e.altKey && e.shiftKey) render = keyShift(keyCode);
 		
 		
-		trace([e.keyCode, barNr, partNr, voiceNr, noteNr, headNr]);
+		trace([keyCode, barNr, partNr, voiceNr, noteNr, headNr]);
 		
 		if (render) {
 			timer.stop();

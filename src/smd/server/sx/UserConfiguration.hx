@@ -21,13 +21,13 @@ class UserConfiguration extends AbstractServerConfiguration {
     public function new() {
         super();
 		
-		/*
+		
 		ConfigTools.loadConfig(Config, Web.getCwd() + Config.configFile);
 		new Functions();
 		User.updateUserdata();
 		User.getCurrentUser();
 		User.checkRedirect();		
-		*/
+		
 		
 		/*
 		this.addModule(new Site());			
@@ -49,9 +49,6 @@ class UserConfiguration extends AbstractServerConfiguration {
     public override function init() {
         super.init();
         this.addModule(new Site());
-		
-
-		
     }	
 		
 	

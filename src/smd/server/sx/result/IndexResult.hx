@@ -14,6 +14,7 @@ class IndexResult extends TemplateResult
 
 	public function new(templateFile:String, ?data:Dynamic = null, directory:String = '') {
 		data = this.addData(data);
+		//data = { };
 		super(templateFile, data, directory);
 	}	
 

@@ -1,4 +1,5 @@
 package smd.server.base.result;
+import harfang.controller.result.ActionResult;
 import cx.FileTools;
 
 
