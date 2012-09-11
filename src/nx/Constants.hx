@@ -8,7 +8,6 @@ package nx;
 
 class Constants {
 
-
 	static public inline var BASE_NOTE_VALUE:Int = 3024;	
 	static public inline var HEAD_MAX_LEVEL:Int = 12;
 	
@@ -48,6 +47,10 @@ class Constants {
 	static public inline var TIE_SHORT_HEIGHT:Float = 1.0;	
 	static public inline var TIE_DELTA:Int = 7;
 	
+	static public inline var SIGNS_HEADS_DISTANCE:Float = 0.3 * Constants.HEAD_QUARTERWIDTH;
+	
+	static public inline var COMPLEX_COLLISION_SECOND_XSHIFT:Float = 3 * Constants.HEAD_QUARTERWIDTH;
+	
 	static public inline var CLEF_WIDTH:Float = 11;
 	static public inline var KEYSIGN_WIDTH:Float = 2;
 	static public inline var TIME_WIDTH:Float = 6;
@@ -57,14 +60,12 @@ class Constants {
 	static public inline var BARLINE_DOUBLE_WIDTH:Float = 2.2;
 	static public inline var BARLINE_THICKNESS:Float = .4;
 	
-	
 	static public inline var BAR_MARGIN_LEFT:Float = 3.2;
 	static public inline var BAR_MARGIN_RIGHT:Float = 1;
 	static public inline var SIGN_WIDTH:Float = 3.2;
 	
 	static public inline var TEXT_XADJUST:Float = 0.8;
 	static public inline var TEXT_YADJUST:Float = 2.8;
-	
 	
 	static public inline var PART_MIN_DISTANCE:Float = 0;
 	static public inline var ACKOLADE_CLEF_MARGIN:Float = 1;
@@ -78,6 +79,5 @@ class Constants {
 	static public inline var TPL_CIRCLE_THICKNESS:Float = 0.6;
 	static public inline var TPL_CIRCLE_X:Float = 5.9;
 	static public inline var TPL_CIRCLE_Y:Float = 7.6;
-	
 	
 }

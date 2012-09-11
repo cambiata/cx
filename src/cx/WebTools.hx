@@ -42,6 +42,7 @@ class WebTools {
 	static public function getUri() {
 		var uri = Web.getURI();
 		if (uri.endsWith('/')) uri = uri.substr(0, uri.length - 1);
+		uri = (uri == '') ? '/' : uri;
 		return uri;
 	}
 	

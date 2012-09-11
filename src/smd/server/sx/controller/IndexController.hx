@@ -28,7 +28,7 @@ class IndexController extends AbstractController
 	private var data:Dynamic;
 	
 	override public function handleBefore()	{
-		this.data = PageData.getData();
+		this.data = PageData.getData(State.domaintag);
 		this.data = PageData.getSidmenuData(this.data, State.domaintag, Config.templatesDir);
 
 	}

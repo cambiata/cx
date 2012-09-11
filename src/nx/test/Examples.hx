@@ -27,29 +27,10 @@ import nx.enums.ETie;
 import nx.enums.ETime;
 import nx.enums.EVoiceType;
 
-
 /**
  * ...
  * @author Jonas Nyström
  */
-/*
- 
-	private function init(e) {
-		var dbar = ExampleDbars.dbarComplex1();
-		var sprite:Sprite = new Sprite();
-		sprite.graphics.beginFill(0xFF0000);
-		sprite.graphics.drawRect(0, 0, 50, 50);
-		var render = new Render(sprite, Scaling.getNormal());
-		render.lines(0, 100, 1200);				
-		render.dbar(100, 100, dbar, 0, false);
-		
-		var render = new Render(sprite, Scaling.getMid());
-		render.lines(0, 400, 1200);				
-		render.dbar(100, 400, dbar, 0, false);
-		
-		this.addChild(sprite);
-	}
-*/
  
 class Examples
 {
@@ -110,15 +91,14 @@ class Examples
 						new Note([new Head(7)], ENoteValue.Nv4, ENoteType.TplChain),
 						new Note([new Head(8)], ENoteValue.Nv4, ENoteType.TplChain),
 					])
-				]),				
-				
+				]),								
 			]),
 		]);			
 		
 	}
 	
-	static public function barsComplex1() { 
-		return new Bars([
+	static public function scoreComplex1() { 
+		return new Score(new Bars([
 			
 			new Bar([			
 				new Part([				
@@ -635,11 +615,7 @@ class Examples
 				]),							
 			]),
 		
-			
-			
-			
-			
-		]);	
+		]));	
 	}
 		
 	

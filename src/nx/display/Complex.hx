@@ -14,15 +14,18 @@ import nx.enums.ENoteType;
  * @author Jonas Nyström
  */
 
-class Complex
+/*
+interface IDisplayRects {
+	public var rects(get_rects, null): Array<Rectangle>;
+*/
+ 
+class Complex /*implements IDisplayRects*/
 {
 	/**************************************************************************
 	 * Private vars
 	 * 
 	 **************************************************************************/	
-	
-	static private var COLLISION_XSHIFT_SECOND:Float = 3 * Constants.HEAD_QUARTERWIDTH;
-	static private var SIGNS_HEADS_DISTANCE:Float = 0.3 * Constants.HEAD_QUARTERWIDTH;
+
 	
 	
 	private var _dnotesXshift:Array<Float>;
@@ -32,7 +35,6 @@ class Complex
 		this.dpart 				= dpart;
 		this._dnotesXshift 	= [];
 		this.signs 				= [];
-		
 		
 		for (dnote in this.dnotes) {
 			this._dnotesXshift.push(0);
@@ -88,16 +90,16 @@ class Complex
 			if (diff == 1) {
 				//trace('second clash');		
 				if (this.dnote(0).notevalue.dotLevel > 0) {
-					var isect = NmeTools.intersection2(checkRect, this.dnote(1).rectHeads);
-					this._setDnoteX(1, isect.width);
+					var isect = GeomUtils.overlapX(checkRect, this.dnote(1).rectHeads);
+					this._setDnoteX(1, isect.x);
 				} else {
-					this._setDnoteX(1, COLLISION_XSHIFT_SECOND);					
+					this._setDnoteX(1, 	Constants.COMPLEX_COLLISION_SECOND_XSHIFT);					
 				}
 			} else if (diff < 1) {
 				//trace('overlap');	
 				//var isect = NmeTools.intersection2(this.dnote(0).rectHeads, this.dnote(1).rectHeads);
-				var isect = NmeTools.intersection2(checkRect, this.dnote(1).rectHeads);
-				this._setDnoteX(1, isect.width);
+				var isect = GeomUtils.overlapX(checkRect, this.dnote(1).rectHeads);
+				this._setDnoteX(1, isect.x);
 			} else {
 				//trace('no overlap');
 			}
@@ -131,14 +133,13 @@ class Complex
 		return this._rectHeads;
 	}	
 	
-	
 	private var _rectSigns:Rectangle;
 	private function get_rectSigns():Rectangle {
 		if (this._rectSigns != null) return this._rectSigns;		
 		this._rectSigns = SignsUtil.getDisplayRectSigns(signs);		
 		if (this._rectSigns == null) return null;
 		var shiftRect = GeomUtils.overlapX(this._rectSigns, this.rectHeads);
-		this._rectSigns.offset(-shiftRect.width - SIGNS_HEADS_DISTANCE, 0);
+		this._rectSigns.offset(-shiftRect.x - 	Constants.SIGNS_HEADS_DISTANCE, 0);
 		
 		return this._rectSigns;
 	}
@@ -171,7 +172,6 @@ class Complex
 		return ret;
 	}
 	
-	
 	private var _rectFull:Rectangle;
 	public var rectFull(get_rectFull, null):Rectangle;	
 	private function get_rectFull():Rectangle {
@@ -183,7 +183,6 @@ class Complex
 		
 		return this._rectFull;
 	}
-	
 	
 	/**************************************************************************
 	 * Public methods

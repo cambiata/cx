@@ -6,6 +6,7 @@ import harfang.exception.Exception;
 import haxe.Utf8;
 import smd.server.sx.Config;
 import neko.Web;
+import smd.server.sx.Site;
 import smd.server.sx.State;
 
 /**
@@ -14,7 +15,7 @@ import smd.server.sx.State;
  */
 using StringTools;
 class PageData {	
-	static public function getData(sqlitefile:String = 'data/pages.sqlite'):Dynamic {		
+	static public function getDataX(sqlitefile:String = 'data/pages.sqlite'):Dynamic {		
 		
 		var file = Config.filesDir + sqlitefile;
 		//State.messages.infos.push(file + ' - ' + FileTools.exists(file));
@@ -151,15 +152,18 @@ class PageData {
 	
 	
 
-	static public function getData2(_domain='', _uri='') : Dynamic {
-		var uri = (_uri != null) ? _uri : WebTools.getUri();
-		var domain = _domain;
+	static public function getData(_domain='', _uri='') : Dynamic {
+		var uri = (_uri != '') ? _uri : WebTools.getUri();
+		//uri = (uri == '') ? '/' : uri;
+		var domain = (_domain != null) ? _domain : State.domaintag;
 		var page = WebTools.slashToUnderscores(uri);
 		
 		var filename = domain + '.' + page + '.';
-		trace(filename);
 		var dir = Config.contentDir;
 		var files = FileTools.getFilesNamesInDirectory(dir, '', filename);
+		
+		State.messages.infos.push(filename);
+		//trace(files);
 		
 		var data = { };
 		

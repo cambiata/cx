@@ -50,6 +50,7 @@ class NmeTools {
 	}
 	*/
 	
+	/*
 	static public function rectangleArraysIntersection(ra1:Array<Rectangle>, ra2:Array<Rectangle>):Rectangle {
 		var ret:Rectangle = null; // = new Rectangle(0, 0, 0, 0);
 		//trace('');
@@ -87,7 +88,7 @@ class NmeTools {
 		}		
 		return ret;
 	}	
-	
+	*/
 	
 	/*
 	static public function getRight(r:Rectangle):Float {
@@ -105,11 +106,12 @@ class NmeTools {
 		return r.clone();
 	}
 	
+	/*
 	static public function intersection2(r1:Rectangle, r2:Rectangle):Rectangle {
 		if (r1 == null) return null;
 		if (r2 == null) return null;
 		var r2test:Rectangle = r2.clone();
-		r2test.width = 1000;
+		r2test.width = 100000;
 
 		if (!r1.intersects(r2test)) return new Rectangle(0, 0, 0, 0);
 		var newX = Math.max(r1.left + r1.width, r2test.left);
@@ -120,16 +122,18 @@ class NmeTools {
 		return new Rectangle(0, 0, moveX, moveY);		
 	}
 	
-	static public function arrayRectanglesOverlapX(ar1:Array<Rectangle>, ar2:Array<Rectangle>) {
+	static public function arrayRectanglesOverlapX(rects1:Array<Rectangle>, rects2:Array<Rectangle>) {
 		var move = 0.0;
-		for (r1 in ar1) {
-			for (r2 in ar2) {
+		for (r1 in rects1) {
+			for (r2 in rects2) {
 				var r3 = NmeTools.intersection2(r1, r2);
 				move = Math.max(move, r3.width);
 			}
 		}
 		return move;
 	}	
+	*/
+	
 	
 	static public function byteArrayCopy(source:ByteArray):ByteArray {				
 		var copy:ByteArray = new ByteArray();
@@ -139,17 +143,20 @@ class NmeTools {
 		return copy;
 	}
 	
+	/*
 	static public function getKeyCode(e:KeyboardEvent) {
 		var keyCode = e.keyCode;
-		trace([e.keyCode, e.charCode]);
+		
 		#if (neko || cpp) 
 			if (e.keyCode == e.charCode)
 				if (keyCode >= 65 && keyCode <= 122) {
 					keyCode = keyCode-32;
 				}
 		#end		
+		
 		return keyCode;
 	}
+	*/
 	
 	
 }	
