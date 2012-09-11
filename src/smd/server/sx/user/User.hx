@@ -124,20 +124,15 @@ class User
 		
 	}
 
-
-	static public function updateUserdata() {		
-		
+	static public function updateUserdata() {				
 		var updateaccess = (Web.getParams().get('access') == Config.secretKey);
-
-		if (!updateaccess) return;
-		
+		if (!updateaccess) return;		
 		try {
 			Access.saveAuthInfoToSqlite(Web.getCwd() + Config.filesDir + Config.authSqliteFile);
 			State.messages.success.push('User database updated!');
 		} catch (e:Dynamic) {
 			State.messages.errors.push('Problem updating user database: ' + Std.string(e));
 		}
-
 	}
 
 }

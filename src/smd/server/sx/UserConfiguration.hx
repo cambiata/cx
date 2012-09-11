@@ -23,10 +23,12 @@ class UserConfiguration extends AbstractServerConfiguration {
 		
 		
 		ConfigTools.loadConfig(Config, Config.configFile);
-		new Functions();
+		new Functions();		
 		User.updateUserdata();
 		User.getCurrentUser();
-		User.checkRedirect();		
+		User.checkRedirect();	
+		State.getAlerts();
+		//State.messages.infos.push(State.pagePaths.toString());
 		
 		
 		/*

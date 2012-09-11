@@ -10,4 +10,7 @@ typedef Messages = {
 	success:Array<String>,
 	infos:Array<String>,
 	systems:Array<String>,
+	copyrights:Array<String>,
+	tips:Array<String>,
+	discuss:Array<String>,	
 }

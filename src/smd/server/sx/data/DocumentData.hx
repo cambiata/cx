@@ -54,7 +54,11 @@ class DocumentData
 			if (doc == null) {
 				State.messages.errors.push("Can't get content for document " + tag);
 				//throw new Exception("Can't get content for document " + tag);
-				return null;
+				return {
+					tag:tag,
+					title:tag,
+					text:'',
+				};
 			}
 			saveGoogleDocToFile(doc, filename);
 			return doc;
@@ -88,7 +92,7 @@ class DocumentData
 			
 		}
 		*/
-		
+		throw "Document error " + tag;
 		return null;
 	}
 	

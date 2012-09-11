@@ -16,11 +16,8 @@ import smd.server.sx.State;
 using StringTools;
 class PageData {	
 	static public function getDataX(sqlitefile:String = 'data/pages.sqlite'):Dynamic {		
-		
 		var file = Config.filesDir + sqlitefile;
 		//State.messages.infos.push(file + ' - ' + FileTools.exists(file));
-		
-		
 		//-----------------------------------------------------------------------------------------------------
 		
 		// SAVE?
@@ -100,55 +97,20 @@ class PageData {
 		return data;		
 	}
 	
-	
-	
 	static public function getSidmenuData(data:Dynamic, domainStr:String, templateDir:String, sqlitefile:String = 'data/pages.sqlite') {
-		if (data.sidemenu == null) {
-			
-			//var file = Web.getCwd() + Config.filesDir + sqlitefile;
-			
-			//State.messages.infos.push(WebTools.getUri().substr(1));
-			var segments = WebTools.getUri().substr(1).split('/');
-			
-			//State.messages.infos.push(Std.string(segments));
-			var checks:Array<String> = [];
-			//var segementList:Array<String> = [];
-			
-			while (segments.length > 0) {
-				checks.push('/' + segments.join('/'));
-				segments.pop();				
-			}
-			//State.messages.infos.push(Std.string(checks));
-			
-			for (check in checks) {
-
-				//var sql = "select rowid, * from pagecontent where (tag = 'sidemenu' and domain = '" + State.domaintag + "' and page = '" + check + "')";
-				//State.messages.infos.push(sql);
-				
-				/*
-				var results = SqliteTools.execute(file, sql);								
-				for (result in results) {
-					if (result.tag != null) {
-						if (result.tag == 'sidemenu') {
-							data.sidemenu = { tag:result.tag, id: result.rowid, text: result.text } ;
-							//State.messages.errors.push(data.sidemenu);
-							return data;
-						}
-					}
-				}
-				*/
+		if (data.sidemenu == null) {			
+			for (check in State.pagePaths) {
 				var filename = Config.contentDir + State.domaintag + '.' +  WebTools.slashToUnderscores(check) + '.sidemenu';
-				State.messages.infos.push(filename);
 				if (FileTools.exists(filename)) {
 					var text = FileTools.getContent(filename);
 					data.sidemenu = { tag:'sidemenu', id: 0, text: text } ;
 					return data;
-				}
-				
+				}				
 			}
 		}		
 		return data;
 	}
+
 	
 	
 
@@ -162,8 +124,7 @@ class PageData {
 		var dir = Config.contentDir;
 		var files = FileTools.getFilesNamesInDirectory(dir, '', filename);
 		
-		State.messages.infos.push(filename);
-		//trace(files);
+		//State.messages.infos.push(files.toString());
 		
 		var data = { };
 		
@@ -173,9 +134,16 @@ class PageData {
 			Reflect.setField(data, tag, { text: text, id: 0 } );
 		}		
 		
+		Reflect.setField(data, 'messages', State.messages);
+		Reflect.setField(data, 'domain', State.domaintag);
+		Reflect.setField(data, 'uri', WebTools.getUri());		
+		
+		
 		return data; 
 		
 	}
+	
+
 	
 
 }
