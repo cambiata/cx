@@ -33,7 +33,7 @@ class IndexController extends AbstractController
 
 	}
 	
-	@URL("^/")
+	@URL("^/$")
 	public function index() { 			
 		return new IndexResult(State.indexPage, this.data, Config.templatesDir);
 	}

@@ -1,4 +1,5 @@
 package smd.server.sx;
+import neko.Web;
 
 /**
  * ...
@@ -10,18 +11,24 @@ package smd.server.sx;
 class Config 
 {
 
-	static public var filesDir:String			= '../files/';
-	static public var configFile:String 		= filesDir + 'main.conf'; 
 	static public var test:String 				= 'DEFAULT TESTVALUE!';
+
+	static public var homedomain 			= 'scorx.xe';
+
+	static public var filesDir:String			= Web.getCwd() + '../files/';
+
+	static public var authSqliteFile 			= filesDir + 'data/access.sqlite';
+	static public var loginSqliteFile 			= filesDir + 'data/logins.sqlite';
+	static public var configFile:String 		= filesDir + 'main.conf'; 
 	static public var templatesDir:String	= filesDir + 'templates/';
+	static public var contentDir:String		= filesDir + 'content/';
+	static public var documentDir:String	= filesDir + 'documents/';
+
 	static public var secretKey:String		= 'xyz';
 	static public var guser = 'scorxmedia'; 
 	static public var gpass = 'cambiata'; 
 	
-	static public var homedomain = 'scorx.xe';
 	
-	static public var authSqliteFile = 'data/access.sqlite';
-	static public var loginSqliteFile = 'data/logins.sqlite';
 	
 	
 	/*

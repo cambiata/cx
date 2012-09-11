@@ -24,18 +24,46 @@ class DocumentData
 
 	static public function getDocument(tag:String, sqlitefile:String = 'data/documents.sqlite'):TDocument {
 		
-		var file = Web.getCwd() + Config.filesDir + sqlitefile;
+		var file = Config.filesDir + sqlitefile;
+		
+		var filename = Config.documentDir + tag + '.html';
+		
+		
 		
 		var updatedoc = (Web.getParams().get('updatedoc') == Config.secretKey);
 		if (updatedoc) {
+			/*
 			var sql = 'DELETE from documents where tag="' + tag + '"';
 			var ret = SqliteTools.execute(file, sql);			
+			*/
 		}
 		
-		var sql = "select rowid, * from documents where (tag = '" + tag + "')";
+		//var sql = "select rowid, * from documents where (tag = '" + tag + "')";
+		//var results = SqliteTools.execute(file, sql);
+	
+		if (FileTools.exists(filename)) {
+			var text = FileTools.getContent(filename);
+			var doc:TDocument = {
+				tag:tag,
+				title:tag,
+				text:text,
+			}
+			return doc;			
+		} else {
+			var doc = DocumentData.getGoogleDoc(tag);			
+			if (doc == null) {
+				State.messages.errors.push("Can't get content for document " + tag);
+				//throw new Exception("Can't get content for document " + tag);
+				return null;
+			}
+			saveGoogleDocToFile(doc, filename);
+			return doc;
+		}
 		
-		var results = SqliteTools.execute(file, sql);
+		/*
 		try {
+
+			
 			var result = results.first();
 			
 			var doc:TDocument = {
@@ -46,7 +74,6 @@ class DocumentData
 			return doc;
 			
 		} catch (e:Dynamic) {
-			
 			//trace('hämta från google');
 			var doc = DocumentData.getGoogleDoc(tag);			
 			if (doc == null) {
@@ -54,13 +81,14 @@ class DocumentData
 				throw new Exception("Can't get content for document " + tag);
 				return null;
 			}
-			
 			saveGoogleDocToSqlite(doc, file);
 			State.messages.success.push("Document saved locally! " + tag);
 			
 			return doc;
 			
 		}
+		*/
+		
 		return null;
 	}
 	
@@ -74,6 +102,16 @@ class DocumentData
 		}
 		var sql = SqliteTools.getInsertStatement(insertObject, 'documents');
 		var insertId = SqliteTools.insert(sqlitefile, sql);		
+		
+	}
+	
+	static public function saveGoogleDocToFile(doc:TDocument, filename:String) {
+		try {
+			FileTools.putContent(filename, doc.text);
+			State.messages.success.push("Document saved locally! " + doc.tag);
+		} catch (e:Dynamic) {
+			State.messages.errors.push("Could not save document locally! " + doc.tag);
+		}
 		
 	}
 

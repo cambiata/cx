@@ -22,7 +22,7 @@ class UserConfiguration extends AbstractServerConfiguration {
         super();
 		
 		
-		ConfigTools.loadConfig(Config, Web.getCwd() + Config.configFile);
+		ConfigTools.loadConfig(Config, Config.configFile);
 		new Functions();
 		User.updateUserdata();
 		User.getCurrentUser();

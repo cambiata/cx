@@ -16,7 +16,7 @@ using StringTools;
 class PageData {	
 	static public function getData(sqlitefile:String = 'data/pages.sqlite'):Dynamic {		
 		
-		var file = Web.getCwd() + Config.filesDir + sqlitefile;
+		var file = Config.filesDir + sqlitefile;
 		//State.messages.infos.push(file + ' - ' + FileTools.exists(file));
 		
 		
@@ -69,6 +69,7 @@ class PageData {
 		//var domain = WebTools.getDomainInfo().submain;
 		var sql = "select rowid, * from pagecontent where (domain = '" + State.domaintag + "' and page = '" + page + "')";
 		var results = SqliteTools.execute(file, sql);
+	
 		var data:Dynamic = { };
 		for (result in results) {
 			
@@ -95,15 +96,15 @@ class PageData {
 		Reflect.setField(data, 'uri', WebTools.getUri());
 		
 		//-----------------------------------------------------------------------------------------------------
-
-		
 		return data;		
 	}
+	
+	
 	
 	static public function getSidmenuData(data:Dynamic, domainStr:String, templateDir:String, sqlitefile:String = 'data/pages.sqlite') {
 		if (data.sidemenu == null) {
 			
-			var file = Web.getCwd() + Config.filesDir + sqlitefile;
+			//var file = Web.getCwd() + Config.filesDir + sqlitefile;
 			
 			//State.messages.infos.push(WebTools.getUri().substr(1));
 			var segments = WebTools.getUri().substr(1).split('/');
@@ -119,8 +120,11 @@ class PageData {
 			//State.messages.infos.push(Std.string(checks));
 			
 			for (check in checks) {
-				var sql = "select rowid, * from pagecontent where (tag = 'sidemenu' and domain = '" + State.domaintag + "' and page = '" + check + "')";
+
+				//var sql = "select rowid, * from pagecontent where (tag = 'sidemenu' and domain = '" + State.domaintag + "' and page = '" + check + "')";
 				//State.messages.infos.push(sql);
+				
+				/*
 				var results = SqliteTools.execute(file, sql);								
 				for (result in results) {
 					if (result.tag != null) {
@@ -131,27 +135,43 @@ class PageData {
 						}
 					}
 				}
+				*/
+				var filename = Config.contentDir + State.domaintag + '.' +  WebTools.slashToUnderscores(check) + '.sidemenu';
+				State.messages.infos.push(filename);
+				if (FileTools.exists(filename)) {
+					var text = FileTools.getContent(filename);
+					data.sidemenu = { tag:'sidemenu', id: 0, text: text } ;
+					return data;
+				}
+				
 			}
-			
-			/*
-			for (segment in segments) {
-				segementList.push(segment)
-			}
-			*/
-			
-			
-			//var sidemenuFile = Web.getCwd() + templateDir + 'sidemenu/' + domainStr + '.html';
-			
-			/*
-			if (FileTools.exists(sidemenuFile)) {
-				var content = FileTools.getContent(sidemenuFile);
-				data.sidemenu = {tag:'sidemenu', text:content}
-			} else {
-				data.sidemenu = {tag:'sidemenu', text:'no data: ' + sidemenuFile}
-			}
-			*/
 		}		
 		return data;
 	}
 	
+	
+
+	static public function getData2(_domain='', _uri='') : Dynamic {
+		var uri = (_uri != null) ? _uri : WebTools.getUri();
+		var domain = _domain;
+		var page = WebTools.slashToUnderscores(uri);
+		
+		var filename = domain + '.' + page + '.';
+		trace(filename);
+		var dir = Config.contentDir;
+		var files = FileTools.getFilesNamesInDirectory(dir, '', filename);
+		
+		var data = { };
+		
+		for (file in files) {
+			var tag = FileTools.getExtension(file);
+			var text = FileTools.getContent(Config.contentDir + file);
+			Reflect.setField(data, tag, { text: text, id: 0 } );
+		}		
+		
+		return data; 
+		
+	}
+	
+
 }

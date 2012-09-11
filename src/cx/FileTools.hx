@@ -65,13 +65,21 @@ class FileTools
 	
 	
 	
-	static public function getFilesNamesInDirectory(dir:String, ?ext=''):Array<String> {
+	static public function getFilesNamesInDirectory(dir:String, ?ext='', startsWith=''):Array<String> {
 		var filenames = FileSystem.readDirectory(dir);
 		
-		var validFilenames = new Array<String>();		
 		if (ext != '') {
+			var validFilenames = new Array<String>();
 			for (filename in filenames) {
 				if (StringTools.endsWith(filename, ext)) validFilenames.push(filename);
+			}
+			filenames = validFilenames;
+		}
+
+		if (startsWith != '') {
+			var validFilenames = new Array<String>();
+			for (filename in filenames) {
+				if (StringTools.startsWith(filename, startsWith)) validFilenames.push(filename);
 			}
 			filenames = validFilenames;
 		}
@@ -241,5 +249,9 @@ class FileTools
 		} catch(e : Eof){}			
 		
 		return ret;
+	}
+	
+	static public function getExtension(filename:String) {
+		return filename.substr(filename.lastIndexOf('.')+1);
 	}
 }

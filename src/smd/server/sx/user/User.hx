@@ -19,8 +19,8 @@ class User
 	static public function getCurrentUser() :AuthUser {
 		
 		var authUser:AuthUser = getUserNull();
-		var sessionDir = Web.getCwd() + Config.filesDir + 'sessions/';		
-		var auth = new AuthSqlite(Web.getCwd() + Config.filesDir + Config.authSqliteFile, Web.getCwd() + Config.filesDir + Config.loginSqliteFile);
+		var sessionDir = Config.filesDir + 'sessions/';		
+		var auth = new AuthSqlite(Config.authSqliteFile, Config.loginSqliteFile);
 		
 		NekoSession.setSavePath(sessionDir);		
 		NekoSession.domain = '.' + WebTools.getDomainInfo().mainTop;

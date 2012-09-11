@@ -58,7 +58,14 @@ class WebTools {
 		return null;
 	}
 	
+	static public function slashToUnderscores(str:String): String {
+		return str.replace('/', '_');
+		
+	}
 	
+	static public function underscoreToSlash(str:String): String {
+		return str.replace('_', '/');
+	}	
 	
 	
 	
