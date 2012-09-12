@@ -21,30 +21,12 @@ class UserConfiguration extends AbstractServerConfiguration {
     public function new() {
         super();
 		
-		
 		ConfigTools.loadConfig(Config, Config.configFile);
 		new Functions();		
 		User.updateUserdata();
 		User.getCurrentUser();
 		User.checkRedirect();	
 		State.getAlerts();
-		//State.messages.infos.push(State.pagePaths.toString());
-		
-		
-		/*
-		this.addModule(new Site());			
-		
-		ConfigTools.loadConfig(Config, Web.getCwd() + Config.configFile);
-		new Functions();
-		User.updateUserdata();
-		User.getCurrentUser();
-		User.checkRedirect();
-		*/
-		
-		//State.messages.infos.push(Std.string(User.user));
-		//State.messages.infos.push('Hello World');
-		//State.messages.errors.push('This is an error');
-		
     }
 	
 	
@@ -53,11 +35,7 @@ class UserConfiguration extends AbstractServerConfiguration {
         this.addModule(new Site());
     }	
 		
-	
-	
-	
 	override public function onHTTPError(error : HTTPException) : Void {
-		
 		Lib.println(error.getMessage());
 		/*
 		State.messages.errors.push(error.getErrorCode() + ': ' + error.getMessage());
@@ -66,8 +44,6 @@ class UserConfiguration extends AbstractServerConfiguration {
 		Lib.print(output);
 		*/
 	}
-	
-	
 	
 	override public function onError(exception : Exception) : Void {		
 		Lib.println(exception.getMessage());
@@ -78,8 +54,5 @@ class UserConfiguration extends AbstractServerConfiguration {
 		Lib.print(output);
 		*/
 	}
-	
-	
-	
 	
 }
