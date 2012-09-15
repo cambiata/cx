@@ -32,10 +32,11 @@ class DocumentData
 		
 		var updatedoc = (Web.getParams().get('updatedoc') == Config.secretKey);
 		if (updatedoc) {
-			/*
-			var sql = 'DELETE from documents where tag="' + tag + '"';
-			var ret = SqliteTools.execute(file, sql);			
-			*/
+			
+			//var sql = 'DELETE from documents where tag="' + tag + '"';
+			//var ret = SqliteTools.execute(file, sql);			
+			FileTools.deleteFile(filename);
+			
 		}
 		
 		//var sql = "select rowid, * from documents where (tag = '" + tag + "')";

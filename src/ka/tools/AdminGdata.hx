@@ -150,7 +150,7 @@ class AdminGdata
 			var mappar = cell[1];
 			//trace(kat);
 			//trace(mappar);			
-			var st:Scorxtillganglighet = { kategori:kat, mappar:mappar.split(',')};
+			var st:Scorxtillganglighet = { kategori:kat, mappar:mappar.split(','), ids:[]};
 			scorxtillgangligheter.push(st);
 		}
 		//trace(scorxtillgangligheter);

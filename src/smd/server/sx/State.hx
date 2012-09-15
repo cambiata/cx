@@ -59,7 +59,6 @@ class State
 				State.messages.infos.push(text);
 			}			
 			
-			
 			// copyrights
 			var filename = Config.contentDir + State.domaintag + '.' +  WebTools.slashToUnderscores(check) + '.copyright';
 			if (FileTools.exists(filename)) {

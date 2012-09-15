@@ -62,10 +62,14 @@ class ScorxTools
 		
 		var scorxFiles = new Array<String>();
 		for (dr in dirs) {
-			var files = FileTools.getFilesInDirectories(dr, '.sqlite');
-			for (file in files) {
-				scorxFiles.push(file);
-			}			
+			try {
+				var files = FileTools.getFilesInDirectories(dr, '.sqlite');
+				for (file in files) {
+					scorxFiles.push(file);
+				}		
+			} catch (e:Dynamic) {
+				
+			}
 		}		
 
 		for (file in scorxFiles) {

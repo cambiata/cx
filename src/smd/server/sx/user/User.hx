@@ -20,7 +20,8 @@ class User
 		
 		var authUser:AuthUser = getUserNull();
 		var sessionDir = Config.filesDir + 'sessions/';		
-		var auth = new AuthSqlite(Config.authSqliteFile, Config.loginSqliteFile);
+		//var auth = new AuthSqlite(Config.authSqliteFile, Config.loginSqliteFile);
+		var auth = new AuthFile(Config.authFile, Config.loginFile);
 		
 		NekoSession.setSavePath(sessionDir);		
 		NekoSession.domain = '.' + WebTools.getDomainInfo().mainTop;
@@ -44,6 +45,9 @@ class User
 					authUser.msg = 'Login ok';			
 					authUser.pass = _pass;
 					authUser.user = _user;
+					
+					authUser.logins = auth.checkLogin(authUser);
+					
 					State.messages.success.push('User logged in!');
 				} else {
 					authUser.msg = 'Login fail!';

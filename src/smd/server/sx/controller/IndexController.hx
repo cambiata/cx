@@ -28,10 +28,8 @@ class IndexController extends AbstractController
 	private var data:Dynamic;
 	
 	override public function handleBefore()	{
-		this.data = PageData.getData(State.domaintag);
+		this.data = PageData.getData({}, State.domaintag);
 		this.data = PageData.getSidmenuData(this.data, State.domaintag, Config.templatesDir);
-		//PageData.getAlerts();
-
 	}
 	
 	@URL("^/$")
@@ -55,14 +53,6 @@ class IndexController extends AbstractController
 		this.data.layout = { id:0, text:'list' };
 		return new IndexResult(State.indexPage, this.data, Config.templatesDir);
 	}	
-	
-	@URL("/media")
-	public function media() {			
-		//this.data.layout = { id:0, text:'list' };
-		//return new IndexResult(State.indexPage, this.data, Config.templatesDir);
-		return "Media";
-	}		
-	
 	
 	@URL("/video/([a-zA-Z0-9/]+)", "g")
 	public function video(param : String = 'default') {	

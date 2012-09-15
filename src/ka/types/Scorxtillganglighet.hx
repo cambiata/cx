@@ -8,5 +8,6 @@ package ka.types;
 typedef Scorxtillganglighet = {
 	kategori:String,
 	mappar:Array<String>,
+	ids:Array<Int>,
 }
 

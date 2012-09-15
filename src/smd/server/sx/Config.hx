@@ -16,17 +16,27 @@ class Config
 	static public var homedomain 			= 'scorx.xe';
 
 	static public var filesDir:String			= Web.getCwd() + '../files/';
-
-	static public var authSqliteFile 			= filesDir + 'data/access.sqlite';
-	static public var loginSqliteFile 			= filesDir + 'data/logins.sqlite';
+	
 	static public var configFile:String 		= filesDir + 'main.conf'; 
+	static public var dataDir:String			= filesDir + 'data/';
+	static public var smdDir:String			= filesDir + 'smd/';
 	static public var templatesDir:String	= filesDir + 'templates/';
 	static public var contentDir:String		= filesDir + 'content/';
 	static public var documentDir:String	= filesDir + 'documents/';
 
+	static public var scorxDir:String 		= filesDir + 'scorx/';
+	
+	
+	static public var authSqliteFile 			= dataDir + 'access.sqlite';
+	static public var loginSqliteFile 			= dataDir + 'logins.sqlite';	
+	
+	static public var authFile					= smdDir + 'auth.list';
+	static public var loginFile					= smdDir + 'login.list';
+	
 	static public var secretKey:String		= 'xyz';
-	static public var guser = 'scorxmedia'; 
-	static public var gpass = 'cambiata'; 
+	
+	static public var guser 						= 'scorxmedia'; 
+	static public var gpass 					= 'cambiata'; 
 	
 	
 	

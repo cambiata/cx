@@ -15,6 +15,7 @@ import smd.server.sx.State;
  */
 using StringTools;
 class PageData {	
+	/*
 	static public function getDataX(sqlitefile:String = 'data/pages.sqlite'):Dynamic {		
 		var file = Config.filesDir + sqlitefile;
 		//State.messages.infos.push(file + ' - ' + FileTools.exists(file));
@@ -96,6 +97,8 @@ class PageData {
 		//-----------------------------------------------------------------------------------------------------
 		return data;		
 	}
+	*/
+	
 	
 	static public function getSidmenuData(data:Dynamic, domainStr:String, templateDir:String, sqlitefile:String = 'data/pages.sqlite') {
 		if (data.sidemenu == null) {			
@@ -111,10 +114,7 @@ class PageData {
 		return data;
 	}
 
-	
-	
-
-	static public function getData(_domain='', _uri='') : Dynamic {
+	static public function getData(data:Dynamic=null, _domain='', _uri='') : Dynamic {
 		var uri = (_uri != '') ? _uri : WebTools.getUri();
 		//uri = (uri == '') ? '/' : uri;
 		var domain = (_domain != null) ? _domain : State.domaintag;
@@ -126,7 +126,7 @@ class PageData {
 		
 		//State.messages.infos.push(files.toString());
 		
-		var data = { };
+		var data = (data != null) ? data : { };
 		
 		for (file in files) {
 			var tag = FileTools.getExtension(file);
