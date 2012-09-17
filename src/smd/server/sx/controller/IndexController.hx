@@ -34,37 +34,72 @@ class IndexController extends AbstractController
 	
 	@URL("^/$")
 	public function index() { 			
-		return new IndexResult(State.indexPage, this.data, Config.templatesDir);
+		return new IndexResult(Config.indexPage, this.data);
 	}
 	
 	@URL("/info/([a-zA-Z]+)", "g")
 	public function info(param : String = 'default') {				
-		return new IndexResult(State.indexPage, this.data, Config.templatesDir);
+		return new IndexResult(Config.indexPage, this.data);
 	}
 
 	@URL("/nav/([a-zA-Z]+)", "g")
 	public function nav(param : String = 'default') {					
-		return new IndexResult(State.indexPage, this.data, Config.templatesDir);
+		return new IndexResult(Config.indexPage, this.data);
 	}
 
+	/*
+	@URL("/scorx/info")
+	public function scorxlist(param : String = 'default') {			
+		var param = param.substr(0, -1);
+		this.data.layout = { id:0, text:'list' };
+		this.data.scorxmode = 'sx/info';
+		return new IndexResult(State.indexPage, this.data);
+	}		
+	*/
+
+	@URL("/scorx/list/")
+	public function scorxlist() {			
+		this.data.layout = { id:0, text:'list' };
+		this.data.scorxmode = 'list.html';		
+		return new IndexResult(Config.indexPage, this.data);
+	}			
 	
-	@URL("/scorx")
+	
+	
+	@URL("/scorx/([a-zA-Z0-9/]+)$")
+	public function scorxpar(param : String = 'default') {			
+		var param = param.substr(0, -1);
+		var params = param.split('/');
+		this.data.layout = { id:0, text:'list' };
+		var params0 = params[0];
+		var params1 = (params.length > 1) ? params[1] : '0' ;
+		
+		this.data.scorxmode = 'sx/' + params0 + '/' + params1;
+		
+		return new IndexResult(Config.indexPage, this.data);
+	}			
+	
+	
+	
+	@URL("/scorx/")
 	public function scorx() {			
 		this.data.layout = { id:0, text:'list' };
-		return new IndexResult(State.indexPage, this.data, Config.templatesDir);
-	}	
+		this.data.scorxmode = 'sx';
+		this.data.scorxid = 0;
+		return new IndexResult(Config.indexPage, this.data);
+	}			
 	
 	@URL("/video/([a-zA-Z0-9/]+)", "g")
-	public function video(param : String = 'default') {	
+	public function video(param : String = 'default', par2='hej') {	
 		this.data.layout = { id:0, text:'video' };
-		this.data.param = param.substr(0, param.length-1);
-		return new IndexResult(State.indexPage, this.data, Config.templatesDir);
+		this.data.param = param.substr(0, param.length - 1);		
+		return new IndexResult(Config.indexPage, this.data);
 	}
 	
 	@URL("/firstlogin")
 	public function firstlogin() {			
 		this.data.layout = { id:0, text:'nav' };
-		return new IndexResult(State.indexPage, this.data, Config.templatesDir);
+		return new IndexResult(Config.indexPage, this.data);
 	}		
 	
 	
@@ -76,7 +111,7 @@ class IndexController extends AbstractController
 		this.data.content = {tag:'content', text:doc.text};
 		this.data.title = { tag:'title', text:'title' };
 		this.data.layout = { tag:'document', text:'document' };
-		return new IndexResult(State.indexPage, this.data, Config.templatesDir);
+		return new IndexResult(Config.indexPage, this.data);
 	}
 	
 	@URL("^/access/$")

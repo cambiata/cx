@@ -1,5 +1,6 @@
 package sx.util;
 import cx.FileTools;
+import ka.types.Scorxtillgangligheter;
 import neko.Utf8;
 import sx.type.THashIds;
 import sx.type.TListExamples;
@@ -122,6 +123,32 @@ class ScorxTools
 		var y = '(' + [b, d].join('-') + ')';
 		if (y != '(-)') s += ' ' + y;		
 		return s;
+	}
+	
+	static public function addIdsToScorxtillgangligheter(scorxtg:Scorxtillgangligheter, scorxDir:String) :Scorxtillgangligheter {
+		for (tg in scorxtg) {
+			for (mapp in tg.mappar) {
+				var ids = ScorxTools.getIdsInDirectory(scorxDir + mapp);				
+				tg.ids = tg.ids.concat(ids);
+			}
+			tg.ids.sort(function(a, b) { return Reflect.compare(a, b); } );
+		}		
+		return scorxtg;
+	}
+	
+	static public function getListExamples(scorxtg:Scorxtillgangligheter, scorxDir:String) : TListExamples {
+		var listExamples = new TListExamples();		
+		for (tg in scorxtg) {
+			for (mapp in tg.mappar) {
+				var dir = scorxDir + mapp;
+				var files = ScorxTools.getFilesInDirectory(dir);		
+				for (file in files) {
+					var listExample = ExampleTools.getListExample(ScorxDb.getExample(file));
+					listExamples.set(listExample.id, listExample);
+				}				
+			}
+		}		
+		return listExamples;
 	}
 	
 

@@ -39,6 +39,8 @@ class Config
 	static public var gpass 					= 'cambiata'; 
 	
 	
+	static public var indexPage: String 	= Config.templatesDir + 'index.html'; 	
+	static public var scorxlistPage: String= Config.templatesDir + 'scorxlist.html'; 	
 	
 	
 	/*

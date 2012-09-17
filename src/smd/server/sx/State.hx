@@ -16,7 +16,7 @@ class State
 	
 	static public var domaintag :String = StringTools.replace(WebTools.getDomainInfo().subMain, '.', '-');
 	
-	static public var indexPage: String = 'index.html'; // WebTools.getDomainInfo().submain + '.html';
+	//static public var indexPage: String = Config.templatesDir + 'index.html'; // WebTools.getDomainInfo().submain + '.html';
 	
 	static public var messages:Messages = {
 		errors: [],

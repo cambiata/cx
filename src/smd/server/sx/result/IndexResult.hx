@@ -12,10 +12,10 @@ import smd.server.sx.user.User;
 class IndexResult extends TemplateResult
 {
 
-	public function new(templateFile:String, ?data:Dynamic = null, directory:String = '') {
+	public function new(templateFile:String, ?data:Dynamic = null) {
 		data = this.addData(data);
 		//data = { };
-		super(templateFile, data, directory);
+		super(templateFile, data);
 	}	
 
 	private function addData(data:Dynamic) {

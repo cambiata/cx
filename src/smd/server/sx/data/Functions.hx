@@ -12,6 +12,7 @@ import ka.types.Scorxtillganglighet;
 import ka.types.Scorxtillgangligheter;
 import smd.server.sx.user.Access;
 import smd.server.sx.user.AuthFile;
+import sx.util.ScorxTools;
 
 
 /**
@@ -27,12 +28,28 @@ class Functions extends DataFunctions
 	
 	public function __scorx() {
 		State.messages.infos.push('scorx');
+		State.messages.infos.push(Config.scorxDir);
+
+		try {
+			var roller:Roller = AdminGdata.getRoller();
+			FileTools.putContent(Config.smdDir + 'roller.data', Serializer.run(roller));
+		} catch (e:Dynamic) { State.messages.errors.push("Can't update roller data");}
 		
-		var scorxtg:Scorxtillgangligheter = AdminGdata.getScorxtillgangligheter();
-		FileTools.putContent(Config.smdDir + 'scorxtillg.data', Serializer.run(scorxtg));
+		var scorxtg:Scorxtillgangligheter = null;
 		
-		var roller:Roller = AdminGdata.getRoller();
-		FileTools.putContent(Config.smdDir + 'roller.data', Serializer.run(scorxtg));
+		try {
+			scorxtg = AdminGdata.getScorxtillgangligheter();
+			scorxtg = ScorxTools.addIdsToScorxtillgangligheter(scorxtg, Config.scorxDir);
+			FileTools.putContent(Config.smdDir + 'scorxtillg.data', Serializer.run(scorxtg));
+		} catch (e:Dynamic) { State.messages.errors.push("Can't update scorxtillg data");}
+		
+		if (scorxtg != null) {
+			try {
+				var listExamples = ScorxTools.getListExamples(scorxtg, Config.scorxDir);
+				FileTools.putContent(Config.smdDir + 'scorxlist.data', Serializer.run(listExamples));
+			} catch (e:Dynamic) { State.messages.errors.push("Can't update scorxlist data"); }
+		}
+		
 	}
 	
 	public function __users() {

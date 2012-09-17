@@ -9,7 +9,7 @@ class Site extends AbstractModule {
 
     public function new() {
         super();
-		MacroConfigurator.mapController(this, IndexController, "URL");
 		MacroConfigurator.mapController(this, MediaController, "URL");
+		MacroConfigurator.mapController(this, IndexController, "URL");
     }
 }
