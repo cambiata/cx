@@ -1,1 +1,0 @@
-A Neko project written in the HaXe language
