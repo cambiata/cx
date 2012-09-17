@@ -64,6 +64,17 @@ class IndexController extends AbstractController
 		return new IndexResult(Config.indexPage, this.data);
 	}			
 	
+	@URL("/scorx/info/")
+	public function scorxinfo() {			
+		this.data.layout = { id:0, text:'list' };
+		this.data.scorxmode = 'info.html';
+		var qId:Int = Std.parseInt(Web.getParams().get('id')); 
+		var id = (qId != null) ? qId : 0;
+		Reflect.setField(this.data, 'scorxid', id);
+		return new IndexResult(Config.indexPage, this.data);
+	}			
+	
+	
 	
 	
 	@URL("/scorx/([a-zA-Z0-9/]+)$")

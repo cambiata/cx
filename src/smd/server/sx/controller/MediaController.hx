@@ -7,6 +7,9 @@ import smd.server.sx.Site;
 import smd.server.sx.State;
 import smd.server.sx.result.IndexResult;
 import sx.type.TListExample;
+import sx.util.ScorxExamples;
+import sx.util.ScorxDb;
+import cx.PngTools;
 
 /**
  * ...
@@ -27,6 +30,33 @@ class MediaController extends AbstractController
 		var scorxid = Std.parseInt(param);
 		return "SX Info " + scorxid;
 	}		
+	
+	@URL("/sx/pages/([a-zA-Z0-9/]+)$")
+	public function sxpages(param = '') {		
+		var param = param.substr(0, -1);
+		var scorxid = Std.parseInt(param);
+		
+		var se = new ScorxExamples(Config.scorxDir);
+		var filename = se.getFilename(scorxid);
+		//trace(filename);
+		
+		var html = '<div class="pages">';
+		var pages = ScorxDb.getPages(filename);
+		for (page in pages) {
+			html += PngTools.pngBytesToHtmlImg(page.data);			
+			//trace(html);
+		}		
+		html += "</div>";
+		html += "<style>";
+		html += ".pages  img {border: 1px solid #dddddd; margin-bottom:4px; margin-right:4px; height:600px; }";
+		html += "</style>";
+		
+		
+		return html;
+	}			
+	
+	
+	
 	
 	@URL("/sx/list")
 	public function sxlist() {			
