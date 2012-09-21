@@ -8,6 +8,7 @@ import smd.server.sx.Config;
 import neko.Web;
 import smd.server.sx.Site;
 import smd.server.sx.State;
+import smd.server.sx.user.User;
 
 /**
  * ...
@@ -115,6 +116,22 @@ class PageData {
 	}
 
 	static public function getData(data:Dynamic=null, _domain='', _uri='') : Dynamic {
+
+		/*
+		var editpage = (User.user != null) ? (User.user.role == 'Administratör') : false;
+		editpage = (Web.getParams().get('editpage') == Config.secretKey);
+		var editpagehtml = '';
+		
+		var editfield = Web.getParams().get('editfield');
+		var editfielddata:String = null;
+		var savefielduri:String = null;
+		
+		
+		Reflect.setField(data, 'editpage', editpage);		
+		*/
+		
+		//-------------------------------------------------------------------------------------------------
+		
 		var uri = (_uri != '') ? _uri : WebTools.getUri();
 		//uri = (uri == '') ? '/' : uri;
 		var domain = (_domain != null) ? _domain : State.domaintag;
@@ -124,19 +141,40 @@ class PageData {
 		var dir = Config.contentDir;
 		var files = FileTools.getFilesNamesInDirectory(dir, '', filename);
 		
-		//State.messages.infos.push(files.toString());
-		
 		var data = (data != null) ? data : { };
 		
 		for (file in files) {
 			var tag = FileTools.getExtension(file);
 			var text = FileTools.getContent(Config.contentDir + file);
 			Reflect.setField(data, tag, { text: text, id: 0 } );
+			
+			
+			
+			//editpagehtml += '<a class="btn" href="' + uri + '?editpage=' + Config.secretKey + '&editfield=' + file + '">' + file + '</a>';
+			
+			/*
+			if (editfield == file) {
+				editfielddata = text;
+				//savefielduri = uri + '?editpage=' + Config.secretKey + '&editfield=' + file + '&save
+			}
+			*/
+			
 		}		
 		
 		Reflect.setField(data, 'messages', State.messages);
 		Reflect.setField(data, 'domain', State.domaintag);
 		Reflect.setField(data, 'uri', WebTools.getUri());		
+		
+		//----------------------------------------------------------------------------------------		
+
+		/*
+		Reflect.setField(data, 'editpagehtml', editpagehtml);		
+		Reflect.setField(data, 'editfield', editfield);		
+		Reflect.setField(data, 'editfielddata', editfielddata);		
+		*/
+		
+		//----------------------------------------------------------------------------------------		
+		
 		
 		
 		return data; 

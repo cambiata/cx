@@ -11,8 +11,7 @@ import smd.server.sx.Config;
  * @author Jonas Nyström
  */
 
-class User 
-{
+class User {
 
 	static public var user:AuthUser;
 	
