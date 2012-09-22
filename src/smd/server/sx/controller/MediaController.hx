@@ -1,6 +1,7 @@
 package smd.server.sx.controller;
 import harfang.controller.AbstractController;
 import haxe.Json;
+import haxe.Serializer;
 import smd.server.sx.Config;
 import smd.server.sx.data.ScorxData;
 import smd.server.sx.Site;
@@ -64,18 +65,20 @@ class MediaController extends AbstractController
 		var ids = ScorxData.getScorxtillgangligheterIds(domainkategori);
 		var listexamples = ScorxData.getListexamples(ids);
 		
-		var scorxitems = new Array<TListExample>();
+		//var scorxitems = new Array<TListExample>();
+		//var scorxitems = new sx.type.TListExamples();
 		
-		for (id in listexamples.keys()) {
-			scorxitems.push(listexamples.get(id));
-		}
+		//for (id in listexamples.keys()) {
+		//	scorxitems.push(listexamples.get(id));
+		//}
 		
 		/*
 		var data = { scorxitems:scorxitems };
 		return new IndexResult(Config.scorxlistPage, data);
 		*/
 		
-		return Json.stringify(scorxitems);
+		//return Json.stringify(scorxitems);
+		return Serializer.run(listexamples);
 		
 		//return "SX List";
 	}		
