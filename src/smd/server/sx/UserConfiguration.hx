@@ -5,6 +5,8 @@ import cx.ConfigTools;
 import harfang.configuration.AbstractServerConfiguration;
 import harfang.exception.Exception;
 import harfang.exception.HTTPException;
+import haxe.Firebug;
+import haxe.Log;
 import neko.Lib;
 import neko.Web;
 import smd.server.base.result.TemplateResult;
@@ -20,6 +22,8 @@ class UserConfiguration extends AbstractServerConfiguration {
 
     public function new() {
         super();
+		
+		Log.trace = Firebug.trace;
 		
 		ConfigTools.loadConfig(Config, Config.configFile);
 		new Functions();		

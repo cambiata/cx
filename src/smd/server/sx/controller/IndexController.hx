@@ -101,9 +101,11 @@ class IndexController extends AbstractController
 	}			
 	
 	@URL("/video/([a-zA-Z0-9/]+)", "g")
-	public function video(param : String = 'default', par2='hej') {	
+	public function video(param : String = 'default') {	
+		param = param.substr(0, param.length - 1);			
 		this.data.layout = { id:0, text:'video' };
-		this.data.param = param.substr(0, param.length - 1);		
+		this.data.param = param;		
+		//return "video " + param;
 		return new IndexResult(Config.indexPage, this.data);
 	}
 	

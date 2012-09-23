@@ -13,4 +13,5 @@ typedef Messages = {
 	copyrights:Array<String>,
 	tips:Array<String>,
 	discuss:Array<String>,	
+	debugs:Array<String>,	
 }

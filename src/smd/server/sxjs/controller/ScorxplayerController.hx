@@ -25,7 +25,7 @@ class ScorxplayerController extends Controller
 		this.divPlayerEmbedWrapper = this.findElement("#playerEmbedWrapper");
 		
 		var path = Tools.window.location.pathname;
-		trace('path ' + path);
+		//trace('path ' + path);
 		
 		
 		"#playerClear".find().click(function (e) { 

@@ -4,6 +4,7 @@ import cx.SqliteTools;
 import cx.WebTools;
 import harfang.exception.Exception;
 import haxe.Utf8;
+import neko.FileSystem;
 import smd.server.sx.Config;
 import neko.Web;
 import smd.server.sx.Site;
@@ -104,7 +105,10 @@ class PageData {
 	static public function getSidmenuData(data:Dynamic, domainStr:String, templateDir:String, sqlitefile:String = 'data/pages.sqlite') {
 		if (data.sidemenu == null) {			
 			for (check in State.pagePaths) {
-				var filename = Config.contentDir + State.domaintag + '.' +  WebTools.slashToUnderscores(check) + '.sidemenu';
+				var pagepath = FileTools.stripLastSlash(Config.contentDir + State.domaintag + check); 
+				var filename = pagepath + '/' + 'sidemenu.html';
+				//trace(filename);
+				//var filename = Config.contentDir + State.domaintag + '.' +  WebTools.slashToUnderscores(check) + '.sidemenu';
 				if (FileTools.exists(filename)) {
 					var text = FileTools.getContent(filename);
 					data.sidemenu = { tag:'sidemenu', id: 0, text: text } ;
@@ -117,6 +121,12 @@ class PageData {
 
 	static public function getData(data:Dynamic=null, _domain='', _uri='') : Dynamic {
 
+		var data = (data != null) ? data : { };
+		var uri = (_uri != '') ? _uri : WebTools.getUri();
+		var domain = (_domain != null) ? _domain : State.domaintag;
+		
+		//-------------------------------------------------------------------------------------------------
+		
 		/*
 		var editpage = (User.user != null) ? (User.user.role == 'Administratör') : false;
 		editpage = (Web.getParams().get('editpage') == Config.secretKey);
@@ -131,21 +141,35 @@ class PageData {
 		*/
 		
 		//-------------------------------------------------------------------------------------------------
+
+		var pagepath = FileTools.stripLastSlash(Config.contentDir + domain + uri); 
+
+		if (FileTools.exists(pagepath)) {
+			var files = FileTools.getFilesNamesInDirectory(pagepath + '/', 'html');
+			for (file in files) {
+				var filename = pagepath + '/' + file;
+				var tag = FileTools.getFilename(filename, false);
+				var text = FileTools.getContent(filename);
+				Reflect.setField(data, tag, { text: text, id: 0 } );
+			}			
+		} else {			
+			State.messages.debugs.push("pagepath doesn't exist");
+		}
 		
-		var uri = (_uri != '') ? _uri : WebTools.getUri();
-		//uri = (uri == '') ? '/' : uri;
-		var domain = (_domain != null) ? _domain : State.domaintag;
+		
+		//-------------------------------------------------------------------------------------------------
+		
 		var page = WebTools.slashToUnderscores(uri);
-		
 		var filename = domain + '.' + page + '.';
 		var dir = Config.contentDir;
 		var files = FileTools.getFilesNamesInDirectory(dir, '', filename);
 		
-		var data = (data != null) ? data : { };
-		
 		for (file in files) {
 			var tag = FileTools.getExtension(file);
 			var text = FileTools.getContent(Config.contentDir + file);
+			
+			//trace(tag);
+			
 			Reflect.setField(data, tag, { text: text, id: 0 } );
 			
 			

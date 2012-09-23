@@ -206,6 +206,12 @@ class FileTools
 		executeFile(filename);
 	}
 	
+	static public function stripLastSlash(path:String) {
+		if (path.endsWith('/')) path = path.substr(0, path.length-1);
+		if (path.endsWith('\\')) path = path.substr(0, path.length-1);
+		return path;
+	}
+	
 	
 #if !cpp
 	static public function stripPath(filename:String):String {
@@ -234,8 +240,10 @@ class FileTools
 		return Tools.stringBeforeIncludingLast(FileTools.safeSlashes(fullfilename), '/');
 	}
 	
-	static public function getFilename(fullfilename:String) {
-		return Tools.stringAfterLast(FileTools.safeSlashes(fullfilename), '/');
+	static public function getFilename(fullfilename:String, includeExt:Bool = true) {
+		var filename = Tools.stringAfterLast(FileTools.safeSlashes(fullfilename), '/');
+		if (! includeExt) filename = Tools.stringBeforeLast(filename, '.');
+		return filename;
 	}
 	
 	static public function getArrayFromItemsFile(filename:String) {		
