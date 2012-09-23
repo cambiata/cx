@@ -158,7 +158,8 @@ class PageData {
 		
 		
 		//-------------------------------------------------------------------------------------------------
-		
+	
+		/*
 		var page = WebTools.slashToUnderscores(uri);
 		var filename = domain + '.' + page + '.';
 		var dir = Config.contentDir;
@@ -167,23 +168,12 @@ class PageData {
 		for (file in files) {
 			var tag = FileTools.getExtension(file);
 			var text = FileTools.getContent(Config.contentDir + file);
-			
-			//trace(tag);
-			
 			Reflect.setField(data, tag, { text: text, id: 0 } );
 			
-			
-			
-			//editpagehtml += '<a class="btn" href="' + uri + '?editpage=' + Config.secretKey + '&editfield=' + file + '">' + file + '</a>';
-			
-			/*
-			if (editfield == file) {
-				editfielddata = text;
-				//savefielduri = uri + '?editpage=' + Config.secretKey + '&editfield=' + file + '&save
-			}
-			*/
-			
 		}		
+		*/
+		
+		//----------------------------------------------------------------------------------------
 		
 		Reflect.setField(data, 'messages', State.messages);
 		Reflect.setField(data, 'domain', State.domaintag);

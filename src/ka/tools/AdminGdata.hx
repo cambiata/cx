@@ -2,6 +2,7 @@ package ka.tools;
 import cx.google.Goo;
 import cx.StrTools;
 import cx.Tools;
+import cx.ValidationTools;
 import ka.types.Admingrupp;
 import ka.types.Admingrupper;
 import ka.types.Kor;
@@ -51,6 +52,12 @@ class AdminGdata
 	
 	
 	static private var studieterminer:Studieterminer;
+	
+	
+	static public var invalidPersonerEpost:Personer = [];
+	static public var invalidPersonerPersonnr:Personer = [];
+	
+	
 	
 	static public function getStudieterminer():Studieterminer {
 		return studieterminer;
@@ -231,10 +238,12 @@ class AdminGdata
 		*/
 	}
 	
-	static public function getPersoner():Personer {		
+	static public function getPersoner(onlyValid:Bool=true):Personer {		
+		
 		var g = new cx.GoogleTools.Spreadsheet(email, passwd, sheetPersoner2);
+		
 		var cells = g.getCells();				
-		var rowNr = 1;
+		//var rowNr = 1;
 		var dataPersoner = new Personer();		
 		for (cell in cells) {			
 			if (cell == null) continue;
@@ -256,13 +265,33 @@ class AdminGdata
 				if (p.personnr != null) p.xpass = p.personnr.substr(-4);				
 			}		
 			
+			//------------------------------------------------------------------------------
+			// validation
+			
+			if (p.fornamn == null && p.efternamn == null) continue;
+			
+			if (onlyValid) {
+				if (! ValidationTools.isValidEmail(p.epost)) {
+					invalidPersonerEpost.push(p);
+					continue;
+				}
+	
+				if (! ValidationTools.isValidPersonnrLong(p.personnr)) {
+					invalidPersonerPersonnr.push(p);
+					continue;
+				}
+			}
+			
+			//-------------------------------------------------------------------------------
+			
 			dataPersoner.push(p);			
-			rowNr++;
+			//rowNr++;
 		}
 		
 		personerFields = dataPersoner.shift();
 		
 		return dataPersoner;
+		
 	}
 	
 	

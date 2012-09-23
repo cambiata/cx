@@ -68,10 +68,12 @@ class Spreadsheet
 	private var pageNumber:Int;
 	
 	public function new(email:String, passwd:String, key:String, ?pageNumber=0) {
+		
 		this.key = key;		
 		this.pageNumber = pageNumber;
 		this.authToken = GoogleTools.getAuthToken(email, passwd);
 		this.worksheetLinks = _getWorksheetLinks(this.authToken, this.key, this.pageNumber);
+		
 	}
 	
 	private static var urlClientLogin = 'https://www.google.com/accounts/ClientLogin';
