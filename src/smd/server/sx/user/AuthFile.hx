@@ -54,7 +54,7 @@ class AuthFile implements IAuth
 						authUser.person = p;
 						authUser.role = p.roll;
 						authUser.user = user_; 
-						authUser.pass = p.xpass;
+						authUser.pass = p.xpass;						
 						
 						var scorxdirsStr = StrTools.afterLast(line, '|');
 						

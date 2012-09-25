@@ -3,6 +3,7 @@ package ka.types;
 typedef Person = {
 	sheetrow: Int,
 	personnr:String,
+	personid:String,
 	fornamn:String,
 	efternamn:String,
 	epost:String,

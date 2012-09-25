@@ -33,25 +33,6 @@ class Scorxitem  extends Widget
 		this.find('#likespan').addClass('id-' + listexample.id);
 		this.find('#liketext').addClass('id-' + listexample.id);
 		
-		
-
-		/*
-		var likesClass = 'badge-light';
-		var likesText = 'Gilla';
-		if (listexample.likes > 0) {
-			likesClass = 'somelikes';
-			likesText = 'Gilla ' + listexample.likes;
-			if (listexample.likes > 10) {
-				likesClass = 'manylikes';
-				likesText = 'Gilla ' + listexample.likes;
-			}
-		}
-		
-		this.find('#likespan').addClass(likesClass);
-		this.find('#liketext').setText(likesText);
-		*/
-		
-		
 		for (originatorItem in listexample.originatorItems) {
 			var originatortext = originatorItem.originator.firstname + ' ' + originatorItem.originator.lastname;
 			

@@ -43,6 +43,7 @@ class Config
 	static public var scorxlistPage: String= Config.templatesDir + 'scorxlist.html'; 	
 	
 	static public var likesFile					= smdDir + 'likes.txt';
+	static public var commentsFile			= smdDir + 'comments.txt';
 	
 	/*
 	static public var authFile:String 		= '../files/auth/auth.dat';

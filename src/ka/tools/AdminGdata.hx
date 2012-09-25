@@ -259,6 +259,10 @@ class AdminGdata
 			p.postnr = cell[12];
 			p.postadr = cell[13];
 			p.personnr = cell[14];
+			if (ValidationTools.isValidPersonnrLong(p.personnr)) {
+				p.personid = PersonTools.peronnrToId(p.personnr);
+			}
+			
 			p.epost = cell[17];
 			
 			if ((p.xpass == null)||(p.xpass == '')) {
@@ -277,6 +281,7 @@ class AdminGdata
 				}
 	
 				if (! ValidationTools.isValidPersonnrLong(p.personnr)) {
+					
 					invalidPersonerPersonnr.push(p);
 					continue;
 				}

@@ -8,19 +8,19 @@ import ka.types.Personer;
  * ...
  * @author Jonas Nyström
  */
-
+using cx.StrTools;
 class PersonTools 
 {
 	static public function getFromString(str:String, separator:String = '|'):Person {
 		var a = str.split(separator);
-		//jonasnys@gmail.com|cambiata|Nyström|Jonas|administratör|-
+
 		var p = getPersonNull();
 		p.epost = a[0];
 		p.xpass = a[1];
-		p.efternamn = a[2];
-		p.fornamn = a[3];
-		p.roll = a[4];	
-		
+		p.personid = a[2];		
+		p.efternamn = a[3];
+		p.fornamn = a[4];
+		p.roll = a[5];			
 		return p;
 	}
 	
@@ -71,6 +71,7 @@ class PersonTools
 		var p:Person = {
 		sheetrow:0,
 		personnr:null,
+		personid:null,
 		fornamn:null,
 		efternamn:null,
 		epost:null,
@@ -99,6 +100,7 @@ class PersonTools
 		var p:Person = {
 		sheetrow:0,
 		personnr:'221130-5676',
+		personid:'AAAAAA',
 		fornamn:'Jönis',
 		efternamn:'de Laval',
 		epost:'jonis@delaval.se',
@@ -166,31 +168,90 @@ class PersonTools
 		for (person in personer) {
 			var value = person.efternamn + ', ' + person.fornamn + person.personnr + person.epost;
 			value = value.toLowerCase();
-			if (value.indexOf(search) > -1) ret.push(person);
-			/*
-			var score = StrTools.similarityCaseIgnore(person.efternamn, search);
-			var si:SearchItem = {
-				string:search,
-				score:score,
-				person:person,
-			}
-			sis.push(si);
-			*/
-			
+			if (value.indexOf(search) > -1) ret.push(person);			
 		}
-		
-		/*
-		sis.sort(function(a, b) { return Reflect.compare(a.score, b.score); } );
-			
-		
-		for (si in sis) {
-			if (si.score > 0.4) ret.unshift(si.person);
-		}
-		*/
-			
 		return ret;		
 	}
 	
+	
+	static public function peronnrToId(personnr:String):String {
+		
+		var rotateNr = Std.parseInt(personnr.substr( -1));
+		var rotateChar = StrTools.intToChar(rotateNr);
+		//trace(rotateNr);
+		//trace(rotateChar);
+		
+		var id = personnr;		
+		id = personnr.split('-').join('');
+		
+		
+		var s1 = id.substr(0, 4);
+		var s2 = id.substr(4, 4);
+		var s3 = id.substr(8, 4);
+		
+		s1 = s1.reverse();
+		s2 = s2.reverse();
+		s3 = s3.reverse();
+		
+		s1 = intsToChars(s1);
+		s2 = intsToChars(s2);
+		s3 = intsToChars(s3);
+		//-------------------------------------------------------
+
+		var result = StrTools.rotate(s3 + s2 + s1, rotateNr) + rotateChar;
+		return result;
+	}
+	
+	static public function personidToNr(id:String):String {
+		
+		var rotateChar = id.substr(-1); // StrTools.intToChar(rotateNr);
+		var rotateNr = StrTools.charToInt(rotateChar);
+		//trace(rotateChar);		
+		//trace(rotateNr);
+		
+		id = StrTools.rotateBack(id.substr(0, id.length - 1), rotateNr);
+		
+		
+		var s1 = id.substr(0, 4);
+		var s2 = id.substr(4, 4);
+		var s3 = id.substr(8, 4);
+		
+		s1 = charsToInts(s1);
+		s2 = charsToInts(s2);
+		s3 = charsToInts(s3);
+		
+		s1 = s1.reverse();
+		s2 = s2.reverse();
+		s3 = s3.reverse();
+		
+		//-------------------------------------------------------
+		
+		var result = s3 + s2 + '-' + s1;
+		return result;
+	}
+	
+	static private function  intsToChars(ints:String):String {
+		var result = '';
+		for (i in 0...ints.length) {
+			var int:Int = Std.parseInt(ints.charAt(i));
+			var char = StrTools.intToChar(int, i);
+			//trace([int, char]);			
+			result = result + char;
+		}
+		return result;
+	}
+	
+	static private function charsToInts(chars:String):String {
+		var result = '';
+		for (i in 0...chars.length) {
+			var char:String = chars.charAt(i); 
+			var int = StrTools.charToInt(char, i);
+			var intChar = Std.string(int);
+			result = result + intChar;
+		}
+		
+		return result;
+	}
 	
 	
 	

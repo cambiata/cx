@@ -130,6 +130,52 @@ class StrTools
 		return (str.indexOf(substr) > -1);
 	}
 	
+	static public function reverse(string:String):String {		
+		var result = '';
+		for (i in 0...string.length) result = string.charAt(i) + result;		
+		return result;		
+	}
+	
+	static public function intToChar(int:Int, offset=0):String {
+		if (int > 9) throw "int to char error";
+		
+		return String.fromCharCode(int + 65 + offset);
+		
+	}
+	
+	static public function charToInt(char:String, offset=0):Int {
+		if (char.length > 1) throw "char to int error";
+		
+		return char.charCodeAt(0) - 65 - offset;
+		
+	}	
+
+	
+	static public function rotate(str:String, positions:Int = 1) {
+		
+		var result = str;
+		for (i in 0...positions) {
+			result = result.substr(1, result.length) + result.substr(0, 1);			
+		}
+		return result;
+		
+	}
+	
+	static public function rotateBack(str:String, positions:Int = 1) {
+		var result = str;
+		for (i in 0...positions) {			
+			result = result.substr(-1) + result.substr(0, result.length - 1) ;		
+		}
+		
+		return result;
+	}
+	
+	
+	
+	
+	
+	
+	
 }
 
 typedef SimilaritySegment = {

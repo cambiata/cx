@@ -3,7 +3,9 @@ package smd.server.sxjs;
 import cx.ArrayTools;
 import cx.TimerTools;
 import dtx.Tools;
+import haxe.Firebug;
 import haxe.Http;
+import haxe.Log;
 import haxe.Timer;
 import haxe.TimerQueue;
 import haxe.Unserializer;
@@ -26,6 +28,7 @@ class MainController
 	
 	static function main() 
 	{
+		Log.trace = trace;
 		var main = new MainController();
 		Tools.window.onload = main.run;
 	}
@@ -38,12 +41,12 @@ class MainController
 	
 	private function run(e)
 	{
-		if ("#scorxlist".find() != null) this.scorxlistController = new ScorxlistController(this);
-		if ("#scorxplayer".find() != null) this.scorxplayerController = new ScorxplayerController(this);		
+		if ("#scorxlist".exists()) this.scorxlistController = new ScorxlistController(this);
+		if ("#scorxplayer".exists() != null) this.scorxplayerController = new ScorxplayerController(this);		
 	}
 	
 	public function testfunction(id:Int) {
-		trace(id);
+		//trace(id);
 		if (this.scorxplayerController != null) {
 			this.scorxplayerController.loadPlayer(id);
 		} else {
@@ -54,6 +57,15 @@ class MainController
 	public function addLike(id:Int) {
 		this.scorxlistController.addLike(id);
 	}
+	
+	public static function trace(v : Dynamic, ?inf : haxe.PosInfos ) {
+		var type = if( inf != null && inf.customParams != null ) inf.customParams[0] else null;
+		if( type != "warn" && type != "info" && type != "debug" && type != "error" )
+			type = if( inf == null ) "error" else "log";
+		Lib.alert(inf.fileName + ":" + inf.lineNumber + " : " + Std.string(v));
+	}	
+	
+	
 	
 
 }

@@ -90,7 +90,7 @@ class Access
 		for (person in personer) {
 			var tillg = ScorxtillganglighetTools.getTillganglighet(scorxTillg, person.roll, person.kor, person.personnr );
 			var tillgStr = tillg.join(',');			
-			var a = [person.epost, person.xpass, person.efternamn, person.fornamn, person.roll, cx.StrTools.replaceNull(person.kor), tillgStr];			
+			var a = [person.epost, person.xpass, person.personid, person.efternamn, person.fornamn, person.roll, cx.StrTools.replaceNull(person.kor), tillgStr];			
 			var str = a.join('|') + '\n';
 			f.writeString(str);			
 		}

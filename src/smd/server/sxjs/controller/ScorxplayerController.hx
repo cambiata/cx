@@ -51,7 +51,7 @@ class ScorxplayerController extends Controller
 	}
 	
 	public function clearPlayer() {
-		trace('Clear');		
+		//trace('Clear');		
 		this.divPlayerEmbedWrapper.removeChildren(null, "#playerEmbed".find());
 	}
 	

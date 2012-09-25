@@ -179,11 +179,6 @@ class ScorxlistController extends Controller
 	}		
 	
 	
-	
-	
-	
-	
-	
 	private function onSearchTitle (e) {
 		TimerTools.timeout(function () { 
 			this.searchTitle = this.inputSearchTitle.val();
@@ -251,6 +246,12 @@ class ScorxlistController extends Controller
 		likes.sort(function(a, b) { return Reflect.compare(b.likes, a.likes); } );
 		var fiveLikes = likes.slice(0, 6);		
 		
+		
+		if (! "#gillalistan".exists()) {
+			Lib.alert (' Ingen gillalista i menyn!');
+			return;
+		}
+		
 		var gillalistan = "#gillalistan".find();
 		gillalistan.removeChildren(null, "li".find());
 		
@@ -271,8 +272,12 @@ class ScorxlistController extends Controller
 			var likeItem = '<li><a id="like" class="clip-link"   href="#" ><span id="likespan" class="badge " "><i class="icon icon-thumbs-up"></i> <span  id="liketext">Gilla</span></span></a></li>'.parse();
 			likeItem.find('#liketext').setText(likesText);
 			likeItem.find('#likespan').addClass(likesClass);
+			likeItem.click(function(e) {
+				main.testfunction(like.id);
+			});
 			gillalistan.append(likeItem);
-		}		
+		}	
+
 		
 	}
 	
