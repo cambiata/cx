@@ -58,7 +58,7 @@ class ScorxlistController extends Controller
 		var data = Http.requestUrl('/sx/list');
 		this.listexamples = Unserializer.run(data);	
 		
-		this.createLikesList();
+		//this.createLikesList();
 		
 		this.updateScorxitems();
 	}
@@ -215,6 +215,7 @@ class ScorxlistController extends Controller
 		addScorxitems(listexamples);
 	}	
 
+	/*
 	private function createLikesList() {
 		var likesList = new Array<{id:Int, likes:Int}>();
 		for (listexample in this.listexamples) {
@@ -245,9 +246,8 @@ class ScorxlistController extends Controller
 			gillalistan.append(likeItem);
 		}
 		
-		
 	}
-	
+	*/
 	
 	
 }

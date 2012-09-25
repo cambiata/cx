@@ -22,5 +22,4 @@ typedef TListExample = {
 	start:String,
 	stop:String,
 	
-	likes:Int,
 }

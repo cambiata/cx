@@ -63,14 +63,13 @@ class MediaController extends AbstractController
 		var ids = ScorxData.getScorxtillgangligheterIds(domainkategori);
 		var listexamples = ScorxData.getListexamples(ids);
 		
-		
-		var likes = new TextfileDB(Config.likesFile, '|');
-		
+		/*
+		var likes = new TextfileDB(Config.likesFile, '|');		
 		for (idString in likes.keys()) {
 			var id = Std.parseInt(idString);
 			listexamples.get(id).likes = Std.parseInt(likes.get(idString));
-			//trace([id, listexamples.get(id).likes]);
 		}
+		*/
 		
 		
 		//var scorxitems = new Array<TListExample>();

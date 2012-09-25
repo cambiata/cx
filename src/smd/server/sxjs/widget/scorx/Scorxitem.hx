@@ -28,7 +28,7 @@ class Scorxitem  extends Widget
 		
 		
 
-
+		/*
 		var likesClass = 'badge-light';
 		var likesText = 'Gilla';
 		if (listexample.likes > 0) {
@@ -42,6 +42,8 @@ class Scorxitem  extends Widget
 		
 		this.find('#likespan').addClass(likesClass);
 		this.find('#liketext').setText(likesText);
+		*/
+		
 		
 		for (originatorItem in listexample.originatorItems) {
 			var originatortext = originatorItem.originator.firstname + ' ' + originatorItem.originator.lastname;
