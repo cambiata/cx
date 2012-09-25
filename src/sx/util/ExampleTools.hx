@@ -27,6 +27,8 @@ class ExampleTools
 			
 			subdir:example.subdir,
 			
+			likes: 0,
+			
 			state: Std.string(TSupplyState.Locked),
 			start:Date.fromString('2012-01-01').toString(),
 			stop:Date.fromString('2016-01-01').toString(),			

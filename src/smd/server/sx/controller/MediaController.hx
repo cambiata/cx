@@ -1,4 +1,5 @@
 package smd.server.sx.controller;
+import cx.TextfileDB;
 import harfang.controller.AbstractController;
 import haxe.Json;
 import haxe.Serializer;
@@ -56,14 +57,21 @@ class MediaController extends AbstractController
 		return html;
 	}			
 	
-	
-	
-	
 	@URL("/sx/list")
 	public function sxlist() {			
 		var domainkategori = "#" + State.domaintag;
 		var ids = ScorxData.getScorxtillgangligheterIds(domainkategori);
 		var listexamples = ScorxData.getListexamples(ids);
+		
+		
+		var likes = new TextfileDB(Config.likesFile, '|');
+		
+		for (idString in likes.keys()) {
+			var id = Std.parseInt(idString);
+			listexamples.get(id).likes = Std.parseInt(likes.get(idString));
+			//trace([id, listexamples.get(id).likes]);
+		}
+		
 		
 		//var scorxitems = new Array<TListExample>();
 		//var scorxitems = new sx.type.TListExamples();
@@ -79,7 +87,7 @@ class MediaController extends AbstractController
 		
 		//return Json.stringify(scorxitems);
 		return Serializer.run(listexamples);
-		
+		//return Json.stringify(listexamples);
 		//return "SX List";
 	}		
 	

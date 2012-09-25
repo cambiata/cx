@@ -1,7 +1,10 @@
 package smd.server.sxjs.controller;
+import cx.ArrayTools;
 import cx.TimerTools;
 import haxe.Http;
+import haxe.Json;
 import haxe.Unserializer;
+import js.Lib;
 import smd.server.sxjs.MainController;
 
 import sx.type.TListExample;
@@ -23,10 +26,15 @@ class ScorxlistController extends Controller
 	private var inputSearchTitle:DOMCollection;
 	private var inputSearchBes:DOMCollection;
 	private var inputSearchOrig:DOMCollection;
+	private var inputSearchFree:DOMCollection;
 	
 	private var searchTitle:String = '';
 	private var searchBes:String = '';
 	private var searchOrig:String = '';
+	private var searchFree:String = '';
+	
+	
+	
 	
 	public function new(main:MainController) {
 		//trace('ScorxlistController');
@@ -42,13 +50,20 @@ class ScorxlistController extends Controller
 		this.inputSearchOrig = this.findElement('#searchOrig');
 		this.inputSearchOrig.keydown(onSearchOrig);		
 		
+		this.inputSearchFree = this.findElement('#searchFree');
+		this.inputSearchFree.keydown(onSearchFree);		
+		
+		
+		
 		var data = Http.requestUrl('/sx/list');
 		this.listexamples = Unserializer.run(data);	
 		
-		//trace(this.listexamples);
+		this.createLikesList();
 		
 		this.updateScorxitems();
 	}
+	
+
 	
 
 	
@@ -58,14 +73,18 @@ class ScorxlistController extends Controller
 	}
 	
 	private function addScorxitems(listexamples:TListExamples) {
-		var ids = listexamples.keys();
-		for (id in ids) {
-			var listexample = listexamples.get(id);
+		var aListexamples:Array<TListExample> = ArrayTools.fromIterables(listexamples);		
+		aListexamples.sort(function (a, b) {
+			return Reflect.compare(a.title, b.title);
+		});
+		var l:TListExample;
+		
+
+		
+		for (listexample in aListexamples) {
 			var scorxitem = new Scorxitem(this.main, listexample);
-			//var sdi = new ScorxDataItem(listexample);
-			//var sdw = new ScorxDataWidget(sdi);
-			this.ulScorxlist.append(scorxitem);
-		}				
+			this.ulScorxlist.append(scorxitem);			
+		}
 	}
 	
 	private function filterListexamples(listexamples:TListExamples, searchTitle:String='', searchBes='', searchOrig=''):TListExamples {
@@ -74,6 +93,7 @@ class ScorxlistController extends Controller
 		if (searchTitle != '') listexamples = filterTitle(listexamples, searchTitle);		
 		if (searchBes != '') listexamples = filterBes(listexamples, searchBes);
 		if (searchOrig != '') listexamples = filterOrig(listexamples, searchOrig);
+		if (searchFree != '') listexamples = filterFree(listexamples, searchFree);
 		
 		return listexamples;
 	}
@@ -128,6 +148,36 @@ class ScorxlistController extends Controller
 	}		
 	
 	
+	private function filterFree(listexamples:TListExamples, searchFree:String = '') {
+		var result = new TListExamples();		
+		if (searchFree == '') return listexamples;
+		
+		searchFree = searchFree.toLowerCase();		
+		
+		
+		for (id in listexamples.keys()) {				
+			var listexample = listexamples.get(id);
+
+			var alternativesString = '';
+			for (alternative in listexample.categories) {
+				if (alternative.categoryId == 'bes') continue;
+				if (alternative.categoryId == 'ack') continue;
+				alternativesString += alternative.value + ', ';
+			}
+			
+			var indexOf = alternativesString.toLowerCase().indexOf(searchFree);
+			if (indexOf >= 0) {
+				result.set(id, listexample);
+			}				
+		}
+		return result;		
+	}		
+	
+	
+	
+	
+	
+	
 	
 	private function onSearchTitle (e) {
 		TimerTools.timeout(function () { 
@@ -149,12 +199,54 @@ class ScorxlistController extends Controller
 			updateScorxitems();
 		} );
 	}
+
+	private function onSearchFree (e) {
+		TimerTools.timeout(function () { 
+			this.searchFree = this.inputSearchFree.val();
+			updateScorxitems();
+		} );
+	}
+	
+	
 	
 	private function updateScorxitems() {
 		var listexamples = this.filterListexamples(this.listexamples, this.searchTitle, this.searchBes, this.searchOrig);
 		removeScorxitems();
 		addScorxitems(listexamples);
 	}	
+
+	private function createLikesList() {
+		var likesList = new Array<{id:Int, likes:Int}>();
+		for (listexample in this.listexamples) {
+			if (listexample.likes > 0) likesList.push( { id:listexample.id, likes:listexample.likes } );
+		}
+		
+		likesList.sort(function(a, b) { return Reflect.compare(b.likes, a.likes); } );
+		var fiveLikes = likesList.slice(0, 5);
+		
+		var gillalistan = "#gillalistan".find();
+		gillalistan.removeChildren(null, "li".find());
+		
+		var liHeader = '<li class="nav-header">Gillalistan</li>'.parse();
+		gillalistan.append(liHeader);
+		
+		for (like in fiveLikes) {			
+			var likesText = like.likes + ' - ' + this.listexamples.get(like.id).title.substr(0, 16) + '...';
+			var likesClass = 'badge-light';
+			if (like.likes > 0) {
+				likesClass = 'somelikes';
+				if (like.likes > 10) {
+					likesClass = 'manylikes';
+				}
+			}						
+			var likeItem = '<li><a id="like" class="clip-link"   href="#" ><span id="likespan" class="badge " "><i class="icon icon-thumbs-up"></i> <span  id="liketext">Gilla</span></span></a></li>'.parse();
+			likeItem.find('#liketext').setText(likesText);
+			likeItem.find('#likespan').addClass(likesClass);
+			gillalistan.append(likeItem);
+		}
+		
+		
+	}
 	
 	
 	

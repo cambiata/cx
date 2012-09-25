@@ -21,4 +21,6 @@ typedef TListExample = {
 	state:String,
 	start:String,
 	stop:String,
+	
+	likes:Int,
 }

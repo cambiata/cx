@@ -16,7 +16,6 @@ import smd.server.sxjs.widget.alert.Alert;
 import smd.server.sxjs.widget.scorx.Scorxitem;
 import sx.type.TListExamples;
 
-
 using Detox;
 class MainController
 {

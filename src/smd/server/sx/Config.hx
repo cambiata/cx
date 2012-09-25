@@ -42,6 +42,7 @@ class Config
 	static public var indexPage: String 	= Config.templatesDir + 'index.html'; 	
 	static public var scorxlistPage: String= Config.templatesDir + 'scorxlist.html'; 	
 	
+	static public var likesFile					= smdDir + 'likes.txt';
 	
 	/*
 	static public var authFile:String 		= '../files/auth/auth.dat';

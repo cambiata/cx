@@ -1,11 +1,11 @@
-package ka.tools;
+package smd.server.sx.data;
 
 /**
  * ...
  * @author Jonas Nyström
  */
 
-class Validation 
+class LikeData 
 {
 
 	/*
