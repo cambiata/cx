@@ -12,9 +12,12 @@ using StringTools;
 class Scorxitem  extends Widget
 {
 	private var listexample:TListExample;
+	private var main:MainController;
 	
 	public function new(main:MainController, listexample:TListExample) {
 		super();
+		
+		this.main = main;
 		
 		this.listexample = listexample;
 		
@@ -25,6 +28,10 @@ class Scorxitem  extends Widget
 		this.find('#ack').setText(listexample.ack);
 		this.find('#ack').setAttr('class', 'badge ' + listexample.ack);
 		this.find('#id').setText('' + listexample.id);
+		
+		this.find('#like').addClass('id-' + listexample.id);
+		this.find('#likespan').addClass('id-' + listexample.id);
+		this.find('#liketext').addClass('id-' + listexample.id);
 		
 		
 
@@ -64,22 +71,22 @@ class Scorxitem  extends Widget
 		}
 		
 		this.find('#info').click(function (e) { 			
-			trace('info');
+			//trace('info');
 			e.preventDefault();			
 		} );
 		
 		this.find('#like').click(function (e) { 			
-			trace('like');
+			//trace('like');
 			e.preventDefault();			
 		} );
 		
 		this.find('#comment').click(function (e) { 			
-			trace('comment');
+			//trace('comment');
 			e.preventDefault();			
 		} );
 					
 		this.find('#title').click( function (e) { 			
-			trace('title');
+			//trace('title');
 			main.testfunction(listexample.id);
 			e.preventDefault();			
 		} );		
@@ -91,7 +98,7 @@ class Scorxitem  extends Widget
 	}
 	
 	private function onLikeClick(e) {
-		Lib.alert('Gilla-klick ' + this.listexample.id);
+		this.main.addLike(this.listexample.id);
 	}
 	
 	

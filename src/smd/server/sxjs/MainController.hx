@@ -34,10 +34,11 @@ class MainController
 	
 	
 	private var scorxplayerController:ScorxplayerController;
+	private var scorxlistController:ScorxlistController;
 	
 	private function run(e)
 	{
-		if ("#scorxlist".find() != null) new ScorxlistController(this);
+		if ("#scorxlist".find() != null) this.scorxlistController = new ScorxlistController(this);
 		if ("#scorxplayer".find() != null) this.scorxplayerController = new ScorxplayerController(this);		
 	}
 	
@@ -48,6 +49,10 @@ class MainController
 		} else {
 			Lib.alert('No ScorxplayerController');
 		}
+	}
+	
+	public function addLike(id:Int) {
+		this.scorxlistController.addLike(id);
 	}
 	
 

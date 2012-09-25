@@ -1,11 +1,13 @@
 package smd.server.sxjs.controller;
 import cx.ArrayTools;
 import cx.TimerTools;
+import dtx.Tools;
 import haxe.Http;
 import haxe.Json;
 import haxe.Unserializer;
 import js.Lib;
 import smd.server.sxjs.MainController;
+import sx.type.TLikes;
 
 import sx.type.TListExample;
 import sx.type.TListExamples;
@@ -20,6 +22,7 @@ using Detox;
 class ScorxlistController extends Controller
 {		
 	private var main:MainController;
+	
 	private var ulScorxlist:DOMCollection;
 	private var listexamples:TListExamples;
 
@@ -39,6 +42,9 @@ class ScorxlistController extends Controller
 	public function new(main:MainController) {
 		//trace('ScorxlistController');
 		this.main = main;
+		
+		
+		
 		this.ulScorxlist = this.findElement('#scorxlist');
 
 		this.inputSearchTitle = this.findElement('#searchTitle');
@@ -57,10 +63,9 @@ class ScorxlistController extends Controller
 		
 		var data = Http.requestUrl('/sx/list');
 		this.listexamples = Unserializer.run(data);	
-		
-		//this.createLikesList();
-		
 		this.updateScorxitems();
+		
+		this.createLikesList();
 	}
 	
 
@@ -214,16 +219,37 @@ class ScorxlistController extends Controller
 		removeScorxitems();
 		addScorxitems(listexamples);
 	}	
-
-	/*
+	
+	 //------------------------------------------------------------------------------------------------------------------------
+	 
 	private function createLikesList() {
-		var likesList = new Array<{id:Int, likes:Int}>();
-		for (listexample in this.listexamples) {
-			if (listexample.likes > 0) likesList.push( { id:listexample.id, likes:listexample.likes } );
+		var data = Http.requestUrl('/sx/likes');
+		var likes:TLikes = Unserializer.run(data);
+		this.updateLikesList(likes);
+	}
+	
+	private function updateLikesList(likes:TLikes) {
+		
+		for (like in likes) {
+			var idString = 'id-' + like.id;
+			var likesClass = 'badge-light';
+			var likesText = 'Gilla';
+			if (like.likes > 0) {
+				likesClass = 'somelikes';
+				likesText = 'Gilla ' + like.likes;
+				if (like.likes > 10) {
+					likesClass = 'manylikes';
+					likesText = 'Gilla ' + like.likes;
+				}
+			}
+			//Tools.find('#likespan.' + idString).removeClass('nolikes');
+			Tools.find('#likespan.' + idString).addClass(likesClass);
+			Tools.find('#liketext.' + idString).setText(likesText);			
+			
 		}
 		
-		likesList.sort(function(a, b) { return Reflect.compare(b.likes, a.likes); } );
-		var fiveLikes = likesList.slice(0, 5);
+		likes.sort(function(a, b) { return Reflect.compare(b.likes, a.likes); } );
+		var fiveLikes = likes.slice(0, 6);		
 		
 		var gillalistan = "#gillalistan".find();
 		gillalistan.removeChildren(null, "li".find());
@@ -232,6 +258,8 @@ class ScorxlistController extends Controller
 		gillalistan.append(liHeader);
 		
 		for (like in fiveLikes) {			
+			if (! this.listexamples.exists(like.id)) continue;
+			
 			var likesText = like.likes + ' - ' + this.listexamples.get(like.id).title.substr(0, 16) + '...';
 			var likesClass = 'badge-light';
 			if (like.likes > 0) {
@@ -244,10 +272,15 @@ class ScorxlistController extends Controller
 			likeItem.find('#liketext').setText(likesText);
 			likeItem.find('#likespan').addClass(likesClass);
 			gillalistan.append(likeItem);
-		}
+		}		
 		
 	}
-	*/
+	
+	public function addLike(id:Int) {
+		var data = Http.requestUrl('/sx/addlike/' + id);
+		var likes:TLikes = Unserializer.run(data);
+		this.updateLikesList(likes);
+	}
 	
 	
 }

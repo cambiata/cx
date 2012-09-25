@@ -9,9 +9,12 @@ import smd.server.sx.Site;
 import smd.server.sx.State;
 import smd.server.sx.result.IndexResult;
 import sx.type.TListExample;
+import sx.type.TLike;
+import sx.type.TLikes;
 import sx.util.ScorxExamples;
 import sx.util.ScorxDb;
 import cx.PngTools;
+
 
 /**
  * ...
@@ -88,7 +91,33 @@ class MediaController extends AbstractController
 		return Serializer.run(listexamples);
 		//return Json.stringify(listexamples);
 		//return "SX List";
-	}		
+	}	
+	
+	@URL("/sx/likes")
+	public function sxlikes() {		
+		var likes = new TextfileDB(Config.likesFile, '|');	
+		var aLikes = new TLikes();
+		for (id in likes.keys()) {			
+			var like:TLike = { id:Std.parseInt(id), likes:Std.parseInt(likes.get(id)) } ;
+			aLikes.push(like);
+		}
+		return Serializer.run(aLikes);
+	}
+	
+	@URL("/sx/addlike/([0-9/]+)$")
+	public function addlike(param:String = '') {		
+		var id = Std.parseInt(param.substr(0, -1));
+		var idString = Std.string(id);
+		var likes = new TextfileDB(Config.likesFile, '|');	
+		var likesCount:Int = Std.parseInt(likes.get(idString));
+		if (likesCount == null) likesCount = 0;
+		likesCount += 1;
+		likes.set(idString, Std.string(likesCount));
+		return this.sxlikes();
+	}	
+	
+	
+	
 	
 	@URL("/sx/")
 	public function sx() {			

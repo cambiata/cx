@@ -1,8 +1,6 @@
 package smd.server.ka.controller;
 import cx.FileTools;
 import haxe.Firebug;
-import hxjson2.JSON;
-import neko.Web;
 import smd.server.base.controller.UserController;
 import smd.server.base.result.ScorxResult;
 import smd.server.base.result.TemplateResult;
