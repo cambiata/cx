@@ -44,6 +44,7 @@ class Config
 	
 	static public var likesFile					= smdDir + 'likes.txt';
 	static public var commentsFile			= smdDir + 'comments.txt';
+	static public var commentsDateFile	= smdDir + 'commentsdate.txt';
 	
 	/*
 	static public var authFile:String 		= '../files/auth/auth.dat';

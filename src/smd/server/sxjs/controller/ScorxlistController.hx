@@ -7,6 +7,8 @@ import haxe.Json;
 import haxe.Unserializer;
 import js.Lib;
 import smd.server.sxjs.MainController;
+import smd.server.sxjs.widget.scorx.Commentsitem;
+import sx.type.TComments;
 import sx.type.TLikes;
 
 import sx.type.TListExample;
@@ -60,15 +62,14 @@ class ScorxlistController extends Controller
 		this.inputSearchFree.keydown(onSearchFree);		
 		
 		
-		
 		var data = Http.requestUrl('/sx/list');
 		this.listexamples = Unserializer.run(data);	
 		this.updateScorxitems();
+				
+		this.createLikesList();		
 		
-		this.createLikesList();
+		this.createLatestCommentsList();
 	}
-	
-
 	
 
 	
@@ -244,7 +245,7 @@ class ScorxlistController extends Controller
 		}
 		
 		likes.sort(function(a, b) { return Reflect.compare(b.likes, a.likes); } );
-		var fiveLikes = likes.slice(0, 6);		
+		var fiveLikes = likes.slice(0, 5);		
 		
 		
 		if (! "#gillalistan".exists()) {
@@ -269,6 +270,8 @@ class ScorxlistController extends Controller
 					likesClass = 'manylikes';
 				}
 			}						
+			
+			
 			var likeItem = '<li><a id="like" class="clip-link"   href="#" ><span id="likespan" class="badge " "><i class="icon icon-thumbs-up"></i> <span  id="liketext">Gilla</span></span></a></li>'.parse();
 			likeItem.find('#liketext').setText(likesText);
 			likeItem.find('#likespan').addClass(likesClass);
@@ -286,6 +289,101 @@ class ScorxlistController extends Controller
 		var likes:TLikes = Unserializer.run(data);
 		this.updateLikesList(likes);
 	}
+	
+	//-------------------------------------------------------------------------------------
+	
+	public function getComments(id:Int) {
+		var data = Http.requestUrl('/sx/getcomments/' + id);
+		var comments:TComments;
+		if (data != '') {
+			comments = Unserializer.run(data);
+		} else {
+			comments = new TComments();
+		}
+		
+		this.updateCommentsList(id, comments);
+	}
+	
+	private var addCommentId:Int;
+	public function addComment(id:Int, text:String) {
+		//Lib.alert('addComment');
+		
+		this.addCommentId = id;
+		
+		var http = new Http('/sx/addcomment/' + id);
+		http.setParameter('commenttext', text);
+		http.request(false);
+		http.onData = onAddedComment;
+	}
+	
+	private function onAddedComment(data:String) {
+		//Lib.alert('onAddedComment');
+		
+		var comments:TComments;
+		if (data != '') {
+			comments = Unserializer.run(data);
+		} else {
+			comments = new TComments();
+		}
+		
+		this.updateCommentsList(this.addCommentId, comments);
+		
+	}
+	
+	
+	private function updateCommentsList(id:Int, comments:TComments) {
+		var wrappers = Tools.find('#comments-wrapper');
+		wrappers.setText('');
+		
+		// show...		
+		var idString = 'id-' + id;
+		var wrapper = ("#comments-wrapper." + idString).find();
+		var commentsitem:Commentsitem = new Commentsitem(this, id, comments);
+		wrapper.append(commentsitem);
+		
+		this.createLatestCommentsList();
+	}
+
+	//---------------------------------------------------------------------------------------------------------
+	
+	private function createLatestCommentsList() {
+		var data = Http.requestUrl('/sx/getcommentsdate');
+		//Lib.alert(data);
+		var latestComments:TComments = Unserializer.run(data);
+		//Lib.alert(latestComments);
+		this.updateLatestList(latestComments);
+		
+		
+	}
+	
+	private function updateLatestList(latestComments:TComments) {
+		if (! "#kommentarlistan".exists()) {
+			trace (' Ingen kommentarlista i menyn!');
+			return;
+		}
+		
+		var listan = "#kommentarlistan".find();
+		listan.removeChildren(null, "li".find());
+		
+		var liHeader = '<li class="nav-header">Senaste kommentarer</li>'.parse();
+		listan.append(liHeader);		
+		
+		for (comment in latestComments) {
+			
+			var item = '<li><a id="latest" class="clip-link"   href="#" ><span id="latestspan" class="badge badge-blue" "><i class="icon icon-pencil"></i> <span  id="latesttext">Latest</span></span></a></li>'.parse();
+			item.find('#latesttext').setText(comment.text.substr(0, 24) + '...');
+			//likeItem.find('#latestspan').addClass(likesClass);
+			item.click(function(e) {
+				main.showComments(comment.id);
+			});
+			listan.append(item);
+			
+			
+			
+			
+		}
+	}
+
 	
 	
 }

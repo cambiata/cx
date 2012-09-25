@@ -72,5 +72,10 @@ class TextfileDB
 		return this.lines.keys();
 	}
 	
+	public function exists(key:String) :Bool {
+		return this.lines.exists(key);
+	}
+	
+	
 	
 }

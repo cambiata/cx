@@ -33,6 +33,8 @@ class Scorxitem  extends Widget
 		this.find('#likespan').addClass('id-' + listexample.id);
 		this.find('#liketext').addClass('id-' + listexample.id);
 		
+		this.find('#comments-wrapper').addClass('id-' + listexample.id);
+		
 		for (originatorItem in listexample.originatorItems) {
 			var originatortext = originatorItem.originator.firstname + ' ' + originatorItem.originator.lastname;
 			
@@ -74,8 +76,19 @@ class Scorxitem  extends Widget
 		
 		this.find('#like').click(onLikeClick);
 		
+		this.find('#comment').click(onCommentClick);
 		
-		
+	}
+	
+	private function onCommentClick(e) {
+		//var allWrappers = "#comments-wrapper";
+		//allWrappers.find().setCSS('display', 'hidden');
+		/*
+		var idString = 'id-' + this.listexample.id;
+		var wrapper = "#comments-wrapper." + idString;
+		wrapper.find().setCSS('display', '');
+		*/
+		main.getComments(this.listexample.id);
 	}
 	
 	private function onLikeClick(e) {

@@ -3,11 +3,14 @@ import cx.TextfileDB;
 import harfang.controller.AbstractController;
 import haxe.Json;
 import haxe.Serializer;
+import haxe.Unserializer;
+import neko.Web;
 import smd.server.sx.Config;
 import smd.server.sx.data.ScorxData;
 import smd.server.sx.Site;
 import smd.server.sx.State;
 import smd.server.sx.result.IndexResult;
+import smd.server.sx.user.User;
 import sx.type.TListExample;
 import sx.type.TLike;
 import sx.type.TLikes;
@@ -115,6 +118,84 @@ class MediaController extends AbstractController
 		likes.set(idString, Std.string(likesCount));
 		return this.sxlikes();
 	}	
+	
+	@URL("/sx/getcomments/([0-9/]+)$")
+	public function sxgetcomments(param:String = '') {
+		var id = Std.parseInt(param.substr(0, -1));
+		var idString = Std.string(id);
+		
+		var commentsDB = new TextfileDB(Config.commentsFile, '|');	
+		var comments = commentsDB.get(idString);
+		return comments;
+	}	
+	
+	@URL("/sx/addcomment/([0-9/]+)$")
+	public function sxaddcomment(param:String = '') {
+		var id = Std.parseInt(param.substr(0, -1));
+		var idString = Std.string(id);
+		
+		if (User.user == null) return 'ERROR';
+		var namn = User.user.person.fornamn + ' ' + User.user.person.efternamn;
+
+		var commentsDB = new TextfileDB(Config.commentsFile, '|');	
+		
+		
+		var comments:sx.type.TComments = [];
+		
+		if (commentsDB.exists(idString))
+			comments = Unserializer.run(commentsDB.get(idString));
+		
+		var comment:sx.type.TComment = { id:0, name:'', date:null, personid:'', roll:'', text:'' };
+		comment.id = id;
+		comment.name = namn;
+		comment.date = Date.now();
+		comment.personid = User.user.person.personid;
+		comment.roll = User.user.person.roll;
+
+		var text = '';
+		if (Web.getParams().exists('commenttext')) {
+			text = Web.getParams().get('commenttext');
+		}
+		
+		if (text == '') return '';		
+		comment.text = text;
+		comments.push(comment);
+		
+		commentsDB.set(idString, Serializer.run(comments));
+		
+		
+		var dateCommentsDB = new TextfileDB(Config.commentsDateFile, '|');
+		
+		dateCommentsDB.set(comment.date.toString(), Serializer.run(comment));
+		
+		
+		
+		return this.sxgetcomments(idString + '/');
+		
+		
+	}		
+	
+	@URL("/sx/getcommentsdate")
+	public function sxgetcommentsdate() {
+		
+		var dateCommentsDB = new TextfileDB(Config.commentsDateFile, '|');
+		
+		var dates = new Array<String>();
+		
+		for (date in dateCommentsDB.keys()) {
+			dates.push(date);			
+		}
+		
+		dates.sort(function(a, b) { return Reflect.compare(b, a); } );
+		dates = dates.slice(0, 5);
+		
+		var newestcomments = new sx.type.TComments();
+		for (date in dates) {
+			newestcomments.push(Unserializer.run(dateCommentsDB.get(date)));
+		}
+		
+		return Serializer.run(newestcomments);
+	}		
 	
 	
 	

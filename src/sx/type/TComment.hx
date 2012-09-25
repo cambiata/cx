@@ -1,4 +1,4 @@
-package src.sx.type;
+package sx.type;
 
 /**
  * ...
@@ -6,8 +6,10 @@ package src.sx.type;
  */
 
 typedef TComment = {
+	id:Int,
 	text:String,
 	date:Date,
 	name:String,
 	personid:String,
+	roll:String,
 }

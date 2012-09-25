@@ -58,6 +58,16 @@ class MainController
 		this.scorxlistController.addLike(id);
 	}
 	
+	public function getComments(id:Int) {
+		//Lib.alert('getComments' + id);
+		this.scorxlistController.getComments(id);
+	}
+	
+	public function showComments(id:Int) {
+		Lib.alert('showComments '  + id);
+	}
+	
+	
 	public static function trace(v : Dynamic, ?inf : haxe.PosInfos ) {
 		var type = if( inf != null && inf.customParams != null ) inf.customParams[0] else null;
 		if( type != "warn" && type != "info" && type != "debug" && type != "error" )
