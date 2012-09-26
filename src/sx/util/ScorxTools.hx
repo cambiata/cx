@@ -40,6 +40,20 @@ class ScorxTools
 	}
 	*/
 	
+	static public function getDirectories(dir:String, stripBaseDir:Bool = true ) {
+		var dirs =  FileTools.getDirectories(dir);
+		if (stripBaseDir) {
+			var result = new Array<String>();
+			var baseLength = dir.length+1;
+			for (d in dirs) {
+				var dname = d.substr(baseLength);
+				result.push(dname);				
+			}
+			return result;
+		}
+		return dirs;
+	}
+	
 	static public function getIdsInDirectory(dir:String, subdirs:Array<String>=null):Array<Int> {		
 		//var ids = new Array<Int>();		
 		var files:TFiles = getFilesInDirectory(dir, subdirs);		
@@ -128,6 +142,7 @@ class ScorxTools
 	static public function addIdsToScorxtillgangligheter(scorxtg:Scorxtillgangligheter, scorxDir:String) :Scorxtillgangligheter {
 		for (tg in scorxtg) {
 			for (mapp in tg.mappar) {
+				//trace(scorxDir + mapp);
 				var ids = ScorxTools.getIdsInDirectory(scorxDir + mapp);				
 				tg.ids = tg.ids.concat(ids);
 			}
