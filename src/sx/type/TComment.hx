@@ -12,4 +12,5 @@ typedef TComment = {
 	name:String,
 	personid:String,
 	roll:String,
+	uri:String,
 }

@@ -12,10 +12,12 @@ import haxe.Unserializer;
 import js.Dom;
 import js.Lib;
 import smd.server.sxjs.controller.AlertController;
+import smd.server.sxjs.controller.PagediscussionController;
 import smd.server.sxjs.controller.ScorxlistController;
 import smd.server.sxjs.controller.ScorxplayerController;
 import smd.server.sxjs.widget.alert.Alert;
 import smd.server.sxjs.widget.scorx.Scorxitem;
+import sx.type.TComment;
 import sx.type.TListExamples;
 
 using Detox;
@@ -38,11 +40,14 @@ class MainController
 	
 	private var scorxplayerController:ScorxplayerController;
 	private var scorxlistController:ScorxlistController;
+	private var pagediscussionController:PagediscussionController;
 	
 	private function run(e)
 	{
 		if ("#scorxlist".exists()) this.scorxlistController = new ScorxlistController(this);
-		if ("#scorxplayer".exists() != null) this.scorxplayerController = new ScorxplayerController(this);		
+		if ("#scorxplayer".exists()) this.scorxplayerController = new ScorxplayerController(this);		
+		if ("#pagediscussionwrapper".exists()) this.pagediscussionController = new PagediscussionController(this);
+		
 	}
 	
 	public function testfunction(id:Int) {
@@ -59,12 +64,12 @@ class MainController
 	}
 	
 	public function getComments(id:Int) {
-		//Lib.alert('getComments' + id);
 		this.scorxlistController.getComments(id);
 	}
 	
-	public function showComments(id:Int) {
-		Lib.alert('showComments '  + id);
+	public function showComments(id:Int, comment:TComment) {
+		this.scorxlistController.getComments(id);
+		this.scorxlistController.scrollToId(id);
 	}
 	
 	

@@ -12,7 +12,7 @@ using Detox;
 class ScorxplayerController extends Controller
 {	
 	
-	private var main:MainController;	
+	//private var main:MainController;	
 	private var divPlayer: DOMCollection;
 	private var divPlayerEmbedWrapper: DOMCollection;
 	
@@ -20,7 +20,8 @@ class ScorxplayerController extends Controller
 	
 	
 	public function new(main:MainController) {
-		this.main = main;
+		super(main);
+		
 		this.divPlayer = this.findElement("#scorxplayer");
 		this.divPlayerEmbedWrapper = this.findElement("#playerEmbedWrapper");
 		

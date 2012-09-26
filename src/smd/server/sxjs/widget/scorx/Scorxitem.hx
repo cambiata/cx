@@ -22,6 +22,8 @@ class Scorxitem  extends Widget
 		this.listexample = listexample;
 		
 		this.find('#title').setText(listexample.title);
+		this.find('#title').addClass('id-' + listexample.id);		
+		
 		this.find('#subtitle').setText(listexample.subtitle);		
 		this.find('#bes').setText(listexample.bes);
 		this.find('#bes').setAttr('class', 'badge ' + listexample.bes);
@@ -34,6 +36,11 @@ class Scorxitem  extends Widget
 		this.find('#liketext').addClass('id-' + listexample.id);
 		
 		this.find('#comments-wrapper').addClass('id-' + listexample.id);
+		
+		this.find('#comment').addClass('id-' + listexample.id);
+		this.find('#commentspan').addClass('id-' + listexample.id);
+		this.find('#commentbtntext').addClass('id-' + listexample.id);
+		
 		
 		for (originatorItem in listexample.originatorItems) {
 			var originatortext = originatorItem.originator.firstname + ' ' + originatorItem.originator.lastname;
@@ -64,12 +71,10 @@ class Scorxitem  extends Widget
 		} );
 		
 		this.find('#comment').click(function (e) { 			
-			//trace('comment');
 			e.preventDefault();			
 		} );
 					
 		this.find('#title').click( function (e) { 			
-			//trace('title');
 			main.testfunction(listexample.id);
 			e.preventDefault();			
 		} );		
@@ -81,14 +86,13 @@ class Scorxitem  extends Widget
 	}
 	
 	private function onCommentClick(e) {
-		//var allWrappers = "#comments-wrapper";
-		//allWrappers.find().setCSS('display', 'hidden');
-		/*
-		var idString = 'id-' + this.listexample.id;
-		var wrapper = "#comments-wrapper." + idString;
-		wrapper.find().setCSS('display', '');
-		*/
-		main.getComments(this.listexample.id);
+		e.preventDefault();			
+		var open = this.find('#comments-wrapper.id-' + listexample.id).children().length > 0;		
+		if (!open) {
+			main.getComments(this.listexample.id);
+		} else {
+			this.find('#comments-wrapper.id-' + listexample.id).setText('');
+		}
 	}
 	
 	private function onLikeClick(e) {

@@ -10,11 +10,11 @@ using dtx.Tools;
 class AlertController extends Controller
 {
 	private var divAlerts:DOMCollection;
-	private var main:MainController;
+	
 	
 	public function new(main:MainController) {
 		trace('AlertsController');
-		this.main = main;
+		super(main);
 		this.divAlerts = this.findElement('#divAlerts');
 		this.divAlerts.setText('Hello from AlertController');
 		

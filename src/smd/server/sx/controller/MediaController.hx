@@ -1,4 +1,5 @@
 package smd.server.sx.controller;
+import cx.FileTools;
 import cx.TextfileDB;
 import harfang.controller.AbstractController;
 import haxe.Json;
@@ -17,13 +18,14 @@ import sx.type.TLikes;
 import sx.util.ScorxExamples;
 import sx.util.ScorxDb;
 import cx.PngTools;
-
-
+import sx.type.TCommentsCount;
+import sx.type.TComments;
+import sx.type.AjaxMessages;
 /**
  * ...
  * @author Jonas Nyström
  */
-
+using StringTools;
 class MediaController extends AbstractController
 {
 
@@ -138,19 +140,17 @@ class MediaController extends AbstractController
 		var namn = User.user.person.fornamn + ' ' + User.user.person.efternamn;
 
 		var commentsDB = new TextfileDB(Config.commentsFile, '|');	
-		
-		
 		var comments:sx.type.TComments = [];
-		
 		if (commentsDB.exists(idString))
 			comments = Unserializer.run(commentsDB.get(idString));
 		
-		var comment:sx.type.TComment = { id:0, name:'', date:null, personid:'', roll:'', text:'' };
+		var comment:sx.type.TComment = { id:0, name:'', date:null, personid:'', roll:'', text:'', uri:'' };
 		comment.id = id;
 		comment.name = namn;
 		comment.date = Date.now();
 		comment.personid = User.user.person.personid;
 		comment.roll = User.user.person.roll;
+		comment.uri = '/scorx/list?id=' + id + '&comment=true';
 
 		var text = '';
 		if (Web.getParams().exists('commenttext')) {
@@ -160,19 +160,10 @@ class MediaController extends AbstractController
 		if (text == '') return '';		
 		comment.text = text;
 		comments.push(comment);
-		
 		commentsDB.set(idString, Serializer.run(comments));
-		
-		
 		var dateCommentsDB = new TextfileDB(Config.commentsDateFile, '|');
-		
 		dateCommentsDB.set(comment.date.toString(), Serializer.run(comment));
-		
-		
-		
 		return this.sxgetcomments(idString + '/');
-		
-		
 	}		
 	
 	@URL("/sx/getcommentsdate")
@@ -197,8 +188,77 @@ class MediaController extends AbstractController
 		return Serializer.run(newestcomments);
 	}		
 	
+	@URL("/sx/getcommentscount")
+	public function getcommentscount() {
+		var commentsDb = new TextfileDB(Config.commentsFile, '|');	
+		var result = new TCommentsCount();
+		for (idStr in commentsDb.keys()) {
+			var comments:TComments = Unserializer.run(commentsDb.get(idStr));
+			var id = Std.parseInt(idStr);
+			result.set(id, comments.length);
+		}
+		return Serializer.run(result);
+	}	
 	
+	@URL("/sx/getpagediscussion/([a-zA-Z0-9/]+)$")
+	public function getpagediscussion(param:String = '') {					
+		if (! param.startsWith('/')) param = '/' + param;
+		var domain = State.domaintag;
+		var pagepath = domain + param;		
+		var commentsFile = Config.contentDir + pagepath + 'pagecomments.txt';
+		
+		if (! FileTools.exists(commentsFile)) return AjaxMessages.NO_PAGE_COMMENTS; //FileTools.putContent(commentsFile, '');
+
+		var comments = new sx.type.TComments();
+		var data = FileTools.getContent(commentsFile);
+		if (data != '') {
+			comments = Unserializer.run(data);
+		}				
+		
+		return Serializer.run(comments);
+	}
 	
+	@URL("/sx/addpagecomment/([a-zA-Z0-9/]+)$")
+	public function addpagecomment(param:String = '') {
+		
+		if (! param.startsWith('/')) param = '/' + param;
+		var domain = State.domaintag;
+		var pagepath = domain + param;		
+		var commentsFile = Config.contentDir + pagepath + 'pagecomments.txt';
+
+
+		if (User.user == null) return AjaxMessages.NO_USER;
+		var namn = User.user.person.fornamn + ' ' + User.user.person.efternamn;				
+
+		var comment:sx.type.TComment = { id:0, name:'', date:null, personid:'', roll:'', text:'', uri:'' };
+		comment.id = 0;
+		comment.name = namn;
+		comment.date = Date.now();
+		comment.personid = User.user.person.personid;
+		comment.roll = User.user.person.roll;
+		comment.uri = param;
+		
+		var text = '';
+		if (Web.getParams().exists('commenttext')) {
+			text = Web.getParams().get('commenttext');
+		}		
+		
+		if (text == '') return AjaxMessages.NO_COMMENT_TEXT;				
+		comment.text = text;
+		
+		var comments = new sx.type.TComments();
+		var data = FileTools.getContent(commentsFile);
+		if (data != '') {
+			comments = Unserializer.run(data);
+		}		
+		
+		comments.push(comment);		
+		FileTools.putContent(commentsFile, Serializer.run(comments));
+		
+		return Serializer.run(comments);
+		
+		//return 'hej';
+	}
 	
 	@URL("/sx/")
 	public function sx() {			

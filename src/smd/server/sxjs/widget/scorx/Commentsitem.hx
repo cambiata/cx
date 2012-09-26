@@ -44,6 +44,8 @@ class Commentsitem extends Widget
 			alertDiv.setCSS('width', '560px');
 			alertDiv.setCSS('marginBottom', '8px');
 			
+			// border-radius: 0px 0px 16px 16px
+			
 			var nameSpan = "span".create();
 			nameSpan.setText(comment.name + ': ');
 			alertDiv.append(nameSpan);
@@ -57,6 +59,9 @@ class Commentsitem extends Widget
 			if (comment.roll.startsWith('Admin')) {
 				alertDiv.addClass('alert-success');
 				alertDiv.setCSS('marginLeft', '180px');
+				alertDiv.setCSS('borderRadius', '16px 4px 16px 16px');
+			} else {
+				alertDiv.setCSS('borderRadius', '4px 16px 16px 16px');				
 			}
 			
 			this.find("#comments-div").append(alertDiv);

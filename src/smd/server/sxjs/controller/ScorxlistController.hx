@@ -9,6 +9,7 @@ import js.Lib;
 import smd.server.sxjs.MainController;
 import smd.server.sxjs.widget.scorx.Commentsitem;
 import sx.type.TComments;
+import sx.type.TCommentsCount;
 import sx.type.TLikes;
 
 import sx.type.TListExample;
@@ -21,9 +22,10 @@ import sx.type.TOriginatorshorts;
  * @author Jonas Nyström
  */
 using Detox;
+using StringTools;
 class ScorxlistController extends Controller
 {		
-	private var main:MainController;
+
 	
 	private var ulScorxlist:DOMCollection;
 	private var listexamples:TListExamples;
@@ -43,7 +45,8 @@ class ScorxlistController extends Controller
 	
 	public function new(main:MainController) {
 		//trace('ScorxlistController');
-		this.main = main;
+		//this.main = main;
+		super(main);
 		
 		
 		
@@ -69,7 +72,10 @@ class ScorxlistController extends Controller
 		this.createLikesList();		
 		
 		this.createLatestCommentsList();
+		
+		this.createCommentsCounts();
 	}
+	
 	
 
 	
@@ -280,8 +286,6 @@ class ScorxlistController extends Controller
 			});
 			gillalistan.append(likeItem);
 		}	
-
-		
 	}
 	
 	public function addLike(id:Int) {
@@ -291,6 +295,14 @@ class ScorxlistController extends Controller
 	}
 	
 	//-------------------------------------------------------------------------------------
+	
+	public function scrollToId(id:Int, title:String = '' ) {
+		var title = ("#title.id-" + id).find();
+						
+	}
+	
+	
+	
 	
 	public function getComments(id:Int) {
 		var data = Http.requestUrl('/sx/getcomments/' + id);
@@ -342,15 +354,14 @@ class ScorxlistController extends Controller
 		wrapper.append(commentsitem);
 		
 		this.createLatestCommentsList();
+		this.createCommentsCounts();
 	}
 
 	//---------------------------------------------------------------------------------------------------------
 	
 	private function createLatestCommentsList() {
 		var data = Http.requestUrl('/sx/getcommentsdate');
-		//Lib.alert(data);
 		var latestComments:TComments = Unserializer.run(data);
-		//Lib.alert(latestComments);
 		this.updateLatestList(latestComments);
 		
 		
@@ -371,10 +382,14 @@ class ScorxlistController extends Controller
 		for (comment in latestComments) {
 			
 			var item = '<li><a id="latest" class="clip-link"   href="#" ><span id="latestspan" class="badge badge-blue" "><i class="icon icon-pencil"></i> <span  id="latesttext">Latest</span></span></a></li>'.parse();
-			item.find('#latesttext').setText(comment.text.substr(0, 24) + '...');
+			
+			var text = comment.text.substr(0, 24);
+			if (! text.endsWith('...')) text += '...';
+			
+			item.find('#latesttext').setText(text);
 			//likeItem.find('#latestspan').addClass(likesClass);
 			item.click(function(e) {
-				main.showComments(comment.id);
+				main.showComments(comment.id, comment);
 			});
 			listan.append(item);
 			
@@ -384,6 +399,30 @@ class ScorxlistController extends Controller
 		}
 	}
 
+	//--------------------------------------------------------------------------------------------------------
+	
+	private function createCommentsCounts() {
+		var data = Http.requestUrl('/sx/getcommentscount');
+		var commentsCount:TCommentsCount = Unserializer.run(data);		
+		this.updateCommentsCounts(commentsCount);
+	}
+	
+	private function updateCommentsCounts(commentsCount:TCommentsCount) {
+		
+		for (id in commentsCount.keys()) {
+			var idString = 'id-' + id;			
+			var count = commentsCount.get(id);
+			
+			var btnText = ("#commentbtntext." + idString).find();
+			btnText.setText(count + ' Kommentarer');
+			
+			var span = ("#commentspan." + idString).find();
+			span.addClass('badge-blue');
+		}
+		
+	}
+	
+	
 	
 	
 }
