@@ -155,8 +155,8 @@ class AdminGdata
 			if (cell[0].trim() == '') continue;		
 			var kat = cell[0];			
 			var mappar = cell[1];
-			//trace(kat);
-			//trace(mappar);			
+			//trace(kat);			
+			if (mappar == null) continue;
 			var st:Scorxtillganglighet = { kategori:kat, mappar:mappar.split(','), ids:[]};
 			scorxtillgangligheter.push(st);
 		}
