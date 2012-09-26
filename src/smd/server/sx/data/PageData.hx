@@ -3,6 +3,7 @@ import cx.FileTools;
 import cx.SqliteTools;
 import cx.WebTools;
 import harfang.exception.Exception;
+import haxe.Template;
 import haxe.Utf8;
 import neko.FileSystem;
 import smd.server.sx.Config;
@@ -150,6 +151,11 @@ class PageData {
 				var filename = pagepath + '/' + file;
 				var tag = FileTools.getFilename(filename, false);
 				var text = FileTools.getContent(filename);
+				
+				// apply template data...
+				var t = new haxe.Template(text);
+				text = t.execute(data);				
+				
 				Reflect.setField(data, tag, { text: text, id: 0 } );
 			}			
 		} else {			

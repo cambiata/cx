@@ -6,6 +6,7 @@ import harfang.controller.AbstractController;
 import harfang.controller.result.ActionResult;
 import harfang.exception.Exception;
 import neko.Web;
+import smd.server.sx.user.User;
 //
 import smd.server.base.result.TemplateResult;
 import smd.server.ka.data.KaAccess;
@@ -28,7 +29,8 @@ class IndexController extends AbstractController
 	private var data:Dynamic;
 	
 	override public function handleBefore()	{
-		this.data = PageData.getData({}, State.domaintag);
+		this.data = {user: User.user };
+		this.data = PageData.getData(this.data, State.domaintag);
 		this.data = PageData.getSidmenuData(this.data, State.domaintag, Config.templatesDir);
 	}
 	
