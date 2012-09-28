@@ -1,6 +1,7 @@
 package cx;
 import haxe.BaseCode;
-import neko.Utf8;
+
+import haxe.Utf8;
 
 /**
  * ...

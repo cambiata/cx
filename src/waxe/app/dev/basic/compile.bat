@@ -1,1 +1,0 @@
-haxelib run nme test Basic.nmml neko
