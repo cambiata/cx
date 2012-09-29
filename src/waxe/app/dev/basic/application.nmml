@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+<app
+file="Main"
+title="Main"
+package="test.waxe.nme"
+version="1.0"
+company="waxe"
+main="test.waxe.nme.Main"
+/>
+
+<window
+width="600"
+height="400"
+orientation="landscape"
+fps="24"
+background="0xffffff"
+resizeable="true"
+hardware="true"
+/>
+
+<source path="src" />
+	
+<haxelib name="waxe" />
+
+<ndll name="waxe" haxelib="waxe" />
+<ndll name="std" />
+<ndll name="zlib" />
+<ndll name="regexp" />
+
+</project>
