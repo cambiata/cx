@@ -5,6 +5,8 @@ import cx.Tools;
 import cx.ValidationTools;
 import ka.types.Admingrupp;
 import ka.types.Admingrupper;
+import ka.types.Avantiperson;
+import ka.types.Avantipersoner;
 import ka.types.Kor;
 import ka.types.Korer;
 import ka.types.Person;
@@ -294,6 +296,65 @@ class AdminGdata
 		}
 		
 		personerFields = dataPersoner.shift();
+		
+		return dataPersoner;
+		
+	}
+	
+	static public function getAvantipersoner() 
+	{
+		var g = new cx.GoogleTools.Spreadsheet(email, passwd, sheetPersoner2);
+		
+		var cells = g.getCells();				
+		
+		var dataPersoner = new Avantipersoner();		
+		
+		
+		for (cell in cells) {			
+			if (cell == null) continue;
+			
+			var p:Avantiperson = AvantiTools.getAvantiersonNull();
+			
+			p.efternamn 			= cell[7];
+			p.fornamn 				= cell[8];
+			p.kursNr 				= cell[9];
+			p.klass 					= cell[10];
+			p.adress 				= cell[11];
+			p.postnr 				= cell[12];
+			p.ort 						= cell[13];
+			p.personnr				= cell[14];
+			p.telefon 				= cell[15];
+			p.mobil 					= cell[16];
+			p.epost 					= cell[17];
+			p.anhoriguppgift1 	= cell[18];
+			p.anhoriguppgift2 	= cell[19];
+			p.anteckningarBas 	= cell[20];
+			p.pMBas 				= cell[21];
+			p.ansokning 			= cell[22];
+			p.antagning 			= cell[23];
+			p.bekraftelse 			= cell[24];
+			p.hemlan 				= cell[25];
+			p.utbildningsbakgrund = cell[26];
+			p.anteckningarKurs 	= cell[27];
+			p.pMKurs 				= cell[28];
+			p.specialkost 			= cell[29];		
+			
+			//-----------------------------------------------------------------------------
+			
+
+			
+			//-----------------------------------------------------------------------------
+			
+			if (p.kursNr == null || p.kursNr == '') continue;
+			if (p.personnr == null || p.personnr == '') continue;
+			if (p.epost == null || p.epost == '') continue;
+			
+			//-------------------------------------------------------------------------------
+			
+			dataPersoner.push(p);			
+		}
+		
+		var fields = dataPersoner.shift(); // delete first row
 		
 		return dataPersoner;
 		

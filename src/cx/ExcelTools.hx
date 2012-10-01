@@ -40,6 +40,7 @@ class ExcelTools {
 	}
 	
 	static public function writeString(row:Int, col:Int, str:String) {
+		if (str == null) str = '';
 		str = cx.Tools.stringAscii(str);
 		var length = str.length;		
 		file.writeInt16(0x204);

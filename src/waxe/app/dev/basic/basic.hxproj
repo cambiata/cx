@@ -16,6 +16,9 @@
   <!-- Other classes to be compiled into your SWF -->
   <classpaths>
     <class path="src" />
+    <class path="..\..\..\..\..\..\..\Motion-Twin\haxe\lib\waxe\1,0,1\wx" />
+    <class path="..\..\..\..\..\..\..\Motion-Twin\haxe\lib\waxe\1,0,1\src" />
+    <class path="..\..\..\..\..\..\..\Motion-Twin\haxe\lib\waxe\wxWidgets-2.9.3\build\msw" />
   </classpaths>
   <!-- Build options -->
   <build>

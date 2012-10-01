@@ -1,6 +1,11 @@
 package ka.tools;
+import cx.ExcelTools;
 import cx.ReflectTools;
 import cx.StrTools;
+import cx.ValidationTools;
+import ka.types.Avantifields;
+import ka.types.Avantiperson;
+import ka.types.Avantipersoner;
 import ka.types.Person;
 import ka.types.Personer;
 
@@ -230,6 +235,8 @@ class PersonTools
 		return result;
 	}
 	
+
+	
 	static private function  intsToChars(ints:String):String {
 		var result = '';
 		for (i in 0...ints.length) {
@@ -253,9 +260,18 @@ class PersonTools
 		return result;
 	}
 	
+
+	
+	
+
+	
 	
 	
 }
+
+
+
+
 
 typedef SearchItem = {
 	string:String,

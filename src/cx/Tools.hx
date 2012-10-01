@@ -65,7 +65,7 @@ class Tools
 		return str.substr(0, toLength);
 	}
 	
-	static public function stringAscii(str:String):String {
+	static public function stringAscii(str:String):String {				
 		str = StringTools.replace(str, 'å', String.fromCharCode(0xe5));
 		str = StringTools.replace(str, 'ä', String.fromCharCode(0xe4));
 		str = StringTools.replace(str, 'ö', String.fromCharCode(0xf6));

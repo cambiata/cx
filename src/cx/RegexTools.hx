@@ -18,4 +18,14 @@ class RegexTools
 		return r.replace(htmlString, "$1$2/>");		
 	}
 	
+	static public function hasNumber(string:String) :Bool {
+		var r = ~/[0-9]+/gim; 				
+		return r.match(string);		
+	}
+	
+	static public function hasSwedishNameChars(string:String) :Bool {		
+		var r = ~/[^a-zA-ZåäöÅÄÖéÉèÈüÜóòáà -]+/; 				
+		return !r.match(string);
+	}
+	
 }
