@@ -145,20 +145,16 @@ class StrTools
 	
 	static public function charToInt(char:String, offset=0):Int {
 		if (char.length > 1) throw "char to int error";
-		
 		return char.charCodeAt(0) - 65 - offset;
-		
 	}	
 
 	
 	static public function rotate(str:String, positions:Int = 1) {
-		
 		var result = str;
 		for (i in 0...positions) {
 			result = result.substr(1, result.length) + result.substr(0, 1);			
 		}
 		return result;
-		
 	}
 	
 	static public function rotateBack(str:String, positions:Int = 1) {
@@ -166,15 +162,32 @@ class StrTools
 		for (i in 0...positions) {			
 			result = result.substr(-1) + result.substr(0, result.length - 1) ;		
 		}
-		
 		return result;
 	}
 	
-	
-	
-	
-	
-	
+	static public function toLatin1(str:String):String {	
+		
+		str = StringTools.replace(str, 'å', String.fromCharCode(0xe5));
+		str = StringTools.replace(str, 'Å', String.fromCharCode(0xc5));
+		str = StringTools.replace(str, 'ä', String.fromCharCode(0xe4));
+		str = StringTools.replace(str, 'Ä', String.fromCharCode(0xc4));
+		str = StringTools.replace(str, 'ö', String.fromCharCode(0xf6));
+		str = StringTools.replace(str, 'Ö', String.fromCharCode(0xd6));
+		
+		str = StringTools.replace(str, 'æ', String.fromCharCode(0xe6));
+		str = StringTools.replace(str, 'Æ', String.fromCharCode(0xd6));
+		str = StringTools.replace(str, 'œ', String.fromCharCode(0x9c));
+		str = StringTools.replace(str, 'Œ', String.fromCharCode(0x8c));
+		str = StringTools.replace(str, 'ø', String.fromCharCode(0xf8));
+		str = StringTools.replace(str, 'Ø', String.fromCharCode(0xd8));
+		
+		str = StringTools.replace(str, 'ü', String.fromCharCode(0xfc));
+		str = StringTools.replace(str, 'Ü', String.fromCharCode(0xdc));
+		str = StringTools.replace(str, 'é', String.fromCharCode(0xe9));
+		str = StringTools.replace(str, 'è', String.fromCharCode(0xe8));
+		
+		return str;
+	}	
 	
 }
 

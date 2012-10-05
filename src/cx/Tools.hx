@@ -73,7 +73,9 @@ class Tools
 		str = StringTools.replace(str, 'Ä', String.fromCharCode(0xc4));
 		str = StringTools.replace(str, 'Ö', String.fromCharCode(0xd6));
 		str = StringTools.replace(str, 'é', String.fromCharCode(0xe9));
-		str = StringTools.replace(str, 'è', String.fromCharCode(0xe8));		
+		str = StringTools.replace(str, 'è', String.fromCharCode(0xe8));
+		str = StringTools.replace(str, 'ü', String.fromCharCode(0xfc));
+		str = StringTools.replace(str, 'Ü', String.fromCharCode(0xdc));
 		return str;
 	}
 	

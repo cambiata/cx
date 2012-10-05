@@ -16,7 +16,7 @@ class TextfileDB
 	private var filename:String;
 	private var delimiter:String;
 	
-	public function new(filename:String, delimiter = ';') {
+	public function new(filename:String, delimiter = ':') {
 		this.filename = filename;
 		this.delimiter = delimiter;
 		if (! FileTools.exists(this.filename)) FileTools.putContent(this.filename, '');
