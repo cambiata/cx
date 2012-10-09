@@ -1,4 +1,5 @@
 package cx;
+import haxe.Utf8;
 
 /**
  * ...
@@ -166,7 +167,7 @@ class StrTools
 	}
 	
 	static public function toLatin1(str:String):String {	
-		
+		/*
 		str = StringTools.replace(str, 'å', String.fromCharCode(0xe5));
 		str = StringTools.replace(str, 'Å', String.fromCharCode(0xc5));
 		str = StringTools.replace(str, 'ä', String.fromCharCode(0xe4));
@@ -185,9 +186,20 @@ class StrTools
 		str = StringTools.replace(str, 'Ü', String.fromCharCode(0xdc));
 		str = StringTools.replace(str, 'é', String.fromCharCode(0xe9));
 		str = StringTools.replace(str, 'è', String.fromCharCode(0xe8));
+		*/
+		return Utf8.decode(str);
+		
 		
 		return str;
 	}	
+	
+	static public function lastIdxOf(str:String, search:String, lastPos:Int=0) {
+		if (lastPos == 0) return str.lastIndexOf(search);		
+		for (i in 0...lastPos ) {
+			str = str.substr(0, str.lastIndexOf(search));
+		}
+		return str.lastIndexOf(search);
+	}
 	
 }
 

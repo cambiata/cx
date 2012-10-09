@@ -17,10 +17,19 @@ class TFilesUtils
 		for (subdir in dirs) {
 			var dir = basePath + subdir;
 			var joinFiles = ScorxTools.getFilesInDirectory(dir);			
-			files = ScorxTools.joinFiles(files, joinFiles);
+			files = TFilesUtils.joinFiles(files, joinFiles);
 		}				
 		return files;
 	}
+	
+	static public function joinFiles(files:TFiles, joinFiles:TFiles):TFiles {
+		for (id in joinFiles.keys()) {
+			if (files.exists(id)) throw "Id already exists! " + id;
+			files.set(id, joinFiles.get(id));
+		}
+		return files;		
+	}
+	
 	
 	static public  function getFilenames(files:TFiles) :IntHash<String> {		
 		var result = new IntHash<String>();
@@ -53,15 +62,34 @@ class TFilesUtils
 		
 		for (id in ids) {
 			var filename = files.get(id);
-			
 			if (filterDir != '') {
 				if (filename.indexOf(filterDir) == -1)  continue;
 			}
 			var shortFilename = filename.substr(filename.lastIdxOf('/'));
 			result.push(shortFilename);
 		}
+		return result;
+		
+		
+	}
+	
+	static public function getFilesShortnamesFromIds(files:TFiles, ids:Array<Int>) {
+		
+		var result = new Array<String>();
+		
+		for (id in files.keys()) {
+			
+			if (! Lambda.has(ids, id)) continue;
+			
+			var filename = files.get(id);
+			
+			var shortFilename = filename.substr(filename.lastIdxOf('/'));
+			result.push(shortFilename);
+		}
 		
 		return result;
+		
+		
 	}
 
 	

@@ -1,4 +1,9 @@
 package sx.type.utils;
+import cx.EncodeTools;
+import cx.StrTools;
+import haxe.BaseCode;
+import haxe.Http;
+import haxe.Utf8;
 import sx.type.TFiles;
 import sx.type.TOriginator;
 import sx.type.TOriginators;
@@ -19,19 +24,36 @@ class TFilesDataUtils
 		}		
 	}
 	
-	static public function getOriginatorsHash(files:TFiles) : Hash<TOriginator> {		
-		var result = new Hash<TOriginator>();
+	static public function getOriginatorsHash(files:TFiles)  {		
 		
-		for (file in files) {			
+		var oshortOriginator = new Hash<TOriginator>();
+		var oshortIds = new Hash<Array<Int>>();
+		
+		for (id in files.keys()) {			
+			
+			var file = files.get(id);			
 			var originators = ScorxDb.getOriginators(file);			
 			for (originator in originators) {				
-				var short = ScorxTools.getOriginatorshort(originator);
-				result.set(short, originator);
+				
+				var short = ScorxTools.getOriginatorshort(originator, false);
+				oshortOriginator.set(short, originator);
+				
+				if (! oshortIds.exists(short)) oshortIds.set(short, new Array<Int>());
+				oshortIds.get(short).push(id);
 			}
 		}
 		
-		return result;
+		//return result;
+		
+		return { 
+			oshortOriginators:oshortOriginator,
+			oshortIds:oshortIds,
+		}
+		
 	}
+	
+	
+	
 	
 
 	

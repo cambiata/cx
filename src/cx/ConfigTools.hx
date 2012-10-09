@@ -1,7 +1,7 @@
 package cx;
-import neko.FileSystem;
-import neko.io.File;
-import haxe.io.Eof; 
+import sys.FileSystem;
+import sys.io.File;
+
 
 using StringTools;
 
@@ -31,7 +31,7 @@ class ConfigTools
 				var valueString:String = segments.join(delimiter).trim();
 				initField(configObject, field, valueString, arrayDelimiter);
 			}
-		} catch(e : Eof){}	
+		} catch(e : Dynamic){}	
 	}	
 
 	//--------------------------------------------------------------------------------------------------------------

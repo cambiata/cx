@@ -4,6 +4,7 @@ package cx;
  * ...
  * @author Jonas Nyström
  */
+
 using Lambda;
 class ArrayTools 
 {
@@ -24,6 +25,10 @@ class ArrayTools
 	
 	static public function fromIterables<T>(it : Iterable<T>) : Array<T>{
 		return fromIterator(it.iterator());
+	}
+	
+	static public function fromHashKeys<T>(it : Iterator<T>) : Array<T> {
+		return ArrayTools.fromIterator(it);
 	}
 	
 	static public function doOverlap(array1:Array<Dynamic>, array2:Array<Dynamic>):Bool {		

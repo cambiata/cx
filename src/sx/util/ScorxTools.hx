@@ -128,10 +128,17 @@ class ScorxTools
 	}
 	*/
 	
-	static public function getOriginatorshort(originator:TOriginator):TOriginatorshort {
+	static public function getOriginatorshort(originator:TOriginator, firstNameFirst:Bool=true):TOriginatorshort {
 		var s:TOriginatorshort = '';
-		if (originator.firstname != '') s += originator.firstname + ' ';
-		s += originator.lastname;
+		
+		if (firstNameFirst) {
+			if (originator.firstname != '') s += originator.firstname + ' ';
+			s += originator.lastname;
+		} else {
+			if (originator.lastname != '') s += originator.lastname + ', ';
+			s += originator.firstname;
+		}
+		
 		var b = originator.birth;
 		var d = originator.death;
 		var y = '(' + [b, d].join('-') + ')';
