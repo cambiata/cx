@@ -1,6 +1,7 @@
 package smd.server.sx.user;
 import cx.FileTools;
 import cx.StrTools;
+import cx.TextfileDB;
 import neko.io.File;
 import neko.io.FileInput;
 import smd.server.base.auth.AuthUser;
@@ -85,7 +86,27 @@ class AuthFile implements IAuth
 	
 	public function addLogin(authUser:AuthUser) : Int {
 		if (authUser.user == null) return 0;
+	
 		
+	
+		var tdbFile = this.loginFilename + 'x';
+		var tdb = new TextfileDB(tdbFile);
+		
+		var count = 0;
+		
+		if (tdb.exists(authUser.user)) {
+			count = Std.parseInt(tdb.get(authUser.user));
+			tdb.set(authUser.user, Std.string(count+1));
+			return count;
+			
+		} else {
+			tdb.set(authUser.user, '1');
+		}
+			
+		
+		
+		
+		/*
 		var file:FileInput = null;
 		if (!FileTools.exists(this.loginFilename)) {
 			FileTools.putContent(this.loginFilename, '');
@@ -124,7 +145,7 @@ class AuthFile implements IAuth
 			FileTools.putContent(this.loginFilename, content + newLine);
 			return 0;
 		}			
-		
+		*/
 		
 		return 0;
 		
@@ -133,12 +154,27 @@ class AuthFile implements IAuth
 	public function checkLogin(authUser:AuthUser) : Int {
 		if (authUser.user == null) return 0;
 		
+		var tdbFile = this.loginFilename + 'x';
+		var tdb = new TextfileDB(tdbFile);
+		
+		var count = 0;
+		
+		if (tdb.exists(authUser.user)) {
+			count = Std.parseInt(tdb.get(authUser.user));
+			tdb.set(authUser.user, Std.string(count));
+			return count;
+			
+		} else {
+			tdb.set(authUser.user, '1');
+		}
+		
+		/*
+		
 		var file:FileInput = null;
 		if (!FileTools.exists(this.loginFilename)) {
 			FileTools.putContent(this.loginFilename, '');
 		}
 		
-		var count = 0;
 		
 		file = File.read(this.loginFilename, false);		
 		try {
@@ -161,7 +197,7 @@ class AuthFile implements IAuth
 			FileTools.putContent(this.loginFilename, content + newLine);
 			return 0;
 		}			
-		
+		*/
 		
 		return 0;
 		
