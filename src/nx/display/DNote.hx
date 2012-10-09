@@ -78,10 +78,6 @@ class DNote
 	public var signs(default, null):TSigns;	
 	public var guid(default, null):String;
 	
-	
-	
-	
-	
 	public function dhead(idx:Int) {
 		return this.dheads[idx];
 	}
@@ -212,14 +208,6 @@ class DNote
 		return SignsUtil.adjustPositions(ret);
 	}	
 	
-	
-	
-	
-	//-----------------------------------------------------------------------------------------------------
-	
-	//public var beamGroup:IBeamGroup;
-	//public var beamTemp:Int;	
-	
 	//-----------------------------------------------------------------------------------------------------
 	
 	private var _rectHeads:Rectangle;
@@ -284,8 +272,6 @@ class DNote
 	public function setRectText(rect:Rectangle) {
 		this._rectText = rect;
 	}
-	
-	
 	
 	private var _rectStave:Rectangle;
 	public var rectStave(get_rectStave, null):Rectangle;

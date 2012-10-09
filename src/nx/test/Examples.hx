@@ -42,12 +42,9 @@ class Examples
 						new Note(), 
 					])
 				], EClef.ClefG, EKey.Flat3),				
-			], ETime.Time3_4),
+			], ETime.Time3_8),
 		]));			
-		
 	}
-	
-	
 	
 	static public function barsTpl() { 
 		return new Bars([		

@@ -4,7 +4,7 @@ package nx.ui;
 import cx.FileTools;
 #end
 
-import cx.NmeTools;
+import cx.KeyboardTools;
 import nme.display.Stage;
 import nme.events.KeyboardEvent;
 import nme.events.TimerEvent;
@@ -413,7 +413,8 @@ class KeyboardControl
 		
 		var render = false;
 		
-		var keyCode = NmeTools.getKeyCode(e);
+		var keyCode = KeyboardTools.getKeyCode(e);
+		
 		
 		if (!e.ctrlKey && !e.altKey && !e.shiftKey) render = key(keyCode);
 		if (e.ctrlKey && !e.altKey && !e.shiftKey) render = keyCtrl(keyCode);

@@ -2,6 +2,7 @@ package nx.display;
 import cx.ArrayTools;
 import nme.geom.Rectangle;
 import nx.Constants;
+import nx.display.beam.BeamingProcessor_4dot;
 import nx.display.beam.IBeamingProcessor;
 import nx.display.type.TPartsYMeasurements;
 import nx.element.Bar;
@@ -28,6 +29,7 @@ import nx.display.type.TBarDisplaySettings;
 using cx.ArrayTools;
 using nx.enums.utils.EAllotmentCalculator;
 using nx.enums.utils.EnumsTools;
+using nx.display.util.DBarUtil;
 class DBar 
 {
 	public var dparts							(default, null)	:	Array<DPart>;
@@ -76,7 +78,13 @@ class DBar
 				}
 			}
 			
-			this.dparts.push(new DPart(part, partDisplaySettings));
+	
+			if (beamingProcessor == null) {
+				beamingProcessor = this.getDefaultBeamProcessor();
+			}
+			
+			
+			this.dparts.push(new DPart(part, partDisplaySettings, beamingProcessor));
 		}		
 
 		//-----------------------------------------------------------------------------------------------------

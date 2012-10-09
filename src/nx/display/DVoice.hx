@@ -45,6 +45,7 @@ class DVoice
 		} else {
 			this.direction = direction;				
 		}
+		
 		this.dnotes = [];
 		switch(this.voice.type) {
 			case EVoiceType.Normal:
@@ -58,6 +59,8 @@ class DVoice
 			default:
 				throw "Unimplemented Voicetype";
 		}
+		
+		
 		this.dnotePosition = new ObjectHash<DNote, Int>();
 		this.dnotePositionEnd = new ObjectHash<DNote, Int>();
 		this.dnoteBeamgroup = new ObjectHash<DNote, IBeamGroup>();
