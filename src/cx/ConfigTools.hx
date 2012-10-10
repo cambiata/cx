@@ -9,7 +9,7 @@ using StringTools;
  * ...
  * @author Jonas Nyström
  */
-
+using cx.StrTools;
 class ConfigTools
 {
 	/*
@@ -59,7 +59,8 @@ class ConfigTools
 			var arrItem = f.shift();
 			
 			if (Std.is(arrItem, String)) {
-				var values:Array<String> = valueString.split(arrayDelimiter);
+				//var values:Array<String> = valueString.split(arrayDelimiter);
+				var values:Array<String> = valueString.splitTrim(arrayDelimiter);
 				setFieldValue(configObject, field, values);
 			}
 			

@@ -16,7 +16,10 @@ class TFilesUtils
 		var files:TFiles = new TFiles();		
 		for (subdir in dirs) {
 			var dir = basePath + subdir;
+			
 			var joinFiles = ScorxTools.getFilesInDirectory(dir);			
+			trace(dir);
+			trace(joinFiles);
 			files = TFilesUtils.joinFiles(files, joinFiles);
 		}				
 		return files;
@@ -30,6 +33,12 @@ class TFilesUtils
 		return files;		
 	}
 	
+	static public function getTopId(files:TFiles) : Int {
+		var ids = ArrayTools.fromHashKeys(files.keys());
+		ids.sort(function(a, b) { return Reflect.compare(a, b); } );
+		trace(ids);
+		return ids.pop();
+	}
 	
 	static public  function getFilenames(files:TFiles) :IntHash<String> {		
 		var result = new IntHash<String>();
