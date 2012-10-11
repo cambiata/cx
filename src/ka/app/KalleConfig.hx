@@ -17,6 +17,7 @@ class KalleConfig
 	static public var pageScorxtillgangligheter = 3;
 	static public var pageDataRoller = 4;
 	
-	static public var sheetPersoner2 = '0Au1rVoKCIviQdHZxRFR1ZzIxMUtKaW9wNXJ4amNBbUE';
+	static public var sheetPersoner2 = '0Au1rVoKCIviQdHZxRFR1ZzIxMUtKaW9wNXJ4amNBbUE';	
+	static public var bekraftelseDoc = '0AtTmwHDkcVsadGJhNG9BM1FNa2Zld21IRHNkdURnVEE';
 	
 }

@@ -87,9 +87,7 @@ class AuthFile implements IAuth
 	public function addLogin(authUser:AuthUser) : Int {
 		if (authUser.user == null) return 0;
 	
-		
-	
-		var tdbFile = this.loginFilename + 'x';
+		var tdbFile = this.loginFilename;
 		var tdb = new TextfileDB(tdbFile);
 		
 		var count = 0;
@@ -154,7 +152,7 @@ class AuthFile implements IAuth
 	public function checkLogin(authUser:AuthUser) : Int {
 		if (authUser.user == null) return 0;
 		
-		var tdbFile = this.loginFilename + 'x';
+		var tdbFile = this.loginFilename;
 		var tdb = new TextfileDB(tdbFile);
 		
 		var count = 0;

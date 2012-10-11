@@ -7,6 +7,8 @@ import ka.types.Admingrupp;
 import ka.types.Admingrupper;
 import ka.types.Avantiperson;
 import ka.types.Avantipersoner;
+import ka.types.BekraftelsePerson;
+import ka.types.BekraftelsePersoner;
 import ka.types.Kor;
 import ka.types.Korer;
 import ka.types.Person;
@@ -361,4 +363,42 @@ class AdminGdata
 	}
 	
 	
+	static public function getDeltagarekraftelser():BekraftelsePersoner {
+		
+		var g = new cx.GoogleTools.Spreadsheet(email, passwd, KalleConfig.bekraftelseDoc);
+		
+		var rows = g.getCells();				
+		
+		var personer = new BekraftelsePersoner();
+		
+		for (row in rows) {			
+			var person:BekraftelsePerson = { datetime:null, fornamn:null, efternamn:null, epost:null, kor:null };			
+			person.datetime = row[0];
+			person.fornamn = row[3];
+			person.efternamn = row[4];
+			person.epost = row[5];			
+			person.kor = row[11];			
+			personer.push(person);
+		}
+		
+		return personer;
+		
+	}
+	
+	
+	
 }
+
+/*
+
+typedef BekraftelsePersoner = Array<BekraftelsePerson>;
+
+typedef BekraftelsePerson = {	
+	datetime:String,
+	fornamn:String,
+	efternamn:String,
+	epost:String,
+	kor:String,
+}
+
+*/
