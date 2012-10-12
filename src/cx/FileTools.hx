@@ -262,4 +262,43 @@ class FileTools
 	static public function getExtension(filename:String) {
 		return filename.substr(filename.lastIndexOf('.')+1);
 	}
+	
+	static public function rename(path:String, newpath:String) {
+		FileSystem.rename(path, newpath);
+	}
+	
+	static public function correctPath(path:String, endSlash = false, slash='/') {
+		path = path.replace('\\', slash);
+		if (endSlash) {
+			if (! path.endsWith(slash)) path += slash;
+		}
+		return path;
+	}
+	
+	static public function backup(filename:String, backupDir = '', generations = 2) {		
+		filename = correctPath(filename);
+		generations--;				
+		var directory = getDirectory(filename);
+		var filename = getFilename(filename);
+		var backupDir = (backupDir != '') ? correctPath(backupDir, true) : '';
+		
+		while (generations > 0) {
+			var testfilename = directory + backupDir + filename + '.backup' + generations;
+			var newfilename = directory + backupDir + filename + '.backup' + (generations+1);
+			if (exists(testfilename)) {
+				//trace([testfilename, newfilename]);
+				rename(testfilename, newfilename);
+			}
+			generations--;
+		}		
+		
+		var testfilename = directory + filename;
+		var newfilename = directory + backupDir + filename + '.backup1';
+		trace(testfilename);
+		if (exists(testfilename)) {
+			//trace([testfilename, newfilename]);
+			rename(testfilename, newfilename);				
+		}
+	}
+	
 }

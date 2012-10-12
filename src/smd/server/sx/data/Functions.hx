@@ -48,18 +48,24 @@ class Functions extends DataFunctions
 				var listExamples = ScorxTools.getListExamples(scorxtg, Config.scorxDir);
 				FileTools.putContent(Config.smdDir + 'scorxlist.data', Serializer.run(listExamples));
 			} catch (e:Dynamic) { State.messages.errors.push("Can't update scorxlist data"); }
-		}
-		
+		}		
 	}
 	
-	public function __users() {
-		State.messages.infos.push('users');
+	public function __users() {		
+		try {
+			FileTools.backup(Config.authFile);
+			State.messages.success.push('Users list backup created!');
+		} catch (e:Dynamic) {
+			State.messages.errors.push('Could not create users backup!' + Std.string(e));
+		}
+			
 		try {
 			Access.saveAuthInfoToFile(Config.authFile);
-			State.messages.success.push('User database updated!');
+			State.messages.success.push('Users list updated!');
 		} catch (e:Dynamic) {
-			State.messages.errors.push('Problem updating user database: ' + Std.string(e));
+			State.messages.errors.push('Could not update user list: ' + Std.string(e));
 		}
+		
 	}
 	
 	public function __discussadd() {
