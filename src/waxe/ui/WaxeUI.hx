@@ -31,7 +31,9 @@ class WaxeUI
 		this.applicationFrame = ApplicationMain.frame;
 		this.createUI();
 		TimerTools.timeout(function() {
-			this.callEventTargetHandler('onUICreated', { } );
+			//this.callEventTargetHandler('onUICreated', { } );
+			this.initData();
+			this.initUI();
 		}, 500);
 	}
 	
@@ -39,6 +41,10 @@ class WaxeUI
 	
 	private function createUI() {
 		throw "WaxeUI.createUI() should be overridden";
+	}
+
+	private function initData() {
+		throw "WaxeUI.initData() should be overridden";
 	}
 	
 	private function initUI() {
