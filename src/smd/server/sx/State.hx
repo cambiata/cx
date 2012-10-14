@@ -14,7 +14,7 @@ using StringTools;
 class State 
 {	
 	
-	static public var domaintag :String = StringTools.replace(WebTools.getDomainInfo().subMain, '.', '-');
+	//static public var domaintag :String = StringTools.replace(WebTools.getDomainInfo().subMain, '.', '-');
 	
 	//static public var indexPage: String = Config.templatesDir + 'index.html'; // WebTools.getDomainInfo().submain + '.html';
 	
@@ -48,7 +48,7 @@ class State
 		for (check in State.pagePaths) {
 			// errors
 			
-			var pagepath = FileTools.stripLastSlash(Config.contentDir + State.domaintag + check); 
+			var pagepath = FileTools.stripLastSlash(Config.contentDir + WebTools.domaintag + check); 
 			
 			if (FileTools.exists(pagepath)) {
 				var files = FileTools.getFilesNamesInDirectory(pagepath + '/', 'html');			
@@ -100,6 +100,18 @@ class State
 			
 		}		
 	}		
+	
+	static public function getLayout():String {
+		
+		var layout:String = null;
+		var uri = WebTools.getUri();
+		
+		if (uri == '/') layout = 'front';
+		if (uri.startsWith('/dok')) layout = 'document';
+		if (uri.startsWith('/info')) layout = 'info';
+		
+		return layout;
+	}
 	
 	
 }

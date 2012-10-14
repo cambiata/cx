@@ -53,7 +53,7 @@ class Functions extends DataFunctions
 	
 	public function __users() {		
 		try {
-			FileTools.backup(Config.authFile);
+			FileTools.backup(Config.authFile, '_bak', 5);
 			State.messages.success.push('Users list backup created!');
 		} catch (e:Dynamic) {
 			State.messages.errors.push('Could not create users backup!' + Std.string(e));
@@ -69,8 +69,7 @@ class Functions extends DataFunctions
 	}
 	
 	public function __discussadd() {
-		State.messages.infos.push('discuss add');
-		
+		State.messages.infos.push('discuss add');		
 	}
 	
 	

@@ -25,6 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 @author  Elad Elrom
 */
 package com.elad.optimize.memory;
+
  import flash.display.MovieClip;
  import flash.display.Shape;
  import flash.display.Sprite;
@@ -36,7 +37,8 @@ package com.elad.optimize.memory;
  import flash.text.TextFormat;
  import flash.utils.Timer;
  import flash.Lib;
-  using primevc.utils.FloatUtil;
+  
+ //using primevc.utils.FloatUtil;
   using StringTools;
 
 

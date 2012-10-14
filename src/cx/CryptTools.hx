@@ -5,23 +5,25 @@ import tea.TEA;
 
 /**
  * ...
+ * 
  * @author Jonas Nyström
  */
 
+using cx.StrTools;
 class CryptTools 
 {
 
-	static public function teaCrypt(str:String):String {		
+	static public function crypt(str:String):String {		
 		var key = Std.string(Math.random() % Date.now().getTime()).substr(2, 4);
-		var keyLeft = key.substr(0, 2);
-		var keyRight = key.substr(2, 2);
+		var keyLeft = StrTools.numToStr(key.substr(0, 2), 97);		
+		var keyRight = StrTools.numToStr(key.substr(2, 2), 97);
 		setTeaKey(Std.parseInt(key));
 		return keyLeft + TEA.crypt(str) + keyRight;
 	}
 	
-	static public function teaUncrypt(str:String):String {
-		var keyLeft = str.substr(0, 2);
-		var keyRight = str.substr(str.length - 2, 2);
+	static public function decrypt(str:String):String {
+		var keyLeft = StrTools.strToNum(str.substr(0, 2), 97);
+		var keyRight = StrTools.strToNum(str.substr(str.length - 2, 2), 97);
 		var key = keyLeft + keyRight;		
 		var str = str.substr(2,  str.length - 4);
 		setTeaKey(Std.parseInt(key));

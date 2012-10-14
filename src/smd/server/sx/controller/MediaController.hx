@@ -1,6 +1,7 @@
 package smd.server.sx.controller;
 import cx.FileTools;
 import cx.TextfileDB;
+import cx.WebTools;
 import harfang.controller.AbstractController;
 import haxe.Json;
 import haxe.Serializer;
@@ -67,7 +68,8 @@ class MediaController extends AbstractController
 	
 	@URL("/sx/list")
 	public function sxlist() {			
-		var domainkategori = "#" + State.domaintag;
+		
+		var domainkategori = "#" + WebTools.domaintag;
 		var ids = ScorxData.getScorxtillgangligheterIds(domainkategori);
 		var listexamples = ScorxData.getListexamples(ids);
 		
@@ -203,7 +205,7 @@ class MediaController extends AbstractController
 	@URL("/sx/getpagediscussion/([a-zA-Z0-9/]+)$")
 	public function getpagediscussion(param:String = '') {					
 		if (! param.startsWith('/')) param = '/' + param;
-		var domain = State.domaintag;
+		var domain = WebTools.domaintag;
 		var pagepath = domain + param;		
 		var commentsFile = Config.contentDir + pagepath + 'pagecomments.txt';
 		
@@ -222,7 +224,7 @@ class MediaController extends AbstractController
 	public function addpagecomment(param:String = '') {
 		
 		if (! param.startsWith('/')) param = '/' + param;
-		var domain = State.domaintag;
+		var domain = WebTools.domaintag;
 		var pagepath = domain + param;		
 		var commentsFile = Config.contentDir + pagepath + 'pagecomments.txt';
 

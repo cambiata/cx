@@ -30,8 +30,8 @@ class IndexController extends AbstractController
 	
 	override public function handleBefore()	{
 		this.data = {user: User.user };
-		this.data = PageData.getData(this.data, State.domaintag);
-		this.data = PageData.getSidmenuData(this.data, State.domaintag, Config.templatesDir);
+		this.data = PageData.getData(this.data, WebTools.domaintag);
+		this.data = PageData.getSidmenuData(this.data, WebTools.domaintag, Config.templatesDir);
 	}
 	
 	@URL("^/$")

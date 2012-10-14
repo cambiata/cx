@@ -269,9 +269,14 @@ class FileTools
 	
 	static public function correctPath(path:String, endSlash = false, slash='/') {
 		path = path.replace('\\', slash);
+		
 		if (endSlash) {
 			if (! path.endsWith(slash)) path += slash;
+		} else {
+			if (path.endsWith(slash)) path = path.substr(0, path.length-1);			
 		}
+		
+		path = path.replace('//', '/');
 		return path;
 	}
 	
@@ -294,7 +299,7 @@ class FileTools
 		
 		var testfilename = directory + filename;
 		var newfilename = directory + backupDir + filename + '.backup1';
-		trace(testfilename);
+		//trace(testfilename);
 		if (exists(testfilename)) {
 			//trace([testfilename, newfilename]);
 			rename(testfilename, newfilename);				

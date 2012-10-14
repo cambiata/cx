@@ -6,6 +6,7 @@ import harfang.exception.Exception;
 import haxe.Template;
 import haxe.Utf8;
 import neko.FileSystem;
+import neko.Lib;
 import smd.server.sx.Config;
 import neko.Web;
 import smd.server.sx.Site;
@@ -103,10 +104,12 @@ class PageData {
 	*/
 	
 	
-	static public function getSidmenuData(data:Dynamic, domainStr:String, templateDir:String, sqlitefile:String = 'data/pages.sqlite') {
+	
+	
+	static public function getSidmenuData(data:Dynamic, domainStr:String, templateDir:String) {
 		if (data.sidemenu == null) {			
-			for (check in State.pagePaths) {
-				var pagepath = FileTools.stripLastSlash(Config.contentDir + State.domaintag + check); 
+			for (check in WebTools.pagePaths) {
+				var pagepath = FileTools.stripLastSlash(Config.contentDir + WebTools.domaintag + check); 
 				var filename = pagepath + '/' + 'sidemenu.html';
 				//trace(filename);
 				//var filename = Config.contentDir + State.domaintag + '.' +  WebTools.slashToUnderscores(check) + '.sidemenu';
@@ -119,12 +122,16 @@ class PageData {
 		}		
 		return data;
 	}
+	
+	
+
+	
 
 	static public function getData(data:Dynamic=null, _domain='', _uri='') : Dynamic {
 
 		var data = (data != null) ? data : { };
 		var uri = (_uri != '') ? _uri : WebTools.getUri();
-		var domain = (_domain != null) ? _domain : State.domaintag;
+		var domain = (_domain != null) ? _domain : WebTools.domaintag;
 		
 		//-------------------------------------------------------------------------------------------------
 		
@@ -182,7 +189,7 @@ class PageData {
 		//----------------------------------------------------------------------------------------
 		
 		Reflect.setField(data, 'messages', State.messages);
-		Reflect.setField(data, 'domain', State.domaintag);
+		Reflect.setField(data, 'domain', WebTools.domaintag);
 		Reflect.setField(data, 'uri', WebTools.getUri());		
 		
 		//----------------------------------------------------------------------------------------		

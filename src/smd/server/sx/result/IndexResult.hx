@@ -1,5 +1,6 @@
 package smd.server.sx.result;
 import cx.ReflectTools;
+import cx.WebTools;
 import smd.server.base.result.TemplateResult;
 import smd.server.sx.State;
 import smd.server.sx.user.User;
@@ -20,7 +21,7 @@ class IndexResult extends TemplateResult
 
 	private function addData(data:Dynamic) {
 		
-		Reflect.setField(data, 'domain', State.domaintag);		
+		Reflect.setField(data, 'domain', WebTools.domaintag);		
 		Reflect.setField(data, 'user', User.user);
 		
 		return data;

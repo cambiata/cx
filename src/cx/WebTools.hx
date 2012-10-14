@@ -68,6 +68,48 @@ class WebTools {
 		return str.replace('_', '/');
 	}	
 	
+	static public var pagePaths:Array<String> = getPagePaths();
 	
+	static public function getPagePaths(): Array<String> {
+		var segments = WebTools.getUri().substr(1).split('/');
+		var result:Array<String> = [];
+		while (segments.length > 0) {
+			result.push('/' + segments.join('/'));
+			segments.pop();				
+		}		
+		result.push('/');
+		result = ArrayTools.unique(result);	
+		result.reverse();
+		return result;		
+	}		
+	
+	static public function getCascadingContent(directory:String, domaindirectory='', contentname='sidemenu.html', stripdirectory=true):String {
+		
+			//trace(WebTools.pagePaths);
+			directory = FileTools.correctPath(directory, true);
+			domaindirectory = (domaindirectory != '') ? FileTools.correctPath(domaindirectory, true) : '';
+		
+			for (check in WebTools.pagePaths) {
+				var path = directory + domaindirectory + check; 
+				path = FileTools.correctPath(path, true);
+				
+				var filename = path + contentname;
+				//Lib.println('<br/>');
+				//Lib.println(filename);
+				trace(filename);
+				//var filename = Config.contentDir + State.domaintag + '.' +  WebTools.slashToUnderscores(check) + '.sidemenu';
+				if (FileTools.exists(filename)) {
+					var text = FileTools.getContent(filename);					
+					//Lib.println('<br/>');
+					//trace([filename, text.substr(0, 20)]);
+					if (stripdirectory) filename = filename.replace(directory, '');
+					
+					return filename;
+				}				
+			}
+			return null;
+	}
+		
+	static public var domaintag :String = StringTools.replace(WebTools.getDomainInfo().subMain, '.', '-');
 	
 }

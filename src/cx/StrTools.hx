@@ -50,8 +50,9 @@ class StrTools
 		return (str == null) ? with : str;
 	}	
 	
-	static public function firstUpperCase(str:String):String {
-		return str.substr(0, 1).toUpperCase() + str.substr(1).toLowerCase();
+	static public function firstUpperCase(str:String, restToLowercase=true):String {		
+		var rest = (restToLowercase) ?  str.substr(1).toLowerCase() : str.substr(1);		
+		return str.substr(0, 1).toUpperCase() + rest;
 	}
 	
 	static public function afterLast(str:String, char:String, includeChar:Bool=false):String {
@@ -137,18 +138,46 @@ class StrTools
 		return result;		
 	}
 	
-	static public function intToChar(int:Int, offset=0):String {
+	static public function intToChar(int:Int, offset=65):String {
 		if (int > 9) throw "int to char error";
 		
-		return String.fromCharCode(int + 65 + offset);
+		return String.fromCharCode(int + offset);
 		
 	}
 	
-	static public function charToInt(char:String, offset=0):Int {
+	static public function charToInt(char:String, offset=65):Int {
 		if (char.length > 1) throw "char to int error";
-		return char.charCodeAt(0) - 65 - offset;
+		return char.charCodeAt(0) - offset;
 	}	
 
+	static public function numToStr(numStr:String, offset = 65):String {
+		var testParse = Std.parseInt(numStr);
+		
+		var result = '';
+		for (i in 0...numStr.length) {
+			var int = Std.parseInt(numStr.charAt(i));
+			var char = intToChar(int, offset);
+			result += char;
+		}
+		
+		return result;		
+	}
+	
+	static public function strToNum(str:String, offset = 65):String {
+		var result = '';
+		for (i in 0...str.length) {
+			var char = str.charAt(i);
+			var int = charToInt(char, offset);
+			result += Std.string(int);
+		}
+		
+		return result;
+		
+	}
+	
+	
+	
+	
 	
 	static public function rotate(str:String, positions:Int = 1) {
 		var result = str;

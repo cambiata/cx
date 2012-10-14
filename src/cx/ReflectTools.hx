@@ -7,14 +7,30 @@ package cx;
 
 class ReflectTools 
 {
+	
 	static public function getMethods(object:Dynamic) {
-		return Type.getInstanceFields(Type.getClass(object));
+		var result:Array<String> = [];
+		var fields =  Type.getInstanceFields(Type.getClass(object));
+		for (field in fields) {
+			var f = Reflect.field(object, field);
+			if (Reflect.isFunction(f)) result.push(field);
+		}
+		return result;
 	}
 	
 	static public function callMethod(object:Dynamic, methodName:String, args:Array<Dynamic>=null) {		
-		if (!Lambda.has(getMethods(object), methodName)) throw "Method " + methodName + " doesn't exist!";
+		//if (! hasMethod(getMethods(object), methodName)) throw "Method " + methodName + " doesn't exist!";
 		if (args == null) args = [];
-		return Reflect.callMethod(object, Reflect.field(object, methodName), args);
+		
+		try {
+			return Reflect.callMethod(object, Reflect.field(object, methodName), args);
+		} catch (e:Dynamic) {
+			throw 'Error on ReflectTools.callMethod: ' + methodName + ' > ' + Std.string(e);
+		}
+	}
+
+	static public function hasMethod(object:Dynamic, methodName:String) {
+		return (Lambda.has(getMethods(object), methodName));
 	}
 	
 	static public function getClass(object:Dynamic) {
@@ -37,24 +53,5 @@ class ReflectTools
 		return Reflect.field(getClass(object), fieldName);
 	}
 	
-
-	/*
-	Reflect.setField
-
-
-			var methodName = "jeashSet" + field.substr (0, 1).toUpperCase () +  
-	field.substr (1);
-       
-        if (o[methodName] != null) {
-               
-                o[methodName] (value);
-               
-        } else {
-               
-                o[field] = value;
-               
-        } 	
-	*/
-		
 	
 }

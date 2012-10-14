@@ -17,12 +17,16 @@ class Config
 
 	static public var filesDir:String			= Web.getCwd() + '../files/';
 	
+	static public var tmpDir:String			= Web.getCwd() + 'tmp/';
+	
+	
 	static public var configFile:String 		= filesDir + 'main.conf'; 
 	static public var dataDir:String			= filesDir + 'data/';
 	static public var smdDir:String			= filesDir + 'smd/';
 	static public var templatesDir:String	= filesDir + 'templates/';
 	static public var contentDir:String		= filesDir + 'content/';
 	static public var documentDir:String	= filesDir + 'documents/';
+	
 
 	static public var scorxDir:String 		= filesDir + 'scorx/';
 	
