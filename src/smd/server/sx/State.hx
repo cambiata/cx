@@ -109,6 +109,8 @@ class State
 		if (uri == '/') layout = 'front';
 		if (uri.startsWith('/dok')) layout = 'document';
 		if (uri.startsWith('/info')) layout = 'info';
+		if (uri.startsWith('/scorx')) layout = 'scorx';
+		if (uri.startsWith('/jquery')) layout = 'jquery';
 		
 		return layout;
 	}

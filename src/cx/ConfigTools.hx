@@ -12,11 +12,6 @@ using StringTools;
 using cx.StrTools;
 class ConfigTools
 {
-	/*
-	trace(cx.example.Config.name);
-	cx.ConfigTools.loadConfig(cx.example.Config, 'default.conf');
-	trace(cx.example.Config.name);
-	*/
 	
 	static public function loadConfig(configObject:Dynamic, ?filename:String='default.conf', ?delimiter:String='=', ?arrayDelimiter:String=','):Void  {
 		if (!FileSystem.exists(filename)) {

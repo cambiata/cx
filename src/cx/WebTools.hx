@@ -84,8 +84,6 @@ class WebTools {
 	}		
 	
 	static public function getCascadingContent(directory:String, domaindirectory='', contentname='sidemenu.html', stripdirectory=true):String {
-		
-			//trace(WebTools.pagePaths);
 			directory = FileTools.correctPath(directory, true);
 			domaindirectory = (domaindirectory != '') ? FileTools.correctPath(domaindirectory, true) : '';
 		
@@ -94,16 +92,10 @@ class WebTools {
 				path = FileTools.correctPath(path, true);
 				
 				var filename = path + contentname;
-				//Lib.println('<br/>');
-				//Lib.println(filename);
-				trace(filename);
-				//var filename = Config.contentDir + State.domaintag + '.' +  WebTools.slashToUnderscores(check) + '.sidemenu';
+
 				if (FileTools.exists(filename)) {
 					var text = FileTools.getContent(filename);					
-					//Lib.println('<br/>');
-					//trace([filename, text.substr(0, 20)]);
 					if (stripdirectory) filename = filename.replace(directory, '');
-					
 					return filename;
 				}				
 			}

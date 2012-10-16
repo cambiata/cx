@@ -25,17 +25,26 @@ class FileTools
 	}
 	
 	static public function deleteFile(path:String) {
-		FileSystem.deleteFile(path);
+		try {
+			FileSystem.deleteFile(path);
+		} catch (e:Dynamic) { throw "Can't delete file " + path; }
 	}
 	
 	static public function deleteDirectory(dir:String) {
-		if (!FileSystem.exists(dir)) return;
-		var files = FileTools.getFilesInDirectories('pages/');
+		deleteFilesInDirectory(dir);
+		try {
+			FileSystem.deleteDirectory(dir);
+		} catch (e:Dynamic) { throw "Can't delete directory " + dir; }
+	}
+	
+	static public function deleteFilesInDirectory(dir:String) {
+		if (!FileSystem.exists(dir)) throw "Directory doesnt exist!";
+		var files = FileTools.getFilesInDirectories(dir);
 		for (file in files) {
-			FileTools.deleteFile(file);
+			try {
+				deleteFile(file);
+			} catch (e:Dynamic) { throw "Can't delete file " + file; }
 		}	
-
-		FileSystem.deleteDirectory(dir);
 	}
 
 	static public function createDirectory(dir:String) {
@@ -122,7 +131,6 @@ class FileTools
 		return dirs;
 	}
 	
-	
 	/*
 	static public function filesBytesInDirectory(dir:String):List<haxe.io.Bytes> {
 		var bytesList = new List<haxe.io.Bytes>();
@@ -162,8 +170,6 @@ class FileTools
 	}
 	*/
 	
-	
-	
 	static public function getBytes(filename:String): Bytes {		
 		return File.getBytes(filename);		
 	}
@@ -180,10 +186,7 @@ class FileTools
 		f.close();			
 	}
 	
-	
-	
-	static public function executeFile(filename:String) {
-	
+	static public function executeFile(filename:String) {	
 		if (!FileSystem.exists(filename)) throw "Can't find file: " + filename;
 		var command:String;
 		command = '"' + Sys.getCwd() + filename + '"';
@@ -212,13 +215,11 @@ class FileTools
 		return path;
 	}
 	
-	
 #if !cpp
 	static public function stripPath(filename:String):String {
 		filename = StringTools.replace(filename, '\\', '/');
 		return filename.substr(filename.lastIndexOf('/')+1);		
 	}
-	
 	
 	static public function getFirstFilenameSegment(filename:String):String {
 		filename = stripPath(filename);
