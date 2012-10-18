@@ -5,6 +5,7 @@ import cx.FileTools;
 import cx.WebTools;
 import smd.server.base.auth.AuthUser;
 import smd.server.base.types.Messages;
+import templo.Loader;
 
 /**
  * ...
@@ -100,7 +101,6 @@ class State
 			
 		}		
 	}		
-	
 	static public function getLayout():String {
 		
 		var layout:String = null;
@@ -111,6 +111,7 @@ class State
 		if (uri.startsWith('/info')) layout = 'info';
 		if (uri.startsWith('/scorx')) layout = 'scorx';
 		if (uri.startsWith('/jquery')) layout = 'jquery';
+		if (uri.startsWith('/gallery')) layout = 'gallery';
 		
 		return layout;
 	}

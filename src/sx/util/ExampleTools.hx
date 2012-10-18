@@ -49,13 +49,28 @@ class ExampleTools
 		return null;
 	}
 	
-	static public function getOriginatorshortsFromExample(example:TExample):TOriginatorshorts {
+	static public function getOriginatorshortsFromExample(example:TExample, includeType:Bool=false):TOriginatorshorts {
 		var originatorshorts = new TOriginatorshorts();
 		for (origItem in example.originatorItems) {
+			
 			var originatorshort = ScorxTools.getOriginatorshort(origItem.originator);
+			if (includeType) originatorshort = origItem.type + ' > ' + originatorshort;
+			
 			originatorshorts.push(originatorshort);
 		}
 		return originatorshorts;
 	}
+	
+	static public function getCategoriesShortsFromExample(example:TExample, includeType:Bool=false):Array<String> {
+		var result:Array<String> = [];		
+		for (cat in example.categories) {
+			var short = cat.value;
+			if (includeType) short = cat.categoryId + ' > ' + short;
+			result.push(short);
+		}
+		return result;
+	}	
+	
+	
 	
 }
