@@ -45,6 +45,20 @@ class ArrayTools
 		}));
 	}
 	
+	static public function diff<T>(array1:Array<T>, array2:Array<T>): Array<T> {
+		
+		var result = new Array<T>();
+		
+		for (item in array1) {
+			if (! Lambda.has(array2, item)) result.push(item);
+		}
+		for (item in array2) {
+			if (! Lambda.has(array1, item)) result.push(item);
+		}
+		return result;
+		
+	}
+	
 	static public function first<T>(array:Array<T>): T {
 		return array[0];
 	}
@@ -81,7 +95,13 @@ class ArrayTools
 		return arr;
 	}	
 	
-	
+	static public function countItem<T>(a:Array<T>, item:T): Int {		
+		var cnt = 0;
+		for (ai in a) {
+			if (ai == item) cnt++;			
+		}		
+		return cnt;
+	}
 
 	//-----------------------------------------------------------------------------------------------------
 	

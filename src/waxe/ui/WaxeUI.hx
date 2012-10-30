@@ -29,6 +29,8 @@ class WaxeUI
 	public function new(eventTarget:Dynamic) {
 		this.eventTarget = eventTarget;		
 		this.applicationFrame = ApplicationMain.frame;
+		
+		
 		this.createUI();
 		TimerTools.timeout(function() {
 			//this.callEventTargetHandler('onUICreated', { } );
@@ -52,7 +54,7 @@ class WaxeUI
 	}
 	
 	
-	public function createNotebookPageFlex(notebook:Notebook, label:String) :{ page:Window, sizer:FlexGridSizer } {
+	public function uiCreateNotebookPageFlex(notebook:Notebook, label:String) :{ page:Window, sizer:FlexGridSizer } {
 		
 		var page = Window.create(notebook);		
 		var sizer = FlexGridSizer.create(null, 2);
@@ -63,7 +65,7 @@ class WaxeUI
 		return { page:page, sizer:sizer };
 	}
 	
-	public function createNotebookPageBox(notebook:Notebook, label:String, vertical:Bool=true) :{ page:Window, sizer:BoxSizer } {
+	public function uiCreateNotebookPageBox(notebook:Notebook, label:String, vertical:Bool=true) :{ page:Window, sizer:BoxSizer } {
 		var page = Window.create(notebook);		
 		var sizer = BoxSizer.create(vertical);
 		page.sizer = sizer;
@@ -73,40 +75,41 @@ class WaxeUI
 	}	
 		
 	
-	private function createButton(parent:Window, name:String, label:String=null) {
+	private function uiCreateButton(parent:Window, name:String, label:String=null) {
 		if (label == null) label = name;
 		var btn = Button.create(parent, null, label);
 		btn.name = name;
-		btn.onClick = this.onButtonClick;
+		btn.onClick = this.onUIButtonClick;
 		return btn;
 	}
 	
-	private function createTextctrl(parent:Window, name:String, text:String=null) {
+	private function uiCreateTextctrl(parent:Window, name:String, text:String=null) {
 		if (text == null) text = name;
 		var textctrl = TextCtrl.create(parent, null, text);
 		textctrl.name = name;		
-		textctrl.onTextUpdated = this.onTextctrlUpdated;
+		textctrl.onTextUpdated = this.onUITextctrlUpdated;
 		return textctrl;
 	}
 	
-	private function createListbox(parent:Window, name:String, values:Array<String>=null, width = 200, height = 400, x=0, y=0 ) {		
+	private function uiCreateListbox(parent:Window, name:String, values:Array<String>=null, width = 200, height = 400, x=0, y=0 ) {		
 		var listbox = ListBox.create(parent, null, { x:x, y:y }, { width:width, height:height }, values);
 		listbox.name = name;
-		listbox.onSelected = this.onListboxSelected;
+		listbox.onSelected = this.onUIListboxSelected;
+		listbox.onDClick = this.onUIListboxDClicked;
 		return listbox;
 	}
 	
 	
 	///--------------------------------------------------------------------------------------------------------------
 	
-	private function onButtonClick(event:Dynamic) {
+	private function onUIButtonClick(event:Dynamic) {
 		if (event.name == 'button') throw "wx.Button.name must be set, and can't be 'button'";
 		var name:String = StrTools.firstUpperCase(Std.string(event.name), false);		
 		var eventHandlerName = 'on' + name + 'Click';
-		this.callEventTargetHandler(eventHandlerName, event);
+		this.uiCallEventTargetHandler(eventHandlerName, event);
 	}
 	
-	private function onTextctrlUpdated(event:Dynamic) {		
+	private function onUITextctrlUpdated(event:Dynamic) {		
 		var text:String = null;
 		try {
 			var control:TextCtrl = cast(Reflect.field(this, event.name), TextCtrl);
@@ -118,11 +121,11 @@ class WaxeUI
 		
 		var name:String = StrTools.firstUpperCase(Std.string(event.name), false);		
 		var eventHandlerName = 'on' + name + 'Update';	
-		this.callEventTargetHandler(eventHandlerName, event);
+		this.uiCallEventTargetHandler(eventHandlerName, event);
 		
 	}
 	
-	private function onListboxSelected(event:Dynamic) {
+	private function onUIListboxSelected(event:Dynamic) {
 		var value:String = null;
 		var index:Int = null;
 		try {
@@ -137,10 +140,29 @@ class WaxeUI
 		
 		var name:String = StrTools.firstUpperCase(Std.string(event.name), false);		
 		var eventHandlerName = 'on' + name + 'Selected';	
-		this.callEventTargetHandler(eventHandlerName, event);		
+		this.uiCallEventTargetHandler(eventHandlerName, event);		
 	}
+
+	private function onUIListboxDClicked(event:Dynamic) {
+		var value:String = null;
+		var index:Int = null;
+		try {
+			var control:ListBox = cast(Reflect.field(this, event.name), ListBox);
+			if (control != null) {
+				index = control.getSelection();
+				value = control.getString(index);		
+			}
+		} catch(e:Dynamic) {}
+		Reflect.setField(event, 'value', value);
+		Reflect.setField(event, 'index', index);
+		
+		var name:String = StrTools.firstUpperCase(Std.string(event.name), false);		
+		var eventHandlerName = 'on' + name + 'DoubleClick';	
+		this.uiCallEventTargetHandler(eventHandlerName, event);			
+	}	
 	
-	private function callEventTargetHandler(eventHandlerName:String, event:Dynamic) {
+	
+	private function uiCallEventTargetHandler(eventHandlerName:String, event:Dynamic) {
 		if  (ReflectTools.hasMethod(this.eventTarget, eventHandlerName)) {
 			ReflectTools.callMethod(this.eventTarget, eventHandlerName, [event]);
 		} else {

@@ -9,6 +9,19 @@ import smd.server.sxjs.MainController;
  */
 using Detox;
 
+class ScorxplayerControllerY extends Controller {
+	public function new(main:MainController) {
+		super(main);
+		Lib.alert('Hello!');
+		
+	}
+	
+	public function loadPlayer(id:Int) {
+		Lib.alert(id);
+	}
+	
+}
+
 class ScorxplayerController extends Controller
 {	
 	
@@ -21,6 +34,7 @@ class ScorxplayerController extends Controller
 	
 	public function new(main:MainController) {
 		super(main);
+		
 		
 		this.divPlayer = this.findElement("#scorxplayer");
 		this.divPlayerEmbedWrapper = this.findElement("#playerEmbedWrapper");
@@ -48,6 +62,7 @@ class ScorxplayerController extends Controller
 		"#btnPlayerClose".find().click(function (e) {
 			this.hidePlayer();
 		});
+		
 		
 	}
 	

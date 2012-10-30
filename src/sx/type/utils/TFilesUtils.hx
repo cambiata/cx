@@ -84,11 +84,16 @@ class TFilesUtils
 	
 	static public function getFilesShortnamesFromIds(files:TFiles, ids:Array<Int>) {
 		
+		//var filter = (ids.length > 0);
+		
 		var result = new Array<String>();
+		trace(ids.length);
 		
 		for (id in files.keys()) {
 			
-			if (! Lambda.has(ids, id)) continue;
+			if (ids.length > 0) {
+				if (! Lambda.has(ids, id)) continue; 
+			}
 			
 			var filename = files.get(id);
 			

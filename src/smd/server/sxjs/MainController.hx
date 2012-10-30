@@ -48,10 +48,24 @@ class MainController
 		if ("#scorxplayer".exists()) this.scorxplayerController = new ScorxplayerController(this);		
 		if ("#pagediscussionwrapper".exists()) this.pagediscussionController = new PagediscussionController(this);
 		
+		/*
+		if (this.scorxplayerController == null) {
+			Lib.alert('No SxpC');
+		} else {
+			Lib.alert('Exists!');
+		}
+		*/
+		
 	}
 	
 	public function testfunction(id:Int) {
 		//trace(id);
+		
+		
+		
+		if (this.scorxplayerController == null) this.scorxplayerController = new ScorxplayerController(this);		
+		
+		
 		if (this.scorxplayerController != null) {
 			this.scorxplayerController.loadPlayer(id);
 		} else {

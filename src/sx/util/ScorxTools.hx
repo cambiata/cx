@@ -4,6 +4,7 @@ import ka.types.Scorxtillgangligheter;
 import neko.Utf8;
 import sx.type.THashIds;
 import sx.type.TListExamples;
+import sx.type.TOriginatorItem;
 import sx.util.ScorxDb;
 import sx.type.TAlternatives;
 import sx.type.TExample;
@@ -133,6 +134,7 @@ class ScorxTools
 		}		
 		return listExamples;
 	}
+	
 	
 
 }

@@ -153,6 +153,7 @@ class ScorxDb {
 			throw "File " + filename + " doesn't exist!";
 			return;
 		}
+		
 		var sql = 'INSERT INTO categories (type, value) VALUES ('
 		+ '"' + alternative.categoryId + '", '
 		+ '"' + alternative.value + '" '
@@ -161,6 +162,21 @@ class ScorxDb {
 		cnx.request(sql);
 		cnx.close();
 	}
+	
+	static public function removeCategory(filename:String, alternative:TAlternative) {
+		if (!FileSystem.exists(filename)) { throw "File " + filename + " doesn't exist!"; return;	}		
+		
+		var sql = 'DELETE FROM categories WHERE '
+		+ ' type = "' + alternative.categoryId + '" '
+		+ ' AND value = "' 	+ alternative.value + '" '
+		;		
+		
+		var cnx = Sqlite.open(filename);	
+		cnx.request(sql);
+		cnx.close();		
+	}
+		
+	
 	
 	static public function getCategoriesDyn(filename:String):TAlternatives {
 		var sql = 'SELECT * FROM categoriesdyn';
@@ -190,6 +206,20 @@ class ScorxDb {
 		cnx.request(sql);
 		cnx.close();
 	}
+	
+	static public function removeCategoryDyn(filename:String, alternative:TAlternative) {
+		if (!FileSystem.exists(filename)) { throw "File " + filename + " doesn't exist!"; return;	}		
+		
+		var sql = 'DELETE FROM categoriesdyn WHERE '
+		+ ' type = "' + alternative.categoryId + '" '
+		+ ' AND value = "' 	+ alternative.value + '" '
+		;		
+		
+		var cnx = Sqlite.open(filename);	
+		cnx.request(sql);
+		cnx.close();		
+	}	
+	
 	
 	static public function getCategoriesAll(filename:String):TAlternatives {
 		var cnx = Sqlite.open(filename);	
@@ -314,10 +344,8 @@ class ScorxDb {
 	}
 	
 	static public function insertOriginatorType(filename:String, originator:TOriginator, type:String) {
-		if (!FileSystem.exists(filename)) {
-			throw "File " + filename + " doesn't exist!";
-			return;
-		}		
+		if (!FileSystem.exists(filename)) { throw "File " + filename + " doesn't exist!"; return; }		
+		
 		var sql = 'INSERT INTO originators (type, firstname, lastname, birth, death) VALUES ('
 		+ '"' + type + '", '
 		+ '"' + originator.firstname + '", '
@@ -331,11 +359,46 @@ class ScorxDb {
 		cnx.close();		
 	}	
 	
+	static public function insertOriginatorItem(filename:String, origItem:TOriginatorItem) {
+		if (!FileSystem.exists(filename)) { throw "File " + filename + " doesn't exist!"; return; }		
+		var sql = 'INSERT INTO originators (type, firstname, lastname, birth, death) VALUES ('
+		+ '"' + origItem.type + '", '
+		+ '"' + origItem.originator.firstname + '", '
+		+ '"' + origItem.originator.lastname + '", '
+		+ '"' + origItem.originator.birth + '", '
+		+ '"' + origItem.originator.death + '" '
+		+ ') ';		
+		
+		
+		var cnx = Sqlite.open(filename);	
+		cnx.request(sql);
+		cnx.close();				
+	}
+		
+	static public function removeOriginatorItem(filename:String, origItem:TOriginatorItem) {
+		if (!FileSystem.exists(filename)) { throw "File " + filename + " doesn't exist!"; return; }		
+		var sql = 'DELETE FROM originators WHERE '
+		+ ' type = "' + origItem.type + '" '
+		+ ' AND firstname = "' 	+ origItem.originator.firstname + '" '
+		+ ' AND lastname = "' 	+ origItem.originator.lastname + '" '
+		+ ' AND birth = "' 			+ origItem.originator.birth + '" '
+		+ ' AND death = "' 		+ origItem.originator.death + '" '
+		;
+		
+		trace(sql);
+		var cnx = Sqlite.open(filename);	
+		cnx.request(sql);
+		cnx.close();			
+		
+	}	
+	
+	
 	static public function getExample(filename:String): TExample {
 		var r:TExample = {
 			information:getInformation(filename),
 			originatorItems:getOriginatorItems(filename),
-			categories:getCategoriesAll(filename),	
+			categories:getCategories(filename),	
+			categoriesDynamic:getCategoriesDyn(filename),
 			subdir:getSubdir(filename),
 		}			
 		return r;		
@@ -429,6 +492,13 @@ class ScorxDb {
 		cnx.close();		
 		return datas;				
 	}
+	
+
+
+	
+
+	
+
 	
 	
 }
