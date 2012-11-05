@@ -1,0 +1,11 @@
+cpp
+desktop
+haxe_208
+haxe_209
+haxe_210
+nme_install_tool
+sys
+true
+waxe
+windows
+C:\Motion-Twin\Haxe\lib\hxcpp/2,10/

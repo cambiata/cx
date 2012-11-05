@@ -105,7 +105,26 @@ class BeamGroupMulti implements IBeamGroup {
 		this._beams16 = beams;
 		return this._beams16;
 	}
+
+	private var value = 0;
+	private var valuePositions: Array<Int>;
 	
+	public function getValue():Int {
+		if (this.value != 0) return this.value;
+		this.valuePositions = [];
+		var idx = 0;
+		for (dnote in this.dNotes) {
+			valuePositions[idx] = this.value;
+			this.value += dnote.notevalue.value;
+			idx++;
+		}
+		return this.value;
+	}
+	
+	public function getValuePosition(noteIndex:Int):Int {
+		if (this.valuePositions == null) this.getValue(); 
+		return valuePositions[noteIndex];
+	}
 	
 	//--------------------------------------------
 	public function toString():String {

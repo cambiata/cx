@@ -1,0 +1,221 @@
+<xml>
+<files id="haxe">
+<compilerflag value="-Iinclude"/>
+  <file name="src/wx/TextCtrl.cpp">
+   <depend name="include/wx/Error.h"/>
+   <depend name="include/wx/EventHandler.h"/>
+   <depend name="include/wx/EventID.h"/>
+   <depend name="include/wx/Loader.h"/>
+   <depend name="include/wx/TextCtrl.h"/>
+   <depend name="include/wx/Window.h"/>
+  </file>
+  <file name="src/wx/StaticText.cpp">
+   <depend name="include/wx/Error.h"/>
+   <depend name="include/wx/EventHandler.h"/>
+   <depend name="include/wx/Loader.h"/>
+   <depend name="include/wx/StaticText.h"/>
+   <depend name="include/wx/Window.h"/>
+  </file>
+  <file name="src/wx/Sizer.cpp">
+   <depend name="include/Reflect.h"/>
+   <depend name="include/wx/EventHandler.h"/>
+   <depend name="include/wx/Loader.h"/>
+   <depend name="include/wx/Sizer.h"/>
+   <depend name="include/wx/Window.h"/>
+  </file>
+  <file name="src/wx/Pen.cpp">
+   <depend name="include/wx/Colour.h"/>
+   <depend name="include/wx/Loader.h"/>
+   <depend name="include/wx/Pen.h"/>
+  </file>
+  <file name="src/wx/Panel.cpp">
+   <depend name="include/wx/Error.h"/>
+   <depend name="include/wx/EventHandler.h"/>
+   <depend name="include/wx/Loader.h"/>
+   <depend name="include/wx/Panel.h"/>
+   <depend name="include/wx/Window.h"/>
+  </file>
+  <file name="src/wx/MenuBar.cpp">
+   <depend name="include/wx/EventHandler.h"/>
+   <depend name="include/wx/Loader.h"/>
+   <depend name="include/wx/Menu.h"/>
+   <depend name="include/wx/MenuBar.h"/>
+  </file>
+  <file name="src/wx/Menu.cpp">
+   <depend name="include/haxe/Log.h"/>
+   <depend name="include/wx/EventHandler.h"/>
+   <depend name="include/wx/Loader.h"/>
+   <depend name="include/wx/Menu.h"/>
+  </file>
+  <file name="src/wx/Frame.cpp">
+   <depend name="include/IntHash.h"/>
+   <depend name="include/wx/EventHandler.h"/>
+   <depend name="include/wx/EventID.h"/>
+   <depend name="include/wx/Frame.h"/>
+   <depend name="include/wx/Loader.h"/>
+   <depend name="include/wx/MenuBar.h"/>
+   <depend name="include/wx/TopLevelWindow.h"/>
+   <depend name="include/wx/Window.h"/>
+  </file>
+  <file name="src/wx/TopLevelWindow.cpp">
+   <depend name="include/wx/EventHandler.h"/>
+   <depend name="include/wx/TopLevelWindow.h"/>
+   <depend name="include/wx/Window.h"/>
+  </file>
+  <file name="src/wx/Font.cpp">
+   <depend name="include/wx/Font.h"/>
+   <depend name="include/wx/Loader.h"/>
+  </file>
+  <file name="src/wx/EventID.cpp">
+   <depend name="include/wx/EventID.h"/>
+  </file>
+  <file name="src/wx/Error.cpp">
+   <depend name="include/wx/Error.h"/>
+  </file>
+  <file name="src/wx/DC.cpp">
+   <depend name="include/wx/Bitmap.h"/>
+   <depend name="include/wx/Brush.h"/>
+   <depend name="include/wx/DC.h"/>
+   <depend name="include/wx/EventHandler.h"/>
+   <depend name="include/wx/Font.h"/>
+   <depend name="include/wx/Loader.h"/>
+   <depend name="include/wx/Pen.h"/>
+   <depend name="include/wx/Window.h"/>
+  </file>
+  <file name="src/wx/Colour.cpp">
+   <depend name="include/wx/Colour.h"/>
+  </file>
+  <file name="src/wx/Button.cpp">
+   <depend name="include/wx/Button.h"/>
+   <depend name="include/wx/Error.h"/>
+   <depend name="include/wx/EventHandler.h"/>
+   <depend name="include/wx/EventID.h"/>
+   <depend name="include/wx/Loader.h"/>
+   <depend name="include/wx/Window.h"/>
+  </file>
+  <file name="src/wx/Window.cpp">
+   <depend name="include/IntHash.h"/>
+   <depend name="include/wx/DC.h"/>
+   <depend name="include/wx/Error.h"/>
+   <depend name="include/wx/EventHandler.h"/>
+   <depend name="include/wx/EventID.h"/>
+   <depend name="include/wx/Loader.h"/>
+   <depend name="include/wx/Sizer.h"/>
+   <depend name="include/wx/Window.h"/>
+  </file>
+  <file name="src/wx/EventHandler.cpp">
+   <depend name="include/wx/EventHandler.h"/>
+   <depend name="include/wx/Loader.h"/>
+  </file>
+  <file name="src/wx/Brush.cpp">
+   <depend name="include/wx/Brush.h"/>
+   <depend name="include/wx/Colour.h"/>
+   <depend name="include/wx/Loader.h"/>
+  </file>
+  <file name="src/wx/Bitmap.cpp">
+   <depend name="include/haxe/Resource.h"/>
+   <depend name="include/haxe/io/Bytes.h"/>
+   <depend name="include/wx/Bitmap.h"/>
+   <depend name="include/wx/Loader.h"/>
+  </file>
+  <file name="src/wx/App.cpp">
+   <depend name="include/wx/App.h"/>
+   <depend name="include/wx/EventHandler.h"/>
+   <depend name="include/wx/Loader.h"/>
+   <depend name="include/wx/TopLevelWindow.h"/>
+   <depend name="include/wx/Window.h"/>
+  </file>
+  <file name="src/wx/Loader.cpp">
+   <depend name="include/cpp/Lib.h"/>
+   <depend name="include/wx/Loader.h"/>
+  </file>
+  <file name="src/test/waxe/nme/Main.cpp">
+   <depend name="include/ApplicationMain.h"/>
+   <depend name="include/haxe/Log.h"/>
+   <depend name="include/test/waxe/nme/Main.h"/>
+   <depend name="include/wx/App.h"/>
+   <depend name="include/wx/Button.h"/>
+   <depend name="include/wx/EventHandler.h"/>
+   <depend name="include/wx/Frame.h"/>
+   <depend name="include/wx/Menu.h"/>
+   <depend name="include/wx/MenuBar.h"/>
+   <depend name="include/wx/Panel.h"/>
+   <depend name="include/wx/StaticText.h"/>
+   <depend name="include/wx/TextCtrl.h"/>
+   <depend name="include/wx/TopLevelWindow.h"/>
+   <depend name="include/wx/Window.h"/>
+  </file>
+  <file name="src/haxe/io/Error.cpp">
+   <depend name="include/haxe/io/Error.h"/>
+  </file>
+  <file name="src/haxe/io/Bytes.cpp">
+   <depend name="include/StringBuf.h"/>
+   <depend name="include/haxe/io/Bytes.h"/>
+   <depend name="include/haxe/io/Error.h"/>
+  </file>
+  <file name="src/haxe/Resource.cpp">
+   <depend name="include/haxe/Resource.h"/>
+   <depend name="include/haxe/io/Bytes.h"/>
+  </file>
+  <file name="src/haxe/Log.cpp">
+   <depend name="include/haxe/Log.h"/>
+  </file>
+  <file name="src/cpp/Lib.cpp">
+   <depend name="include/cpp/Lib.h"/>
+  </file>
+  <file name="src/Type.cpp">
+   <depend name="include/Reflect.h"/>
+   <depend name="include/Type.h"/>
+   <depend name="include/ValueType.h"/>
+  </file>
+  <file name="src/ValueType.cpp">
+   <depend name="include/ValueType.h"/>
+  </file>
+  <file name="src/StringBuf.cpp">
+   <depend name="include/StringBuf.h"/>
+  </file>
+  <file name="src/Std.cpp">
+   <depend name="include/Std.h"/>
+  </file>
+  <file name="src/Reflect.cpp">
+   <depend name="include/Reflect.h"/>
+  </file>
+  <file name="src/IntIter.cpp">
+   <depend name="include/IntIter.h"/>
+  </file>
+  <file name="src/IntHash.cpp">
+   <depend name="include/IntHash.h"/>
+   <depend name="include/Std.h"/>
+   <depend name="include/StringBuf.h"/>
+  </file>
+  <file name="src/ApplicationMain.cpp">
+   <depend name="include/ApplicationMain.h"/>
+   <depend name="include/test/waxe/nme/Main.h"/>
+   <depend name="include/wx/App.h"/>
+   <depend name="include/wx/EventHandler.h"/>
+   <depend name="include/wx/Frame.h"/>
+   <depend name="include/wx/TopLevelWindow.h"/>
+   <depend name="include/wx/Window.h"/>
+  </file>
+  <file name="src/__boot__.cpp">
+  </file>
+  <file name="src/__files__.cpp">
+  </file>
+  <file name="src/__resources__.cpp">
+  </file>
+</files>
+<files id="__lib__">
+<compilerflag value="-Iinclude"/>
+  <file name="src/__lib__.cpp">
+   <depend name="include/ApplicationMain.h"/>
+  </file>
+</files>
+<files id="__main__">
+<compilerflag value="-Iinclude"/>
+  <file name="src/__main__.cpp">
+   <depend name="include/ApplicationMain.h"/>
+  </file>
+</files>
+<set name="HAXE_OUTPUT" value="ApplicationMain" />
+<include name="${HXCPP}/build-tool/BuildCommon.xml"/>
+</xml>

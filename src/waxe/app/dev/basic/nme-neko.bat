@@ -1,1 +1,2 @@
-haxelib run nme test application.nmml neko
+haxelib run nme test application.nmml windows
+@pause

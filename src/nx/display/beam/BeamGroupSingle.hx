@@ -74,7 +74,9 @@ class BeamGroupSingle implements IBeamGroup {
 	public var firstType:ENoteType;
 	public var firstNotevalue:ENoteValue;	
 	
-
+	public function getValue():Int return this.getFirstNote().notevalue.value
+	
+	public function getValuePosition(noteIdx:Int):Int return 0
 	
 	//--------------------------------------------
 	public function toString():String {

@@ -8,11 +8,16 @@ import wx.MenuBar;
 import wx.Panel;
 import wx.StaticText;
 import wx.TextCtrl;
+import wx.Window;
 
 class Main {
     public function new() {
 		var frame:Frame = ApplicationMain.frame;
         var panel = Panel.create(frame);
+		
+		var scrollbar = { orientation:Window.HSCROLL, position:100, thumbSize:100, range:1000 };
+		panel.setScrollbar(scrollbar);
+		
         var staticText = StaticText.create(panel, null, 'Hello Waxe!', {x:20, y: 10});		
 		
 		var btnQuit = Button.create(panel, null, 'Quit', { x:500, y:320 } );

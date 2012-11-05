@@ -27,6 +27,9 @@ interface IBeamGroup {
 	function getBottomHeadsLevels():Array<Int>;
 	function getBeams16():Array<ESubBeam>;
 	
+	function getValue():Int;
+	function getValuePosition(noteIdx:Int):Int;
+	
 	var firstType:ENoteType;
 	var firstNotevalue:ENoteValue;
 	

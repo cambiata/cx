@@ -486,8 +486,10 @@ class Render
 	}	
 	
 	
-	static public function savePng(target:Sprite, filename:String='test.png') 	{
+	static public function savePng(target:Sprite, filename:String = 'test.png', width:Int = null, height:Int = null) 	{
 #if (windows || neko)		
+		if (width != null) target.width = width;
+		if (height != null) target.height = height;
 		var bitmapData = new BitmapData(Std.int(target.width), Std.int(target.height), false);
 		bitmapData.draw(target);		
 		cx.FileTools.putBinaryContent(filename, bitmapData.encode('png').asString());

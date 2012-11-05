@@ -1,5 +1,5 @@
 package cx;
-import flash.events.KeyboardEvent;
+import nme.events.KeyboardEvent;
 import nme.display.BitmapData;
 import nme.display.DisplayObject;
 import nme.display.Sprite;

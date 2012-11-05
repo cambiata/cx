@@ -71,9 +71,28 @@ class DVoice
 			this.dnotePositionEnd.set(dnote, value);
 		}
 		this._adjustBeaming();
+		this._setConnectionPoints();
 	}
 	
+	
 	//-----------------------------------------------------------------------------------------------------
+	private function _setConnectionPoints() 	{
+		trace('_setConnectionPoints');
+		
+		for (beamGroup in this.beamGroups) {
+			var noteIndex = 0;
+			for (dnote in beamGroup.getNotes()) {
+				if (beamGroup.count() == 1) {
+					trace('single');
+				} else {
+					if (dnote == beamGroup.getFirstNote()) trace('multi first ' + beamGroup.getValuePosition(noteIndex) + ' ' + beamGroup.getValue())
+					else if (dnote == beamGroup.getLastNote()) trace('multi last ' + beamGroup.getValuePosition(noteIndex))
+					else trace('multi mid ' + beamGroup.getValuePosition(noteIndex));
+				}
+				noteIndex++;
+			}
+		}
+	}
 	
 	private var _beamingProcessor:IBeamingProcessor;
 	private function _adjustBeaming()  {

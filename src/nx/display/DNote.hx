@@ -3,6 +3,7 @@ import cx.ArrayTools;
 import cx.GUIDTools;
 import cx.StrTools;
 import haxe.Utf8;
+import nme.geom.Point;
 import nme.geom.Rectangle;
 import nx.Constants;
 import nx.element.Note;
@@ -43,6 +44,12 @@ class DNote
 		
 		this.flagCorrection 	= ERectCorrection.None;
 		
+		
+		
+		
+		
+		
+		
 		for (head in this.note.heads) {
 			this.dheads.push(new DHead(head));
 		}
@@ -62,13 +69,11 @@ class DNote
 		}
 		
 		this.guid = GUIDTools.guid();
-		
 
 	}
 	
 	public var note(default, null):Note;
 	public var notevalue(default, null):ENoteValue;
-	//public var type(default, null):ENoteType;
 	public var notetype(default, null):ENoteType;	
 	public var dheads(default, null):Array<DHead>;
 	public var headsCount(default, null):Int;
@@ -77,6 +82,16 @@ class DNote
 	public var headPositions(default, null):Array<Int>;
 	public var signs(default, null):TSigns;	
 	public var guid(default, null):String;
+	
+	
+	public var topConnPointLeft:Point;
+	public var topConnPointMid:Point;
+	public var topConnPointRight:Point;
+	
+	public var botConnPointLeft:Point;
+	public var botConnPointMid:Point;
+	public var botConnPointRight:Point;
+	
 	
 	public function dhead(idx:Int) {
 		return this.dheads[idx];
