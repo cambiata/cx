@@ -2,6 +2,7 @@ cx
 ==
 
 My everyday Haxe toolsets and unsorted experiments. 
+Mostly work-in-progress, unfinished labs etc.
 
 
 nx Music Notation basic usage:
