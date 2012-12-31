@@ -5,6 +5,7 @@ My everyday Haxe toolsets and unsorted experiments.
 
 
 nx Music Notation basic usage:
+==============================
 
 	// sprite to hold the example
 	var s = new Sprite(); 
