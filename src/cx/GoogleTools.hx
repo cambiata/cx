@@ -7,8 +7,8 @@ package cx;
 
  /*
 class Main {	
-	static var email = 'jonasnys';
-	static var passwd = '%gloria!';
+	static var email = 'xxx';
+	static var passwd = 'xxx';
 	static var keyTestSheet = '0Ar0dMoySp13UdE93Vno1QlJ3cklrLW5zTWItOTRZS2c';
 	
 	static function main() {
