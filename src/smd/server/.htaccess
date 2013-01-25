@@ -1,0 +1,4 @@
+RewriteEngine on
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule  ^(?!nohandle|medias).*$ index.n [NC]
