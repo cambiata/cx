@@ -1,5 +1,7 @@
 package smd.server.proto.controller;
 import harfang.controller.AbstractController;
+import harfang.exception.Exception;
+import smd.server.proto.Config;
 
 /**
  * ...
@@ -9,7 +11,8 @@ import harfang.controller.AbstractController;
 class IndexController extends AbstractController
 {
 	@URL("^/$")
-	public function home() { 	
-		return 'home';
+	public function home() { 			
+		trace('home trace');
+		return 'IndexController.home() : ' + Config.testString;
 	}	
 }

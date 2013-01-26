@@ -1,23 +1,18 @@
 package smd.server.proto;
 
-
-import cx.ConfigTools;
 import harfang.configuration.AbstractServerConfiguration;
 import harfang.exception.Exception;
 import harfang.exception.HTTPException;
+import harfang.url.URLDispatcher;
 import haxe.Firebug;
 import haxe.Log;
 import neko.Lib;
-import neko.Web;
 import smd.server.proto.Site;
-
-import harfang.url.URLDispatcher;
 
 class UserConfiguration extends AbstractServerConfiguration {
 
     public function new() {
         super();
-		
 		/*
 		Log.trace = Firebug.trace;		
 		ConfigTools.loadConfig(Config, Config.configFile);
@@ -28,9 +23,13 @@ class UserConfiguration extends AbstractServerConfiguration {
 		*/
     }
 	
-	
     public override function init() {
-        super.init();
+        super.init();		
+		Log.trace = Firebug.trace;	
+		Config.init();
+		trace(State.domaintag);
+		
+		
         this.addModule(new Site());
     }	
 		
@@ -39,6 +38,7 @@ class UserConfiguration extends AbstractServerConfiguration {
 	}
 	
 	override public function onError(exception : Exception) : Void {		
+		Lib.println('EXCEPTION:');
 		Lib.println(exception.getMessage());
 	}
 	

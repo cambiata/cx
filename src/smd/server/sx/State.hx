@@ -13,10 +13,8 @@ import smd.server.base.types.Messages;
  */
 using StringTools;
 class State 
-{	
-	
-	//static public var domaintag :String = StringTools.replace(WebTools.getDomainInfo().subMain, '.', '-');
-	
+{		
+	//static public var domaintag :String = StringTools.replace(WebTools.getDomainInfo().subMain, '.', '-');	
 	//static public var indexPage: String = Config.templatesDir + 'index.html'; // WebTools.getDomainInfo().submain + '.html';
 	
 	static public var messages:Messages = {
@@ -41,7 +39,6 @@ class State
 		}		
 		return result;		
 	}	
-	
 	
 	static public function getAlerts() 
 	{
