@@ -38,7 +38,7 @@ class TestController extends AbstractController {
 			lovesHaxe : true,
 			items      : ['aaa', 'bbb', 'ccc', 'ddd', 'eee']
 		};
-		return new TemploResult('index.mtt', context);
+		return new TemploResult('mypage.mtt', context);
 	}		
 	
 	

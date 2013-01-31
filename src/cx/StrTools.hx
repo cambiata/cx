@@ -138,11 +138,14 @@ class StrTools
 		return result;		
 	}
 	
-	static public function intToChar(int:Int, offset=65):String {
+	static public function intToChar(int:Int, offset:Int=65):String {
 		if (int > 9) throw "int to char error";
-		
-		return String.fromCharCode(int + offset);
-		
+		if (int < 0) throw "int to char error";
+		var c = int + offset;
+		//trace([int, offset, c]);
+		var char = String.fromCharCode(c);		
+		//trace('char:' + char);
+		return char;
 	}
 	
 	static public function charToInt(char:String, offset=65):Int {

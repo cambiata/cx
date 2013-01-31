@@ -1,6 +1,7 @@
 package cx;
 
-import neko.db.Sqlite;
+import sys.db.Sqlite;
+import sys.db.Connection;
 
 import neko.FileSystem;
 /**
@@ -10,7 +11,7 @@ import neko.FileSystem;
 
 class SqliteTools {	
 	
-	static public function getCnx(sqliteFilename:String):neko.db.Connection {
+	static public function getCnx(sqliteFilename:String):Connection {
 		return neko.db.Sqlite.open(sqliteFilename); 
 	}
 	
@@ -47,7 +48,14 @@ class SqliteTools {
 		var results = cnx.request(sql).results();
 		cnx.close();
 		return results;
-	}	
+	}
+	
+	
+	static public function cnxExecute(cnx:Connection, sql:String) {				
+		var results = cnx.request(sql).results();
+		return results;
+	}
+	
 	
 	static public function createSqlite(filename:String):Bool {
 		if (FileSystem.exists(filename)) throw 'SQlite file ' + filename + ' already exists!';

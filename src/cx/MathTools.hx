@@ -32,7 +32,7 @@ class MathTools
 		return value;
 	}		
 	
-	 static public function intMin(a:Int, b:Int):Int {
+	static public function intMin(a:Int, b:Int):Int {
 		if (a < b) return a;
 		return b;
 	}
@@ -42,7 +42,7 @@ class MathTools
 		return b;
 	}
 	
-	 static public function ipol(a:Float, b:Float, delta:Float) {
+	static public function ipol(a:Float, b:Float, delta:Float) {
 		return delta * (b - a) + a;
 	}
 	

@@ -4,8 +4,6 @@ using StringTools;
 
 class WebTools {
 	
-	
-	
 	static public function stripBaseDirAndIndexFile(uri:String, baseDir:String, indexFile:String) {
 		return uri.replace(baseDir, '').replace(indexFile, '').replace('//', '');	
 	}
@@ -37,8 +35,6 @@ class WebTools {
 		}
 	}
 	
-	
-	
 	static public function getUri() {
 		var uri = Web.getURI();
 		if (uri.endsWith('/')) uri = uri.substr(0, uri.length - 1);
@@ -61,7 +57,6 @@ class WebTools {
 	
 	static public function slashToUnderscores(str:String): String {
 		return str.replace('/', '_');
-		
 	}
 	
 	static public function underscoreToSlash(str:String): String {

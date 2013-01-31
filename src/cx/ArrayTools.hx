@@ -80,8 +80,6 @@ class ArrayTools
 		return Lambda.indexOf(array, item);
 	}
 	
-	
-	
 	public static function shuffle<T>(a : Array<T>) : Array<T> {
 		var t = range(a.length);
 		var arr = [];

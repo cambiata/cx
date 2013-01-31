@@ -9,12 +9,8 @@ import neko.Web;
  */
 
 class Config 
-{
-	static public function init() {
-		ConfigTools.loadConfig(Config, Config.configFile);
-	}
-	
-	static public var filesPath:String 			= Web.getCwd() + '';	
-	static public var configFile:String 		= filesPath + 'main.conf';
+{	
+	static public var filesPath:String 			= Web.getCwd();	
+	static public var configFile:String 		= Web.getCwd() + 'main.conf';
 	static public var testString:String 		= 'Hello Config!';	
 }
