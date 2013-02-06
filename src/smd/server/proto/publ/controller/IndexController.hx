@@ -64,6 +64,13 @@ class IndexController extends UserController
 		return new TemploResult('register.mtt', Context, Config.filesPath);
 	}	
 	
+	@URL("/page")
+	public function page() { 			
+		return new TemploResult('page.mtt', Context, Config.filesPath);
+	}		
+		
+	
+	
 	@URL("^/$")
 	public function home() { 	
 		if (Context.user == null) return new TemploResult('start.mtt', Context, Config.filesPath);

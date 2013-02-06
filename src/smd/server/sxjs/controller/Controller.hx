@@ -14,7 +14,6 @@ class Controller
 	
 	public function new(main:MainController) {
 		this.main = main;
-		
 	}
 	
 	private function findElement(tag:String):DOMCollection {
@@ -22,7 +21,5 @@ class Controller
 		if (domCollection == null) Lib.alert( "Template error: Can't find dom element " + tag);
 		return domCollection;		
 	}
-	
-
 	
 }
