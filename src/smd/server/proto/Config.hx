@@ -1,7 +1,4 @@
 package smd.server.proto;
-import cx.ConfigTools;
-import harfang.exception.Exception;
-import harfang.exception.HTTPException;
 import neko.Web;
 /**
  * ...

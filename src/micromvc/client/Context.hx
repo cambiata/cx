@@ -1,6 +1,10 @@
-package cx.micromvc.client;
+package micromvc.client;
 
-import js.Lib;
+#if (js)
+	import js.Lib;
+#elseif (neko)
+	import neko.Web;
+#end
 
 /**
  * ...
@@ -9,7 +13,7 @@ import js.Lib;
 using StringTools;
 class Context {
 	
-	public function new(registerControllers:Array<Dynamic>) {
+	public function new(registerControllers:Array<Dynamic>, uri:String=null) {
 		this.controllers = new Hash<String>();
 		this.keys = new Array<String>();
 		
@@ -18,7 +22,7 @@ class Context {
 		}		
 		
 		// invoke controller:
-		var controller = getController(getURI());
+		var controller = getController(getURI(uri));
 		
 	}
 	private var controllers:Hash<String> ;
@@ -35,10 +39,9 @@ class Context {
 		keys.push(uri);
 	}
 	
-	public function getController(uri:String):Controller {		
-		
+	public function getController(uri:String):Controller {				
 		uri = addSlash(uri);
-		trace(uri);
+		//trace(uri);
 		for (key in keys) {
 			var r = new EReg(key, '');
 			if (r.match(uri)) {
@@ -58,17 +61,24 @@ class Context {
 		return null;
 	}	
 	
-	public function getURI():String {
-		var uri = Lib.window.location.href;
-		uri = uri.split(Lib.window.location.host)[1];		
+	public function getURI(uri:String=null):String {
+		if (uri == null) {
+			#if (js)
+				uri = Lib.window.location.href;
+				uri = uri.split(Lib.window.location.host)[1];		
+			#elseif (neko)
+				uri = Web.getURI();
+			#end			
+		}
+		
 		uri = (uri.indexOf('#') > 0) ? uri.substr(0, uri.indexOf('#')) : uri;
-		trace(uri);
+		//trace(uri);
 		return uri;
 	}
 	
 	static public function getMatchedArray(r:EReg):Array<Dynamic> {
 		var a = new Array<Dynamic>();
-		for (i in 1...5) {
+		for (i in 0...5) {
 			try {
 				var s = r.matched(i);
 				//trace(s);
@@ -82,6 +92,7 @@ class Context {
 	
 	static private function addSlash(path:String, slash = '/') {		
 		path = (path.endsWith('/')) ? path : path + '/';
+		path = (path.startsWith('/')) ? path : '/' + path;
 		return path;
 	}
 	

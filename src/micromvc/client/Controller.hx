@@ -1,4 +1,4 @@
-package cx.micromvc.client;
+package micromvc.client;
 
 /**
  * ...

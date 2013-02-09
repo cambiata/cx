@@ -20,32 +20,6 @@ import smd.server.proto.Context;
 
 class IndexController extends UserController
 {
-	/*
-	@URL("^/mail/([0-9a-zA-Z@._]+)")
-	public function mail(to:String) { 
-		
-		//var to = 'jonasnys@gmail.com';
-		//trace(to);
-		if (! ValidationTools.isValidEmail(to)) throw new Exception('Invalid email: ' + to);
-		
-		var from = 'info@scorx.org';		
-		var p = new Part("multipart/alternative");
-		p.setHeader("From",from);
-		p.setHeader("To",to);
-		p.setDate();
-		p.setHeader("Subject","A Haxe e-mail !");
-		var h = p.newPart("text/html");
-		var t = p.newPart("text/plain");
-		h.setContent("<html><p>some html ...</p></html>");
-		t.setContent("some plain text...");
-
-		try {
-			Smtp.send( "scorx.org", from, to, p.get() );		
-		} catch (e:Dynamic) {
-			throw new Exception('SMPT Connection error');
-		}		
-	}
-	*/
 
 	@URL("/loginfail/([0-9a-zA-Z@._]+)/([0-9a-zA-Z]+)")
 	public function loginfail(user:String, pass:String) { 							
@@ -68,14 +42,22 @@ class IndexController extends UserController
 	public function page() { 			
 		return new TemploResult('page.mtt', Context, Config.filesPath);
 	}		
-		
-	
+
+	//------------------------------------------------------------------------------
+	// Home
 	
 	@URL("^/$")
 	public function home() { 	
-		if (Context.user == null) return new TemploResult('start.mtt', Context, Config.filesPath);
-		return new TemploResult('home-user.mtt', Context, Config.filesPath);
+		return new TemploResult('home.mtt', Context, Config.filesPath);		
 	}		
+	
+	public function homeUser() {
+		return new TemploResult('home-user.mtt', Context, Config.filesPath);
+	}
+	
+	public function homeAdmin() {
+		return new TemploResult('home-admin.mtt', Context, Config.filesPath);
+	}	
 	
 	
 }

@@ -16,33 +16,33 @@ class BaseConfiguration extends AbstractServerConfiguration {
     public function new() {
         super();
     }
-	
-	/*
-    public override function init() {
-        super.init();		
-		Log.trace = Firebug.trace;	
-		try {
-			ConfigTools.loadConfig(Config, Config.configFile);
-			Users.init(loginFailHandler);
-			Context.user = Users.currentUser;
-		} catch (e:Dynamic) onInitError(e);
-		
-        this.addModule(new Site());
-    }
-	*/
-	
 		
 	override public function onHTTPError(error : HTTPException) : Void {
-		trace(error.getMessage());
+		Lib.print('onHTTPError');
+		Lib.print(error.getMessage());
 	}
 	
 	override public function onError(exception : Exception) : Void {				
-		trace(exception.getMessage());
+		Lib.print('onError');
+		Lib.print(exception.getMessage());
 	}
 	
 	private function onInitError(error:Dynamic) {
-		trace(Std.string(error));
+		Lib.print('onInitError');
+		Lib.print(Std.string(error));		
 	}
 	
+	/*
+	public static function trace(v : Dynamic, ?inf : haxe.PosInfos ) {
+		var type = if( inf != null && inf.customParams != null ) inf.customParams[0] else null;
+		if( type != "warn" && type != "info" && type != "debug" && type != "error" )
+			type = if( inf == null ) "error" else "log";
+
+		var str = inf.fileName + ":" + inf.lineNumber + " : ";
+		try str += Std.string(v) catch( e : Dynamic ) str += "???";
+
+		neko.Lib.print('<script type="text/javascript">console.'+type+'(decodeURIComponent("'+StringTools.urlEncode(str)+'"))</script>');
+	}
+	*/
 	
 }

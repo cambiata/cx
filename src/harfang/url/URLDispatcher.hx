@@ -116,18 +116,31 @@ class URLDispatcher {
 
             // Create the controller instance and find its function
             controller = Type.createEmptyInstance(currentMapping.getControllerClass());
-            
 			
-			
-			//-----------------------------------------------------------------------------------------------------
+			//----------------------------------------------------------------
 			// controller before method
 			var beforeMethod = Reflect.field(controller, 'handleBefore');
-			 if (Reflect.isFunction(beforeMethod)) {
-				 Reflect.callMethod(controller, beforeMethod, []);
-			 }			
+			if (Reflect.isFunction(beforeMethod)) Reflect.callMethod(controller, beforeMethod, []);
 			
 			
-			controllerMethod = Reflect.field(controller, currentMapping.getControllerMethodName());
+			//----------------------------------------------------------------
+			// controller method name
+			var controllerMethodName = currentMapping.getControllerMethodName();
+
+			//----------------------------------------------------------------
+			// use access control method?			
+			var accessControlMethod = Reflect.field(controller, 'accessControl');
+			if (Reflect.isFunction(accessControlMethod)) {
+				var accessTag = Reflect.callMethod(controller, accessControlMethod, []);	
+				var accessMethodName = controllerMethodName + accessTag;
+				trace(accessMethodName);
+				var accessMethod = Reflect.field(controller, accessMethodName);
+				if (Reflect.isFunction(accessMethod)) controllerMethodName = accessMethodName;
+			}
+						
+			//----------------------------------------------------------------
+			// finally set controller method
+			controllerMethod = Reflect.field(controller, controllerMethodName);
 
             // Make the call with the correct parameters
             if(Reflect.isFunction(controllerMethod)) {

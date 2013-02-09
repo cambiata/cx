@@ -35,6 +35,7 @@ class AbstractController implements Controller {
 
 	public function handleBefore() {}	
 	
+	//public function accessControl():String { return ''; }
 	
     /**
      * Called by the URL dispatcher, just after constructing the controller.

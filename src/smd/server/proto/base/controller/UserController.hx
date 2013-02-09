@@ -10,14 +10,16 @@ import smd.server.base.result.TemploResult;
 
 class UserController extends AbstractController
 {
-	/*
-	static private var URI_HOME:String = '/';	
+	
 	override public function handleBefore() {		
-		if (Context.user == null) {
-			Web.redirect(URI_HOME);
-		}
+		
 	}
-	*/
+	
+	public function accessControl():String {		
+		if (Context.user != null) return Context.user.category;
+		return '';		
+	}
+	
 	
 	/*
 	@URL("/start")

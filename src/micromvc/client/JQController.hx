@@ -1,4 +1,5 @@
-package cx.micromvc.client;
+package micromvc.client;
+import cx.ReflectTools;
 import js.JQuery;
 import js.Lib;
 
@@ -11,8 +12,8 @@ class JQController implements Controller
 {
 	public function new() 
 	{		
-		var metaFields = haxe.rtti.Meta.getFields(ReflectTools.getClass(this));
-		var fields = ReflectTools.getObjectFields(metaFields);
+		var metaFields = haxe.rtti.Meta.getFields(Type.getClass(this));
+		var fields = Reflect.fields(metaFields);
 		
 		for (field in fields) {
 			var jq = new JQuery('#' + field);
