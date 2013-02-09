@@ -100,7 +100,19 @@ class ListExamplesTools
 		return ret;
 	}
 	
+	//---------------------------------------------------------------
 	
+	static public function selectIds(listExamples:TListExamples, ids:Array<Int>):TListExamples {
+		var selectedExamples:TListExamples = new TListExamples();
+		for (id in ids) {
+			if (listExamples.exists(id)) {
+				selectedExamples.set(id, listExamples.get(id));
+			} else {
+				throw 'Id ' + id + ' does not exist in TListExamples';
+			}
+		}
+		return selectedExamples;
+	}
 	
 	
 	

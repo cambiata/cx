@@ -2,6 +2,8 @@ package smd.server.proto.base.controller;
 import harfang.controller.AbstractController;
 import neko.Web;
 import smd.server.base.result.TemploResult;
+import smd.server.proto.User;
+import smd.server.proto.User.UserCategory;
 
 /**
  * ...
@@ -15,9 +17,9 @@ class UserController extends AbstractController
 		
 	}
 	
-	public function accessControl():String {		
+	public function accessControl():UserCategory {		
 		if (Context.user != null) return Context.user.category;
-		return '';		
+		return UserCategory.Anonym;		
 	}
 	
 	

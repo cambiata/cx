@@ -26,7 +26,7 @@ class DBTools
 		trace('delete');
 		try { cnx.request('DROP TABLE "main"."user"'); } catch (e:Dynamic) { trace(Std.string(e)); }
 		try { cnx.request('DROP TABLE "main"."order"');} catch (e:Dynamic) { trace(Std.string(e)); }
-		try { cnx.request('DROP TABLE "main"."gustavuser"');} catch (e:Dynamic) { trace(Std.string(e)); }
+		try { cnx.request('DROP TABLE "main"."gustavuser"'); } catch (e:Dynamic) { trace(Std.string(e)); }
 	}
 	
 	static public function createTables(cnx:Connection) {
@@ -76,9 +76,9 @@ class DBTools
 		guser.korledare = 'Nisse Körsvängen';
 		guser.korledare_email = 'nisse@korsvangen.com';
 		guser.insert();
-		
-		
 	}
+	
+
 
 	
 }

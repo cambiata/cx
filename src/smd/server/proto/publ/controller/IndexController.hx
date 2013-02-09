@@ -51,7 +51,7 @@ class IndexController extends UserController
 		return new TemploResult('home.mtt', Context, Config.filesPath);		
 	}		
 	
-	public function homeUser() {
+	public function homeDeltagare() {
 		return new TemploResult('home-user.mtt', Context, Config.filesPath);
 	}
 	

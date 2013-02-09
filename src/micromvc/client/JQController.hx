@@ -24,12 +24,17 @@ class JQController implements Controller
 			}
 		}	
 		
-		new JQuery(Lib.window).bind('hashchange', this.onHashChange);	
+		new JQuery(Lib.window).bind('hashchange', this._onHashChange);	
 		this.onHashChange(null);
 	}
 	
-	private function onHashChange(e=null) {
-		trace('JQController.onHashChange() : ' + Lib.window.location.hash);
+	private function _onHashChange(e=null) {
+		//trace('JQController.onHashChange() : ' + Lib.window.location.hash);
+		this.onHashChange(Lib.window.location.hash);
+	}
+	
+	private function onHashChange(hash:String) {
+		trace('Hash: ' + hash);
 	}
 	
 }

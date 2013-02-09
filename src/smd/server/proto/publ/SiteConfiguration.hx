@@ -15,20 +15,24 @@ import smd.server.proto.Auth;
 import smd.server.proto.base.BaseConfiguration;
 import smd.server.proto.base.Message;
 import smd.server.proto.Context;
+import smd.server.proto.ContextTransfer;
 import smd.server.proto.publ.Site;
 import smd.server.proto.User;
-import smd.server.proto.UserTransfer.UserTransferTool;
+import smd.server.proto.User.UserCategory;
+import smd.server.proto.ContextTransfer.ContextTransferTool;
 
 
 class SiteConfiguration extends BaseConfiguration {
 	
     public override function init() {
         super.init();		
-		Log.trace = SiteConfiguration.trace;	
+		//Log.trace = SiteConfiguration.trace;	
+		Log.trace = Firebug.trace;
 		try {
 			ConfigTools.loadConfig(Config, Config.configFile);
 			Context.user = Auth.check(validUserHandler, getUserHandler, loginFailHandler);
-			Context.userTransferData = Serializer.run(UserTransferTool.getUserTansfer(Context.user));
+			Context.transferData = Serializer.run(ContextTransferTool.getTransfer(Context.user));			
+			//Context.transferDataTag = ContextTransfer.transferDataTag;
 		} catch (e:Dynamic) onInitError(e);
         this.addModule(new Site());
     }	
@@ -47,19 +51,19 @@ class SiteConfiguration extends BaseConfiguration {
 	static public function getUserHandler(user:String, pass:String):User {
 		trace('CUSTOM getUserHandler');
 		if (user == 'jon') return {
-			id:				'19800520-1234',
+			id:				'19661222-8616',
 			firstname:		'Jonas',
 			lastname:		'Nyström',
-			category:		'Admin',
+			category:		UserCategory.Admin,
 			user:			user,
 			pass:			pass,
 		}
 		
 		if (user == 'anna') return {
-			id:				'19800520-1234',
+			id:				'11111111-1111',
 			firstname:		'Anna',
 			lastname:		'Andersson',
-			category:		'User',
+			category:		UserCategory.Deltagare,
 			user:			user,
 			pass:			pass,
 		}		

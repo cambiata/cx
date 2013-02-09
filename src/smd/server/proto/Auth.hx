@@ -1,6 +1,8 @@
 package smd.server.proto;
+import smd.server.proto.User.UserCategory;
 import haxe.Session;
 import neko.Web;
+
 
 
 /**
@@ -55,7 +57,7 @@ class Auth
 			id:				'19800520-1234',
 			firstname:		'Anna',
 			lastname:		'Andresson',
-			category:		'USER',
+			category:		UserCategory.Deltagare,
 			user:			user,
 			pass:			pass,
 		}
