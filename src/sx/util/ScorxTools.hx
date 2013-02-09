@@ -30,7 +30,7 @@ class ScorxTools
 		return Std.parseInt(idString);		
 	}
 	
-	static public function getDirectories(dir:String, stripBaseDir:Bool = true ) {
+	static public function getDirectories(dir:String, stripBaseDir:Bool = true ) {		
 		var dirs =  FileTools.getDirectories(dir);
 		if (stripBaseDir) {
 			var result = new Array<String>();
