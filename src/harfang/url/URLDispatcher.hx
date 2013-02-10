@@ -133,7 +133,7 @@ class URLDispatcher {
 			if (Reflect.isFunction(accessControlMethod)) {
 				var accessTag = Reflect.callMethod(controller, accessControlMethod, []);	
 				var accessMethodName = controllerMethodName + accessTag;
-				trace(accessMethodName);
+				//trace(accessMethodName);
 				var accessMethod = Reflect.field(controller, accessMethodName);
 				if (Reflect.isFunction(accessMethod)) controllerMethodName = accessMethodName;
 			}

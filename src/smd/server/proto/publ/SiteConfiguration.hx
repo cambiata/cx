@@ -54,7 +54,7 @@ class SiteConfiguration extends BaseConfiguration {
 			id:				'19661222-8616',
 			firstname:		'Jonas',
 			lastname:		'Nyström',
-			category:		UserCategory.Admin,
+			category:		UserCategory.Deltagare,
 			user:			user,
 			pass:			pass,
 		}

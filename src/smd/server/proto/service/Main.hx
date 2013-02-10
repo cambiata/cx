@@ -71,11 +71,26 @@ class TestController implements Controller {
 	}	
 }
 
-@uri('/user/')
-class UserdataController implements Controller  {
-	private var cnx:Connection;
+
+
+class ResultController implements Controller {
 	public function new() {
 		
+	}
+	
+	private function output(result:ServiceResult, httpCode:Int=200) {		
+		var out = Json.stringify(result);
+		Lib.print(out);
+	}
+	
+}
+
+
+@uri('/user/')
+class UserdataController extends ResultController  {
+	private var cnx:Connection;
+	public function new() {
+		super();
 		//trace('NEW UserdataController');		
 		this.cnx = ScorxDBTools.getCnx(Config.filesPath + 'data/scorx.sqlite');
 		//ScorxDBTools.createTables(cnx);
@@ -88,6 +103,8 @@ class UserdataController implements Controller  {
 	
 	@action('boxes') 
 	public function boxes(userid:String) {
+		//trace(userid);
+		
 		var boxid = Web.getParams().get('boxid');		
 		var userBoxes = ScorxDBTools.getTUserBoxes(userid);
 		
@@ -102,15 +119,14 @@ class UserdataController implements Controller  {
 			userBoxes = newBoxes;			
 		}
 		
-		//Lib.print(Serializer.run(userBoxes));	
-		var out = Serializer.run(ServiceTool.toResult('boxes for user ' + userid, Serializer.run(userBoxes)));
-		Lib.print(out);
-		
+		this.output(ServiceTool.toResult('boxes for user ' + userid, Serializer.run(userBoxes)));
+		return;
 	}
 	
 	@action('box') 
 	public function box(userid:String, boxid:String) {
 		//trace([userid, boxid]);		
+		
 		var userBoxes = ScorxDBTools.getTUserBoxes(userid);
 		
 		var uBox:TUserBox=null;
@@ -120,41 +136,21 @@ class UserdataController implements Controller  {
 			uBox = null;
 		}
 		
+		// Error?
 		if (uBox == null) {
-			var out = Serializer.run(ServiceTool.toResult('No box for user ' + userid + '/' + boxid, null, 1, 'NO VALID BOX'));
-			Lib.print(out);
+			this.output(ServiceTool.toResult('No box for user ' + userid + '/' + boxid, null, 1, 'NO VALID BOX'));			
 			return;
 		}
 		
-		//trace(uBox);
+		// Ok!
 		var ids = uBox.box.ids;
-		//trace(ids);
 		var listExamples = ScorxDBTools.listExamplesGet(ids);
-		
 		//trace(listExamples);
+		//trace(Json.stringify(listExamples));
+		var result = ServiceTool.toResult('Box for user ' + userid + '/' + boxid, Serializer.run(uBox), 0, '', Serializer.run(listExamples));		
+		this.output(result);
 		
-		var result = ServiceTool.toResult('Box for user ' + userid + '/' + boxid, Serializer.run(uBox), 0, '', Serializer.run(listExamples));
-		//trace(result);
-		var out = Serializer.run(result);
-		Lib.print(out);
-		/*
-		if (boxid != null) {
-			//trace('boxid:' + boxid);
-			var newBoxes = new TUserBoxes();
-			for (userBox in userBoxes) {
-				if (userBox.box.id == boxid) {
-					newBoxes.push(userBox);
-				}
-			}
-			userBoxes = newBoxes;			
-		}
-		*/
 		
-		//Lib.print(Serializer.run(userBoxes));	
-		/*
-		var out = Serializer.run(ServiceTool.toResult('boxes for user ' + userid, Serializer.run(userBoxes)));
-		Lib.print(out);
-		*/
 	}	
 	
 	

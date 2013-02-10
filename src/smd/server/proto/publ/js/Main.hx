@@ -1,6 +1,7 @@
 package smd.server.proto.publ.js;
 
 import cx.JQueryTools;
+import cx.PathTools;
 import haxe.Http;
 import haxe.Json;
 import haxe.Log;
@@ -17,6 +18,7 @@ import smd.server.proto.ContextTransfer.ContextTransferTool;
 import smd.server.proto.service.ServiceResult;
 import smd.server.proto.User.UserCategory;
 import sx.db.tables.TBox;
+import sx.db.tables.TUserBox;
 import sx.db.tables.TUserBoxes;
 import sx.type.TListExamples;
 
@@ -32,7 +34,7 @@ class Main {
 	}	
 }
 
-class UserController extends JQController {
+class MainController extends JQController {
 	private var domain:String;
 	private var contextTransfer:ContextTransfer;
 	
@@ -40,13 +42,20 @@ class UserController extends JQController {
 		this.domain = Lib.document.domain;
 		var contextTransferData = Reflect.field(Lib.window, ContextTransferTool.transferDataTag);		
 		this.contextTransfer = Unserializer.run(contextTransferData);
-		trace(this.contextTransfer);
 		super();
 	}	
+	
+	private function ajaxRequest(uri:String) : ServiceResult {
+		var host = PathTools.addSlash('http://service.' + this.domain);
+		var url = host + uri;
+		var data = Http.requestUrl(url);	
+		//var result:ServiceResult = Unserializer.run(data);
+		var result:ServiceResult = Json.parse(data);
+		return result;
+	}
 }
 
-class HomeController extends UserController {
-	
+class HomeController extends MainController {
 	public function new() {
 		super();
 		trace('HomeController');
@@ -54,36 +63,33 @@ class HomeController extends UserController {
 		//trace(UserCategory.Admin);
 		if (this.contextTransfer.userSub == null) {
 			// nothing
-		} else if (this.contextTransfer.userSub.category == UserCategory.Admin) initAdmin(this.contextTransfer);		
+		} else if (this.contextTransfer.userSub.category == UserCategory.Deltagare) initDeltagare(this.contextTransfer);		
 	}	
 	
-	override private function onHashChange(hash:String) {
-		if (this.contextTransfer.userSub == null) {
-			// nothing
-		} else if (this.contextTransfer.userSub.category == UserCategory.Admin) onHashChangeAdmin(hash);
-	}
+	//----------------------------------------------------------------
 	
 	private var btnScorxList:JQuery;
 	private var tbodyScorxList:JQuery;	
 	private var btnLoadBoxes:JQuery;
 	private var divBoxes:JQuery;
+	private var divBoxinfo:JQuery;
 	
-	private function initAdmin(contextTransfer:ContextTransfer) {
-		trace('INIT ADMIN');
+	
+	
+	private function initDeltagare(contextTransfer:ContextTransfer) {
+		trace('INIT DELTAGARE');
 		btnScorxList = new JQuery('#btnScorxList');
-		btnScorxList.click(updateScorxList);
-		
+		btnScorxList.click(updateScorxList);		
 		tbodyScorxList = new JQuery('#tbodyScorxList');
 		btnLoadBoxes = new JQuery('#btnLoadBoxes');
 		btnLoadBoxes.click(updateBoxes);
 		divBoxes = new JQuery('#divBoxes');
-		
+		divBoxinfo = new JQuery('#divBoxinfo');
 		//--------------------------
 		// invoke on display
 		updateBoxes(); 		
 		updateScorxList();
 	}	
-	
 	
 	private function updateScorxList(e=null) {		
 		var data = Http.requestUrl('_files/data/scorxlist.data');			
@@ -91,36 +97,55 @@ class HomeController extends UserController {
 		displayListExamples(listExamples);
 	}
 	
-	private function displayListExamples(listExamples:TListExamples) {
+	private function displayListExamples(listExamples:TListExamples, userBox:TUserBox=null) {
 		var html = ''; 
 		for (key in listExamples.keys()) {
 			var item = listExamples.get(key);				
-			html += Std.format('<tr><td>${item.bes}<br/>${item.ack}</td><td><b>${item.title}</b> ${item.subtitle}<br/>${item.originatorshorts.join(" • ")}</td></tr>');
+			html += Std.format('<tr><td ><small>${item.bes}<br/>${item.ack}</small></td><td><b>${item.title}</b> <small>${item.subtitle}</small><br/><small>${item.originatorshorts.join(" • ")}</small></td></tr>');
 		}
 		tbodyScorxList.html(html);		
+		
+		this.divBoxinfo.html('');	
+		
+		trace(userBox);
+		
+		//this.divBoxinfo.html('');
+		//this.divBoxinfo.hide(1);
+		this.divBoxinfo.removeAttr('class');
+
+		if (userBox == null) {
+			
+		} else {
+			
+			var html = 		
+			//Std.format('<div class="boxinfo ${userBox.box.org}">') +
+			Std.format('	<img class="pull-right" src="/img/${userBox.box.org}.png" />') +
+			Std.format('	<p class="boxtitle">${userBox.box.label}</p>') +
+			Std.format('	<p>${userBox.box.info}<br/>') +
+			Std.format('	Materialet tillgängligörs av <b>${userBox.box.org}</b> genom att...</p>');
+			//Std.format('</div>');
+			trace(html);
+			this.divBoxinfo.html(html);
+			this.divBoxinfo.addClass('boxinfo');
+			this.divBoxinfo.addClass(userBox.box.org);			
+		}
+		
+		
+		
 	}
 	
-	
-	private var linkBoxes:Array<JQuery>;
-	
 	private function updateBoxes(e = null) {	
-		Lib.alert('update boxes');
-		this.linkBoxes = [];
 		var uri = 'user/boxes/' + this.contextTransfer.userSub.id;
-		var url = 'http://service.' + this.domain + '/' + uri;
-		trace(url);
-		var data = Http.requestUrl(url);	
-		var result:ServiceResult = Unserializer.run(data);
-		trace(result);
+		var result:ServiceResult = ajaxRequest(uri);		
 		var userBoxes:TUserBoxes = Unserializer.run(result.data);
 		trace(Std.string(userBoxes));
-		
 		divBoxes.html('');
-		
 		var i = 0;
 		for (userBox in userBoxes) {
 			var boxId:String = userBox.box.id;
-			var html = Std.format('<a class="shortcut" href="#" id="linkBox${boxId}"><i class="shortcut-icon icon-list-alt" id="linkBox${boxId}"></i><span class="shortcut-label" id="linkBox${boxId}">${boxId}</span></a>');
+			var label:String = userBox.box.label;
+			var html = Std.format('<a class="${userBox.box.org} shortcutx" href="#" id="linkBox${boxId}"><span class="shortcut-label" id="linkBox${boxId}"><b id="linkBox${boxId}">${label}</b><br/><small id="linkBox${boxId}">${userBox.box.info} (${userBox.box.ccode})</small></span></a>');
+			//var html = Std.format('<a class="btn btn-block" href="#" id="linkBox${boxId}"><span class="shortcut-label" id="linkBox${boxId}"><b id="linkBox${boxId}">${label}</b><br/><small id="linkBox${boxId}">${userBox.box.info} (${userBox.box.ccode})</small></span></a>');
 			divBoxes.append(html);			
 			var linkBox = new JQuery('#linkBox' + boxId);
 			linkBox.click(clickLinkBox);
@@ -130,40 +155,21 @@ class HomeController extends UserController {
 	
 	private function clickLinkBox(e = null) {
 		var id = Std.string(e.target.id).replace('linkBox', '');
-		//Lib.alert(id);
 		loadBox(id);
 	}
 	
 	private function loadBox(boxid:String) {
 		var uri = 'user/box/' + this.contextTransfer.userSub.id + '/' + boxid;
-		var url = 'http://service.' + this.domain + '/' + uri;
-		var data = Http.requestUrl(url);	
-		var result:ServiceResult = Unserializer.run(data);		
-
-		var userBoxes:TUserBoxes = Unserializer.run(result.data);		
-		trace(userBoxes);
-		var listExamples:TListExamples = Unserializer.run(result.data2);
-		trace(listExamples);
-		displayListExamples(listExamples);
-	}
-	
-	
-	private var ajaxHeader:JQuery;
-	private var ajaxContent:JQuery;	
-	private function onHashChangeAdmin(hash:String) {		
-		if (hash == null || hash == 'null') return;
-		trace('onHashChangeAdmin ' + hash);
-		this.ajaxHeader = new JQuery('#ajaxHeader');
-		this.ajaxContent = new JQuery('#ajaxContent');		
-		this.ajaxHeader.html(hash);
-		trace(this.domain);
-		var suburl = StringTools.replace(hash, '#', '');
-		var url = 'http://service.' + this.domain + '/' + suburl;
-		trace(url);
-		var html = Http.requestUrl(url);
+		var result:ServiceResult = ajaxRequest(uri);	
+		trace(result);
+		var userBox:TUserBox = Unserializer.run(result.data);		
+		trace(userBox);
 		
-		this.ajaxContent.html(html);
-	}	
+		//var userBox:TUserBox = userBoxes.shift();
+		var listExamples:TListExamples = Unserializer.run(result.data2);
+		//trace(listExamples);
+		displayListExamples(listExamples, userBox);
+	}		
 }
 
 @uri('/page/')

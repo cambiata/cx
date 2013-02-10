@@ -14,6 +14,9 @@ class DBBox extends Object
 	public var info			: SString<48>;
 	private var ids			: SText;
 	private var category	: SString<24>;
+	private var label		: SString<32>;
+	private var org			: SString<16>;
+	private var ccode		: SString<16>;
 	
 	
 	public function setIds(ids:Array<Int>) {
@@ -56,10 +59,14 @@ class DBBox extends Object
 	
 	public function toTBox():TBox {
 		return {
-			id : this.id,
-			info : this.info,
-			ids : this.getIds(),
+			id 		: this.id,
+			label 	: this.label,
+			info 	: this.info,
+			org		: this.org,
+			ccode	: this.ccode,
+			ids 	: this.getIds(),
 			category : this.getCategory(),
+			
 		}
 	}
 	

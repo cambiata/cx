@@ -8,7 +8,10 @@ package sx.db.tables;
 typedef TBox =
 {
 	id			: String,
+	label		: String,
 	info		: String,
 	ids			: Array<Int>,
 	category	: EBoxType,	
+	org			: String,
+	ccode		: String,
 }
