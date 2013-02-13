@@ -2,8 +2,8 @@ package smd.server.proto.base.controller;
 import harfang.controller.AbstractController;
 import neko.Web;
 import smd.server.base.result.TemploResult;
-import smd.server.proto.User;
-import smd.server.proto.User.UserCategory;
+import smd.server.proto.lib.user.User;
+import smd.server.proto.lib.user.UserCategory;
 
 /**
  * ...

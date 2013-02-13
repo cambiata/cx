@@ -1,28 +1,25 @@
-package smd.server.proto;
-import smd.server.proto.User.UserCategory;
+package smd.server.proto.lib.auth;
+import smd.server.proto.lib.user.User;
+import smd.server.proto.lib.user.UserCategory;
 import haxe.Session;
 import neko.Web;
-
-
 
 /**
  * ...
  * @author Jonas Nyström
  */
+
 using StringTools;
 class Auth
 {
 	static public var currentUser:User; 
 	
-	static public function check (
-		validUserHandler_: String -> String -> Bool = null,
-		getUserHandler_: String -> String -> User = null,
-		loginFailHandler_: String -> String -> Void = null
-	) {		
+	static public function check (authCheck:IAuthCheck=null) {		
+		if (authCheck == null) authCheck = new AuthDummy();
 		
-		loginFailHandler 	= (loginFailHandler_ != null) ? loginFailHandler_ : defaultLoginFailHandler;		
-		validUserHandler 	= (validUserHandler_ != null) ? validUserHandler_ : defaultValidUserHandler;
-		getUserHandler 		= (getUserHandler_ != null) ? getUserHandler_ : defaultGetUserHandler;
+		loginFailHandler 	=  authCheck.loginFailHandler;
+		validUserHandler 	=  authCheck.validUserHandler;
+		getUserHandler 		=  authCheck.getUserHandler;
 		
 		Session.savePath = Config.filesPath + 'sessions/';
 		Session.gcMaxLifeTime = 10;
@@ -91,7 +88,7 @@ class Auth
 	
 	static public function loginUser(user:String, pass:String) {
 		if (user == null) throw 'Login error: user is NULL';
-		if (pass == null) throw 'Login error: pser is NULL';
+		if (pass == null) throw 'Login error: pass is NULL';
 		if (validUserHandler(user, pass)) {
 			setUserSession(getUserHandler(user, pass));
 		} else {
@@ -103,8 +100,6 @@ class Auth
 	static public function logoutUser() {
 		removeUserSession();
 	}	
-	
 
-	
 }
 

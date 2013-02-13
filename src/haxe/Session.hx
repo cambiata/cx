@@ -1,7 +1,9 @@
 package haxe;
+import neko.SQLiteSession;
 
 #if neko
-private typedef HaxeSession = neko.Session;
+//private typedef HaxeSession = neko.Session;
+private typedef HaxeSession = SQLiteSession;
 #elseif php
 private typedef HaxeSession = php.Session;
 #end

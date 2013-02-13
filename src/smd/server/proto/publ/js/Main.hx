@@ -16,7 +16,7 @@ import smd.server.proto.base.Message;
 import smd.server.proto.ContextTransfer;
 import smd.server.proto.ContextTransfer.ContextTransferTool;
 import smd.server.proto.service.ServiceResult;
-import smd.server.proto.User.UserCategory;
+import smd.server.proto.lib.user.UserCategory;
 import sx.db.tables.TBox;
 import sx.db.tables.TUserBox;
 import sx.db.tables.TUserBoxes;
@@ -74,8 +74,6 @@ class HomeController extends MainController {
 	private var divBoxes:JQuery;
 	private var divBoxinfo:JQuery;
 	
-	
-	
 	private function initDeltagare(contextTransfer:ContextTransfer) {
 		trace('INIT DELTAGARE');
 		btnScorxList = new JQuery('#btnScorxList');
@@ -85,8 +83,10 @@ class HomeController extends MainController {
 		btnLoadBoxes.click(updateBoxes);
 		divBoxes = new JQuery('#divBoxes');
 		divBoxinfo = new JQuery('#divBoxinfo');
-		//--------------------------
+		
+		//-------------------------------------------------------------
 		// invoke on display
+		
 		updateBoxes(); 		
 		updateScorxList();
 	}	

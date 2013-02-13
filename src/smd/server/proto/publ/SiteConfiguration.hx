@@ -11,14 +11,17 @@ import haxe.Log;
 import haxe.Serializer;
 import neko.Lib;
 import neko.Web;
-import smd.server.proto.Auth;
+import smd.server.proto.lib.auth.Auth;
 import smd.server.proto.base.BaseConfiguration;
 import smd.server.proto.base.Message;
 import smd.server.proto.Context;
 import smd.server.proto.ContextTransfer;
+import smd.server.proto.lib.auth.AuthDummy;
+import smd.server.proto.lib.auth.AuthLogic;
+import smd.server.proto.lib.auth.IAuthCheck;
 import smd.server.proto.publ.Site;
-import smd.server.proto.User;
-import smd.server.proto.User.UserCategory;
+import smd.server.proto.lib.user.User;
+import smd.server.proto.lib.user.UserCategory;
 import smd.server.proto.ContextTransfer.ContextTransferTool;
 
 
@@ -29,10 +32,12 @@ class SiteConfiguration extends BaseConfiguration {
 		//Log.trace = SiteConfiguration.trace;	
 		Log.trace = Firebug.trace;
 		try {
-			ConfigTools.loadConfig(Config, Config.configFile);
-			Context.user = Auth.check(validUserHandler, getUserHandler, loginFailHandler);
+			ConfigTools.loadConfig(Config, Config.configFile);			
+			//Context.user = Auth.check(new AuthDummy()); // validUserHandler, getUserHandler, loginFailHandler);
+			var authLogic = new AuthLogic(new AuthDummy());
+			Context.user = authLogic.currentUser; 
 			Context.transferData = Serializer.run(ContextTransferTool.getTransfer(Context.user));			
-			//Context.transferDataTag = ContextTransfer.transferDataTag;
+			
 		} catch (e:Dynamic) onInitError(e);
         this.addModule(new Site());
     }	

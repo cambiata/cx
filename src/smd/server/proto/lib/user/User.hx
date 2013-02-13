@@ -1,15 +1,16 @@
-package smd.server.proto;
+package smd.server.proto.lib.user;
 
-import smd.server.proto.User.UserCategory;
 /**
  * ...
  * @author Jonas Nyström
  */
 
-typedef UserSub = {
+typedef User = {
 	id:String,
 	category:UserCategory,
 	firstname:String,
 	lastname:String,
 	user:String,
+	pass:String,
 }
+
