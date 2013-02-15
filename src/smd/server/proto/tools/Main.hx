@@ -3,14 +3,21 @@ package smd.server.proto.tools;
 //import cx.SqliteTools;
 import cx.ConfigTools;
 import cx.FileTools;
+import cx.PathTools;
 import haxe.Serializer;
 import haxe.Unserializer;
 import smd.server.proto.Config;
-import sx.db.ScorxDBTools;
-import sx.db.tables.DBBox;
-import sx.db.tables.DBListExamples;
-import sx.db.tables.DBUserBox;
-import sx.db.tables.EBoxType;
+import smd.server.proto.lib.db.BaseDB;
+import smd.server.proto.lib.db.DBChoir;
+import smd.server.proto.lib.db.DBChoirUser;
+import smd.server.proto.lib.db.DBUser;
+import smd.server.proto.lib.db.EChoirRole;
+import smd.server.proto.lib.user.UserCategory;
+import smd.server.proto.lib.ScorxDBTools;
+import smd.server.proto.lib.db.DBBox;
+import smd.server.proto.lib.db.DBListExamples;
+import smd.server.proto.lib.db.DBUserBox;
+import smd.server.proto.lib.db.EBoxType;
 import sx.type.TListExamples;
 import sx.util.ListExamplesTools;
 
@@ -29,20 +36,55 @@ class Main
 {
 	static public function main() 
 	{
-		trace('tools');
-		
+		trace('tools');		
 		ConfigTools.loadConfig(Config, Config.configFile);
-		trace(Config.filesPath);
+		
+		var cnx = ScorxDBTools.getCnx(Config.filesPath + Config.dbFile);
+		//ScorxDBTools.createTables(cnx);
+		
+		var sqlPath = Config.filesPath + 'data/sql/';
+		ScorxDBTools.setDBPragma(cnx);
+		
+		ScorxDBTools.createTable(cnx, DBListExamples, sqlPath);
+		ScorxDBTools.defaultData(cnx, DBListExamples, sqlPath);
+		ScorxDBTools.createTable(cnx, DBUser, sqlPath);
+		ScorxDBTools.defaultData(cnx, DBUser, sqlPath);
+		ScorxDBTools.createTable(cnx, DBChoir, sqlPath);
+		ScorxDBTools.defaultData(cnx, DBChoir, sqlPath);		
+		ScorxDBTools.createTable(cnx, DBChoirUser, sqlPath);
+		ScorxDBTools.defaultData(cnx, DBChoirUser, sqlPath);			
+
+		
+		var user = DBUser.manager.get('11111111-1111');
+		trace(user);
+		
+		
+		
+		
+		//DBChoirUser.createTable(cnx);
 		/*
-		var cnx = DBTools.getCnx('test.sqlite');		
-		DBTools.deleteTables(cnx);
-		DBTools.createTables(cnx);
-		DBTools.createDefaultData(cnx);		
-		var context = new Context([TestController, HomeController], null);
+		var cu = new DBChoirUser();
+		cu.user = user;
+		cu.choir = choir;
+		cu.setRole(EChoirRole.DELTAGARE);
+		cu.insert();		
 		*/
 		
-		var cnx = ScorxDBTools.getCnx(Config.filesPath + 'scorx.sqlite');
-		ScorxDBTools.createTables(cnx);
+		/*
+		var users = DBUser.manager.search( { user:'b', pass:'b' } );
+		*/
+		
+		//DBChoir.createTable(cnx);
+		
+		/*
+		var item = new DBChoir();
+		item.name = 'Örnsköldsviks kammarkör';
+		item.info = 'Huserar i Själevads Församling';
+		item.ort = 'Själevad';
+		item.lan = 'Y';
+		item.insert();
+		trace(item.id);
+		*/
 		
 		/*
 		var data = FileTools.getContent('scorxlist.data');
@@ -94,8 +136,8 @@ class Main
 		userbox.insert();
 		*/
 		
-		var userBoxes = ScorxDBTools.getTUserBoxes('19661222-8616');
-		trace(userBoxes);
+		//var userBoxes = ScorxDBTools.getTUserBoxes('19661222-8616');
+		//trace(userBoxes);
 		
 	}	
 	

@@ -17,9 +17,9 @@ import smd.server.proto.ContextTransfer;
 import smd.server.proto.ContextTransfer.ContextTransferTool;
 import smd.server.proto.service.ServiceResult;
 import smd.server.proto.lib.user.UserCategory;
-import sx.db.tables.TBox;
-import sx.db.tables.TUserBox;
-import sx.db.tables.TUserBoxes;
+import smd.server.proto.lib.db.TBox;
+import smd.server.proto.lib.db.TUserBox;
+import smd.server.proto.lib.db.TUserBoxes;
 import sx.type.TListExamples;
 
 /**
@@ -92,7 +92,7 @@ class HomeController extends MainController {
 	}	
 	
 	private function updateScorxList(e=null) {		
-		var data = Http.requestUrl('_files/data/scorxlist.data');			
+		var data = Http.requestUrl('../_files/data/scorxlist.data');			
 		var listExamples:TListExamples = Unserializer.run(data);
 		displayListExamples(listExamples);
 	}

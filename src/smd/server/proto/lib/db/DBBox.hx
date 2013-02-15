@@ -1,5 +1,7 @@
-package sx.db.tables;
+package smd.server.proto.lib.db;
+import sys.db.Connection;
 import sys.db.Object;
+import sys.db.TableCreate;
 import sys.db.Types;
 /**
  * ...
@@ -69,7 +71,10 @@ class DBBox extends Object
 			
 		}
 	}
-	
+		
+	static public function createTable(cnx:sys.db.Connection) {
+		if (!TableCreate.exists(DBBox.manager)) TableCreate.create(DBBox.manager);
+	}
 
 	
 }

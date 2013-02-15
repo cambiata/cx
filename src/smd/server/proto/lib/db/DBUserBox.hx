@@ -1,4 +1,4 @@
-package sx.db.tables;
+package smd.server.proto.lib.db;
 import smd.server.sx.data.ScorxData;
 import sys.db.Object;
 import sys.db.Types;
@@ -28,5 +28,9 @@ class DBUserBox extends Object
 			activation: this.activation,
 		}
 	}
+	
+	static public function createTable(cnx:sys.db.Connection) {
+		if (!sys.db.TableCreate.exists(DBUserBox.manager)) sys.db.TableCreate.create(DBUser.manager);
+	}	
 	
 }

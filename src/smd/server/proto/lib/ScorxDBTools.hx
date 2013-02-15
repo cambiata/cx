@@ -1,14 +1,18 @@
-package sx.db;
+package smd.server.proto.lib;
+import cx.FileTools;
+import cx.PathTools;
 import cx.Sys;
 import haxe.Serializer;
 import haxe.Unserializer;
-import sx.db.tables.DBBox;
-import sx.db.tables.DBListExamples;
-import sx.db.tables.DBUserBox;
-import sx.db.tables.TUserBoxes;
+import smd.server.proto.lib.db.DBUser;
+import smd.server.proto.lib.db.DBBox;
+import smd.server.proto.lib.db.DBListExamples;
+import smd.server.proto.lib.db.DBUserBox;
+import smd.server.proto.lib.db.TUserBoxes;
 import sx.type.TListExample;
 import sx.type.TListExamples;
 import sys.db.Connection;
+import sys.db.Object;
 import sys.db.Sqlite;
 import sys.db.TableCreate;
 import sys.FileSystem;
@@ -19,7 +23,7 @@ import sys.FileSystem;
  */
 
  
-
+using StringTools;
 class ScorxDBTools 
 {
 
@@ -36,6 +40,7 @@ class ScorxDBTools
 		if (!TableCreate.exists(DBListExamples.manager)) TableCreate.create(DBListExamples.manager);
 		if (!TableCreate.exists(DBBox.manager)) TableCreate.create(DBBox.manager);
 		if (!TableCreate.exists(DBUserBox.manager)) TableCreate.create(DBUserBox.manager);
+		if (!TableCreate.exists(DBUser.manager)) TableCreate.create(DBUser.manager);
 		
 	}
 
@@ -85,4 +90,31 @@ class ScorxDBTools
 		}		
 		return result;
 	}
+	
+	//----------------------------------------------------------------------
+	
+	static public function setDBPragma(cnx:Connection) {
+		var sql = 'PRAGMA foreign_keys = ON;';
+		cnx.request(sql);
+	}
+	
+	static private function getClassName(klass:Class<Object>):String {
+		return PathTools.lastSegment(Type.getClassName(klass), '.');
+	}
+	
+	static public function createTable(cnx:Connection, klass:Class<Object>, path:String) {		
+		var sqls = FileTools.getContent(path + getClassName(klass) + '.create.sql').split(';');
+		for (sql in sqls) {
+			if (sql.trim() != '') cnx.request(sql);
+		}
+	}
+	
+	static public function defaultData(cnx:Connection, klass:Class<Object>, path:String) {
+		var sqls = FileTools.getContent(path + getClassName(klass) + '.default.sql').split(';');
+		for (sql in sqls) {
+			if (sql.trim() != '') cnx.request(sql);
+		}
+	}
+	
+	
 }

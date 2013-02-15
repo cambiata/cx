@@ -10,9 +10,9 @@ import micromvc.server.Context;
 import neko.Lib;
 import neko.Web;
 import smd.server.proto.Config;
-import sx.db.ScorxDBTools;
-import sx.db.tables.TUserBox;
-import sx.db.tables.TUserBoxes;
+import smd.server.proto.lib.ScorxDBTools;
+import smd.server.proto.lib.db.TUserBox;
+import smd.server.proto.lib.db.TUserBoxes;
 import sys.db.Connection;
 
 import micromvc.server.Controller;

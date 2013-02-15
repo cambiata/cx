@@ -27,4 +27,12 @@ class PathTools
 		return path;
 	}
 	
+	static public function firstSegment(path:String, slash = '/'):String {
+		return path.split(slash).shift();		
+	}
+	
+	static public function lastSegment(path:String, slash = '/'):String {
+		return path.split(slash).pop();
+	}
+	
 }

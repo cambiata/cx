@@ -1,5 +1,6 @@
 package haxe;
 import neko.SQLiteSession;
+import neko.Web;
 
 #if neko
 //private typedef HaxeSession = neko.Session;
@@ -13,6 +14,8 @@ class Session
 	public static var gcStartChance(null, gcStartChance_setter) : Float;
 	static inline function gcStartChance_setter(chance:Float) : Float
 	{
+		
+		
 		#if php
 		// for PHP is not a possible to set this at runtime. See php.ini.
 		#elseif neko

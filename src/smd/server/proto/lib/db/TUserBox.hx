@@ -1,4 +1,4 @@
-package sx.db.tables;
+package smd.server.proto.lib.db;
 
 /**
  * ...
