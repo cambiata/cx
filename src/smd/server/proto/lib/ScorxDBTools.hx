@@ -1,7 +1,6 @@
 package smd.server.proto.lib;
 import cx.FileTools;
 import cx.PathTools;
-import cx.Sys;
 import haxe.Serializer;
 import haxe.Unserializer;
 import smd.server.proto.lib.db.DBUser;
@@ -35,8 +34,7 @@ class ScorxDBTools
 		return cnx;
 	}	
 
-	static public function createTables(cnx:Connection) {
-		
+	static public function createTables(cnx:Connection) {	
 		if (!TableCreate.exists(DBListExamples.manager)) TableCreate.create(DBListExamples.manager);
 		if (!TableCreate.exists(DBBox.manager)) TableCreate.create(DBBox.manager);
 		if (!TableCreate.exists(DBUserBox.manager)) TableCreate.create(DBUserBox.manager);
