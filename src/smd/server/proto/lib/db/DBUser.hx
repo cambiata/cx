@@ -12,10 +12,11 @@ import sys.db.Types;
  * @author Jonas Nyström
  */
 @:table("user")
-@:index(user,pass, unique)
+@:index(user, pass, unique)
 class DBUser extends Object
 {
-	public var id				: SString<13>;
+	public var id				: SId;
+	public var ssnr				: SString<13>;
 	private var category		: SString<24>;
 	public var firstname		: SString<24>;
 	public var lastname			: SString<32>;
@@ -34,6 +35,7 @@ class DBUser extends Object
 	public function toTUser():User {
 		return {
 			id: this.id,
+			ssnr: this.ssnr,
 			firstname: this.firstname,
 			lastname: this.lastname,
 			user: this.user,

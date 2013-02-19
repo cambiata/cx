@@ -6,7 +6,7 @@ package smd.server.proto.lib.db;
 
 typedef TBox =
 {
-	id			: String,
+	id			: Int,
 	label		: String,
 	info		: String,
 	ids			: Array<Int>,

@@ -8,11 +8,11 @@ import sys.db.Types;
  */
 
 @:table("userbox")
-@:id(userid, box)
+@:id(uid, bid)
 class DBUserBox extends Object
 {
-	public var userid		: SString<13>;
-	@:relation(box, cascade) public var box	: DBBox;
+	@:relation(uid) public var user	: DBUser;
+	@:relation(bid) public var box	: DBBox;
 	public var info			: SText;
 	public var start		: SDate;
 	public var stop			: SDate;
@@ -20,7 +20,7 @@ class DBUserBox extends Object
 	
 	public function toTUserBox():TUserBox {
 		return {
-			userid: this.userid,
+			user: this.user.toTUser(),
 			box: this.box.toTBox(),
 			info: this.info,
 			start: this.start,

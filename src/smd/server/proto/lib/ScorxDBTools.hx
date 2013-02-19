@@ -83,12 +83,15 @@ class ScorxDBTools
 	//----------------------------------------------------------------------
 	
 	static public function getTUserBoxes(userid:String):TUserBoxes {
+		/*
 		var result:TUserBoxes = [];
-		var items = DBUserBox.manager.search($userid == userid);
+		var items = DBUserBox.manager.search($uid == userid);
 		for (item in items) {			
 			result.push(item.toTUserBox());
 		}		
 		return result;
+		*/
+		return null;
 	}
 	
 	//----------------------------------------------------------------------

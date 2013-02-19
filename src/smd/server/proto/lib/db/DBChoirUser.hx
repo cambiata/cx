@@ -11,11 +11,11 @@ import sys.db.TableCreate;
  */
 
 @:table('choir_user')
-@:id(user, choir, role)
+@:id(uid, cid, role)
 class DBChoirUser extends Object
 {
-	@:relation(user, cascade) public var user: DBUser;
-	@:relation(choir, cascade) public var choir	: DBChoir;	
+	@:relation(uid, cascade) public var user: DBUser;
+	@:relation(cid, cascade) public var choir: DBChoir;	
 	private var role:SString<24>;
 	
 	
@@ -26,6 +26,4 @@ class DBChoirUser extends Object
 	public function getRole():EChoirRole {
 		return EnumTools.createFromString(EChoirRole, this.role);
 	}
-	
-	
 }

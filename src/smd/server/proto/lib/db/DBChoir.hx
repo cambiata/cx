@@ -13,7 +13,7 @@ import sys.db.Types;
 @:table('choir')
 class DBChoir extends Object
 {
-	public var id:SString<8>;
+	public var id:SId;
 	public var name:SString<32>;
 	public var ort:SString<32>;
 	public var info:SText;

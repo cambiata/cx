@@ -9,14 +9,13 @@ import sys.db.Types;
  */
 
 @:table("box")
-@:index(id,unique)
 class DBBox extends Object
 {
-	public var id			: SString<24>;
-	public var info			: SString<48>;
+	public var id			: SId;
+	public var label		: SString<32>;
+	public var info			: SString<64>;
 	private var ids			: SText;
 	private var category	: SString<24>;
-	private var label		: SString<32>;
 	private var org			: SString<16>;
 	private var ccode		: SString<16>;
 	
