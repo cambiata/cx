@@ -1,0 +1,528 @@
+/*
+ *  Templo compiler
+ *  Copyright (c)2008 Motion-Twin
+ *
+ *  This library is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU Lesser General Public
+ *  License as published by the Free Software Foundation; either
+ *  version 2.1 of the License, or (at your option) any later version.
+ *
+ *  This library is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License or the LICENSE file for more details.
+ */
+open Lexer;
+open Templo.Ast;
+open Neko.Ast;
+
+type context {
+	mutable temp_counter : int;
+	buffer : Buffer.t;
+	mutable inmacro : bool;
+	mutable inmacroarg : bool;
+	mutable inphp : bool;
+	mutable blocks_closing : string list;
+	mutable call_level : int;
+	mutable container : string;
+	mutable macro_locals : string list;
+}
+
+function escape_single_quote(s) {
+	var b = Buffer.create();
+	function rec loop(i) {
+		if i == String.length s then
+			Buffer.string b
+		else {
+			match String.get s i {
+			| '\'' -> Buffer.add b "\\'"
+			| c -> Buffer.add_char b c
+			};
+			loop (i+1)
+		}
+	};
+	loop(0);
+}
+
+function rec clean_extra_underscores(s) {
+	var len = String.length s;
+	var ns = String.concat "__" (String.split (s) "____");
+	if String.length ns < len then
+		clean_extra_underscores ns
+	else
+		ns;
+}
+
+function normalize_name(s) {
+	var b = Buffer.create();
+	function rec loop(i) {
+		if i == String.length s then {
+			clean_extra_underscores(Buffer.string b);
+		} else {
+			match String.get s i {
+			| c when List.mem c ['\\'; '/'; ':'; '.'; '-'] ->
+				Buffer.add b "__"
+			| c ->
+				Buffer.add_char b c
+			};
+			loop (i+1)
+		}
+	};
+	loop(0);
+}
+
+function php_op(o) {
+	match s_op(o) {
+	| "!=" -> "!=="
+	| "==" -> "==="
+	| s -> s
+	}
+}
+
+function var_ctx(ctx,v) {
+	if List.mem v ctx.macro_locals then
+		"$" + v
+	else
+		"$ctx->" + v;
+}
+
+function tpl(ctx) {
+	if ctx.inmacro then "$tpl" else "$this"
+}
+
+function cdata(ctx,s) {
+	if ctx.inphp then {
+		if ctx.inmacroarg then {
+			Buffer.add(ctx.buffer,"'");
+		} else {
+			Buffer.add(ctx.buffer,"\n" + tpl(ctx) + "->buf .= '");
+		}
+	}
+	Buffer.add(ctx.buffer,escape_single_quote s);
+	ctx.inphp := false;
+}
+
+function php(ctx,s) {
+	if !ctx.inphp then {
+		if ctx.inmacroarg then {
+			Buffer.add(ctx.buffer,"'");
+		} else {
+			Buffer.add(ctx.buffer,"';\n");
+		}
+	}
+	Buffer.add(ctx.buffer,s);
+	ctx.inphp := true;
+}
+
+function temp(ctx) {
+	var tmp = "$t_"+ctx.container+"_"+ctx.temp_counter;
+	ctx.temp_counter := ctx.temp_counter+1;
+	tmp;
+}
+
+function repeater(v) {
+	"$repeater_"+v;
+}
+
+function rec gen_indirect_method(ctx,name,e,el) {
+	php(ctx,"_hxtemplo_"+name+"(");
+	ctx.call_level := ctx.call_level + 1;
+	gen_ast_expr(ctx,e);
+	php(ctx,", array(");
+	gen_ast_expr_params ctx el;
+	php(ctx,")");
+	ctx.call_level := ctx.call_level - 1;
+	php(ctx,")");
+}
+
+function rec gen_ast_expr(ctx,e) {
+	var p = snd e;
+	match fst e {
+	| VConst c ->
+		match c {
+		| CInt i -> php ctx i
+		| CFloat f -> php ctx f
+		| CString s -> php(ctx,"'"+escape_single_quote(s)+"'") // TODO: escape this
+		}
+	| VIdent "true" -> php ctx "true"
+	| VIdent "false" -> php ctx "false"
+	| VIdent "null" -> php ctx "null"
+	| VIdent "__content__" -> php ctx (tpl(ctx) + "->content")
+	| VIdent i -> php(ctx,var_ctx(ctx,i))
+	| VVar v -> php(ctx,var_ctx(ctx,v))
+	| VIf (e1,e2,e3) ->
+		gen_ast_expr(ctx, e1);
+		php(ctx," ? ");
+		gen_ast_expr(ctx, e2);
+		php(ctx," : ");
+		(match e3 {
+		| Some e ->
+			gen_ast_expr(ctx, e);
+		| _ ->
+			php(ctx,"null");
+		});
+	| VBinop (op,e1,e2) ->
+		match op {
+		| OpAdd ->
+			php(ctx,"_hxtemplo_add(");
+			gen_ast_expr(ctx,e1);
+			php(ctx,",");
+			gen_ast_expr(ctx,e2);
+			php(ctx,")");
+		| _ ->
+			gen_ast_expr(ctx,e1);
+			php(ctx," "+php_op(op)+" ");
+			gen_ast_expr(ctx,e2);
+		}
+	| VUnop (op,pref,e) ->
+		match op {
+		| Increment ->
+			if pref then php(ctx,"++");
+			gen_ast_expr(ctx,e);
+			if !pref then php(ctx,"++");
+		| Decrement ->
+			if pref then php(ctx,"--");
+			gen_ast_expr(ctx,e);
+			if !pref then php(ctx,"--");
+		| Not ->
+			php(ctx,"!");
+			gen_ast_expr(ctx,e);
+		| Neg ->
+			php(ctx,"-");
+			gen_ast_expr(ctx,e);
+		}
+	| VCall (e,el) ->
+		match fst e {
+		| VField (e,v) ->
+			match v {
+			| v when List.mem v
+					["cca"; "charAt"; "charCodeAt"; "indexOf"; "lastIndexOf";
+					 "split"; "substr"; "toLowerCase"; "toUpperCase"; "toString"] ->
+				gen_indirect_method ctx v e el
+			| v ->
+				gen_ast_expr(ctx,e);
+				php(ctx,"->"+v+"(");
+				ctx.call_level := ctx.call_level + 1;
+				gen_ast_expr_params ctx el;
+				ctx.call_level := ctx.call_level - 1;
+				php(ctx,")");
+			}
+		| _ ->
+			gen_ast_expr(ctx,e);
+			php(ctx,"(");
+			ctx.call_level := ctx.call_level + 1;
+			gen_ast_expr_params ctx el;
+			ctx.call_level := ctx.call_level - 1;
+			php(ctx,")");
+		}
+	| VParent e ->
+		php(ctx,"(");
+		gen_ast_expr(ctx,e);
+		php(ctx,")");
+	| VField ((VIdent "repeat",_),k) ->
+		php(ctx, repeater(k))
+	| VField (e,v) ->
+		match v {
+		| "length" ->
+			php(ctx,"_hxtemplo_length(");
+			gen_ast_expr(ctx,e);
+			php(ctx,")");
+		| v ->
+			gen_ast_expr(ctx,e);
+			php(ctx,"->"+v);
+		}
+	| VArray (e1,e2) ->
+		match fst e1 {
+		| VCall _ ->
+			php(ctx,"_hxtemplo_array_get(");
+			gen_ast_expr(ctx,e1);
+			php(ctx,",");
+			gen_ast_expr(ctx,e2);
+			php(ctx,")");
+		| _ ->
+			gen_ast_expr(ctx,e1);
+			php(ctx,"[");
+			gen_ast_expr(ctx,e2);
+			php(ctx,"]");
+		}
+	| VArrayDecl el ->
+		php(ctx,"new _hx_array(array(");
+		gen_ast_expr_params ctx el;
+		php(ctx,"))");
+	| VBool e ->
+		//false , null and 0
+		php(ctx,"_hxtemplo_is_true(");
+		match fst e {
+		| VParent e ->
+			gen_ast_expr(ctx,e);
+		| _ ->
+			gen_ast_expr(ctx,e);
+		}
+		php(ctx,")");
+	| VLiteral e ->
+		gen_ast_expr ctx e
+	| VObject fl ->
+		assert()
+	}
+}
+
+function rec gen_ast_expr_params(ctx,el) {
+	match el {
+	| [] ->
+		()
+	| e :: [] ->
+		gen_ast_expr(ctx,e);
+	| e :: el ->
+		gen_ast_expr(ctx,e);
+		php(ctx,", ");
+		gen_ast_expr_params(ctx,el);
+	}
+}
+
+
+function open_block(ctx,close_string) {
+	ctx.blocks_closing := close_string :: ctx.blocks_closing
+}
+
+function close_block(ctx) {
+	match ctx.blocks_closing {
+	| [] -> ()
+	| s :: sl ->
+		if s != "" then php(ctx, s);
+		ctx.blocks_closing := sl
+	}
+}
+
+function gen_foreach(ctx,v,e) {
+	php(ctx, repeater(v)+" = _hxtemplo_repeater(");
+	gen_ast_expr(ctx,e);
+	php(ctx, "); ");
+	php(ctx, " while("+repeater(v)+"->hasNext()) {");
+	php(ctx, var_ctx(ctx,v) + " = " + repeater(v) + "->next(); ");
+	open_block(ctx,"}");
+}
+
+function gen_const_expr(ctx,e) {
+	match e {
+	| CValue e ->
+		if ctx.call_level == 0 then
+			php(ctx, tpl(ctx)+"->buf .= ");
+		php(ctx, "_hxtemplo_string(");
+		gen_ast_expr(ctx,e);
+		php(ctx, ")"); // TODO: check this is consistent with neko for quotes and char replacements
+		if ctx.call_level == 0 then
+			php(ctx, ";");
+	| CRaw e ->
+		if ctx.call_level == 0 then
+			php(ctx, tpl(ctx)+"->buf .= ");
+		gen_ast_expr(ctx,e);
+		if ctx.call_level == 0 then
+			php(ctx, ";");
+	| CIf e ->
+		php(ctx, "if(");
+		gen_ast_expr(ctx,e);
+		php(ctx, ") {");
+		open_block(ctx,"}");
+	| CElseIf e ->
+		close_block(ctx);
+		php(ctx, "else if(");
+		gen_ast_expr(ctx,e);
+		php(ctx, ") {");
+		open_block(ctx,"}");
+	| CElse ->
+		php(ctx, "} else {");
+	| CForeach (v,e) ->
+		gen_foreach(ctx,v,e);
+	| CFill v ->
+		php(ctx, tpl(ctx) + "->bufferCreate();");
+		open_block(ctx,var_ctx(ctx,v)+" = " + tpl(ctx) + "->bufferPop();");
+	| CUse file ->
+		var t = temp(ctx);
+		php(ctx, tpl(ctx) + "->bufferCreate();");
+		php(ctx, t+" = ");
+		gen_ast_expr(ctx,file);
+		php(ctx, ";");
+		open_block(ctx,tpl(ctx) + "->includeTemplate("+t+", '"+ctx.container+"', $ctx);");
+	| CSet (v,e) ->
+		php(ctx,var_ctx(ctx,v)+" = ");
+		gen_ast_expr(ctx,e);
+		php(ctx,";");
+	| CEval e ->
+		gen_ast_expr(ctx,e);
+		php(ctx,";");
+	| CEnd ->
+		close_block(ctx);
+	| CSwitch e ->
+		assert()
+	| CCase n ->
+		assert()
+	| CCompare | CCompareWith ->
+		assert()
+	}
+}
+
+function rec generate_attr(ctx,p,(n,content)) {
+	cdata(ctx, " " + n + "=\"");
+	List.iter generate_element(ctx) content;
+	cdata(ctx, "\"")
+}
+
+function rec gen_macro_params(ctx,sl) {
+	match sl {
+	| [] ->
+		php(ctx, "$container, $ctx, $tpl");
+	| (s,_,_) :: sl ->
+		ctx.macro_locals := s :: ctx.macro_locals;
+		php(ctx,"$"+s+", ");
+		gen_macro_params(ctx,sl);
+	}
+}
+
+function rec gen_macro_call(ctx,name,params) {
+	ctx.call_level := ctx.call_level+1;
+	php(ctx, tpl(ctx) + "->macro('" + name + "', array(");
+	ctx.inmacroarg := true;
+	gen_macro_args ctx params;
+	ctx.inmacroarg := false;
+	php(ctx, "));");
+	ctx.call_level := ctx.call_level-1;
+}
+
+function rec gen_macro_args(ctx,el) {
+	match el {
+	| [] ->
+		php(ctx, "'"+ctx.container + "', $ctx, " + tpl(ctx));
+	| e :: el ->
+		List.iter generate_element(ctx) e;
+		php(ctx,", ");
+		gen_macro_args(ctx,el);
+	}
+}
+
+function rec generate_element(ctx,e) {
+	var p = snd e;
+	match fst e {
+/*
+	// TODO: check this is the same strategy adopted in Neko
+	| XNode n when n.n_node == "macros" ->
+		match n.n_content {
+		| None ->
+		| Some cl ->
+			List.iter (function(e2) {
+				match fst e2 {
+				| XMacroDef _ ->
+					generate_element(ctx, e2)
+				| _ ->
+					()
+				}
+			}) cl;
+		};
+*/
+	| XNode n ->
+		match n.n_repeat {
+		| None ->
+			open_block(ctx,"")
+		| Some (v,e) ->
+			gen_foreach(ctx,v,e)
+		};
+
+		match n.n_cond {
+		| None -> open_block(ctx,"")
+		| Some cond ->
+			php(ctx," if(");
+			gen_ast_expr(ctx,cond);
+			php(ctx,") {");
+			open_block(ctx," }")
+		};
+
+		cdata(ctx, "<" + n.n_node);
+		List.iter generate_attr(ctx,p) n.n_attributes;
+		List.iter (function((name,_,params)){ gen_macro_call ctx name params }) n.n_macros;
+
+// TODO: check this matches the neko implementation
+		List.iter (function((attr,e)) {
+			var etmp = temp ctx;
+			php(ctx,etmp+" = ");
+			gen_ast_expr(ctx,e);
+			php(ctx,"; if(_hxtemplo_is_true("+etmp+"))");
+			php(ctx,tpl(ctx) + "->buf .= ' " + attr + "=\"'." + etmp + ".'\"'; ");
+		}) n.n_attrs;
+
+		match n.n_content {
+		| None ->
+			cdata(ctx,"/>")
+		| Some cl ->
+			cdata(ctx,">");
+			List.iter generate_element(ctx) cl;
+			cdata(ctx,"</"+n.n_node+">")
+		};
+		close_block(ctx);
+		close_block(ctx);
+	| XMacroCall (name,params) ->
+		gen_macro_call ctx name params
+	| XMacroDef m ->
+		php(ctx, "\nfunction " + ctx.container + "_" + m.m_name + "(");
+		gen_macro_params ctx m.m_args;
+		php(ctx, ") {\n");
+		ctx.inmacro := true;
+		open_block(ctx, "\n}\n");
+		match m.m_content {
+			| MContent c ->
+				List.iter generate_element(ctx) c;
+			| MAttr a ->
+				List.iter generate_attr(ctx,p) a;
+		};
+		close_block(ctx);
+		ctx.macro_locals := [];
+		ctx.inmacro := false;
+	| XComment c ->
+		cdata(ctx, c)
+	| XData d ->
+		cdata(ctx, d)
+	| XCData content ->
+		cdata(ctx, "<![CDATA[");
+		List.iter generate_element(ctx) content;
+		cdata(ctx, "]]>")
+	| XConstr e ->
+		gen_const_expr(ctx,e);
+	}
+}
+
+function generate_template(ctx, content) {
+	generate_element(ctx, content);
+}
+
+function generate_file(output,(file,content,imports)) {
+	var p = {
+		psource = file;
+		pline = 0; pmin = 0; pmax = 0;
+	};
+
+	var ctx = {
+		temp_counter = 0;
+		buffer = Buffer.create();
+		inphp = true;
+		inmacro = false;
+		inmacroarg = false;
+		blocks_closing = [];
+		call_level = 0;
+		container = normalize_name(file);
+		macro_locals = [];
+	};
+	php(ctx,"<?php\n");
+	List.iter generate_template(ctx) content;
+	php(ctx, "\n?>"); // closes opened cdata when required
+
+	function escape(sep,str) {
+		String.concat "__" (String.split str sep)
+	}
+	var file = escape "\\" (escape "/" file);
+	var fout = output + file + ".php";
+	var ch = IO.write_file fout true;
+	IO.write ch Buffer.string(ctx.buffer);
+	IO.close_out ch;
+}
+
+function generate(output,debug,files) {
+	List.iter generate_file(output) files
+}

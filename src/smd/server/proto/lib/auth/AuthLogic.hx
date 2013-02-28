@@ -16,7 +16,7 @@ class AuthLogic
 	
 	public function new(authCheck_:IAuthCheck) {
 		this.authCheck = authCheck_;		
-		Session.savePath = Config.filesPath + 'sessions/';
+		//Session.savePath = Config.filesPath + 'sessions/';
 		Session.gcMaxLifeTime = 10;
 		Session.start();		
 		

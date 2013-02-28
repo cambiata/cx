@@ -80,7 +80,7 @@ class Tools
 	}
 	
 	#if neko 
-	static public function getComputername():String return neko.Sys.getEnv('COMPUTERNAME')
+	static public function getComputername():String return Sys.getEnv('COMPUTERNAME'); /*;*/
 	#end
 	
 	/*

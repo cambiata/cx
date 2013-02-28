@@ -6,6 +6,7 @@ import sys.db.Sqlite;
 import sys.db.TableCreate;
 import sys.db.Types;
 import sys.FileSystem;
+import haxe.EnumFlags;
 
 /**
  * ...
@@ -14,6 +15,16 @@ import sys.FileSystem;
 
 class KarinDB 
 {
+	static public function test() 
+	{
+		var sqlite = 'karin.sqlite';
+		var cnx = KarinDB.getCnx(sqlite);
+		KarinDB.removeTables(cnx);
+		KarinDB.createTables();
+		KarinDBDefaultdata.createUsersAndGroups();
+		KarinDBDefaultdata.createMediaAndBoxes();
+	}	
+	
 	static public function getCnx(filename:String):Connection {
 		var cnx = Sqlite.open(filename);
 		sys.db.Manager.cnx = cnx;				
@@ -32,7 +43,6 @@ class KarinDB
 		if (!TableCreate.exists( Boxdef.manager	)) 			TableCreate.create( Boxdef.manager	);				
 		if (!TableCreate.exists( BoxdefMedia.manager)) 		TableCreate.create( BoxdefMedia.manager	);				
 		if (!TableCreate.exists( BoxdefMediaslot.manager)) 	TableCreate.create( BoxdefMediaslot.manager	);				
-		if (!TableCreate.exists( BoxdefMediaslot.manager)) 	TableCreate.create( BoxdefMediaslot.manager	);				
 		if (!TableCreate.exists( Box.manager)) 				TableCreate.create( Box.manager	);				
 		if (!TableCreate.exists( BoxUser.manager)) 			TableCreate.create( BoxUser.manager	);				
 	}
@@ -46,6 +56,7 @@ class KarinDB
 		cnx.request('DROP TABLE IF EXISTS "Mediaslot"');
 		cnx.request('DROP TABLE IF EXISTS "Boxdef"');
 		cnx.request('DROP TABLE IF EXISTS "BoxdefMedia"');
+		cnx.request('DROP TABLE IF EXISTS "BoxdefMediaslot"');
 		cnx.request('DROP TABLE IF EXISTS "Box"');
 		cnx.request('DROP TABLE IF EXISTS "BoxUser"');
 	}
@@ -108,14 +119,23 @@ class Media extends Object {
 }
 
 class Mediaslot extends Object {
-	public var id:SId;
-	@:relation(userId) public var user : User;
-	public var restriction:SData<Slotrestriction>;
+	public var id:SId;	
+	public var label:SString<64>;
+	public var restriction:SData<Slotrestrict>;
 }
 
-typedef Slotrestriction = {
-	public var types:Array<Mediatype>;
+class MediaslotUser extends Object {
+	public var id:SId;
+	@:relation(mediaslotId) public var mediaslot:Mediaslot;
+	@:relation(userId) public var user : User;
+	public var datetime:SDateTime;
+	public var info:SString<64>;
+}
+
+typedef Slotrestrict = {
+	public var mediatypes:Array<Mediatype>;
 	public var boxIds:Array<Int>;
+	public var mediaIds:Array<Int>;
 }
 
 enum Mediatype {
@@ -155,12 +175,6 @@ class BoxUser extends Object {
 	@:relation(confUserId) public var confUser:User;	
 }
 
-enum ETest {
-	TestA;
-	TestB;
-	TestC;	
-}
-
 
 
 //-----------------------------------------------------------------------------------------------
@@ -184,6 +198,8 @@ class KarinDBDefaultdata {
 			bm.insert();
 		}
 		
+		//--------------------------------------------------
+		
 		var bd:Boxdef = new Boxdef();
 		bd.label = 'Fauré Requiem';
 		bd.insert();
@@ -198,6 +214,8 @@ class KarinDBDefaultdata {
 			bm.boxdef = bd;
 			bm.insert();			
 		}
+		
+		//--------------------------------------------------
 	
 		var bd:Boxdef = new Boxdef();
 		bd.label = 'Larsson Förklädd Gud';
@@ -214,24 +232,75 @@ class KarinDBDefaultdata {
 			bm.insert();			
 		}	
 		
+		//--------------------------------------------------
+		
 		var bd:Boxdef = new Boxdef();
 		bd.label = 'Folkbildningsrådet 30 Fria';
 		bd.insert();	
 		for (i in 1...30) {
 			var m = new Media();
 			m.label = 'Folkbildningsrådet Fria nr $i';
-			m.extId = 3 + i;
+			m.extId = 30 + i;
 			m.type = Mediatype.Scorx;
 			m.insert();
 			var bm:BoxdefMedia = new BoxdefMedia();
 			bm.media = m;
 			bm.boxdef = bd;
 			bm.insert();			
-		}		
+		}	
 		
+		//--------------------------------------------------
+		
+		var bd:Boxdef = new Boxdef();
+		bd.label = '5 st valbara';
+		bd.insert();		
+		for (i in 1...6) {
+			var ms = new Mediaslot();
+			ms.label = 'Valbart Scorxexempel nr $1';
+			ms.restriction = { mediatypes:[Mediatype.Scorx], boxIds:null, mediaIds:null };
+			ms.insert();			
+			var bms:BoxdefMediaslot = new BoxdefMediaslot();
+			bms.mediaslot = ms;
+			bms.boxdef = bd;		
+			bms.insert();
+		}
+		
+		//--------------------------------------------------
+		
+		var bd:Boxdef = new Boxdef();
+		bd.label = '2 Folkbildning & 2 Valbara';
+		bd.insert();
+		
+		var m = Media.manager.search( { extId:31 } ).first();
+		var bm:BoxdefMedia = new BoxdefMedia();
+		bm.media = m;
+		bm.boxdef = bd;
+		bm.insert();
+		
+		var m = Media.manager.search( { extId:32 } ).first();
+		var bm:BoxdefMedia = new BoxdefMedia();
+		bm.media = m;
+		bm.boxdef = bd;
+		bm.insert();
+		
+		var ms = new Mediaslot();
+		ms.label = 'Valbart Scorxexempel A';
+		ms.restriction = { mediatypes:[Mediatype.Scorx], boxIds:null, mediaIds:null };
+		ms.insert();			
+		var bms:BoxdefMediaslot = new BoxdefMediaslot();
+		bms.mediaslot = ms;
+		bms.boxdef = bd;		
+		bms.insert();		
+
+		var ms = new Mediaslot();
+		ms.label = 'Valbart Scorxexempel B';
+		ms.restriction = { mediatypes:[Mediatype.Scorx], boxIds:null, mediaIds:null };
+		ms.insert();			
+		var bms:BoxdefMediaslot = new BoxdefMediaslot();
+		bms.mediaslot = ms;
+		bms.boxdef = bd;		
+		bms.insert();		
 	}
-	
-	
 	
 	static public function newUser(first:String, last:String):User {
 		var user = new User();

@@ -33,10 +33,6 @@ class AbstractController implements Controller {
 
     private var module : Module;
 
-	public function handleBefore() {}	
-	
-	//public function accessControl():String { return ''; }
-	
     /**
      * Called by the URL dispatcher, just after constructing the controller.
      * Use this method to permorm initialisation mechanics.
@@ -64,8 +60,11 @@ class AbstractController implements Controller {
      * This is called after the mapped controller method has been called.
      *
      * This particular implementation does nothing.
+     *
+     * @param controllerMethodName The name of the method that was was called
+     * in the controller
      */
-    public function handlePostRequest() : Void {}
+    public function handlePostRequest(controllerMethodName : String) : Void {}
 
     /**
      * Returns the module that owns this controller

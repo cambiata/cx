@@ -1,0 +1,172 @@
+/*
+ *  Templo compiler
+ *  Copyright (c)2008 Motion-Twin
+ *
+ *  This library is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU Lesser General Public
+ *  License as published by the Free Software Foundation; either
+ *  version 2.1 of the License, or (at your option) any later version.
+ *
+ *  This library is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License or the LICENSE file for more details.
+ */
+
+type pos = Lexer.pos
+
+type expr
+type elt
+
+type op {
+	OpAdd;
+	OpMult;
+	OpDiv;
+	OpSub;
+	OpAssign;
+	OpEq;
+	OpNotEq;
+	OpGt;
+	OpGte;
+	OpLt;
+	OpLte;
+	OpAnd;
+	OpOr;
+	OpXor;
+	OpBoolAnd;
+	OpBoolOr;
+	OpShl;
+	OpShr;
+	OpUShr;
+	OpMod;
+	OpCompare;
+}
+
+type unop {
+	Increment;
+	Decrement;
+	Not;
+	Neg;
+}
+
+
+type constant {
+	CInt : int;
+	CString : string;
+	CFloat : string;
+}
+
+type expr_def {
+	VConst : constant;
+	VIdent : string;
+	VVar : string;
+	VIf : (expr,expr,expr option);
+	VBinop : (op,expr,expr);
+	VUnop : (unop,bool,expr);
+	VCall : (expr,expr list);
+	VParent : expr;
+	VField : (expr,string);
+	VArray : (expr,expr);
+	VArrayDecl : expr list;
+	VBool : expr;
+	VLiteral : expr;
+	VObject : (string, expr) list;
+}
+
+type expr = (expr_def,pos)
+
+type content = elt list
+
+type construct {
+	CValue : expr;
+	CRaw : expr;
+	CIf : expr;
+	CElseIf : expr;
+	CElse;
+	CForeach : (string,expr);
+	CFill : string;
+	CUse : expr;
+	CSet : (string,expr);
+	CEval : expr;
+	CEnd;
+	CSwitch : expr;
+	CCase : int;
+	CCompare;
+	CCompareWith;
+}
+
+type node {
+	mutable n_node : string;
+	mutable n_attributes : (string,content) list;
+	mutable n_macros : (string, pos, content list) list;
+	mutable n_cond : expr option;
+	mutable n_repeat : (string,expr) option;
+	mutable n_attrs : (string,expr) list;
+	mutable n_content : content option;
+	mutable n_ignore : bool;
+}
+
+type macro_content {
+	MContent : content;
+	MAttr : (string, content) list;
+}
+
+type macro_mode {
+	MNormal;
+	MLiteral;
+	MGrammar;
+}
+
+type macro {
+	m_mode : macro_mode;
+	m_name : string;
+	m_args : (string,macro_mode,bool) list;
+	m_content : macro_content;
+}
+
+type elt_def {
+	XNode : node;
+	XMacroCall : (string, content list);
+	XMacroDef : macro;
+	XComment : string;
+	XData : string;
+	XCData : content;
+	XConstr : construct;
+}
+
+type elt = (elt_def,pos)
+
+function s_op(o) {
+	match o {
+	| OpAdd -> "+"
+	| OpMult -> "*"
+	| OpDiv -> "/"
+	| OpSub -> "-"
+	| OpAssign -> "="
+	| OpEq -> "=="
+	| OpNotEq -> "!="
+	| OpGte -> ">="
+	| OpLte -> "<="
+	| OpGt -> ">"
+	| OpLt -> "<"
+	| OpAnd -> "&"
+	| OpOr -> "|"
+	| OpXor -> "^"
+	| OpBoolAnd -> "&&"
+	| OpBoolOr -> "||"
+	| OpShr -> ">>"
+	| OpUShr -> ">>>"
+	| OpShl -> "<<"
+	| OpMod -> "%"
+	| OpCompare -> "~="
+	}
+}
+
+function s_unop(o) {
+	match o {
+	| Increment -> "++"
+	| Decrement -> "--"
+	| Not -> "!"
+	| Neg -> "-"
+	}
+}

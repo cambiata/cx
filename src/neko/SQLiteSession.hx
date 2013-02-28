@@ -6,10 +6,12 @@
 package neko;
 
 import cx.SqliteTools;
+import haxe.CallStack;
+import haxe.crypto.Md5;
 import haxe.Serializer;
 import haxe.Unserializer;
-import neko.FileSystem;
-import neko.io.File;
+import sys.FileSystem;
+import sys.io.File;
 import neko.Web;
 import sys.db.Connection;
 import sys.db.Sqlite;
@@ -43,7 +45,7 @@ class SQLiteSession
 	
 	static var id : String;
 	
-	static var sessionData : Hash<Dynamic>;
+	static var sessionData : Map<String, Dynamic>;
 	static var needCommit : Bool;
 
 	static function __init__()
@@ -196,12 +198,13 @@ class SQLiteSession
 		if (id == null)
 		{
 			
-			sessionData = new Hash<Dynamic>();
+			sessionData = new Map<String, Dynamic>();
 			
 			// Generera nytt unikt id...
 			while (true)
-			{				
-				id = haxe.Md5.encode(Std.string(Math.random()) + Std.string(Math.random()));
+			{		
+				
+				id = Md5.encode(Std.string(Math.random()) + Std.string(Math.random()));
 				//Lib.println(' - generera nytt id: ' + id);
 
 				var sql = "select * from sessions where id = '" + id + "'";
@@ -230,7 +233,7 @@ class SQLiteSession
 	public static function clear()
 	{
 		//Lib.println('clear');
-		sessionData = new Hash<Dynamic>();
+		sessionData = new Map<String, Dynamic>();
 	}
 	
 	public static function close()
@@ -300,7 +303,8 @@ class SQLiteSession
 	//---------------------------------------------------------------------------
 	
 	static private function dbCreateConnection(savePath:String) {
-		cnx = Sqlite.open(savePath + '/' + sessionName + '.sqlite');
+		var filename = savePath + '/' + sessionName + '.sqlite';
+		cnx = Sqlite.open(filename);
 	}
 }
 

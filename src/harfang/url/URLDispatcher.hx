@@ -18,15 +18,15 @@
 // along with Harfang.  If not, see <http://www.gnu.org/licenses/>.
 
 package harfang.url;
-
+import neko.Lib;
+import harfang.controller.result.ActionResult;
 import harfang.module.Module;
 import harfang.controller.Controller;
 import harfang.configuration.ServerConfiguration;
 import harfang.exception.NotFoundException;
 import harfang.exception.ServerErrorException;
 import harfang.server.event.ServerEventListener;
-import harfang.controller.result.ActionResult;
-import neko.Lib;
+import harfang.server.request.RequestInfo;
 
 /**
  * This class handles the request made to your application. The dispatcher
@@ -48,8 +48,6 @@ class URLDispatcher {
     private var serverConfiguration : ServerConfiguration;
     // The modules that this dispatcher handles
     private var modules : Iterable<Module>;
-    // The URL that is currently being processed
-    private var currentURL : String;
 
     /**
      * Constructor
@@ -65,16 +63,15 @@ class URLDispatcher {
 
     /**
      * Dipatches the URL to the correct controller
-     * @param url The URL to process
+     * @param requestInfo The request that has been made to the server
      */
-    public function dispatch(url : String) : Void {
-        this.currentURL = this.appendSlash(url);
+    public function dispatch(requestInfo : RequestInfo) : Void {
         var dispatched : Bool = false;
         var moduleIterator : Iterator<Module> = this.serverConfiguration.getModules().iterator();
 
         // Scan all the URLS
         while(!dispatched && moduleIterator.hasNext()) {
-            dispatched = this.scanURLs(moduleIterator.next());
+            dispatched = this.scanURLs(moduleIterator.next(), requestInfo);
         }
 
         // If the URL could not have been dispatched, throw a 404 error
@@ -88,10 +85,12 @@ class URLDispatcher {
     /**************************************************************************/
 
     /**
-     * Try matching the URLS with one of the module's regexes.
+     * Try matching the given request with one of the module's mappings.
+     * @param module The module that has the mappings
+     * @param requestInfo The request that has been made to the server
      * @return Scan status (true if URL has been found, false otherwize)
      */
-    private function scanURLs(module : Module) : Bool {
+    private function scanURLs(module : Module, requestInfo : RequestInfo) : Bool {
         var foundURL = false;
         var mappingIterator : Iterator<URLMapping> = module.getURLMappings().iterator();
         var currentMapping : URLMapping = null;
@@ -100,47 +99,18 @@ class URLDispatcher {
         var controllerMethodParams : Array<String> = null;
         var serverEventListeners : Iterable<ServerEventListener> = this.serverConfiguration.getServerEventListeners();
 
-        // Try matching a pattern
+        // Try matching a mapping
         while(!foundURL && mappingIterator.hasNext()) {
             currentMapping = mappingIterator.next();
             // Try matching the URL
-            foundURL = currentMapping.resolve(this.currentURL);
+            foundURL = (currentMapping.resolve(requestInfo.uri) && currentMapping.filter(requestInfo));
         }
 
         // Call the controller
         if(foundURL) {
-            // Call the dispatch event on all listeners
-            for(listener in serverEventListeners) {
-                listener.onDispatch(currentMapping);
-            }
-
             // Create the controller instance and find its function
             controller = Type.createEmptyInstance(currentMapping.getControllerClass());
-			
-			//----------------------------------------------------------------
-			// controller before method
-			var beforeMethod = Reflect.field(controller, 'handleBefore');
-			if (Reflect.isFunction(beforeMethod)) Reflect.callMethod(controller, beforeMethod, []);
-			
-			
-			//----------------------------------------------------------------
-			// controller method name
-			var controllerMethodName = currentMapping.getControllerMethodName();
-
-			//----------------------------------------------------------------
-			// use access control method?			
-			var accessControlMethod = Reflect.field(controller, 'accessControl');
-			if (Reflect.isFunction(accessControlMethod)) {
-				var accessTag = Reflect.callMethod(controller, accessControlMethod, []);	
-				var accessMethodName = controllerMethodName + accessTag;
-				//trace(accessMethodName);
-				var accessMethod = Reflect.field(controller, accessMethodName);
-				if (Reflect.isFunction(accessMethod)) controllerMethodName = accessMethodName;
-			}
-						
-			//----------------------------------------------------------------
-			// finally set controller method
-			controllerMethod = Reflect.field(controller, controllerMethodName);
+            controllerMethod = Reflect.field(controller, currentMapping.getControllerMethodName());
 
             // Make the call with the correct parameters
             if(Reflect.isFunction(controllerMethod)) {
@@ -149,21 +119,31 @@ class URLDispatcher {
 
                 // Handle request
                 if(controller.handleRequest(currentMapping.getControllerMethodName())) {
+                    // Call the dispatch event on all listeners
+                    for(listener in serverEventListeners) {
+                        listener.onDispatch(currentMapping);
+                    }
+
                     var result = Reflect.callMethod(
                             controller,
                             controllerMethod,
-                            currentMapping.extractParameters(this.currentURL)
+                            currentMapping.extractParameters(requestInfo)
                     );
 					
 					if (Std.is(result, ActionResult)) {
 						Lib.println(cast(result, ActionResult).execute());						
 					} else if (result != null) {
 						Lib.println(result);
-					}					
-                }
+					}						
+					
 
-                // Post request
-                controller.handlePostRequest();
+                    // Post request
+                    controller.handlePostRequest(currentMapping.getControllerMethodName());
+                } else {
+                    for(listener in serverEventListeners) {
+                        listener.onDispatchInterrupted(currentMapping);
+                    }
+                }
             } else {
                 // Controller function was not found - this should not be
                 // happening. Throw an error!
@@ -173,22 +153,5 @@ class URLDispatcher {
 
         // Return the status of the search
         return foundURL;
-    }
-
-
-    /**
-     * Appends a slash to the URL if it doesn't have one at the end.
-     * It won't appear in browsers, but it will unify the regular expressions.
-     *
-     * @param url The url in which to append the slash
-     * @return The url, with the trailing slash
-     */
-    private function appendSlash(url : String) : String {
-
-        if(url.charAt(url.length - 1) != "/") {
-            url += "/";
-        }
-
-        return url;
     }
 }

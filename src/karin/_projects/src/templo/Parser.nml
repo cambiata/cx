@@ -1,0 +1,447 @@
+/*
+ *  Templo compiler
+ *  Copyright (c)2008 Motion-Twin
+ *
+ *  This library is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU Lesser General Public
+ *  License as published by the Free Software Foundation; either
+ *  version 2.1 of the License, or (at your option) any later version.
+ *
+ *  This library is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License or the LICENSE file for more details.
+ */
+open Lexer;
+open Templo.Lexer;
+open Templo.Ast;
+
+type error_msg {
+	Unexpected : token;
+	Message : string;
+	Unclosed_node : string;
+}
+
+exception Error : (error_msg , pos)
+
+type mode {
+	MElement;
+	MCData;
+	MExpr;
+	MAttributes;
+	MAttrValue;
+	MMacro;
+}
+
+var cur = &MElement
+
+function priority(op) {
+	match op {
+	| OpCompare -> -5
+	| OpAssign -> -4
+	| OpBoolOr -> -3
+	| OpBoolAnd -> -2
+	| OpEq | OpNotEq | OpGt | OpLt | OpGte | OpLte -> -1
+	| OpOr | OpAnd | OpXor -> 0
+	| OpShl | OpShr | OpUShr -> 1
+	| OpAdd | OpSub -> 2
+	| OpMult | OpDiv -> 3
+	| OpMod -> 4
+	}
+}
+
+function can_swap(_op,op) {
+	var p1 = priority _op;
+	var p2 = priority op;
+	if p1 < p2 then
+		true
+	else if p1 == p2 && p1 >= 0 then // numerical ops are left-assoc
+		true
+	else
+		false
+}
+
+function rec make_binop(op,e,e2) {
+	match fst e2 {
+	| VBinop (_op,_e,_e2) when can_swap _op op ->
+		var _e = make_binop op e _e;
+		(VBinop _op _e _e2, punion snd(_e) snd(_e2))
+	| _ ->
+		(VBinop op e e2, punion snd(e) snd(e2))
+	}
+}
+
+function rec make_unop(op,e,p1) {
+	match e {
+	| (VBinop (bop,e,e2),p2) -> (VBinop bop (make_unop op e p1) e2, punion p1 p2)
+	| (_,p2) -> (VUnop op true e, punion p1 p2)
+	}
+}
+
+function error_msg(m) {
+	match m {
+	| Unexpected t -> "Unexpected " + s_token t
+	| Unclosed_node s -> "The node " + s + " has not been closed"
+	| Message s -> s
+	}
+}
+
+function error(m,p) {
+	throw Error(m,p)
+}
+
+function mk(t,p) {
+	(t,p)
+}
+
+function rec program(s,acc) {
+	match s {
+	| [< (Eof,_) >] -> (List.rev acc, Eof)
+	| [< (EndNode n,_) >] -> (List.rev acc, EndNode n)
+	| [< e = parse_element s >] -> program s (e :: acc)
+	}
+}
+
+function rec parse_element(s) {
+	match s {
+	| [< (Data str,p) >] -> (XData str, p)
+	| [< (Comment n,p) >] -> (XComment n, p)
+	| [< (DoubleDot,p1); c, p2 = parse_construct s >] -> (XConstr c, punion p1 p2)
+	| [< (Node n,p); node = if n == "macro" then parse_macro_def s p else parse_node s n p >] -> node
+	| [< (Macro m,p1); params = parse_macro s >] -> (XMacroCall m params, p1)
+	| [< (CDataBegin,p1); c = parse_cdata s; (CDataEnd,p2) >] -> (XCData c, punion p1 p2)
+	}
+}
+
+function rec parse_cdata(s) {
+	function rec loop(s,acc) {
+		match s {
+		| [< e = parse_element s >] -> loop s (e :: acc)
+		| [< >] -> List.rev acc
+		}
+	}
+	cur := MCData;
+	var r = loop s [];
+	cur := MElement;
+	r
+}
+
+function rec parse_construct(s) {
+	var old = *cur;
+	cur := MExpr;
+	var c = match s {
+	| [< (Ident "use",_); e = parse_expr s >] -> CUse e
+	| [< (Ident "raw",_); e = parse_expr s >] -> CRaw e
+	| [< (Ident "set",_); (Ident value,_); (Op OpAssign,_); e = parse_expr s >] -> CSet value e
+	| [< (Keyword KIf,p1); e = parse_expr s >] ->
+		match s {
+		| [< e1 = parse_expr s; (Keyword KElse,_ ); e2 = parse_expr s >] -> CValue (VIf e e1 Some(e2), punion p1 snd(e2))
+		| [< >] -> CIf e
+		}
+	| [< (Keyword KElse,_) >] -> CElse
+	| [< (Keyword KSwitch,_); e = parse_expr s >] -> CSwitch e
+	| [< (Keyword KCase,_) >] ->
+		match s {
+		| [< e = parse_expr s >] ->
+			match fst e {
+			| VConst (CInt i) when i >= 0 -> CCase i
+			| _ -> error Message("Case expression should be a constant positive integer") snd(e)
+			}
+		| [< >] -> CCase (-1)
+		}
+	| [< (Ident "elseif",_); e = parse_expr s >] -> CElseIf e
+	| [< (Ident "foreach",_); (Ident k,_); e = parse_expr s >] -> CForeach k e
+	| [< (Ident "fill",_); (Ident k,_); >] -> CFill k
+	| [< (Ident "end",_) >] -> CEnd
+	| [< (Ident "eval",_); e = parse_expr s >] -> CEval e
+	| [< (Ident "compare",_); >] -> CCompare
+	| [< (Op OpCompare,_); >] -> CCompareWith
+	| [< e = parse_expr s >] -> CValue e
+	}
+	cur := old;
+	match s {
+	| [< (DoubleDot,p2) >] -> (c,p2)
+	}
+}
+
+function rec parse_mode_name(s) {
+	match s {
+	| [< (Keyword KLiteral,_); (Ident name,_) >] -> (MLiteral, name)
+	| [< (Ident "grammar",_); (Ident name,_) >] -> (MGrammar, name)
+	| [< (Ident name,_) >] -> (MNormal, name)
+	}
+}
+
+function rec parse_macro_def(s,p1) {
+	cur := MAttributes;
+	// parse name attribute
+	var mode, name, args = match s {
+	| [< (Ident "name",_); (Op OpAssign,_); (Quote b,_) >] ->
+		cur := MExpr;
+		var mode, name = parse_mode_name s;
+		var params = match s {
+		| [< (ParentOpen,_) >] -> parse_macro_args s false
+		}
+		cur := MAttributes;
+		match s {
+		| [< (Quote b2,_) >] -> if b != b2 then throw Stream_error;
+		}
+		(mode,name,params)
+	}
+	var content, p2 = match s {
+	| [< (NodeContent b,p2) >] -> (Some b, p2)
+	| [< >] -> (None, p1)
+	}
+	var content = match content {
+	| Some b when !b ->
+		MContent []
+	| Some _ ->
+		cur := MElement;
+		var content, enode = program s [];
+		match enode {
+		| EndNode "macro" -> ()
+		| _ -> error Unclosed_node("macro") p1
+		}
+		MContent content
+	| None ->
+		match parse_node s "macro" p1 {
+		| (XNode n,p) ->
+			if n.n_content != None then error Message("Attribute macro can't have content") p;
+			if n.n_attrs != [] || n.n_macros != [] || n.n_repeat != None || n.n_cond != None then
+				error Message("Attribute macro can't have special attributes") p;
+			MAttr n.n_attributes
+		| _ -> assert()
+		}
+	};
+	var m = {
+		m_mode = mode;
+		m_name = name;
+		m_args = args;
+		m_content = content;
+	};
+	(XMacroDef m, punion p1 p2)
+}
+
+function rec parse_macro_args(s,opt) {
+	match s {
+	| [< (ParentClose,_) >] -> []
+	| [< (Question,_); >] -> parse_macro_args s true
+	| [< >] ->
+		var mode, name = parse_mode_name s;
+		match s {
+		| [< (Comma,_) >] -> (name,mode,opt) :: parse_macro_args s opt
+		| [< (ParentClose,_) >] -> [(name,mode,opt)]
+		}
+	}
+}
+
+function rec parse_node(s,n,p1) {
+	var n = {
+		n_node = n;
+		n_attributes = [];
+		n_macros = [];
+		n_cond = None;
+		n_repeat = None;
+		n_attrs = [];
+		n_content = None;
+		n_ignore = false;
+	};
+	cur := MAttributes;
+	var content, p2 = parse_node_attribs s n;
+	n.n_attributes := List.rev n.n_attributes;
+	n.n_macros := List.rev n.n_macros;
+	n.n_attrs := List.rev n.n_attrs;
+    cur := MElement;
+	if content then {
+		var content, enode = program s [];
+		match enode {
+		| EndNode name -> if n.n_node != name then throw Stream_error;
+		| _ -> error Unclosed_node(n.n_node) p1
+		}
+		n.n_content := Some content;
+	}
+	(XNode n, punion p1 p2)
+}
+
+function rec parse_node_attribs(s,node) {
+	match s {
+	| [< (NodeContent c,p) >] -> (c, p)
+	| [< (DoubleDot,_) >] ->
+		cur := MExpr;
+		match s {
+		| [< (Ident "cond",p); e = parse_expr s; (DoubleDot,_) >] ->
+			match node.n_cond {
+			| None -> node.n_cond := Some e;
+			| Some _ -> error Message("Duplicate cond") p
+			}
+		| [< (Ident "attr",_); (Ident attr,_); e = parse_expr s; (DoubleDot,_) >] ->
+			node.n_attrs := (attr,e) :: node.n_attrs
+		| [< (Ident "attr",_); (String attr,_); e = parse_expr s; (DoubleDot,_) >] ->
+			node.n_attrs := (attr,e) :: node.n_attrs
+		| [< (Ident "repeat",p); (Ident v,_); e = parse_expr s; (DoubleDot,_) >] ->
+			match node.n_repeat {
+			| None -> node.n_repeat := Some (v,e);
+			| Some _ -> error Message("Duplicate repeat") p
+			}
+		| [< (Keyword KIgnore,p); (DoubleDot,_) >] ->
+			if node.n_ignore then error Message("Duplicate ignore") p;
+			node.n_ignore := true;
+		}
+		cur := MAttributes;
+		parse_node_attribs s node
+	| [< (Ident attr,_); (Op OpAssign,_) >] ->
+		cur := MAttrValue;
+		var v = match s {
+		| [< (Quote b,_); v = parse_attrib_value s b >] -> v
+		};
+		cur := MAttributes;
+		node.n_attributes := (attr,v) :: node.n_attributes;
+		parse_node_attribs s node
+	| [< (Macro m,p1); params = parse_macro s >] ->
+		node.n_macros := (m,p1,params) :: node.n_macros;
+		parse_node_attribs s node
+	}
+}
+
+function rec parse_attrib_value(s,b) {
+	match s {
+	| [< (Data str,p) >] -> (XData str,p) :: parse_attrib_value s b
+	| [< (DoubleDot,p1); c, p2 = parse_construct s >] -> (XConstr c,punion p1 p2) :: parse_attrib_value s b
+	| [< (Macro m,p1); params = parse_macro s >] -> (XMacroCall m params, p1) :: parse_attrib_value s b
+	| [< (Quote b2,p) >] -> if b == b2 then [] else (XData (s_token Quote(b2)),p) :: parse_attrib_value s b
+	}
+}
+
+function rec parse_macro(s) {
+	var old = *cur;
+	cur := MMacro;
+	var el = match s {
+	| [< (ParentOpen,_); (ParentClose,_); >] -> []
+	| [< (ParentOpen,_); el = parse_macro_params s [] 0 []; >] -> el
+	}
+	cur := old;
+	el
+}
+
+function rec parse_macro_params(s,acc,n,pacc) {
+	match s {
+	| [< vl, n = parse_macro_param s n pacc >] ->
+		match s {
+		| [< (Comma,p) >] ->
+			if n == 0 then
+				parse_macro_params s (List.rev(vl) :: acc) 0 []
+			else
+				parse_macro_params s acc n ((XData ",",p) :: vl)
+		| [< (ParentClose,p) >] ->
+			if n == 0 then
+				List.rev (List.rev(vl) :: acc)
+			else
+				parse_macro_params s acc n ((XData ")",p) :: vl)
+		}
+	}
+}
+
+function rec parse_macro_param(s,n,acc) {
+	match s {
+	| [< (BraceOpen,p) >] -> parse_macro_param s (n + 1) ((XData "{",p) :: acc)
+	| [< (BraceClose,p) >] -> if n == 0 then throw Stream_error; parse_macro_param s (n - 1) ((XData "}",p) :: acc)
+	| [< (ParentOpen,p) >] -> parse_macro_param s n ((XData "(",p) :: acc)
+	| [< (Data d,p) >] -> parse_macro_param s n ((XData d,p) :: acc)
+	| [< (DoubleDot,p1); c, p2 = parse_construct s >] -> parse_macro_param s n ((XConstr c,punion p1 p2) :: acc)
+	| [< (Macro m,p1); params = parse_macro s >] -> parse_macro_param s n ((XMacroCall m params, p1) :: acc)
+	| [< (Node node,p1) >] ->
+		var node = parse_node s node p1;
+		cur := MMacro;
+		parse_macro_param s n (node :: acc)
+	| [< >] -> (acc,n)
+	}
+}
+
+function rec parse_expr(s) {
+	match s {
+	| [< (Int i,p) >] -> parse_expr_next s (VConst (CInt i),p)
+	| [< (Float f,p) >] -> parse_expr_next s (VConst (CFloat f),p)
+	| [< (String str,p) >] -> parse_expr_next s (VConst (CString str),p)
+	| [< (Ident id,p) >] -> parse_expr_next s (VIdent id,p)
+	| [< (ParentOpen,p1); e = parse_expr s; (ParentClose,p2) >] -> parse_expr_next s (VParent e,punion p1 p2)
+	| [< (Keyword KIf,p1); cond = parse_expr s; e1 = parse_expr s >] ->
+		match s {
+		| [< (Keyword KElse,_); e2 = parse_expr s >] -> (VIf cond e1 Some(e2), punion p1 snd(e2))
+		| [< >] -> (VIf cond e1 None, punion p1 snd(e1))
+		}
+	| [< (Unop op,p) >] ->
+		make_unop op parse_expr(s) p
+	| [< (Op OpSub,p) >] ->
+		make_unop Neg parse_expr(s) p
+	| [< (BracketOpen,p1); el = parse_expr_list s; (BracketClose,p2) >] ->
+		parse_expr_next s (VArrayDecl el, punion p1 p2)
+	| [< (Keyword KLiteral,p1); (ParentOpen,_); e = parse_expr s; (ParentClose,p2) >] ->
+		parse_expr_next s (VLiteral e, punion p1 p2)
+	| [< (Keyword KLiteral,p1); e = parse_expr s >] ->
+		(VLiteral e, punion p1 snd(e))
+	| [< (BraceOpen,p1); fl = parse_field_list s; (BraceClose,p2) >] ->
+		parse_expr_next s (VObject fl, punion p1 p2)
+	}
+}
+
+function rec parse_field_list(s) {
+	match s {
+	| [< (Ident str,_); (DoubleDot,_); e = parse_expr s >] ->
+		match s {
+		| [< (Comma,_) >] -> ()
+		| [< >] -> ()
+		}
+		(str,e) :: parse_field_list s
+	| [< >] -> []
+	}
+}
+
+function rec parse_expr_next(s,e1) {
+	var p1 = snd e1;
+	match s {
+	| [< (Dot,_); (Ident f,p2) >] -> parse_expr_next s (VField e1 f,punion p1 p2)
+	| [< (ParentOpen,_); args = parse_expr_list s; (ParentClose,p2) >] -> parse_expr_next s (VCall e1 args,punion p1 p2)
+	| [< (Op op,_); e2 = parse_expr s >] -> make_binop op e1 e2
+	| [< (Unop op,p) >] -> parse_expr_next s (VUnop op false e1,p)
+	| [< (BracketOpen,_); e2 = parse_expr s; (BracketClose,p2) >] -> parse_expr_next s (VArray e1 e2, punion snd(e1) p2)
+	| [< >] -> e1
+	}
+}
+
+function rec parse_expr_list(s) {
+	match s {
+	| [< e = parse_expr s >] ->
+		match s {
+		| [< (Comma,_) >] -> e :: parse_expr_list s
+		| [< >] -> [e]
+		}
+	| [< >] ->
+		[]
+	}
+}
+
+function parse(lexer) {
+	var last = &(Eof,null_pos);
+	function rec next_token() {
+		var t = Lexer.token lexer (match *cur {
+			| MElement -> *Templo.Lexer.element
+			| MCData -> *Templo.Lexer.cdata
+			| MExpr -> *Templo.Lexer.expr
+			| MAttributes -> *Templo.Lexer.attributes
+			| MAttrValue -> *Templo.Lexer.attrvalue
+			| MMacro -> *Templo.Lexer.macros
+		});
+		last := t;
+		t
+	}
+	try {
+		cur := MElement;
+		var el, enode = program (stream next_token) [];
+		match enode {
+		| Eof -> el
+		| _ -> throw Stream_error
+		}
+	} catch {
+		Stream_error -> error Unexpected(fst(*last)) snd(*last)
+	}
+}

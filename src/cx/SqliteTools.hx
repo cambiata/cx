@@ -3,7 +3,7 @@ package cx;
 import sys.db.Sqlite;
 import sys.db.Connection;
 
-import neko.FileSystem;
+import sys.FileSystem;
 /**
  * ...
  * @author Jonas Nyström

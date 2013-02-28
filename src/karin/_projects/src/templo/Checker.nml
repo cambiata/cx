@@ -1,0 +1,487 @@
+/*
+ *  Templo compiler
+ *  Copyright (c)2008 Motion-Twin
+ *
+ *  This library is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU Lesser General Public
+ *  License as published by the Free Software Foundation; either
+ *  version 2.1 of the License, or (at your option) any later version.
+ *
+ *  This library is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License or the LICENSE file for more details.
+ */
+open Templo.Ast;
+
+type macro_file {
+	file : string;
+	mutable used : bool;
+}
+
+type macro_kind {
+	MKAttributes;
+	MKContent;
+	MKValue;
+}
+
+type macro_type {
+	margs : int;
+	moptargs : int;
+	mkind : macro_kind;
+	mfile : macro_file option;
+}
+
+type checker {
+	mutable xml : bool;
+	mutable stack : (construct, pos, string list) list;
+	mutable vars : string list;
+	mutable macro_files : macro_file list;
+	mutable macros : (string, macro_type) Map.t;
+	mutable in_attrib : bool;
+}
+
+exception Error : (string, pos);
+
+var error_ref = &None;
+
+var r_empty = Regexp.build "^[ \t\r\n]*$";
+var r_empty_left = Regexp.build "^[ \t\r\n]+(.*)";
+var r_empty_right = Regexp.build "(.*?)[ \t\r\n]+$";
+var r_quote = Regexp.build "\"";
+var r_integer = Regexp.build "^[ \t\r\n]*([0-9]+)[ \t\r\n]*$";
+
+var xhtml_attributes = List.fold (function(acc,l) Map.add acc l ()) Map.empty() [
+	"compact";"nowrap";"ismap";"declare";"noshade";"checked";"disabled";
+	"readonly";"multiple";"selected";"nohref";"noresize";"defer"
+];
+
+var xhtml_empty_nodes = List.fold (function(acc,l) Map.add acc l ()) Map.empty() [
+	"area";"base";"basefont";"br";"col";"frame";"hr";"img";"input";"isindex";"link";"meta";"param"
+];
+
+function is_empty(str) {
+	Regexp.find r_empty str 0 String.length(str)
+}
+
+function error(msg,pos) {
+	match *error_ref {
+	| None -> throw Error(msg,pos)
+	| Some f -> f msg pos
+	}
+}
+
+function init() {
+	{
+		xml = true;
+		stack = [];
+		vars = [];
+		macro_files = [];
+		macros = Map.empty();
+		in_attrib = false;
+	}
+}
+
+function add_macro(chk,m,file,p) {
+	// we don't allow nodes and double-quotes in macro content that is used for attributes values
+	function rec loop(e) {
+		match fst e {
+		| XNode _ | XComment _ | XCData _ | XMacroDef _ -> throw Exit
+		| XMacroCall (_,params) ->
+			// we can't check atm what is the content of the called macro
+			List.iter (function(p) List.iter loop p) params
+		| XData str ->
+			if Regexp.find r_quote str 0 String.length(str) then throw Exit;
+		| XConstr _ -> ()
+		}
+	}
+	var kind = match m.m_content {
+		| MContent el -> (try { List.iter loop el; MKValue; } catch { Exit -> MKContent })
+		| MAttr _ -> MKAttributes
+	}
+	function rec loop(al) {
+		match al {
+		| [] -> 0
+		| (_,mode,opt) :: l ->
+			match mode {
+			| MGrammar -> error "This mode is not allowed for macro variable" p
+			| MLiteral | MNormal -> ()
+			}
+			(if opt then 1 else 0) + loop l
+		}
+	}
+	match m.m_mode {
+	| MLiteral -> error "This mode is not allowed for macro definition" p
+	| MGrammar | MNormal -> ()
+	}
+	var md = {
+		margs = List.length m.m_args;
+		moptargs = loop m.m_args;
+		mkind = kind;
+		mfile = file;
+	};
+	chk.macros := Map.add chk.macros m.m_name md;
+}
+
+function add_macros(chk,file,el) {
+	var file = { file = file; used = false };
+	chk.macro_files := file :: chk.macro_files;
+	var macros = &[];
+	function rec loop(e) {
+		match fst e {
+		| XNode n when n.n_node == "macros" ->
+			match n.n_content {
+			| None -> ()
+			| Some c -> List.iter loop c
+			}
+		| XMacroDef m ->
+			macros := (XMacroDef m,snd e) :: *macros;
+			add_macro chk m Some(file) snd(e)
+		| XComment _ -> ()
+		| XData r when is_empty r -> ()
+		| _ -> error "This is not allowed in a macro file" snd(e)
+		}
+	}
+	List.iter loop el;
+	List.rev (*macros)
+}
+
+function add_variable(chk,v,p) {
+	if List.mem v chk.vars then error ("Variable " + v + " is used several times") p;
+	chk.vars := v :: chk.vars
+}
+
+function check_expr(chk,e) {
+	function rec loop(e) {
+		(match fst e {
+		| VIdent i when List.mem i chk.vars -> VVar i
+		| VIf (e,e1,e2) -> VIf loop(e) loop(e1) (match e2 { None -> None | Some e -> Some (loop e) })
+		| VBinop (op,e1,e2) -> VBinop op loop(e1) loop(e2)
+		| VUnop (op,prefix,e) -> VUnop op prefix loop(e)
+		| VCall (e,el) -> VCall loop(e) (List.map loop el)
+		| VParent e -> VParent loop(e)
+		| VField (e,f) ->
+			if String.get f 0 == '_' then
+				VCall (VField loop(e) ("get"+f),snd e) []
+			else
+				VField loop(e) f
+		| VArray (e1,e2) -> VArray loop(e1) loop(e2)
+		| VArrayDecl el -> VArrayDecl (List.map loop el)
+		| VBool e -> VBool loop(e)
+		| VLiteral e -> VLiteral loop(e)
+		| VObject fl -> VObject (List.map (function((s,e)) (s,loop e)) fl)
+		| VConst _ | VIdent _ | VVar _ -> fst e
+		},snd e)
+	}
+	loop e
+}
+
+function rec make_bool(chk,e) {
+	match fst e {
+	| VBinop (op,e1,e2) ->
+		match op {
+		| OpEq | OpNotEq | OpGt | OpGte | OpLt | OpLte -> check_expr chk e
+		| OpBoolAnd | OpBoolOr -> (VBinop op make_bool(chk,e1) make_bool(chk,e2),snd e)
+		| _ -> (VBool check_expr(chk,e),snd e)
+		}
+	| VParent p -> (VParent make_bool(chk,p),snd e)
+	| VBool e2 -> (VBool check_expr(chk,e2),snd e)
+	| _ -> (VBool check_expr(chk,e),snd e)
+	}
+}
+
+function rec check_macro(chk,name,kind,params,pos) {
+	var m = (try 
+		Some (Map.find chk.macros name)
+	catch { 
+		Not_found ->
+			error ("No such macro "+name) pos;
+			None;
+	});
+	match m {
+	| None -> params
+	| Some m ->
+	var extra = m.margs - List.length params;
+	if extra < 0 || extra > m.moptargs then error ("Macro "+name+" needs "+(if m.moptargs > 0 then m.margs - m.moptargs + "-" else "") + m.margs+" parameters") pos;
+	function rec make_nulls(n) {
+		if n <= 0 then [] else [(XData "null",pos)] :: make_nulls (n-1)
+	}
+	var params = List.concat [params;make_nulls extra];
+	match m.mfile {
+	| None -> ()
+	| Some f -> f.used := true
+	}
+	match (m.mkind,kind) {
+	| (MKAttributes, MKAttributes) -> ()
+	| (MKValue,MKContent) | (MKValue,MKValue) -> ()
+	| (MKContent,MKContent) -> ()
+	| (_,MKAttributes) -> error ("Macro "+name+" cannot be called here : please put attributes directly after macro name") pos
+	| _ -> error ("Macro "+name+" cannot be called here because the result would not be XHTML") pos
+	}
+	function rec trim(e,r) {
+		match e {
+		| (XData str,p) :: el ->
+			if is_empty str then
+				trim el r
+			else if Regexp.find r str 0 String.length(str) then
+				(XData Regexp.matched(r,1), p) :: el
+			else
+				e
+		| _ -> e
+		}
+	}
+	List.map (function(el) {
+		var el = check_content chk el;
+		// trim spaces around macro params
+		var el = trim el r_empty_left;
+		var elr = trim (List.rev el) r_empty_right;
+		function raw(e) {
+			match fst e {
+			| XConstr c ->
+				match c {
+				| CValue v -> (XConstr (CRaw v),snd e)
+				| _ -> e
+				}
+			| _ -> e
+			}
+		}
+		// remove {...} if surrounding parameter
+		var el = match el {
+		| (XData "{",_) :: _ ->
+			match elr {
+			| (XData "}",_) :: elr -> List.tl (List.rev elr)
+			| _ -> List.rev elr
+			}
+		| _ ->
+			function check_parent(e) {
+				match fst e {
+				| XData s ->
+					try {
+						ignore(String.find s 0 "(");
+						error "Macro parameter containing ( must be enclosed with {...}" snd(e);
+					} catch {
+						Not_found -> ()
+					}
+				| _ -> ()
+				}
+			}
+			List.iter check_parent elr;
+			List.rev elr
+		}
+		// don't escape macro arguments, they will be escaped if printed
+		match el {
+		| [(XData str,p)] ->
+			var e = if Regexp.find r_integer str 0 String.length(str) then {
+				var iv = int Regexp.matched(r_integer,1);
+				VConst CInt(iv);
+			} else match str {
+				| "true" | "false" | "null" -> VIdent str
+				| _ -> VConst CString(str)
+			}
+			[(XConstr CRaw((e,p)),p)]
+		| el ->
+			List.map raw el
+		}
+	}) params
+	}
+}
+
+function rec check_content(chk,el) {
+	var old = chk.stack;
+	chk.stack := [];
+	var el = List.map (check_rec chk) el;
+	match chk.stack {
+	| [] -> ()
+	| (v,p,_) :: _ ->
+		var str = match v {
+		| CIf _ -> "if"
+		| CForeach _ -> "foreach"
+		| CFill _ -> "fill"
+		| CUse _ -> "use"
+		| CSwitch _ | CCase _ -> "switch"
+		| _ -> "???"
+		}
+		error ("Unclosed " + str) p
+	}
+	chk.stack := old;
+	el
+}
+
+function rec check_rec(chk,e) {
+	(match fst e {
+	| XNode n ->
+		var old = chk.vars;
+		var repeat = match n.n_repeat {
+		| None -> None
+		| Some (n,e) ->
+			var e = check_expr chk e;
+			add_variable chk n snd(e);
+			Some (n,e)
+		}
+		chk.in_attrib := true;
+		var attr = List.map (function((name,c)) (name,check_content chk c)) n.n_attributes;
+		chk.in_attrib := false;
+		var n2 = {
+			n_node = n.n_node;
+			n_attributes = attr;
+			n_macros = List.map (function((name,pos,params)) (name,pos,check_macro chk name MKAttributes params pos)) n.n_macros;
+			n_cond = match n.n_cond { None -> None | Some e -> Some (make_bool chk e) };
+			n_repeat = repeat;
+			n_attrs = List.map (function((n,e)) {
+				var e = check_expr chk e;
+				var e = if !chk.xml && Map.exists xhtml_attributes n then
+					match fst e {
+					| VIf _ -> e
+					| _ ->
+						var p = snd e;
+						(VIf (VBool e,p) (VConst CString(n),p) None,p)
+					}
+				else
+					e;
+				(n, e)
+			}) n.n_attrs;
+			n_content = match n.n_content {
+				| None ->
+					if chk.xml || Map.exists xhtml_empty_nodes n.n_node then
+						None
+					else {
+						// make a small exception for <div class="clear"/>
+						if n.n_node == "div" then
+							Some [(XData "",snd(e))]
+						else {
+							error ("The " + n.n_node + " content can't be empty in XHTML") snd(e);
+							None;
+						}
+					}
+				| Some c ->
+					Some (check_content chk c)
+			};
+			n_ignore = n.n_ignore;
+		}
+		chk.vars := old;
+		XNode n2
+	| XMacroCall (name,params) ->
+		var params = check_macro chk name (if chk.in_attrib then MKValue else MKContent) params snd(e);
+		XMacroCall name params
+	| XMacroDef m ->
+		try {
+			var m2 = Map.find chk.macros m.m_name;
+			if m2.mfile == None then error ("Duplicate macro declaration : " + m.m_name) snd(e)
+		} catch {
+			Not_found -> ()
+		}
+		add_macro chk m None snd(e);
+		var old = chk.vars;
+		List.iter (function((v,_,_)) add_variable chk v snd(e)) m.m_args;
+		var m = {
+			m_mode = m.m_mode;
+			m_name = m.m_name;
+			m_args = m.m_args;
+			m_content = match m.m_content {
+				| MContent el -> MContent (check_content chk el);
+				| MAttr al ->
+					chk.in_attrib := true;
+					var attr = List.map (function((name,c)) (name,check_content chk c)) al;
+					chk.in_attrib := false;
+					MAttr attr
+			};
+		};
+		chk.vars := old;
+		XMacroDef m
+	| XComment _
+	| XData _ ->
+		fst e
+	| XCData el ->
+		XCData (check_content chk el)
+	| XConstr c ->
+		var cur = (c,snd e,chk.vars);
+		var c = match c {
+		| CValue e ->
+			CValue (check_expr chk e)
+		| CRaw e ->
+			CRaw (check_expr chk e)
+		| CSet (v,ex) ->
+			if List.mem v chk.vars then error "You cannot set a local variable" snd(e);
+			CSet v (check_expr chk ex)
+		| CEval e ->
+			CEval (check_expr chk e)
+		| CIf e ->
+			chk.stack := cur :: chk.stack;
+			CIf (make_bool chk e)
+		| CSwitch e ->
+			chk.stack := cur :: chk.stack;
+			var e = check_expr chk e;
+			if !(List.mem "args" chk.vars) then add_variable chk "args" snd(e);
+			CSwitch e
+		| CElse ->
+			match chk.stack {
+			| (CIf _,_,_) :: stack | (CElseIf _,_,_) :: stack -> chk.stack := cur :: stack;
+			| _ -> error "Unexpected else" snd(e)
+			}
+			CElse
+		| CElseIf ex ->
+			match chk.stack {
+			| (CIf _,_,_) :: stack | (CElseIf _,_,_) :: stack -> chk.stack := cur :: stack;
+			| _ -> error "Unexpected elseif" snd(e)
+			}
+			CElseIf (make_bool chk ex)
+		| CCase v ->
+			var v = match chk.stack {
+			| (CSwitch _,_,_) :: stack ->
+				chk.stack := stack;
+				if v == -1 then 0 else v
+			| (CCase v2,_,_) :: stack ->
+				chk.stack := stack;
+				if v == -1 then (v2 + 1) else {
+					if v <= v2 then error "Case integer values must be ordered" snd(e);
+					v;
+				}
+			| _ ->
+				error "Unexpected case" snd(e);
+				v;
+			}
+			var c = CCase v;
+			chk.stack := (c,snd e,chk.vars) :: chk.stack;
+			c
+		| CForeach (k,ex) ->
+			chk.stack := cur :: chk.stack;
+			var ex = check_expr chk ex;
+			add_variable chk k snd(e);
+			CForeach k ex
+		| CFill k ->
+			if List.mem k chk.vars then error "You cannot fill a local variable" snd(e);
+			chk.stack := cur :: chk.stack;
+			CFill k
+		| CUse e ->
+			chk.stack := cur :: chk.stack;
+			CUse (check_expr chk e)
+		| CEnd ->
+			match chk.stack {
+			| [] -> error "Unexpected end" snd(e)
+			| (_,_,vars) :: stack ->
+				chk.vars := vars;
+				chk.stack := stack;
+			}
+			CEnd
+		| CCompare ->
+			chk.stack := cur :: chk.stack;
+			CCompare
+		| CCompareWith ->
+			match chk.stack {
+			| (CCompare,_,_) :: stack -> chk.stack := cur :: stack;
+			| _ -> error "Unexpected ~=" snd(e)
+			}
+			CCompareWith
+		}
+		XConstr c
+	}, snd e)
+}
+
+function run(chk,xml,el) {
+	var old = chk.macros;
+	chk.xml := xml;
+	List.iter (function(f) f.used := false) chk.macro_files;
+	var el = check_content chk el;
+	chk.macros := old;
+	(el, List.map (function(f) f.file) (List.filter (function(f) f.used) chk.macro_files))
+}

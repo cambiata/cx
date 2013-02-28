@@ -1,0 +1,682 @@
+/*
+ *  Templo compiler
+ *  Copyright (c)2008 Motion-Twin
+ *
+ *  This library is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU Lesser General Public
+ *  License as published by the Free Software Foundation; either
+ *  version 2.1 of the License, or (at your option) any later version.
+ *
+ *  This library is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License or the LICENSE file for more details.
+ */
+open Lexer;
+open Templo.Ast;
+
+exception ExtraExpr : (expr,pos);
+exception ExtraElt : (elt,pos);
+exception ExtraAttr : (string,elt,pos);
+exception MissingExpr : (expr,pos);
+exception MissingElt : (elt,pos);
+exception MissingAttr : (string,elt,pos);
+exception DiffExpr : (expr,expr);
+exception DiffElt : (elt,elt);
+exception Diff : ((string,pos),(string,pos));
+exception MacroNotFound : (string,pos);
+exception UnclosedCompare : pos;
+
+var data_meaningful = &false;
+var debug = &false;
+var macros = &Map.empty();
+var used_var_callback = &(function(_,_) ());
+var xml_config = &None;
+var is_xml = &false;
+var original = &false;
+
+function node_data_matters(node) {
+	if *is_xml then
+		match *xml_config {
+		| None -> false
+		| Some m -> Map.exists m (node,"!DATA")
+		}
+	else
+		match node {
+		| "script" | "style" -> true
+		| _ -> false
+		}
+}
+
+function is_text_attribute(node,a) {
+	if *is_xml then
+		match *xml_config {
+		| None -> false
+		| Some m -> Map.exists m (node,a) || Map.exists m ("*",a) || Map.exists m (node,"*")
+		}
+	else
+		match a {
+		| "title" | "alt" -> true
+		| "value" -> node == "input"
+		| _ -> false
+		}
+}
+
+function data(f) {
+	var old = *data_meaningful;
+	data_meaningful := f;
+	function() data_meaningful := old;
+}
+
+function diff(sa,ea,sb,eb) {
+	throw Diff((sa,snd ea),(sb,snd eb));
+}
+
+function check(sa,ea,sb,eb) {
+	if sa != sb then diff sa ea sb eb
+}
+
+function rec compare_attr_list(callb,node,ela,elb,ea,eb) {
+	match (ela,elb) {
+	| ([],[]) -> ()
+	| ((a,xa) :: ela, (b,xb) :: elb) ->
+		check a ea b eb;
+		var f = data (!is_text_attribute(node,a));
+		callb xa xb snd(ea) snd(eb);
+		f();
+		compare_attr_list callb node ela elb ea eb
+	| ([],(b,_) :: _) ->
+		throw ExtraAttr(b,eb,snd ea);
+	| ((a,_) :: _,[]) ->
+		throw MissingAttr(a,ea,snd eb);
+	}
+}
+
+var _ = 0; // hack
+
+/*
+	We must tell for each macro param if it's used in a place where PCDATA matter
+*/
+function rec add_macro(m) {
+	var used = Hashtbl.create();
+	used_var_callback := (function(v,logic) if logic then Hashtbl.replace used v true);
+	match m.m_content {
+	| MContent c -> compare_gram_content c c null_pos null_pos
+	| MAttr al ->
+		var e0 = (XData "ASSERT",null_pos);
+		compare_attr_list compare_content "" al al e0 e0
+	}
+	var params = List.map (function((p,mode,_)) Hashtbl.exists used p && mode != MLiteral) m.m_args;
+	function arg_str((p,_,opt)) {
+		(if opt then "?" else "") + p + ":" + (if Hashtbl.exists used p then "logic" else "literal")
+	}
+	if *debug then IO.printf IO.stdout "MACRO %s(%s)\n" (m.m_name,String.concat "," (List.map arg_str m.m_args));
+	macros := Map.add (*macros) m.m_name (m.m_mode,params);
+}
+
+function rec compare_expr(ea:expr,eb:expr,logic) {
+	match (fst ea,fst eb) {
+	| (VConst a,VConst b) when a == b -> ()
+	| (VConst (CString _), VConst (CString _)) when !logic -> ()
+	| (VIdent a,VIdent b) when a == b -> ()
+	| (VVar a, VVar b) when a == b -> (*used_var_callback) a logic
+	| (VIf (ea1,ea2,eao),VIf (eb1,eb2,ebo)) ->
+		compare_expr ea1 eb1 true;
+		compare_expr ea2 eb2 logic;
+		match (eao,ebo) {
+		| (None, None) -> ()
+		| (Some ea, Some eb) -> compare_expr ea eb logic;
+		| (None, Some e) -> throw ExtraExpr(e,snd ea)
+		| (Some e, None) -> throw MissingExpr(e,snd eb)
+		}
+	| (VBinop (OpCompare,_,ea) , _) ->
+		compare_expr ea eb logic
+	| (_, VBinop (OpCompare,_,eb)) ->
+		compare_expr ea eb logic
+	| (VBinop (opa,ea1,ea2),VBinop (opb,eb1,eb2)) ->
+		if opa != opb then diff s_op(opa) ea s_op(opb) eb;
+		compare_expr ea1 eb1 true;
+		compare_expr ea2 eb2 true;
+	| (VUnop (opa,flaga,ea1),VUnop (opb,flagb,eb1)) ->
+		if opa != opb || flaga != flagb then diff s_unop(opa) ea s_unop(opb) eb;
+		compare_expr ea1 eb1 true
+	| (VCall (ea1,eal),VCall (eb1,ebl)) ->
+		compare_expr ea1 eb1 true;
+		compare_expr_list eal ebl snd(ea) snd(eb) true
+	| (VParent ea,VParent eb) ->
+		compare_expr ea eb logic
+	| (VField (ea1,fa),VField (eb1,fb)) ->
+		compare_expr ea1 eb1 true;
+		check fa ea fb eb;
+	| (VArray (ea1,ea2),VArray (eb1,eb2)) ->
+		compare_expr ea1 eb1 true;
+		compare_expr ea2 eb2 true;
+	| (VArrayDecl eal,VArrayDecl ebl) ->
+		compare_expr_list eal ebl snd(ea) snd(eb) logic
+	| (VBool ea, VBool eb) ->
+		compare_expr ea eb true
+	| (VLiteral ea,VLiteral eb) ->
+		var f = data false;
+		compare_expr ea eb false;
+		f();
+	| (VObject al, VObject bl) when List.length al == List.length bl ->
+		List.iter2 (function((na,a),(nb,b)) {
+			if na != nb then throw DiffExpr(ea,eb);
+			compare_expr a b true;
+		}) al bl
+	| _ ->
+		throw DiffExpr(ea,eb)
+	}
+}
+
+function rec compare_expr_list(ela,elb,pa,pb,logic) {
+	match (ela,elb) {
+	| ([],[]) -> ()
+	| (ea :: ela, eb :: elb) ->
+		compare_expr ea eb logic;
+		compare_expr_list ela elb snd(ea) snd(eb) logic
+	| ([],eb :: _) ->
+		throw ExtraExpr(eb,pa);
+	| (ea :: _,[]) ->
+		throw MissingExpr(ea,pb);
+	}
+}
+
+function rec compare_elt(ea:elt,eb:elt) {
+	match (fst ea,fst eb) {
+	| (XNode na, XNode nb) ->
+		check na.n_node ea nb.n_node eb;
+		if na.n_ignore != nb.n_ignore then diff "::ignore" ea "::ignore" eb;
+		compare_attr_list compare_content na.n_node na.n_attributes nb.n_attributes ea eb;
+		compare_attr_list (function(ea,eb,_,_) compare_expr ea eb (*data_meaningful)) na.n_node na.n_attrs nb.n_attrs ea eb;
+		function make_macro((m,p,c)) (XMacroCall m c,p);
+		compare_gram_content (List.map make_macro na.n_macros) (List.map make_macro nb.n_macros) snd(ea) snd(eb);
+		match (na.n_cond, nb.n_cond) {
+		| (None,None) -> ()
+		| (Some ea,Some eb) -> compare_expr ea eb true
+		| _ -> diff "::cond" ea "::cond" eb
+		}
+		match (na.n_repeat, nb.n_repeat) {
+		| (None,None) -> ()
+		| (Some (va,ea),Some (vb,eb)) ->
+			check va ea vb eb;
+			compare_expr ea eb true
+		| _ -> diff "::repeat" ea "::repeat" eb
+		}
+		match (na.n_content, nb.n_content) {
+		| (None,None) -> ()
+		| (Some ela,Some elb) ->
+			var f = data (node_data_matters na.n_node);
+			if !na.n_ignore then compare_gram_content ela elb snd(ea) snd(eb);
+			f()
+		| _ -> diff "<content>" ea "<content>" eb
+		}
+	| (XMacroCall (ma,ela),XMacroCall(mb,elb)) ->
+		check ma ea mb eb;
+		var la = List.length ela;
+		var lb = List.length elb;
+		if la != lb then diff (la + " args") ea (lb + " args") eb;
+		var mmode, margs = try Map.find (*macros) ma catch { Not_found -> throw MacroNotFound(ma,snd ea) };
+		if List.length margs != la then error "Macro #args differs";
+		var margs = &margs;
+		List.iter2 (function(ela,elb) {
+			var t = &true;
+			margs := match *margs { [] -> assert() | p :: l -> t:= p; l };
+			var f = data (*t);
+			compare_gram_content ela elb snd(ea) snd(eb);
+			f();
+		}) ela elb;
+	| (XMacroDef ma, XMacroDef mb) ->
+		check ma.m_name ea mb.m_name eb;
+		var la = List.length ma.m_args;
+		var lb = List.length mb.m_args;
+		function astr(args) String.concat "," (List.map (function((a,_,_)) a) args);
+		if la != lb then diff (astr ma.m_args) ea (astr mb.m_args) eb;
+		function ostr(o) if o then "optional" else "not-optional";
+		function mstr(m) match m { MNormal -> "normal" | MLiteral -> "literal" | MGrammar -> "grammar" };
+		check (mstr ma.m_mode) ea (mstr mb.m_mode) eb;
+		List.iter2 (function((a,ma,oa),(b,mb,ob)) { check (ostr oa) ea (ostr ob) eb; check (mstr ma) ea (mstr mb) eb; check a ea b eb; }) ma.m_args mb.m_args;
+		match (ma.m_content, mb.m_content) {
+		| (MContent ela,MContent elb) -> compare_gram_content ela elb snd(ea) snd(eb)
+		| (MAttr la,MAttr lb) -> compare_attr_list compare_content "" la lb ea eb
+		| _ -> diff "<content>" ea "<content>" eb
+		}
+		add_macro ma;
+	| (XComment a,XComment b) | (XData a,XData b) ->
+		// in case it's meaningful to compare them
+		check a ea b eb
+	| (XCData ela,XCData elb) ->
+		compare_gram_content ela elb snd(ea) snd(eb)
+	| (XConstr ca,XConstr cb) ->
+		match (ca,cb) {
+		| (CValue ea,CValue eb) | (CRaw ea, CRaw eb) ->
+			compare_expr ea eb (*data_meaningful)
+		| (CIf ea, CIf eb)
+		| (CElseIf ea, CElseIf eb)
+		| (CUse ea, CUse eb)
+		| (CSwitch ea, CSwitch eb)
+		| (CEval ea, CEval eb) ->
+			compare_expr ea eb true
+		| (CFill a, CFill b) when a == b ->
+			()
+		| (CElse,CElse) | (CEnd,CEnd) ->
+			()
+		| (CForeach (a,ea1),CForeach (b,eb1)) | (CSet (a,ea1),CSet (b,eb1)) ->
+			check a ea b eb;
+			compare_expr ea1 eb1 true
+		| (CCase x,CCase y) when x == y ->
+			()		
+		| _ ->
+			throw DiffElt(ea,eb)
+		}	
+	| _ ->
+		throw DiffElt(ea,eb)
+	}
+}
+
+function rec compare_gram_content(ela,elb,pa,pb) {
+	try
+		compare_content ela elb pa pb
+	catch {
+		DiffExpr (e1,e2) ->
+			function collect_vars(el) {
+				var vars = &Map.empty();
+				function rec loop(e) {
+					match fst e {
+					| XData _ -> ()
+					| XConstr (CValue e) ->
+						match fst e {
+						| VIdent i | VVar i -> vars := Map.add (*vars) i e;
+						| _ -> throw Exit
+						}
+					| XNode n when ! *is_xml ->
+						match n.n_node {
+						| "b" | "em" | "p" | "br" -> ()
+						| _ -> throw Exit
+						}
+						if n.n_attributes != [] || n.n_macros != [] || n.n_cond != None || n.n_repeat != None || n.n_attrs != [] || n.n_ignore then throw Exit;
+						match n.n_content {
+						| None -> ()
+						| Some el -> List.iter loop el
+						}
+					| XComment _ | XMacroCall _ | XMacroDef _ | XNode _ | XCData _ | XConstr _ -> throw Exit
+					}
+				}
+				List.iter loop el;
+				*vars;
+			}
+			/*
+				If the two flows contain only text and simple vars, assume that
+				it's grammatical text and that the variables order has no meaning
+				wrt comparison
+			*/
+			try {
+				var v1 = &(collect_vars ela);
+				var v2 = &(collect_vars elb);
+				Map.iter (function(v,_) {
+					if Map.exists (*v2) v then {
+						v2 := Map.remove (*v2) v;
+						v1 := Map.remove (*v1) v;
+					}
+				}) (*v1);
+				Map.iter (function(_,e1) {
+					Map.iter (function(_,e2) throw DiffExpr(e1,e2)) (*v2);
+					throw MissingExpr(e1,pb);
+				}) (*v1);
+				Map.iter (function(_,e2) {
+					Map.iter (function(_,e1) throw DiffExpr(e1,e2)) (*v1);
+					throw ExtraExpr(e2,pa);
+				}) (*v2);
+			} catch {
+				Exit -> throw DiffExpr(e1,e2)
+			}
+	}
+}
+
+function rec compare_content(ela: elt list,elb : elt list,pa,pb) {
+	function is_null_elt(e) {
+		match fst e {
+		| XComment _ | XData _ -> !(*data_meaningful)
+		| XNode n -> n.n_ignore
+		| XConstr (CValue e)
+		| XConstr (CRaw e) ->
+			match fst e {
+			| VConst (CString _) -> !(*data_meaningful)
+			| _ -> false
+			}
+		| _ -> false
+		}
+	}	
+	function rec remove_compare(el,p) {
+		match el {
+		| [] -> throw UnclosedCompare(p)
+		| e :: el ->
+			match fst(e) {
+			| XConstr CCompare -> remove_compare (remove_compare el snd(e)) p
+			| XConstr CCompareWith -> 
+				function rec loop(el,n) {
+					match el {
+					| [] -> assert()
+					| e :: el ->
+						match fst(e) {
+						| XConstr c ->
+							match c {
+							| CEnd -> 
+								if n > 0 then e :: loop el (n - 1) else el
+							| CIf _ | CForeach _ | CFill _ | CUse _ | CSwitch _ | CCompare ->
+								e :: loop el (n + 1)
+							| _ -> 
+								e :: loop el n
+							}
+						| _ ->
+							e :: loop el n
+						}
+					}
+				}
+				loop el 0
+			| _ -> remove_compare el p
+			}
+		}
+	}
+	match (ela,elb) {
+	| ((XConstr CCompare,pa) :: ela, _) -> compare_content (remove_compare ela pa) elb pa pb
+	| (_, (XConstr CCompare,pb) :: elb) -> compare_content ela (remove_compare elb pb) pa pb
+	| (ea :: ela, _) when is_null_elt ea -> compare_content ela elb snd(ea) pb
+	| (_, eb :: elb) when is_null_elt eb -> compare_content ela elb pa snd(eb)
+	| ([],[]) -> ()
+	| (ea :: ela, eb :: elb) ->
+		compare_elt ea eb;
+		compare_content ela elb snd(ea) snd(eb)
+	| ([],eb :: _) ->
+		throw ExtraElt(eb,pa);
+	| (ea :: _,[]) ->
+		throw MissingElt(ea,pb);
+	}
+}
+
+function log(io,fmt:'a format,p : 'a) {
+	IO.printf io fmt p;
+	IO.write io "\n";
+}
+
+function pos_str((_,p)) {
+	if *debug then "" else p.psource + ":" + p.pline + ":"
+}
+
+function escape(s) {
+	var b = Buffer.create();
+	function rec loop(i) {
+		if i == String.length s then
+			Buffer.string b
+		else {
+			match String.get s i {
+			| '\n' -> Buffer.add b "\\n"
+			| '\t' -> Buffer.add b "\\t"
+			| '\r' -> Buffer.add b "\\r"
+			| c -> Buffer.add_char b c
+			};
+			loop (i+1)
+		}
+	};
+	loop(0);
+}
+
+function str(e,f) {
+	if *debug then "\n\t" + string(e) + "\n" else "'"+escape (f e)+"'";
+}
+
+function txt_str((t,_)) {
+	t
+}
+
+function rec expr_str(e) {
+	match fst e {
+	| VConst c ->
+		match c {
+		| CInt i -> string i
+		| CString s -> s
+		| CFloat s -> s
+		}
+	| VIdent i | VVar i ->
+		i
+	| VIf (e1,e2,eo) ->
+		var eostr = match eo { None -> "" | Some e -> " else " + expr_str e };
+		"if " + expr_str e1 + " " + expr_str e2 + eostr;
+	| VBinop (op,e1,e2) ->
+		expr_str e1 + s_op op + expr_str e2
+	| VUnop (op,prefix,e) ->
+		if prefix then s_unop op + expr_str e else expr_str e + s_unop op
+	| VCall (e,el) ->
+		expr_str e + "(" + String.concat "," (List.map expr_str el) + ")"
+	| VParent e ->
+		"(" + expr_str e + ")"
+	| VField (e,f) ->
+		expr_str e + "." + f
+	| VArray (e1,e2) ->
+		expr_str e1 + "[" + expr_str e2 + "]"
+	| VArrayDecl el ->
+		"[" + String.concat "," (List.map expr_str el) + "]"
+	| VBool e ->
+		expr_str e
+	| VLiteral e ->
+		"literal " + expr_str e
+	| VObject fl ->
+		"{" + String.concat "," (List.map (function((s,e)) s + " : " + expr_str e) fl) + "}"
+	}
+}
+
+function rec elt_str(e) {
+	match fst e {
+	| XNode n -> "<" + n.n_node + "..."
+	| XMacroCall (m,el) -> "$$" + m + "(...)"
+	| XMacroDef m ->
+		function mode_str(m) match m { MNormal -> "" | MLiteral -> "literal " | MGrammar -> "grammar " };
+		"<macro name=\"" + mode_str m.m_mode + m.m_name + "(" + String.concat "," (List.map (function((a,m,o)) mode_str m + (if o then "?" + a else a)) m.m_args) + ")\"..."
+	| XComment s -> "<!--"+s+"-->"
+	| XData s -> s
+	| XCData _ -> "<![CDATA[...]]>"
+	| XConstr c ->
+		match c {
+		| CValue e -> "::" + expr_str e + "::"
+		| CRaw e -> "::raw " + expr_str e + "::"
+		| CIf e -> "::if "+expr_str e+"::"
+		| CElseIf e -> "::elseif "+expr_str e+"::"
+		| CElse -> "::else::"
+		| CForeach (s,e) -> "::foreach " + s + " " + expr_str e + "::"
+		| CFill s -> "::fill "+s+"::"
+		| CUse e -> "::use " + expr_str e + "::"
+		| CSet (v,e) -> "::set "+v+" = "+expr_str e+"::"
+		| CEval e -> "::eval "+expr_str e+"::"
+		| CEnd -> "::end::"
+		| CSwitch e -> "::switch "+expr_str e+"::"
+		| CCase n -> if n == -1 then "::case::" else "::case "+n+"::"
+		| CCompare -> "::compare::"
+		| CCompareWith -> "::~=::"
+		}
+	}
+}
+
+function init(dbg,xml,ml) {
+	debug := dbg;
+	xml_config := match xml {
+	| None -> None
+	| Some data ->
+		var m = &Map.empty();
+		List.iter (function(x) {
+			match String.split x "." {
+			| [] | [""] -> ()
+			| x :: _ when String.get x 0 == '#' -> ()
+			| [node;name] -> m := Map.add (*m) (node,name) true
+			| _ -> error ("Invalid XML configuration format '" + x + "'")
+			}
+		}) Regexp.split(Regexp.build "[\n\r]+",data);
+		Some (*m)
+	}
+	macros := Map.empty();
+	function rec loop(ml) {
+		var retry = &[];
+		List.iter (function(m)
+			try add_macro m catch { MacroNotFound _ -> retry := m :: *retry }
+		) ml;
+		match *retry {
+		| [] -> ()
+		| m :: _ when List.length (*retry) == List.length ml -> add_macro m // error
+		| _ -> loop (*retry)
+		}
+	}
+	loop ml;
+}
+
+function rec cleanup_grammar(el) {
+	function rec loop(el,acc) {
+		match el {
+		| [] -> List.rev acc
+		| (XMacroCall (ma,cl),p) :: l ->
+			var mmode, _ = try Map.find (*macros) ma catch { Not_found -> throw MacroNotFound(ma,p) };
+			match mmode {
+			| MGrammar ->
+				// remove ::raw since it's implied by macro usage
+				function noraw(e) {
+					match fst e {
+					| XConstr c ->
+						match c {
+						| CRaw v -> (XConstr (CValue v),snd e)
+						| _ -> e
+						}
+					| _ -> e
+					}
+				}
+				var cl = List.map (List.map noraw) cl;
+				loop l (List.append (List.concat cl) acc)
+			| _ ->
+				loop l ((XMacroCall ma (List.map cleanup_grammar cl),p) :: acc)
+			}
+		| (e,p) :: l ->
+			var e = match e {
+			| XNode n ->
+				var n = {
+					n_node = n.n_node;
+					n_attributes = n.n_attributes;
+					n_macros = n.n_macros;
+					n_cond = n.n_cond;
+					n_repeat = n.n_repeat;
+					n_attrs = n.n_attrs;
+					n_content = match n.n_content { None -> None | Some c -> Some (cleanup_grammar c) };
+					n_ignore = n.n_ignore;
+				};
+				XNode n
+			| XMacroCall _ ->
+				assert()
+			| XMacroDef m ->
+				add_macro m;
+				var m = {
+					m_mode = m.m_mode;
+					m_name = m.m_name;
+					m_args = m.m_args;
+					m_content = match m.m_content {
+						| MContent c -> MContent (if m.m_mode == MGrammar then [] else cleanup_grammar c)
+						| MAttr al -> MAttr (List.map (function((a,c)) (a, if m.m_mode == MGrammar then [] else cleanup_grammar c)) al)
+					};
+				}
+				XMacroDef m;
+			| XCData c ->
+				XCData (cleanup_grammar c)
+			| XComment _ | XData _ | XConstr _ ->
+				e
+			};
+			loop l ((e,p) :: acc)
+		}
+	}
+	loop el []
+}
+
+function rec compare(a,b,compile,io) {
+	var is_a = try Some (Sys.is_directory a) catch { _ -> None };
+	var is_b = try Some (Sys.is_directory b) catch { _ -> None };
+	match (is_a, is_b) {
+	| (None, Some _) ->
+		log io "%s:0: is no longer useful" b;
+		true
+	| (Some false, None) ->
+		log io "%s:0: %s is missing" (a,b);
+		true
+	| (None, None) ->
+		log io "Both '%s' and '%s' are missing" (a,b);
+		true
+	| (Some true,Some true) | (Some true,None) ->
+		var files_a = Sys.read_directory a;
+		var files_b = try Sys.read_directory b catch { _ -> [] };
+		var files = List.fold (function(acc,e) if List.mem e acc then acc else e :: acc) files_b files_a;
+		var found = &false;
+		List.iter (function(f) {
+			is_xml := false;
+			var cmp = match Sys.extension(f) {
+				| "" | "mtt" -> true
+				| "xml" ->
+					match *xml_config {
+					| None -> false
+					| Some _ -> is_xml := true; true
+					}
+				| _ -> false // skip other files
+			};
+			if cmp then found := compare (a+"/"+f) (b+"/"+f) compile io || *found;
+		}) files;
+		*found
+	| (Some true,Some false) | (Some false,Some true) ->
+		Templo.Compare.log IO.stdout "'%s' and '%s' are not both files or directories" (a,b);
+		true
+	| _ ->
+		var ea = compile a;
+		var eb = compile b;
+		var old = *macros;
+		function original(p) {
+			if *original then log io "%s |      original file" pos_str((0,p));
+		}
+		function makep(file) {
+			{ psource = file; pline = 1; pmin = 0; pmax = 0 }
+		}
+		try  {
+			used_var_callback := (function(_,_) ());
+			data_meaningful := false;
+			var ea = cleanup_grammar ea;
+			macros := old;
+			var eb = cleanup_grammar eb;
+			macros := old;
+			compare_gram_content ea eb makep(a) makep(b)
+		} catch {
+			| ExtraExpr (e,p) ->
+				log io "%s extra %s" (pos_str e, str e expr_str);
+				original p
+			| ExtraElt (e,p) ->
+				log io "%s extra %s" (pos_str e, str e elt_str);
+				original p
+			| ExtraAttr (a,e,p) ->
+				log io "%s extra attribute '%s' in %s" (pos_str e,a,str e elt_str);
+				original p
+			| MissingExpr (e,p) ->
+				log io "%s missing %s" (pos_str (0,p), str e expr_str);
+				original (snd e)
+			| MissingElt (e,p) ->
+				log io "%s missing %s" (pos_str (0,p), str e elt_str);
+				original (snd e)
+			| MissingAttr (a,e,p) ->
+				log io "%s missing attribute '%s' in %s" (pos_str (0,p),a,str e elt_str);
+				original (snd e)
+			| DiffExpr (a,b) ->
+				log io "%s %s should be %s" (pos_str b,str b expr_str,str a expr_str);
+				original snd(a)
+			| DiffElt (a,b) ->
+				log io "%s %s should be %s" (pos_str b,str b elt_str, str a elt_str);
+				original snd(a)
+			| Diff (a,b) ->
+				log io "%s %s should be %s" (pos_str b,str b txt_str, str a txt_str);
+				original snd(a)
+			| MacroNotFound (m,p) ->
+				log io "%s macro not found %s" (pos_str (m,p),m)
+			| UnclosedCompare p ->
+				log io "%s unclosed ::compare" (pos_str (0,p))
+		}
+		macros := old;
+		true
+	}
+}

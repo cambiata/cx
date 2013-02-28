@@ -4,8 +4,8 @@ import harfang.controller.AbstractController;
 import harfang.exception.Exception;
 import ka.tools.PersonTools;
 import ka.tools.UserTools;
-import mtwin.mail.Part;
-import mtwin.mail.Smtp;
+
+//import mtwin.mail.Smtp;
 import neko.Lib;
 import neko.Web;
 import smd.server.proto.base.controller.UserController;

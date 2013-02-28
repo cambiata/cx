@@ -6,8 +6,7 @@ package smd.server.proto.lib.user;
  */
 
 typedef User = {
-	id:Int,
-	ssnr:String,
+	id:String,
 	category:UserCategory,
 	firstname:String,
 	lastname:String,
