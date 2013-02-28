@@ -23,8 +23,6 @@ class SiteConfiguration extends BaseConfiguration
         super.init();		
 		//Log.trace = SiteConfiguration.trace;	
 		
-		
-		
 		try {			
 			var ctx = new haxe.remoting.Context();			
 			ctx.addObject("Server", new Server());

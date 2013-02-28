@@ -34,14 +34,11 @@ class Main
 			trace('loaded!');
 		});
 		
-		
-		
 		trace('parse...');
 		var xmlData = FileTools.getContent(xmlFile);
 		var users = G2Tools.getUsersFromG2Xml(Xml.parse(xmlData));
 		trace(users.length);
 		trace('parsed!');		
-		
 		
 		var g2usersFile = Config.filesPath + 'g2users.sqlite';		
 		var cnx = Sqlite.open(g2usersFile);
@@ -51,7 +48,7 @@ class Main
 		
 		Gustavuser.deleteAll(cnx);
 		
-		var users = users.splice(0, 10);
+		//var users = users.splice(0, 10);
 		trace(users.length);		
 		
 		for (user in users) {
@@ -59,16 +56,15 @@ class Main
 			u.insert();
 		}
 		
-		
-		/*
 		var u = new Gustavuser();
 		u.firstname = 'Jonas';
 		u.lastname = 'Nyström';
 		u.id = '196612228616';
-		u.email = 'jonasnys@gmail.com';
-		u.last4 = '8616';
+		u.email = 'jon';
+		u.last4 = '123';
 		u.insert();
 		
+		/*
 		var o = new Order();
 		o.label = 'test';
 		o.user = u;
