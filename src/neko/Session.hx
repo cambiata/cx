@@ -6,8 +6,8 @@ package neko;
 
 import haxe.Serializer;
 import haxe.Unserializer;
-import neko.FileSystem;
-import neko.io.File;
+import sys.FileSystem;
+import sys.io.File;
 import neko.Web;
 
 using StringTools;
@@ -33,7 +33,7 @@ class Session
 	
 	static var id : String;
 	
-	static var sessionData : Hash<Dynamic>;
+	static var sessionData : Map<String, Dynamic>;
 	static var needCommit : Bool;
 
 	static function __init__()
@@ -137,11 +137,11 @@ class Session
 		
 		if (id == null)
 		{
-			sessionData = new Hash<Dynamic>();
+			sessionData = new Map<String,Dynamic>();
 			
 			while (true)
 			{
-				id = haxe.Md5.encode(Std.string(Math.random()) + Std.string(Math.random()));
+				id = haxe.crypto.Md5.encode(Std.string(Math.random()) + Std.string(Math.random()));
 				if (!FileSystem.exists(savePath + "/" + id + ".sess")) break;
 			}
 			
@@ -156,7 +156,7 @@ class Session
 
 	public static function clear()
 	{
-		sessionData = new Hash<Dynamic>();
+		sessionData = new Map<String,Dynamic>();
 	}
 	
 	public static function close()

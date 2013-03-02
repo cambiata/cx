@@ -5,9 +5,21 @@
  */
 package neko;
 
+#if haxe3 
+
+#else 
+
+#end
+
+
 import cx.SqliteTools;
-import haxe.CallStack;
-import haxe.crypto.Md5;
+//import haxe.CallStack;
+#if haxe3 
+import haxe.crypto.Md5; 
+#else 
+import haxe.Md5;
+#end
+
 import haxe.Serializer;
 import haxe.Unserializer;
 import sys.FileSystem;
@@ -45,7 +57,14 @@ class SQLiteSession
 	
 	static var id : String;
 	
-	static var sessionData : Map<String, Dynamic>;
+	
+
+
+
+
+
+	static var sessionData :#if haxe3  Map<String, Dynamic>; #else Hash<Dynamic>; #end
+	
 	static var needCommit : Bool;
 
 	static function __init__()
@@ -197,9 +216,11 @@ class SQLiteSession
 		
 		if (id == null)
 		{
-			
+			#if haxe3
 			sessionData = new Map<String, Dynamic>();
-			
+			#else
+			sessionData = new Hash<Dynamic>();
+			#end
 			// Generera nytt unikt id...
 			while (true)
 			{		
@@ -233,7 +254,11 @@ class SQLiteSession
 	public static function clear()
 	{
 		//Lib.println('clear');
+		#if haxe3
 		sessionData = new Map<String, Dynamic>();
+		#else
+		sessionData = new Hash<Dynamic>();
+		#end
 	}
 	
 	public static function close()

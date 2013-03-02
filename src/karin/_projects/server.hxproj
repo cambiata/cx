@@ -12,6 +12,7 @@
     <movie minorVersion="0" />
     <movie platform="Neko" />
     <movie background="#FFFFFF" />
+    <movie preferredSDK="F:\Motion-Twin\haxe-211" />
   </output>
   <!-- Other classes to be compiled into your SWF -->
   <classpaths>

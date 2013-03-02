@@ -20,7 +20,6 @@
 package harfang.url;
 
 import harfang.controller.Controller;
-import harfang.server.request.RequestInfo;
 
 /**
  * A URL mapping consists of a binding between a controller and a URL. Whenever
@@ -37,32 +36,20 @@ interface URLMapping {
     /**
      * Indicates if the URL can be resolved using this mapping
      * @param url The URL to resolve
-     * @return True if the request can be resolved with this mapping, false
-     * otherwize.
+     * @return True if the URL can be resolved with this mapping, false otherwize
      */
     public function resolve(url : String) : Bool;
 
     /**
-     * Indicates if the URL dispatcher should proceed to dispatch the request
-     * given the provided request information.
-     *
-     * @param requestInfo Object containg the request's information.
-     * @return True if the dispatcher may disptach the request, false otherwize.
-     */
-    public function filter(requestInfo : RequestInfo) : Bool;
-
-    /**
      * Extracts the parameters that would be sent to this mapping's
-     * controller function from the given request information.
+     * controller function from the given URL
      * PRECONDITION : It's better to extract the parameters when you know
      *                if that this mapping can resolve the given URL.
      *                Use the "resolve" method on the same URL to know.
-     * @param requestInfo The erquest from which the parameters are extracted.
-     * It is the same object that is sent to the "resolve" method
-     * that is sent to the "resolve" method.
+     * @param url The URL on which we extract the parameters
      * @return An array containing all the extracted parameters
      */
-    public function extractParameters(requestInfo : RequestInfo) : Array<String>;
+    public function extractParameters(url : String) : Array<String>;
 
     /**
      * Returns the controller contained in the mapping

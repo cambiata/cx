@@ -2,6 +2,7 @@ package karin.server;
 import cx.ConfigTools;
 import haxe.Firebug;
 import haxe.Session;
+import karin.db.DB;
 import karin.server.auth.AuthKarin;
 import neko.SQLiteSession;
 import smd.server.proto.lib.auth.AuthDummy;
@@ -22,34 +23,31 @@ class SiteConfiguration extends BaseConfiguration
 	public override function init() {
         super.init();		
 		//Log.trace = SiteConfiguration.trace;	
+		Log.trace = Firebug.trace;
 		
-		try {			
+
+
+		try {
+			ConfigTools.loadConfig(Config, Config.configFile);				
+			Session.savePath = Config.filesPath + 'sessions/';
+			
+			DB.init();
+			var authLogic = new AuthLogic(new AuthKarin());			
+			
+			Context.setUser(authLogic.currentUser);		
+			//trace(Context.user);
+			
 			var ctx = new haxe.remoting.Context();			
 			ctx.addObject("Server", new Server());
 			if ( haxe.remoting.HttpConnection.handleRequest(ctx) ) {
-				//trace('remoting request');
-				return;
+				return;	
 			}
-		} catch (e:Dynamic) {
-			trace('Remoting error ' + e);
-		}
-		
-		try {
-			ConfigTools.loadConfig(Config, Config.configFile);	
-			SQLiteSession.setSavePath(Config.filesPath + 'sessions/');
-			var authLogic = new AuthLogic(new AuthKarin(Config.filesPath + 'g2users.sqlite'));			
-			Context.user = authLogic.currentUser;			
-			/*
-			//
-			var authLogic = new AuthLogic(new AuthSqlite(ScorxDBTools.getCnx(Config.filesPath + Config.dbFile)));
-			Context.user = authLogic.currentUser; 
-			Context.transferData = Serializer.run(ContextTransferTool.getTransfer(Context.user));			
-			*/
+			
+			this.addModule(new Site());			
+			
 			
 		} catch (e:Dynamic) onInitError(e);
-		
-		
-        this.addModule(new Site());
+        
     }	
 	
 }

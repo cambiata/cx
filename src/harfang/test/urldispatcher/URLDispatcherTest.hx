@@ -24,11 +24,7 @@ import haxe.unit2.TestCase;
 import harfang.url.URLDispatcher;
 import harfang.exception.Exception;
 import harfang.exception.NotFoundException;
-import harfang.server.request.RequestInfo;
-import harfang.server.request.Method;
-
 import harfang.test.urldispatcher.mock.MockURLDispatcherUserConfiguration;
-import harfang.test.urldispatcher.mock.MockURLDispatcherFilterConfiguration;
 import harfang.test.urldispatcher.mock.MockURLDispatcherController;
 
 /**
@@ -63,11 +59,7 @@ class URLDispatcherTest extends TestCase {
      */
     @Test
     public function testDispatchSimple() {
-        var rqInfo : RequestInfo = new RequestInfo();
-        rqInfo.uri = "/";
-        rqInfo.method = Method.GET;
-
-        this.dispatcher.dispatch(rqInfo);
+        this.dispatcher.dispatch("/");
 
         assertTrue(MockURLDispatcherController.getIsInit());
 
@@ -78,7 +70,6 @@ class URLDispatcherTest extends TestCase {
         assertTrue(MockURLDispatcherController.getDispatchedSimple());
         assertEquals(MockURLDispatcherController.getLastMethodName(), "dispatchSimple");
         assertTrue(MockURLDispatcherController.getCalledPostRequest());
-        assertEquals(MockURLDispatcherController.getLastPostMethodName(), "dispatchSimple");
     }
 
     /**
@@ -87,11 +78,7 @@ class URLDispatcherTest extends TestCase {
      */
     @Test
     public function testDispatchSlash() {
-        var rqInfo : RequestInfo = new RequestInfo();
-        rqInfo.uri = "";
-        rqInfo.method = Method.GET;
-
-        this.dispatcher.dispatch(rqInfo);
+        this.dispatcher.dispatch("");
         assertTrue(MockURLDispatcherController.getIsInit());
 
         // Make sure correct method is dispatched
@@ -101,7 +88,6 @@ class URLDispatcherTest extends TestCase {
         assertTrue(MockURLDispatcherController.getDispatchedSimple());
         assertEquals(MockURLDispatcherController.getLastMethodName(), "dispatchSimple");
         assertTrue(MockURLDispatcherController.getCalledPostRequest());
-        assertEquals(MockURLDispatcherController.getLastPostMethodName(), "dispatchSimple");
     }
 
     /**
@@ -109,11 +95,7 @@ class URLDispatcherTest extends TestCase {
      */
     @Test
     public function testDispatchParam() {
-        var rqInfo : RequestInfo = new RequestInfo();
-        rqInfo.uri = "/abc/";
-        rqInfo.method = Method.GET;
-
-        this.dispatcher.dispatch(rqInfo);
+        this.dispatcher.dispatch("/abc/");
         assertTrue(MockURLDispatcherController.getIsInit());
 
         // Make sure correct method is dispatched
@@ -122,8 +104,6 @@ class URLDispatcherTest extends TestCase {
         assertFalse(MockURLDispatcherController.getDispatchedDoNotDispatch());
         assertTrue(MockURLDispatcherController.getDispatchedParam());
         assertEquals(MockURLDispatcherController.getLastMethodName(), "dispatchParam");
-        assertTrue(MockURLDispatcherController.getCalledPostRequest());
-        assertEquals(MockURLDispatcherController.getLastPostMethodName(), "dispatchParam");
 
         // Make sure correct parameter is sent to the controller
         assertEquals(MockURLDispatcherController.getDispatchParamParam(), "abc");
@@ -135,11 +115,7 @@ class URLDispatcherTest extends TestCase {
      */
     @Test
     public function testDispatchMultipleParam() {
-        var rqInfo : RequestInfo = new RequestInfo();
-        rqInfo.uri = "/cDe/0988/";
-        rqInfo.method = Method.GET;
-
-        this.dispatcher.dispatch(rqInfo);
+        this.dispatcher.dispatch("/cDe/0988/");
         assertTrue(MockURLDispatcherController.getIsInit());
 
         // Make sure correct method is dispatched
@@ -148,14 +124,13 @@ class URLDispatcherTest extends TestCase {
         assertFalse(MockURLDispatcherController.getDispatchedDoNotDispatch());
         assertTrue(MockURLDispatcherController.getDispatchedMultipleParam());
         assertEquals(MockURLDispatcherController.getLastMethodName(), "dispatchMultipleParam");
-        assertTrue(MockURLDispatcherController.getCalledPostRequest());
-        assertEquals(MockURLDispatcherController.getLastPostMethodName(), "dispatchMultipleParam");
 
         // Make sure correct parameters are sent to the controller
         assertEquals(MockURLDispatcherController.getDispatchMutlipleParamParamA(), "cDe");
 
         // Make sure correct parameters are sent to the controller
         assertEquals(MockURLDispatcherController.getDispatchMutlipleParamParamB(), "0988");
+        assertTrue(MockURLDispatcherController.getCalledPostRequest());
     }
 
     /**
@@ -164,11 +139,7 @@ class URLDispatcherTest extends TestCase {
      */
     @Test
     public function testDoNotDispatch() {
-        var rqInfo : RequestInfo = new RequestInfo();
-        rqInfo.uri = "/_doNotDispatch/";
-        rqInfo.method = Method.GET;
-
-        this.dispatcher.dispatch(rqInfo);
+        this.dispatcher.dispatch("/_doNotDispatch/");
         assertTrue(MockURLDispatcherController.getIsInit());
 
         // Make sure correct method is dispatched
@@ -177,11 +148,7 @@ class URLDispatcherTest extends TestCase {
         assertFalse(MockURLDispatcherController.getDispatchedMultipleParam());
         assertFalse(MockURLDispatcherController.getDispatchedDoNotDispatch());
         assertEquals(MockURLDispatcherController.getLastMethodName(), "doNotDispatch");
-
-        // The post handle request shouldn't be called when handleRequest
-        // returns false.
-        assertTrue(MockURLDispatcherController.getLastPostMethodName() == null);
-        assertFalse(MockURLDispatcherController.getCalledPostRequest());
+        assertTrue(MockURLDispatcherController.getCalledPostRequest());
     }
 
     /**
@@ -189,12 +156,8 @@ class URLDispatcherTest extends TestCase {
      */
     @Test
     public function testDispatchNotFound() {
-        var rqInfo : RequestInfo = new RequestInfo();
-        rqInfo.uri = "-+-+qwe";
-        rqInfo.method = Method.GET;
-
         try {
-            this.dispatcher.dispatch(rqInfo);
+            this.dispatcher.dispatch("-+-+qwe");
         } catch(e : Exception) {
             assertEquals(Type.getClass(e), NotFoundException);
         }
@@ -206,61 +169,7 @@ class URLDispatcherTest extends TestCase {
         assertFalse(MockURLDispatcherController.getDispatchedParam());
         assertFalse(MockURLDispatcherController.getDispatchedMultipleParam());
         assertFalse(MockURLDispatcherController.getDispatchedDoNotDispatch());
-        assertTrue(MockURLDispatcherController.getLastMethodName() == null);
         assertFalse(MockURLDispatcherController.getCalledPostRequest());
-        assertTrue(MockURLDispatcherController.getLastPostMethodName() == null);
-    }
-
-    /**
-     * Tests the dispatcher "filter" and "resolve" functionnality
-     */
-    @Test
-    public function testResolveFilter() {
-        var rqInfo : RequestInfo = new RequestInfo();
-        rqInfo.uri = "/";
-        rqInfo.method = Method.GET;
-
-        var filterAndResolve : MockURLDispatcherFilterConfiguration =
-                new MockURLDispatcherFilterConfiguration(true, true);
-        filterAndResolve.init();
-
-        var filter : MockURLDispatcherFilterConfiguration =
-                new MockURLDispatcherFilterConfiguration(false, true);
-        filter.init();
-
-        var resolve : MockURLDispatcherFilterConfiguration =
-                new MockURLDispatcherFilterConfiguration(true, false);
-        resolve.init();
-
-        // Resolving and filtering returns true
-        var filterDispatcher : URLDispatcher = new URLDispatcher(filterAndResolve);
-        var dispatched : Bool = true;
-        try {
-            filterDispatcher.dispatch(rqInfo);
-        } catch(e : NotFoundException) {
-            dispatched = false;
-        }
-        assertTrue(dispatched);
-
-        // Resolving returns false
-        filterDispatcher = new URLDispatcher(filter);
-        dispatched  = true;
-        try {
-            filterDispatcher.dispatch(rqInfo);
-        } catch(e : NotFoundException) {
-            dispatched = false;
-        }
-        assertFalse(dispatched);
-
-        // Filtering returns false
-        filterDispatcher = new URLDispatcher(resolve);
-        dispatched = true;
-        try {
-            filterDispatcher.dispatch(rqInfo);
-        } catch(e : NotFoundException) {
-            dispatched = false;
-        }
-        assertFalse(dispatched);
     }
 
 }

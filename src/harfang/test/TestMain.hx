@@ -36,7 +36,6 @@ import haxe.unit2.output.XHTMLOutputWriter;
 import harfang.test.macroconfigurator.MacroConfiguratorTest;
 import harfang.test.urldispatcher.URLDispatcherTest;
 import harfang.test.serverconfiguration.ServerConfigurationTest;
-import harfang.test.servereventlistener.ServerEventListenerTest;
 
 /**
  * This is Harfang's main test launcher. It will launch the unit tests.
@@ -52,7 +51,6 @@ class TestMain {
         testRunner.add(MacroConfiguratorTest);
         testRunner.add(URLDispatcherTest);
         testRunner.add(ServerConfigurationTest);
-        testRunner.add(ServerEventListenerTest);
         testRunner.run();
 
         #if php

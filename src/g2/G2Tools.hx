@@ -72,8 +72,8 @@ class G2Tools
 			var user:GUser = { };
 			user.lastname = person.elementsNamed("a:Efternamn").next().firstChild().nodeValue; 
 			user.firstname = person.elementsNamed("a:Fornamn").next().firstChild().nodeValue; 
-			user.email = person.elementsNamed("a:Epost").next().firstChild().nodeValue; 
-			user.last4 = person.elementsNamed("a:LastFour").next().firstChild().nodeValue; 
+			user.email = person.elementsNamed("a:Epost").next().firstChild().nodeValue.toLowerCase(); 
+			user.last4 = person.elementsNamed("a:LastFour").next().firstChild().nodeValue.toLowerCase(); 
 			user.id = person.elementsNamed("a:Personnummer").next().firstChild().nodeValue; 
 			users.push(user);
 		}		

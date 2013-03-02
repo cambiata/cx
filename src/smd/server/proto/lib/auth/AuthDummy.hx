@@ -31,7 +31,7 @@ class AuthDummy implements IAuthCheck
 			id:				'19661222-8616',
 			firstname:		'Jonas',
 			lastname:		'Nyström',
-			category:		UserCategory.Deltagare,
+			category:		Std.string(UserCategory.Deltagare),
 			user:			user,
 			pass:			pass,
 		}
@@ -40,7 +40,7 @@ class AuthDummy implements IAuthCheck
 			id:				'11111111-1111',
 			firstname:		'Anna',
 			lastname:		'Andersson',
-			category:		UserCategory.Deltagare,
+			category:		Std.string(UserCategory.Deltagare),
 			user:			user,
 			pass:			pass,
 		}		

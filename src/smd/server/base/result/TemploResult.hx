@@ -1,6 +1,7 @@
 package smd.server.base.result;
 import harfang.controller.result.ActionResult;
 import neko.Web;
+import templo.Loader;
 
 /**
  * ...
@@ -19,7 +20,7 @@ class TemploResult extends ActionResult
 		path = (path == '') ? Web.getCwd() : path;		
 		templo.Loader.BASE_DIR = path + "tmp/";
 		templo.Loader.TMP_DIR = path + "tpl/";		
-		templo.Loader.MACROS = null; 			
+		templo.Loader.MACROS = null; // path + "tmp/macros.mtt";		
 	}
 	
 	override public function execute() {		

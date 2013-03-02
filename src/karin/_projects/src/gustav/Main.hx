@@ -2,10 +2,11 @@ package gustav;
 
 import cx.ConfigTools;
 import cx.FileTools;
-import g2.db.Gustavuser;
-import g2.db.Order;
+import karin.db.Gustavuser;
+import karin.db.Vipuser;
 import g2.G2Tools;
 import karin.Config;
+import karin.db.DB;
 import neko.Lib;
 import sys.db.Sqlite;
 import sys.db.Object;
@@ -22,57 +23,46 @@ class Main
 	
 	static function main() 
 	{
+		
 		ConfigTools.loadConfig(Config, Config.configFile);
 		trace('Config filesPath ' + Config.filesPath);		
 		
 		var xmlFile = Config.filesPath + 'g2.xml';
 		
-		
 		g2.G2Tools.getScorxPersoner(function(xmlData) {	
-			trace('load...');
+			trace('load from Sensus Gustav 2...');
 			FileTools.putContent(xmlFile, xmlData);			
 			trace('loaded!');
 		});
 		
-		trace('parse...');
+		trace('parse Sensus Gustav 2...');
 		var xmlData = FileTools.getContent(xmlFile);
 		var users = G2Tools.getUsersFromG2Xml(Xml.parse(xmlData));
 		trace(users.length);
 		trace('parsed!');		
 		
-		var g2usersFile = Config.filesPath + 'g2users.sqlite';		
-		var cnx = Sqlite.open(g2usersFile);
-		sys.db.Manager.cnx = cnx;
-		if ( !sys.db.TableCreate.exists(Gustavuser.manager) )  sys.db.TableCreate.create(Gustavuser.manager);		
-		if ( !sys.db.TableCreate.exists(Order.manager) )  sys.db.TableCreate.create(Order.manager);		
+		//----------------------------------------
+		// init karin.sqlite
 		
-		Gustavuser.deleteAll(cnx);
-		
-		//var users = users.splice(0, 10);
-		trace(users.length);		
-		
+		DB.init();
+		Gustavuser.create();
+		Gustavuser.deleteAll();
+
+		var maxUsers:Int = Std.parseInt(Std.string(Config.gustavMaxUsers));
+		trace('MaxUsers: ' + maxUsers);		
+		var users = users.splice(0, maxUsers);			
+
+		trace('Create Gustavusers...');
 		for (user in users) {
 			var u = Gustavuser.getFromGUser(user);
 			u.insert();
 		}
+		trace('Created Gustavusers!');
 		
-		var u = new Gustavuser();
-		u.firstname = 'Jonas';
-		u.lastname = 'Nyström';
-		u.id = '196612228616';
-		u.email = 'jon';
-		u.last4 = '123';
-		u.insert();
+		trace('Add vipusers...');
+		Gustavuser.addVipusers();
+		trace('Added vipusers!');
 		
-		/*
-		var o = new Order();
-		o.label = 'test';
-		o.user = u;
-		o.insert();
-		*/
-		
-		//var users = GDBUser.manager.all();
-		//trace(users.length);
 		
 	}
 }

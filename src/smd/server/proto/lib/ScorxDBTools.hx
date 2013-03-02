@@ -39,7 +39,6 @@ class ScorxDBTools
 		if (!TableCreate.exists(DBBox.manager)) TableCreate.create(DBBox.manager);
 		if (!TableCreate.exists(DBUserBox.manager)) TableCreate.create(DBUserBox.manager);
 		if (!TableCreate.exists(DBUser.manager)) TableCreate.create(DBUser.manager);
-		
 	}
 
 	

@@ -33,7 +33,7 @@ import harfang.server.event.ServerEventListener;
  * By default, this implementation of the ServerConfiguration is a
  * ServerEventListener, for convenience.
  */
-class AbstractServerConfiguration implements ServerConfiguration implements ServerEventListener {
+class AbstractServerConfiguration implements ServerConfiguration, implements ServerEventListener {
 
     /**************************************************************************/
     /*                             PRIVATE FIELDS                             */
@@ -65,21 +65,11 @@ class AbstractServerConfiguration implements ServerConfiguration implements Serv
 
     /**
      * Dispatch event - called when the queried URL corresponds to a controller
-     * (the URL has been dispatched). The event is only triggered when the
-     * controller's "handleRequest" returns true.
+     * (the URL has been dispatched). Call done before the controller is called
      *
      * @param urlMapping The URL mapping that was matched
      */
     public function onDispatch(urlMapping : URLMapping) : Void {}
-
-    /**
-     * Interrupted dispatch event - called when the URL dispatcher manages to
-     * find the controller and method to call but that the controller's
-     * handleRequest method returns false.
-     *
-     * @param urlMapping The URL mapping that was matched
-     */
-    public function onDispatchInterrupted(urlMapping : URLMapping) : Void {}
 
     /**
      * HTTP Error event - called when the server encounters a HTTP error
@@ -91,10 +81,11 @@ class AbstractServerConfiguration implements ServerConfiguration implements Serv
     public function onHTTPError(error : HTTPException) : Void {}
 
     /**
-     * Error event - called when the server encounters errors that are not
-     * covered by HTTP status codes. (Although the 500 error is pretty broad,
-     * the developer could throw other types of exceptions that would lead
-     * to this event)
+     * Error event - called when the server encounters an error during URL
+     * dispatching or controller operations that are not covered by the 404
+     * and 500 errors. Although the 500 error is pretty broad, the user could
+     * throw other types of exceptions that would lead to this event. Maybe
+     * the error needs further processing before returning a 404 or 500 message.
      *
      * @param exception The exception that was thrown
      */
