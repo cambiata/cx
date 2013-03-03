@@ -1,10 +1,14 @@
 package karin.server.remoting;
+import cx3.FileTools;
+import haxe.Json;
 import haxe.Serializer;
+import karin.Config;
 import karin.Context;
 import karin.db.Devtask;
 import karin.db.Gustavuser;
 import karin.types.Devintems;
 import karin.types.Devitem;
+import karin.types.DTasks;
 import karin.types.EResult;
 import smd.server.proto.lib.user.User;
 import smd.server.proto.lib.user.Users;
@@ -32,6 +36,17 @@ class Server
 			users.push(u);
 		}		
 		return users;
+	}
+	
+	public function adminGetDTasks()/*:DTasks*/ {
+		try {
+			var data = FileTools.getContent(Config.filesPath + Config.dtasksFile);
+			var dTasks:DTasks = Json.parse(data);
+			return EResult.Success(dTasks);			
+		} catch (e:Dynamic) {
+			return EResult.Error(Std.string(e));
+		}
+		return EResult.Error('');
 	}
 	
 	public function adminGetRoadmap() {

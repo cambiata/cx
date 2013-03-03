@@ -4,7 +4,7 @@
   <output>
     <movie outputType="Application" />
     <movie input="" />
-    <movie path="W:\server\devtasks.n" />
+    <movie path="bin\devtasks.n" />
     <movie fps="0" />
     <movie width="0" />
     <movie height="0" />
@@ -47,7 +47,7 @@
   <options>
     <option showHiddenPaths="True" />
     <option testMovie="Custom" />
-    <option testMovieCommand="http://server/devtasks.n" />
+    <option testMovieCommand="devtasks.bat" />
   </options>
   <!-- Plugin storage -->
   <storage />

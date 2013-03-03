@@ -4,7 +4,9 @@ import cx.FileTools;
 import cx.GoogleTools;
 import cx3.ConfigTools;
 import haxe.Json;
-import karin.Config;
+import devtasks.Config;
+import karin.tools.DevtaskTools;
+import karin.types.DTasks;
 /*
 import karin.db.DB;
 import karin.db.Devtask;
@@ -23,19 +25,34 @@ class Main
 {	
 	static function main() 
 	{
+		ConfigTools.loadConfig(Config, 'devtasks.conf');	
+		//trace(Config.filesPath);
 		
 		
+		/*
 		var email = 'jonasnys@gmail.com';
 		var passwd = '%gloria!';
-		var sheetData = '0Ar0dMoySp13UdDVuMWFJRFpuQW5wR054RHFiYmdPX1E';
-		var g = new cx.GoogleTools.Spreadsheet(email, passwd, sheetData);
+		var sheetData = '0Ar0dMoySp13UdG9tMThLUVNncmpzdHNpVDVLa1FtQ1E';
+		*/
+		
+		var g = new cx.GoogleTools.Spreadsheet(Config.email, Config.passwd, Config.sheetData);
 		var cells = g.getCells();
-		trace(cells);
-		
-		ConfigTools.loadConfig(Config, Config.configFile);
-		
-		var json = Json.stringify(cells);
+
+		var dTasks:DTasks = DevtaskTools.parseData(cells);
+		var json = Json.stringify(dTasks);
 		FileTools.putContent(Config.filesPath + 'devtasks.json', json);
+		
+		
+		/*
+		for (i in 0...cells.length) {
+			if (cells[i] == null) continue;
+			for (j in 0...cells[i].length) {
+				if (cells[i][j] == null) continue;
+				var str = cells[i][j];				
+				trace([i, j, str]);
+			}
+		}
+		*/
 		
 		/*
 		

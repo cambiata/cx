@@ -13,5 +13,6 @@ class Config
 	static public var dbFile:String 			= 'data/karin.sqlite';	
 	static public var vipusersSql:String 		= 'data/vipusers.sql';	
 	static public var devtasksDbFile:String 	= 'data/devtasks.sqlite';	
+	static public var dtasksFile:String 		= 'tasks/devtasks.json';	
 	static public var gustavMaxUsers:Int		= 50000;	
 }
