@@ -17,8 +17,6 @@ using Lambda;
 @uri('/admin/users')  
 class UsersController extends RemotingController {	
 
-	@id private var button1:JQuery; 	
-	//private var user:User;
 	@id private var tableUsers:JQuery;
 	@id private var tableStatus:JQuery;
 	
@@ -27,6 +25,10 @@ class UsersController extends RemotingController {
 	@id private var searchFirstname:JQuery;
 	@id private var searchId:JQuery;
 	@id private var searchCat:JQuery;
+	
+	@id private var showLimit:JQuery;
+	
+	
 
 	private var users:Users;
 	
@@ -40,9 +42,7 @@ class UsersController extends RemotingController {
 		super();
 		trace('AdminController');
 		
-		this.button1.click(function(e) {			
-			Lib.alert('click');
-		}); 	
+
 		
 		this.searchId.keyup(function(e) {			
 			this.sId = this.searchId.val();
@@ -67,37 +67,59 @@ class UsersController extends RemotingController {
 		this.searchCat.keyup(function(e) {			
 			this.sCat = this.searchCat.val();
 			TimerTools.timeout(function() this.updateTableUsers(), 500);
-		});		
+		});	
+		
+		this.showLimit.change(function(e) {			
+			trace(this.showLimit.is(':checked'));		
+			updateTableUsers();
+		});
+		
 				
 		this.adminGetAllUsers();
+		
 	}     	
+	
+	private function getShowLimit():Bool {
+		return this.showLimit.is(':checked');
+		
+	}
 	
 	public function adminGetAllUsers() {
 		this.tableStatus.text('Användardata hämtas. Vänligen vänta...');
 		this.cnx.Server.adminGetAllUsers.call(['abc'], function(users:Users) {
-			this.users = users;
+			this.users = users;			
+			showStatus(this.users);
 			updateTableUsers();
 		});		
+		
 	}
 	
 	public function updateTableUsers():Void {	
-		this.tableStatus.text('Uppdaterar listan. Vänligen vänta...');
+		this.tableStatus.text('Uppdaterar listan. <span style="color:red;">Vänligen vänta...</span>');
+		
 		this.tableUsers.html('<tr><td>Loading...</td></tr>');
 		var users = this.users;
 		var html = '';		
 		users = filterUsers(users, sFirstname, sLastname, sEmail, sId, sCat);		
 		users = sortUsers(users);
 		
+		var showUsers:Users = users;
+		if (this.getShowLimit()) showUsers = users.slice(0, 100);
 		
-		for (user in users) {
+		for (user in showUsers) {
 			var pnr = UserTools.personidToNr(user.id);
 			html += Std.format('<tr><td>${pnr}</td><td><b>${user.lastname}</b></td><td><b>${user.firstname}</b></td><td>${user.user}</td><td>${user.category}</td></tr>');
 		}
 		this.tableUsers.html(html);
-		this.tableStatus.text('Visar ' + Std.string(users.length) + ' av ' + Std.string(this.users.length));
+		showStatus(users);
+	}
+	
+	private function showStatus(selection:Users) {
+		this.tableStatus.text('Urval: ' + Std.string(selection.length) + ' av ' + Std.string(this.users.length));
 	}
 	
 	private function filterUsers(users:Users, firstname:String='', lastname:String='', email:String='', id:String='', cat=''):Users {		
+		
 		if (firstname != '') {
 			users = users.filter(function(a) { 
 				return (a.firstname.toLowerCase().indexOf(firstname.toLowerCase()) > -1);

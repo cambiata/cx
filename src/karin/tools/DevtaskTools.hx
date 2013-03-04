@@ -30,6 +30,7 @@ class DevtaskTools
 		var dTasks:DTasks = new DTasks();
 		
 		var dTask:DTask = null;
+		//var dTaskPrio:Int = null;
 		for (row in rows) {			
 			var col0 = row[0];
 			var col1 = row[1];
@@ -42,6 +43,7 @@ class DevtaskTools
 			
 			if (Std.string(col0).trim() == '') continue;
 			if (Std.string(col0).trim().charAt(0) == '#') continue;
+			
 			if (Std.string(col0).trim().charAt(0) == '-') {
 				if (dTask == null) continue;
 				var dTaskComment:DTaskComment = {
@@ -51,7 +53,12 @@ class DevtaskTools
 					date : col5,
 					sign : col6,										
 				}
-				dTask.comments.push(dTaskComment);								
+				if (dTask.prio == null) dTask.prio = 1;
+				if (dTaskComment.prio == null) dTaskComment.prio = 1;
+				dTask.prio = Std.int(Math.max(Std.int(dTask.prio), Std.int(dTaskComment.prio)));
+				
+				dTask.comments.push(dTaskComment);
+				
 			} else {				
 				dTask = {					
 					subject : col0,
@@ -62,7 +69,8 @@ class DevtaskTools
 					date : col5,
 					sign : col6,
 					comments: [],
-				}
+				}				
+				if (dTask.prio == null) dTask.prio = 1;
 				dTasks.push(dTask);
 			}			
 		}

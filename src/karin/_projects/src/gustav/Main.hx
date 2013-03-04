@@ -5,9 +5,10 @@ import cx.FileTools;
 import karin.db.Gustavuser;
 import karin.db.Vipuser;
 import g2.G2Tools;
-import karin.Config;
-import karin.db.DB;
+//import karin.Config;
+//import karin.db.DB;
 import neko.Lib;
+import neko.Web;
 import sys.db.Sqlite;
 import sys.db.Object;
 import sys.db.Types;
@@ -18,13 +19,12 @@ import sys.db.Types;
  */
 
  
-class Main 
+class Main
 {
 	
 	static function main() 
 	{
-		
-		ConfigTools.loadConfig(Config, Config.configFile);
+		ConfigTools.loadConfig(Config, Web.getCwd() + 'gustav.conf');
 		trace('Config filesPath ' + Config.filesPath);		
 		
 		var xmlFile = Config.filesPath + 'g2.xml';
@@ -43,8 +43,9 @@ class Main
 		
 		//----------------------------------------
 		// init karin.sqlite
+		var dbFile = Config.filesPath + Config.dbFile;
+		karin.db.DB.init(dbFile);
 		
-		DB.init();
 		Gustavuser.create();
 		Gustavuser.deleteAll();
 
@@ -60,7 +61,8 @@ class Main
 		trace('Created Gustavusers!');
 		
 		trace('Add vipusers...');
-		Gustavuser.addVipusers();
+		var sqlFile = Config.filesPath + Config.vipusersSql;
+		Gustavuser.addVipusers(sqlFile);
 		trace('Added vipusers!');
 		
 		

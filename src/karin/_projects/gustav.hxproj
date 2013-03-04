@@ -4,7 +4,7 @@
   <output>
     <movie outputType="Application" />
     <movie input="" />
-    <movie path="W:\server\gustav.n" />
+    <movie path="bin\gustav.n" />
     <movie fps="0" />
     <movie width="0" />
     <movie height="0" />
@@ -21,7 +21,7 @@
   </classpaths>
   <!-- Build options -->
   <build>
-    <option directives="" />
+    <option directives="spod_macro" />
     <option flashStrict="False" />
     <option mainClass="gustav.Main" />
     <option enabledebug="False" />
@@ -47,7 +47,7 @@
   <options>
     <option showHiddenPaths="True" />
     <option testMovie="Custom" />
-    <option testMovieCommand="http://server/gustav.n" />
+    <option testMovieCommand="gustav.bat" />
   </options>
   <!-- Plugin storage -->
   <storage />

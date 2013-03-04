@@ -2,7 +2,7 @@ package karin.db;
 import cx3.ConfigTools;
 import cx3.FileTools;
 import g2.GUser;
-import karin.Config;
+import gustav.Config;
 import karin.db.DB;
 import karin.tools.UserTools;
 import smd.server.proto.lib.user.User;
@@ -46,10 +46,10 @@ class Gustavuser extends Object
 		return u;
 	}
 	
-	static public function addVipusers() {
-		ConfigTools.loadConfig(Config, Config.configFile);
-		var dbFile = Config.filesPath + Config.vipusersSql;		
-		var sqls = FileTools.getContent(dbFile).split(';');
+	static public function addVipusers(sqlFile:String) {
+		
+		//var dbFile = Config.filesPath + Config.vipusersSql;		
+		var sqls = FileTools.getContent(sqlFile).split(';');
 		for (sql in sqls) {
 			if (sql.trim() == '') continue;
 			DB.cnx.request(sql);

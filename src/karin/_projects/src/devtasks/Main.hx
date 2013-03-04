@@ -42,35 +42,8 @@ class Main
 		var json = Json.stringify(dTasks);
 		FileTools.putContent(Config.filesPath + 'devtasks.json', json);
 		
+		//trace(dTasks);
 		
-		/*
-		for (i in 0...cells.length) {
-			if (cells[i] == null) continue;
-			for (j in 0...cells[i].length) {
-				if (cells[i][j] == null) continue;
-				var str = cells[i][j];				
-				trace([i, j, str]);
-			}
-		}
-		*/
-		
-		/*
-		
-		trace('devtasks');		
-		Devtask.cnx;
-		Devtask.create();
-		
-		
-		var d = new Devtask();
-		d.started = Date.now();
-		d.subject = Devtasksubject.Other;
-		d.label = 'Test';
-		d.status = Devtaskstatus.Started;
-		d.info = '';
-		d.prio = Devtaskprio.Low;
-		d.insert();
-		
-		*/
 		
 	}
 	

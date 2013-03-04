@@ -22,6 +22,10 @@ class RemotingController extends JQController {
 		#end
 		trace('Client: Server url = $URL');		
 		this.cnx = haxe.remoting.HttpAsyncConnection.urlConnect(URL);
-		this.cnx.setErrorHandler( function(err) { trace("Client Error : " + Std.string(err)); } );				
+		this.cnx.setErrorHandler( function(err) { 
+			var msg = "Client Error : " + Std.string(err);
+			trace(msg); 
+			Lib.alert(msg);
+		} );				
 	}	
 }

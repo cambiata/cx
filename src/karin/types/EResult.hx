@@ -11,7 +11,7 @@ enum EResult
 	Update;
 	Delete;
 	Complete;
-	Success(data:Dynamic);
+	Success(data:Dynamic, ?data2:Dynamic, ?data3:Dynamic);
 	Error(msg:String);	
 	void;
 }

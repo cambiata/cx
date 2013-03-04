@@ -39,15 +39,36 @@ class Server
 	}
 	
 	public function adminGetDTasks()/*:DTasks*/ {
-		try {
+		try { //
+			// dtasks data
 			var data = FileTools.getContent(Config.filesPath + Config.dtasksFile);
 			var dTasks:DTasks = Json.parse(data);
-			return EResult.Success(dTasks);			
+			
+			// html template
+			var filename = Config.filesPath + 'html/client/devtask.html';			
+			var html = FileTools.getContent(filename);	
+			
+			return EResult.Success(dTasks, html);			
 		} catch (e:Dynamic) {
 			return EResult.Error(Std.string(e));
 		}
-		return EResult.Error('');
+		return EResult.Error('SHOULD NOT HAPPEN');
 	}
+	
+	public function siteGetHtml(filename:String) {
+		try {
+			var filename = Config.filesPath + filename;			
+			var html = FileTools.getContent(filename);			
+			return EResult.Success(html);
+			
+			//return EResult.Success('HTML... ' + filename);
+		} catch (e:Dynamic) {
+			return EResult.Error(Std.string(e));
+		}
+		return EResult.Error('SHOULD NOT HAPPEN');
+		
+	}
+	
 	
 	public function adminGetRoadmap() {
 		
@@ -59,6 +80,7 @@ class Server
 		return devitems;
 	}
 	
+	/*
 	public function adminSetRoadmapItem(item:Devitem):EResult {
 		//return 'ITEM: ' + Std.string(item);		
 		try {
@@ -97,6 +119,9 @@ class Server
 		}		
 		return EResult.void;		
 	}
+	*/
+	
+	
 	
 	
 }

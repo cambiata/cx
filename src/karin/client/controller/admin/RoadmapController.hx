@@ -1,6 +1,7 @@
 package karin.client.controller.admin;
 import cx.EnumTools;
 import haxe.Json;
+import haxe.Template;
 import karin.types.DTasks;
 #if haxe3
 import js.Browser;
@@ -34,14 +35,20 @@ import karin.db.Devtasksubject;
  using karin.db.Devtasksubject.DevtasksubjectTool;
  using karin.db.Devtaskstatus.DevtaskstatusTool;
  
+enum Sort {
+	None;
+	Prio;
+	Subject;
+}
+ 
 @uri('/admin/roadmap')  
 class RoadmapController extends RemotingController {	
 
 	@id private var sortPrio:JQuery;
-	@id private var sortStatus:JQuery;
 	@id private var sortSubject:JQuery;
-	@id private var sortDate:JQuery;
 	
+	@id private var cbShowReady:JQuery;
+
 	@id private var divItems:JQuery;
 	
 	private var devitems:Devintems;
@@ -49,7 +56,29 @@ class RoadmapController extends RemotingController {
 	public function new() {
 		super();
 		trace('RoadmapController');		
+		this.sort = Sort.None;
 		getDTasks();
+		
+		
+		this.cbShowReady.click(function(e) { 			
+			trace('h');
+			updateDTasks();
+			
+		} );
+		
+		this.sortPrio.click(function(e) { 
+			this.sort = Sort.Prio;
+			updateDTasks();
+			} );
+
+		this.sortSubject.click(function(e) { 
+			this.sort = Sort.Subject;
+			updateDTasks();
+			
+			} );
+			
+			
+		
 	}
 	
 	/*
@@ -67,14 +96,18 @@ class RoadmapController extends RemotingController {
 	*/
 	
 	private var dtasks:DTasks;
+	private var dtasksTemplate:String; // html
+	private var sort:Sort;
 	
 	private function getDTasks() 
 	{
 		this.cnx.Server.adminGetDTasks.call([], function(result:EResult) {									
 			switch(result) {
-				case EResult.Success(data): 
+				case EResult.Success(data, data2, data3): 
 					this.dtasks = data;
+					this.dtasksTemplate = data2;
 					trace(this.dtasks);
+					//trace(this.dtasksTemplate);
 					updateDTasks();
 				case EResult.Error(msg):
 					Lib.alert(msg);
@@ -85,30 +118,39 @@ class RoadmapController extends RemotingController {
 	
 	private function updateDTasks() 
 	{		
-		var html = '';
-		for (item in this.dtasks) {			
-			html += '<div class="tasks">';
-			html += Std.format('
-				<div class="task">
-					<p><span class="tasktitle">${item.subject} - ${item.title}</span><br/>${item.info}</p>
-				</div>
-			');
-			if (item.comments.length > 0) {
-				html += '<div class="task"><table class="table" style="margin-bottom:4px;">';
-				for (comment in item.comments) {
-					html += Std.format(
-					'<tr>					
-					<td >${comment.info}</td>
-					<td >${comment.prio}</td>
-					<td >${comment.date}</td>
-					<td >${comment.sign}</td>
-					</tr>');
-				}
-				html += '</table></div>';
-			}
-			html += '</div>';
-		}		
-		this.divItems.html(html);	
+		var tasks = filterTasks(this.dtasks, getShowReady());				
+		//var tasks = this.dtasks;
+		
+		switch (this.sort) {
+			case Sort.Prio:
+				tasks.sort (function(a, b) { 				
+					return Reflect.compare(a.prio, b.prio);				
+				} );
+				tasks.reverse();
+			case Sort.Subject: 
+				tasks.sort (function(a, b) { 				
+					return Reflect.compare(a.subject + a.title, b.subject + b.title);				
+				} );
+			default:
+		}
+		
+		var context = { tasks:tasks, showReady:getShowReady() };
+		var html = new Template(this.dtasksTemplate).execute(context);
+		this.divItems.html(html);			
+	}
+	
+	private function filterTasks(tasks:DTasks, showReady:Bool) {
+		if (!showReady) {
+			tasks = Lambda.filter(tasks, function(task) { 
+				return task.prio != 0;
+			} ).array();
+		}
+		
+		return tasks;
+	}
+	
+	private function getShowReady():Bool {
+		return this.cbShowReady.is(':checked');
 	}
 	
 }
