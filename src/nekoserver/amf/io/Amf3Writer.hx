@@ -2,9 +2,9 @@ package nekoserver.amf.io;
 
 import nekoserver.amf.Types;
 import Type;
-
-import haxe.io.Bytes;
 import neko.NativeString;
+import haxe.io.Bytes;
+
 
 // aux class to maintain a cache of string with fast accesses
 class StringCache {
@@ -214,7 +214,7 @@ public static var INT29_MASK = 0x1FFFFFFF;
 			var index = stringCache.getIndex(str); 
 			
 			if (index == -1) {
-				writeAmf3StringData(Bytes.ofData(NativeString.ofString(str)));
+				writeAmf3StringData(Bytes.ofData(neko.NativeString.ofString(str)));
 				stringCache.add(str); 
 			} else {
 				var handle = index << 1;
