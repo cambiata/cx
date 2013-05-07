@@ -63,7 +63,7 @@ public static var INT29_MASK = 0x1FFFFFFF;
 	public function new(o: haxe.io.Output) {
 		output = o;
 		trace(output.bigEndian);
-		output.bigEndian=true;
+		output.bigEndian=false;
 
 		stringCache = new StringCache();
 		
@@ -310,8 +310,7 @@ public static var INT29_MASK = 0x1FFFFFFF;
 	// nekoserver.io.Writer interface
 	//------------------------------------------------------------
 	
-	
-	public function writeInt(val: Null<Int>) {
+	public function writeInt(val: Int) {
 		if (null != val) {
 			if (val & 0x0e000000 == 0) {
 				output.writeByte(0x04);
@@ -325,7 +324,7 @@ public static var INT29_MASK = 0x1FFFFFFF;
 		}
 	}
 
-	public function writeFloat(val: Null<Float>) {
+	public function writeFloat(val: Float) {
 		if (null != val) {
 			output.writeByte(0x05);
 			output.writeDouble(val);
@@ -334,7 +333,7 @@ public static var INT29_MASK = 0x1FFFFFFF;
 		}
 	}
 	
-	public function writeString(val: Null<String>) {
+	public function writeString(val: String) {
 		if (null != val) {
 			output.writeByte(0x06);
 			writeAmf3String(val);
@@ -342,7 +341,6 @@ public static var INT29_MASK = 0x1FFFFFFF;
 			writeNull();
 		}
 	}
-	
 	
 	public function writeObject(val: Dynamic, writeFields: Dynamic -> nekoserver.io.Writer -> Int -> Void) {
 		if (null != val) {

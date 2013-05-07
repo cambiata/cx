@@ -14,7 +14,6 @@ class Amf3Reader {
 	
 	public function new(i: haxe.io.Input) {
 		input = i;
-		input.bigEndian = true;
 		decodedStrings = [];
 		decodedObjects = [];
 		decodedClassDefs = [];
@@ -38,7 +37,8 @@ class Amf3Reader {
 	}
 
 	private function readAmf3ByteArray() {
-		var data = readAmf3String();		
+		var data = readAmf3String();
+		
 		//return Bytes.ofData(BytesData.ofString(data));
 		return Bytes.ofString(data);
 		//return haxe.io.Bytes.ofData(NativeString.ofString(data));

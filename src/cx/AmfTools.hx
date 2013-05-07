@@ -68,13 +68,15 @@ class AmfTools
 		return output.getBytes();
 	}
 	
+	
 	static public function objectToFile(object:Dynamic, filename:String) {
 		var bytes = objectToBytes(object);		
 		//-----------------------------------------------------		
-		var f = neko.io.File.write(filename, true);
+		var f = sys.io.File.write(filename, true);		
 		f.write(bytes);
 		f.close();
 	}
+	
 	
 	static public function bytesToObject(bytes:Bytes):Dynamic {
 		var input = new haxe.io.BytesInput(bytes);		
@@ -83,10 +85,12 @@ class AmfTools
 		return object;				
 	}
 	
+	
 	static public function fileToObject(filename:String):Dynamic {
-		var f = neko.io.File.read(filename, true);
+		var f = sys.io.File.read(filename, true);
 		var bytes = f.readAll();
 		//------------------------------------------------------
 		return bytesToObject(bytes);
 	}
+	
 }
