@@ -8,10 +8,14 @@ import haxe.io.Bytes;
 import haxe.io.BytesInput;
 import haxe.io.BytesOutput;
 
-#if !flash
+#if (neko || windows)
 import sys.io.File;
 #else
+
+#if (flash || nme)
 import flash.utils.ByteArray;
+#end
+
 #end
 
 /**
@@ -20,7 +24,7 @@ import flash.utils.ByteArray;
  */
 
 class ZipTools {	
-#if !flash
+#if (neko || windows)
 	static public function getEntries(zipFilename:String): List<Entry> {
 		var zipfileBytes = File.getBytes(zipFilename);
 		return getEntriesFromBytes(zipfileBytes);
@@ -65,7 +69,6 @@ class ZipTools {
 #end
 
 	static public function getEntriesFromBytes(zipfileBytes:Bytes): List<Entry> {
-		//var zipfileBytes = File.getBytes(zipFilename);
 		var bytesInput = new BytesInput(zipfileBytes);
 		var r = new Reader(bytesInput);
 		var data = r.read();		

@@ -68,7 +68,7 @@ class AmfTools
 		return output.getBytes();
 	}
 	
-	
+	#if (neko || cpp)
 	static public function objectToFile(object:Dynamic, filename:String) {
 		var bytes = objectToBytes(object);		
 		//-----------------------------------------------------		
@@ -76,7 +76,7 @@ class AmfTools
 		f.write(bytes);
 		f.close();
 	}
-	
+	#end
 	
 	static public function bytesToObject(bytes:Bytes):Dynamic {
 		var input = new haxe.io.BytesInput(bytes);		
@@ -85,12 +85,12 @@ class AmfTools
 		return object;				
 	}
 	
-	
+	#if (neko || cpp)
 	static public function fileToObject(filename:String):Dynamic {
 		var f = sys.io.File.read(filename, true);
 		var bytes = f.readAll();
 		//------------------------------------------------------
 		return bytesToObject(bytes);
 	}
-	
+	#end
 }
