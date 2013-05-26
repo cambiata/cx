@@ -1,4 +1,5 @@
 package cx;
+import haxe.io.BytesData;
 import haxe.io.Bytes;
 import nme.utils.ByteArray;
 
@@ -26,13 +27,13 @@ class ByteArrayTools
 	static public function fromBytes(bytes:Bytes):ByteArray
 	{
 		#if (flash)	
-			var byteArray:ByteArray = entry.data.getData();
+			var byteArray:ByteArray = bytes.getData(); // entry.data.getData();
 		#elseif (html5)
-			var bytesData:BytesData = entry.data.getData();
+			var bytesData:BytesData = bytes.getData();
 			var byteArray:ByteArray = new ByteArray();
 			for (i in 0...bytesData.length) byteArray.writeByte(bytesData[i]);
 		#else
-			var byteArray = ByteArray.fromBytes(entry.data);
+			var byteArray = ByteArray.fromBytes(bytes);
 		#end		
 		return byteArray;
 	}
