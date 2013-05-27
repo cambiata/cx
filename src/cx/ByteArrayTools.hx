@@ -1,7 +1,7 @@
 package cx;
 import haxe.io.BytesData;
 import haxe.io.Bytes;
-import nme.utils.ByteArray;
+import flash.utils.ByteArray;
 
 /**
  * ...
