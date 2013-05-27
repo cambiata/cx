@@ -13,6 +13,26 @@ class FileBunchTools
 
 
 #if (neko || cpp)
+	static public function test()
+	{
+		var out:BytesOutput = new BytesOutput();	
+		out.bigEndian = false;		
+		var str = "abc";
+		out.writeByte(str.length);	
+		out.writeString(str);		
+		var str = "def";
+		out.writeByte(str.length);	
+		out.writeString(str);		
+		out.writeInt32(Int32.ofInt(12345));
+		
+		var bytes = FileTools.getBytes('I:/mini.png');
+		out.writeInt32(Int32.ofInt(bytes.length));
+		out.writeBytes(bytes, 0, bytes.length);
+		
+		
+		FileTools.putBytes('I:/neko.txt', out.getBytes());		
+	}
+
 	static public function filesToBunchfile(filenames:Array<String>, filename:String) 
 	{		
 		FileTools.putBytes(filename, filesToBytes(filenames));
