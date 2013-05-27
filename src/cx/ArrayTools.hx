@@ -1,5 +1,10 @@
 package cx;
 
+
+#if (flash)
+	import flash.Vector;
+#end
+
 /**
  * ...
  * @author Jonas Nyström
@@ -30,6 +35,18 @@ class ArrayTools
 	static public function fromHashKeys<T>(it : Iterator<T>) : Array<T> {
 		return ArrayTools.fromIterator(it);
 	}
+
+	#if (flash)
+	static public function fromVector<T>(v: Vector<T>): Array<T> {		
+		var result = [];
+		for (value in v) {
+			trace(value);
+			//result.push(value);
+		}
+		return result;
+	}
+	#end
+	
 	
 	static public function doOverlap(array1:Array<Dynamic>, array2:Array<Dynamic>):Bool {		
 		for (item in array1) {
