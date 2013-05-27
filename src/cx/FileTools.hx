@@ -19,7 +19,7 @@ using StringTools;
 
 class FileTools
 {
-
+	
 	static public function test() {
 		return 'test';
 	}
@@ -261,7 +261,7 @@ class FileTools
 	}
 	
 	static public function getExtension(filename:String) {
-		return filename.substr(filename.lastIndexOf('.')+1);
+		return PathTools.getExtension(filename); // filename.substr(filename.lastIndexOf('.') + 1);
 	}
 	
 	static public function rename(path:String, newpath:String) {

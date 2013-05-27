@@ -35,4 +35,8 @@ class PathTools
 		return path.split(slash).pop();
 	}
 	
+	static public function getExtension(filename:String) {
+		return filename.substr(filename.lastIndexOf('.')+1);
+	}	
+	
 }
