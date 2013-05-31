@@ -7,6 +7,7 @@ import nme.display.Graphics;
 import nme.display.Sprite;
 import nme.events.Event;
 import nme.events.MouseEvent;
+import nme.geom.Point;
 import nme.geom.Rectangle;
 import nme.Lib;
 
@@ -28,13 +29,16 @@ class ResizeBehavior extends AbstractSpriteBehavior {
 	private var offY:Float;
 	private var off2X:Float;
 	private var off2Y:Float;
+	private var onlyWhenCtrl:Bool;
 	
-	public function new(target:Sprite, x:Float=100, y:Float=100, width:Float=300, height:Float=100) {
+	public function new(target:Sprite, ?x:Float = 100, ?y:Float = 100, ?width:Float = 300, ?height:Float = 100, onlyWhenCtrl:Bool=false ) {
 		super(target);						
 		this._width = width;
 		this._height = height;		
 		_target.x = x;
 		_target.y = y;		
+		this.onlyWhenCtrl = onlyWhenCtrl;
+		trace(this.onlyWhenCtrl);
 		this.createChildren();
 		this.draw();		
 	}	
@@ -56,8 +60,12 @@ class ResizeBehavior extends AbstractSpriteBehavior {
 	
 	private function onMouseDown(e:MouseEvent):Void 
 	{
-		offX = this._target.mouseX;
-		offY = this._target.mouseY;
+		if (onlyWhenCtrl) if (!e.ctrlKey) return;
+		
+		var global:Point = _target.globalToLocal(new Point(_target.x, _target.y));
+		
+		offX = this._target.mouseX - global.x;
+		offY = this._target.mouseY - global.y;
 		off2X = this._width - offX;
 		off2Y = this._height - offY;
 		
@@ -83,6 +91,8 @@ class ResizeBehavior extends AbstractSpriteBehavior {
 	
 	private function onMove(e:MouseEvent):Void 
 	{			
+		if (onlyWhenCtrl) if (!e.ctrlKey) return;
+		
 			switch (this.dm) {
 				case DragMode.LeftTop:
 					var changeX =  Lib.current.stage.mouseX - _target.x - offX;
@@ -131,6 +141,8 @@ class ResizeBehavior extends AbstractSpriteBehavior {
 
 	private function onRelease(e:MouseEvent):Void 
 	{
+		if (onlyWhenCtrl) if (!e.ctrlKey) return;
+		
 		Lib.current.stage.removeEventListener(MouseEvent.MOUSE_MOVE, onMove);
 		Lib.current.stage.removeEventListener(MouseEvent.MOUSE_UP, onRelease);	
 		this.dispatchResizeEvent();
