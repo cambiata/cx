@@ -1,7 +1,13 @@
 package cx;
+
+#if (neko || cpp)
 import sys.FileSystem;
 import sys.io.File;
+#end
 
+#if flash
+	import nme.Lib;
+#end
 
 using StringTools;
 
@@ -12,7 +18,8 @@ using StringTools;
 using cx.StrTools;
 class ConfigTools
 {
-	
+
+	#if (neko || cpp)
 	static public function loadConfig(configObject:Dynamic, ?filename:String='default.conf', ?delimiter:String='=', ?arrayDelimiter:String=','):Void  {
 		if (!FileSystem.exists(filename)) {
 			throw "Config file " + filename + " doesn't exist";
@@ -28,7 +35,23 @@ class ConfigTools
 			}
 		} catch(e : Dynamic){}	
 	}	
-
+	#end
+	
+	#if flash
+	static public function loadFlashVars(configObject:Dynamic) {
+		var paramObject:Dynamic = Lib.current.loaderInfo.parameters;
+		
+		var fields = ReflectTools.getObjectFields(paramObject);
+		for (field in fields) 
+		{
+			var value = Reflect.getProperty(paramObject, field);
+			Reflect.setField(configObject, field, value);	
+			trace([field, value]);
+		}
+	}
+	#end
+	
+	
 	//--------------------------------------------------------------------------------------------------------------
 	
 	static private var setFieldValue = function(configObject:Dynamic, field:String, value:Dynamic) {

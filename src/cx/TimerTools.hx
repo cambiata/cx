@@ -17,7 +17,7 @@ class TimerTools
 	static public function timeout(cb:Void->Void, ms:Int = 500) {
 		stamp = Timer.stamp();
 		timerThread = neko.vm.Thread.create(function() {
-		   neko.Sys.sleep(ms / 1000);
+		   Sys.sleep(ms / 1000);
 		   var age = (Timer.stamp() - stamp) * 1000;
 		   trace(age);
 		   if (age >= ms) {

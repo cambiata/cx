@@ -39,4 +39,9 @@ class PathTools
 		return filename.substr(filename.lastIndexOf('.')+1);
 	}	
 	
+	static public function addHttp(path:String, http = 'http://') {
+		if (! path.startsWith(http)) return http + path;
+		return path;
+	}
+	
 }
