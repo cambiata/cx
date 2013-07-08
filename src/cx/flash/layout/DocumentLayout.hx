@@ -60,7 +60,15 @@ class DocumentLayout
 		for (i in 0...numChildren) 
 		{
 			var child : DisplayObject = holder.getChildAt(i);
-			Actuate.tween(child, tweenTime, { x:childX[i], y:childY[i]/*, width:childWidth, height:childHeight*/ } );
+			if (tweenTime > 0)
+			{
+				Actuate.tween(child, tweenTime, { x:childX[i], y:childY[i]/*, width:childWidth, height:childHeight*/ } );
+			} 
+			else 
+			{
+				child.x = childX[i];
+				child.y = childY[i];
+			}
 		}
 
 		var holderX = Math.max(0, (holderWidth - holder.w) / 2);
@@ -69,5 +77,15 @@ class DocumentLayout
 		holder.y = holderY;
 	}	
 	
-	
+	static public  function pagesArrangeWidths(holder:Widget, holderWidth:Float, childWidth:Float = 210, childHeight:Float = 297) 
+	 {
+		var numChildren = holder.numChildren;	
+		// set child widths and heights
+		for (i in 0...numChildren) 
+		{
+			var child : DisplayObject = holder.getChildAt(i);
+			child.width = childWidth;
+			child.height = childHeight;
+		}		
+	 }
 }

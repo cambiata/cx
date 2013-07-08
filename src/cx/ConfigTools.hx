@@ -5,8 +5,8 @@ import sys.FileSystem;
 import sys.io.File;
 #end
 
-#if flash
-	import nme.Lib;
+#if openfl
+	import flash.Lib;
 #end
 
 using StringTools;
@@ -37,7 +37,7 @@ class ConfigTools
 	}	
 	#end
 	
-	#if flash
+	#if (flash || html5)
 	static public function loadFlashVars(configObject:Dynamic) {
 		var paramObject:Dynamic = Lib.current.loaderInfo.parameters;
 		

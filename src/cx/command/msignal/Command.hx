@@ -1,7 +1,6 @@
 package cx.command.msignal;
 
 import  msignal.Signal;
-
 /**
  * ...
  * @author Jonas Nyström
