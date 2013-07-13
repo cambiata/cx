@@ -30,18 +30,34 @@ class ResizeBehavior extends AbstractSpriteBehavior {
 	private var off2X:Float;
 	private var off2Y:Float;
 	private var onlyWhenCtrl:Bool;
+	private var restrictToParentSize:Bool;
+	private var parent:DisplayObject;
+	private var parentWidth:Float;
+	private var parentHeight:Float;
 	
-	public function new(target:Sprite, ?x:Float = 100, ?y:Float = 100, ?width:Float = 300, ?height:Float = 100, onlyWhenCtrl:Bool=false ) {
+	public function new(target:Sprite, ?x:Float = 100, ?y:Float = 100, ?width:Float = 300, ?height:Float = 100, onlyWhenCtrl:Bool=false, restrictToParentSize:Bool=true ) {
 		super(target);						
+		if (_target.parent != null) setParent(_target.parent);		
 		this._width = width;
 		this._height = height;		
 		_target.x = x;
 		_target.y = y;		
 		this.onlyWhenCtrl = onlyWhenCtrl;
+		this.restrictToParentSize = restrictToParentSize;
+
 		trace(this.onlyWhenCtrl);
 		this.createChildren();
 		this.draw();		
 	}	
+	
+	private function setParent(parent:DisplayObject)
+	{
+		if (parent == null) return;
+		this.parent = parent;
+		this.parentWidth = parent.width;
+		this.parentHeight = parent.height;
+		trace("parent is set to " + parent);
+	}
 	
 	private function createChildren() 
 	{
@@ -61,6 +77,8 @@ class ResizeBehavior extends AbstractSpriteBehavior {
 	private function onMouseDown(e:MouseEvent):Void 
 	{
 		if (onlyWhenCtrl) if (!e.ctrlKey) return;
+		
+		if (this.parent == null) this.setParent(_target.parent);
 		
 		var global:Point = _target.globalToLocal(new Point(_target.x, _target.y));
 		
@@ -91,6 +109,10 @@ class ResizeBehavior extends AbstractSpriteBehavior {
 	
 	private function onMove(e:MouseEvent):Void 
 	{			
+		//trace(new Rectangle(_target.x, _target.y, _target.width, _target.height));
+		
+		if (this.parent == null) this.setParent(_target.parent);
+		
 		if (onlyWhenCtrl) if (!e.ctrlKey) return;
 		
 			switch (this.dm) {
@@ -124,7 +146,12 @@ class ResizeBehavior extends AbstractSpriteBehavior {
 					var changeY =  Lib.current.stage.mouseY - _target.y - this.offY;
 					_target.y = _target.y + changeY;					
 				case DragMode.Bottom:
-					this._height = Lib.current.stage.mouseY  - _target.y + off2Y;
+					
+					
+					var newHeight = Lib.current.stage.mouseY  - _target.y + off2Y;				
+					trace([newHeight, _target.y - newHeight, parent.height - _target.y]);
+					this._height = Math.min(newHeight,  parent.height - _target.y);
+					
 					this.draw();						
 				case DragMode.Left:
 					var changeX =  Lib.current.stage.mouseX - _target.x - offX;

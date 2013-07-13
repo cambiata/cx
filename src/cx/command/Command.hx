@@ -27,5 +27,5 @@ class Command extends EventDispatcher {
 		this.dispatchEvent(new Event(Event.COMPLETE));
 	}
 	
-	
 }
+

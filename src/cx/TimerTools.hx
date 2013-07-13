@@ -21,15 +21,15 @@ class TimerTools
 		{
 			Sys.sleep(milliSeconds / 1000);
 			var age = (Timer.stamp() - stamp) * 1000;
-			trace(age);
-			if (age >= milliSeconds) 
-			{
-				func();			   			   
-			}
-			else
-			{
-				trace('IMPORTANT Error! Time not reached!');
-			}
+			//trace(age);			
+			//if (age >= milliSeconds) 
+			//{
+			func();			   			   
+			//}
+			//else
+			//{
+			//	trace('IMPORTANT Error! Time not reached!');
+			//}
 	   });
 	}
 	 

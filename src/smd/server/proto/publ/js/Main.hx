@@ -117,12 +117,12 @@ class HomeController extends MainController {
 			
 		} else {
 			
-			var html = 		
+			var html = '';		
 			//Std.format('<div class="boxinfo ${userBox.box.org}">') +
-			Std.format('	<img class="pull-right" src="/img/${userBox.box.org}.png" />') +
-			Std.format('	<p class="boxtitle">${userBox.box.label}</p>') +
-			Std.format('	<p>${userBox.box.info}<br/>') +
-			Std.format('	Materialet tillgängligörs av <b>${userBox.box.org}</b> genom att...</p>');
+			html += Std.format('	<img class="pull-right" src="/img/${userBox.box.org}.png" />');
+			html += Std.format('	<p class="boxtitle">${userBox.box.label}</p>');
+			html += Std.format('	<p>${userBox.box.info}</p>');
+			//html += Std.format('	Materialet tillgängligörs genom att du är deltagare i kursverksamhet organiserad av <b>${userBox.box.org}</b>. Du behöver känna till att...</p>');
 			//Std.format('</div>');
 			trace(html);
 			this.divBoxinfo.html(html);

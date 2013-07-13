@@ -16,6 +16,7 @@
 	<source path="src" />
 	<source path="../../cx/src" />
 	<haxelib name="nme" />
+	<haxelib name="stablexui" />
 	
 	<!-- assets -->
 	
