@@ -8,9 +8,9 @@ import flash.Lib;
  */
 class LayoutManager
 {
-	var items:Array<IResize>;
+	var items:Array<ILayoutItem>;
 
-	public function new(items:Array<IResize>=null) 
+	public function new(items:Array<ILayoutItem>=null) 
 	{
 		if (items == null) items = [];
 		this.items = items;
@@ -29,12 +29,7 @@ class LayoutManager
 		//trace('Layout manager onResize ' + stageWidth + ' ' + stageHeight);
 		doLayout_(stageWidth, stageHeight);
 	}
-	
-	public function addItem(item:IResize)
-	{
-		this.items.push(item);		
-	}
-	
+
 	private function doLayout_(stageWidth:Float, stageHeight:Float)
 	{
 		for (item in items)
@@ -49,6 +44,12 @@ class LayoutManager
 		stageHeight = (stageHeight == 0) ? Lib.current.stage.stageHeight : stageHeight;
 		doLayout_(stageWidth, stageHeight);
 		
+	}
+	
+	public function add(item:ILayoutItem)
+	{
+		this.items.push(item);
+		item.manager = this;
 	}
 	
 }

@@ -1,6 +1,6 @@
 package cx;
-import neko.io.File;
-import neko.io.FileOutput;
+import sys.io.File;
+import sys.io.FileOutput;
 
 /**
  * ...
@@ -12,7 +12,7 @@ class ExcelTools {
 	static var file:FileOutput;
 	
 	static public function start(filename:String) {
-		file = neko.io.File.write(filename, true);		
+		file = File.write(filename, true);		
 		bof();
 	}
 	

@@ -24,7 +24,7 @@ class Main
 		stage.scaleMode = StageScaleMode.NO_SCALE;
 		stage.align = StageAlign.TOP_LEFT;		
 		
-		trace('Hello World from "${Constants.APPLICATION_ID}"!');
+		trace('Hello World from "${Config.APPLICATION_ID}"!');
 		trace('I will hopefully be invoked from a flash app embedded on a web page somewhere.');
 		trace('Ciao!');
 		trace("");

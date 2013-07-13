@@ -39,15 +39,36 @@ class ConfigTools
 	
 	#if (flash || html5)
 	static public function loadFlashVars(configObject:Dynamic) {
-		var paramObject:Dynamic = Lib.current.loaderInfo.parameters;
-		
+		var paramObject:Dynamic = flash.Lib.current.loaderInfo.parameters;
+		//var cfields = Type.getClassFields(configObject);		
+		//trace(cfields);
 		var fields = ReflectTools.getObjectFields(paramObject);
 		for (field in fields) 
 		{
+			/*
+			trace(field);
+			var currentField:String = null;
+			for (cfield in cfields)
+			{
+				trace([cfield, field]);
+				if (cfield.toLowerCase() == field.toLowerCase())
+				{
+					currentField = cfield;
+					trace('FOUND ' + currentField);
+					break;
+				}
+			}
+			*/
 			var value = Reflect.getProperty(paramObject, field);
 			Reflect.setField(configObject, field, value);	
-			trace([field, value]);
+			//trace([field, value]);
 		}
+		//trace('ready config...');
+	}
+	
+	static public function getFlashVars()
+	{
+		return flash.Lib.current.loaderInfo.parameters;		
 	}
 	#end
 	

@@ -1,7 +1,7 @@
 package cx.nme.ui;
-import nme.display.DisplayObject;
-import nme.display.Sprite;
-import nme.events.MouseEvent;
+import flash.display.DisplayObject;
+import flash.display.Sprite;
+import flash.events.MouseEvent;
 
 /**
  * ...

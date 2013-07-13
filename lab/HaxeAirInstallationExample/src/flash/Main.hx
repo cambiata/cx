@@ -1,10 +1,13 @@
 package flash;
 
 
+import cx.ConfigTools;
+import cx.flash.ui.UI;
 import flash.display.Sprite;
 import flash.display.StageAlign;
 import flash.display.StageScaleMode;
 import flash.events.Event;
+import flash.events.TimerEvent;
 import flash.Lib;
 import flash.errors.Error;
 import flash.events.Event;
@@ -15,6 +18,7 @@ import flash.display.Loader;
 import flash.text.TextField;
 import flash.text.TextFieldAutoSize;
 import flash.events.MouseEvent;
+import flash.utils.Timer;
 /**
  * ...
  * @author 
@@ -40,31 +44,24 @@ class Main
 	}
 	
 	var airSWF:Dynamic = null;
+	var btnInstall:Sprite;
+	var btnLaunch:Sprite;
+	var status:String;
+	var textField:TextField;
 	
 	public function new()
 	{
-		trace('Hello! This is a flash app that will try to invoke an Air application');
-		trace('Start by loading the Browser Api swf from Adobe...');
+		ConfigTools.loadFlashVars(Config);
+		trace('');
+		trace(Config.APPLICATION_URL);
+		//trace('-----------------------------------');
+		//trace('Start by loading the Browser Api swf from Adobe...');
 		var loader = new Loader();
 		var loaderContext = new LoaderContext();
 		loaderContext.applicationDomain = ApplicationDomain.currentDomain;
 		loader.contentLoaderInfo.addEventListener(Event.INIT, function(e:Event) {
 				this.airSWF = e.target.content;
-				trace('Browser Api swf successfully loaded!');
-				trace('Check if Air Runtime is installed:');
-				var status:String = cast( this.airSWF.getStatus(), String).toUpperCase();
-				trace("Air Runtime status: " + status);	
-				
-				switch(status) {
-					case "INSTALLED":
-						//Lib.current.addChild(createButton('Check AIR application', checkVersion, 340, newButtonY()));		
-						checkVersion();
-					case "AVAILABLE":
-						Lib.current.addChild(createButton('Get Air Runtime: ', function() {  Lib.getURL(new URLRequest(Constants.AIR_RUNTIME_DOWNLOAD_URL));  }, 340, newButtonY(), 0xFF5555));
-						trace("Click the Get Air Runtime button, install it. Then refresh this browser page...");
-					default:
-						trace("AIR IS NOT AVAILABLE ON THIS DEVICE - SORRY!");
-				}
+				checkStatusMain();
 			});		
 		try {
 			loader.load(new URLRequest(BROWSERAPI_URL));
@@ -73,83 +70,81 @@ class Main
 			trace(err.message);
 		}			
 
-		//Lib.current.addChild(createButton('Get Air Runtime: ', function() {  Lib.getURL(new URLRequest(Constants.AIR_RUNTIME_DOWNLOAD_URL));  }, 340, 20, 0xFF5555));
+		textField = UI.createText('Flash Print Install ', 100, 0);
+		Lib.current.addChild(textField);		
+		
+		this.btnInstall = UI.createButton('Install: ', function() {  
+				this.airSWF.installApplication(Config.APPLICATION_URL, Config.airversion, ['INSTALLATION-PARAMETER']);			
+			}, 20, newButtonY(), 0x5555FF);	
+		this.btnInstall.alpha = 0;
+		Lib.current.addChild(this.btnInstall );		
+		this.btnLaunch = UI.createButton('Invoke AIR application 2', function() { invokeApplication(["One", "Two"]); } , 20, newButtonY(), 0x55FF55);						
+		this.btnLaunch.alpha = 0;
+		Lib.current.addChild(this.btnLaunch );
+		
+		var timer:Timer = new Timer(2000);
+		timer.addEventListener(TimerEvent.TIMER, checkStatusMain);
+		timer.start();
+	}
+
+	function checkStatusMain(e:Event=null)
+	{
+		if (this.airSWF == null) return;
+		this.status = this.airSWF.getStatus();
+		if (this.status == 'installed') 
+		{
+			try 
+			{
+				this.airSWF.getApplicationVersion(Config.APPLICATION_ID, Config.PUBLISHER_ID, checkStatusAndVersion);
+			}
+			catch (e:Dynamic)
+			{
+				this.textField.text = 'ERROR version check!  $e';
+			}
+		}
+		else
+		{
+			this.textField.text = 'Air SWF status: $status';
+			this.btnInstall.alpha = 1;
+		}
 	}
 	
-	private function checkVersion() 
+	function checkStatusAndVersion(version:String) 
 	{
-		trace('Check version for app "${Constants.APPLICATION_ID}"...');	
-		if (this.airSWF == null) throw "airSWF isn't loaded";
-		this.airSWF.getApplicationVersion(Constants.APPLICATION_ID, Constants.PUBLISHER_ID, function(version:String) {
-			if (version == null) 
-			{ 
-				trace('Application "${Constants.APPLICATION_ID}" is not installed.'); 
-				Lib.current.addChild(createButton('Go to AirApplication installation page ', function() { Lib.getURL(new URLRequest(Constants.AIR_APPLICATION_INSTALLATION_URL)); } , 340, newButtonY()));
-				trace("Click the Go to AirApplication installation button.");
-				trace("Install the application, then refresh this browser page...");
-			} 
-			else 
-			{ 
-				trace('Version $version is installed.'); 
-				Lib.current.addChild(createButton('Invoke AIR application', function() { invokeApplication(null); } , 340, newButtonY(), 0x55FF55));
-				Lib.current.addChild(createButton('Invoke AIR application 2', function() { invokeApplication(["One", "Two"]); } , 340, newButtonY(), 0x55FF55));				
-				Lib.current.addChild(createButton('Invoke AIR application 3 - FireFox problem!', function() { invokeApplication(["Argument ONE", "Arg 2", "ARGUMENT C"]); } , 340, newButtonY(), 0x55FF55));		
-			} 		
-			trace("");			
-		}); 
-	}	
-	
-	
+		//trace([status, version]);
+		var time = Date.now().toString();
+		this.textField.text = 'Air Runtime status $status, Air Printer App version: $version, Current time: $time';
+		if ( status == 'installed')
+		{
+				if (version == null)
+				{
+					this.btnInstall.alpha = 1;
+					this.btnLaunch.alpha = 0;
+				}
+				else
+				{
+					this.btnInstall.alpha = 0;
+					this.btnLaunch.alpha = 1;
+				}
+		}
+		else
+		{			
+			this.btnInstall.alpha = 1;				
+		}		
+	}
 	
 	private function invokeApplication(args:Array<String>) 
 	{
 		if (this.airSWF == null) throw "Problem: airSWF isn't loaded";
-		
-		trace('Trying to invoke AirApplication. Arguments:');		
-		trace(args);
-		//var args:Array<String> = ["ArgumentONE", "Arg2", "ARGUMENTC"]; 
+		//trace('Trying to invoke AirApplication. Arguments:');		
+		//trace(args);
 		try 
 		{
-			this.airSWF.launchApplication( Constants.APPLICATION_ID,  Constants.PUBLISHER_ID, args);
+			this.airSWF.launchApplication( Config.APPLICATION_ID,  Config.PUBLISHER_ID, args);
 		} catch (err:Error)
 		{
 			trace('Error: ${err.message}');
 		}
 	}
-	
-	//---------------------------------------------------------------------------------------------------------------------------
-	
-	static public function createButton(txt: String, onClick: Void -> Void, x:Float=0, y:Float=0, color:Int=0xFFCC00): Sprite 
-	{
-		var textField = new TextField();
-		textField.text = txt;
-		textField.autoSize = TextFieldAutoSize.LEFT;
-
-		textField.x = 2;
-		textField.y = 2;		
-		textField.selectable = false;
-
-		var btn = new Sprite();
-		var width = textField.width + 4;
-		var height = textField.height + 4;
-		
-		btn.graphics.beginFill(color);
-		btn.graphics.drawRoundRect(0, 0, width, height, 5);
-		
-		if(onClick != null) 
-		{
-			btn.buttonMode = true;
-			btn.mouseChildren = false;
-			btn.useHandCursor = true;
-			btn.addEventListener(MouseEvent.CLICK, function (e: MouseEvent) { onClick(); } );
-		}
-		
-		btn.addChild(textField);
-		btn.x = x;
-		btn.y = y;
-		
-		return btn;
-	}	
-	
 
 }
