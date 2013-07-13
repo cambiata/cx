@@ -3,14 +3,23 @@ package smd.server.proto.tools;
 //import cx.SqliteTools;
 import cx.ConfigTools;
 import cx.FileTools;
+import cx.PathTools;
+import haxe.Int32;
+import haxe.Int64;
 import haxe.Serializer;
 import haxe.Unserializer;
 import smd.server.proto.Config;
-import sx.db.ScorxDBTools;
-import sx.db.tables.DBBox;
-import sx.db.tables.DBListExamples;
-import sx.db.tables.DBUserBox;
-import sx.db.tables.EBoxType;
+import smd.server.proto.lib.db.BaseDB;
+import smd.server.proto.lib.db.DBChoir;
+import smd.server.proto.lib.db.DBChoirUser;
+import smd.server.proto.lib.db.DBUser;
+import smd.server.proto.lib.db.EChoirRole;
+import smd.server.proto.lib.user.UserCategory;
+import smd.server.proto.lib.ScorxDBTools;
+import smd.server.proto.lib.db.DBBox;
+import smd.server.proto.lib.db.DBListExamples;
+import smd.server.proto.lib.db.DBUserBox;
+import smd.server.proto.lib.db.EBoxType;
 import sx.type.TListExamples;
 import sx.util.ListExamplesTools;
 
@@ -19,6 +28,9 @@ import ka.db.DBTools;
 import sys.db.SpodInfos;
 import sys.db.Sqlite;
 import sys.db.TableCreate;
+
+import sys.db.Object;
+import sys.db.Types;
 
 /**
  * ...
@@ -29,77 +41,51 @@ class Main
 {
 	static public function main() 
 	{
-		trace('tools');
+		trace('tools');		
+		ConfigTools.loadConfig(Config, Config.configFile);		
+		var cnx = ScorxDBTools.getCnx(Config.filesPath + Config.dbFile);
 		
-		ConfigTools.loadConfig(Config, Config.configFile);
-		trace(Config.filesPath);
-		/*
-		var cnx = DBTools.getCnx('test.sqlite');		
-		DBTools.deleteTables(cnx);
-		DBTools.createTables(cnx);
-		DBTools.createDefaultData(cnx);		
-		var context = new Context([TestController, HomeController], null);
-		*/
+		//ScorxDBTools.createTables(cnx);
 		
-		var cnx = ScorxDBTools.getCnx(Config.filesPath + 'scorx.sqlite');
-		ScorxDBTools.createTables(cnx);
+		var sqlPath = Config.filesPath + 'data/sql/';
+		ScorxDBTools.setDBPragma(cnx);
 		
-		/*
-		var data = FileTools.getContent('scorxlist.data');
-		var listExamples:TListExamples = Unserializer.run(data);
-		*/
+		//if (! sys.db.TableCreate.exists(DBUser.manager) ) sys.db.TableCreate.create(DBUser.manager);
+		//if (! sys.db.TableCreate.exists(DBBox.manager) ) sys.db.TableCreate.create(DBBox.manager);
+
+		ScorxDBTools.createTable(cnx, DBUser, sqlPath);
+		ScorxDBTools.defaultData(cnx, DBUser, sqlPath);
+		ScorxDBTools.createTable(cnx, DBChoir, sqlPath);
+		ScorxDBTools.defaultData(cnx, DBChoir, sqlPath);
+		ScorxDBTools.createTable(cnx, DBChoirUser, sqlPath);
+		ScorxDBTools.defaultData(cnx, DBChoirUser, sqlPath);
+		ScorxDBTools.createTable(cnx, DBListExamples, sqlPath);
+		ScorxDBTools.defaultData(cnx, DBListExamples, sqlPath);
+
+		ScorxDBTools.createTable(cnx, DBBox, sqlPath);
+		ScorxDBTools.defaultData(cnx, DBBox, sqlPath);
 		
-		//trace(listExamples);
-		//ScorxDBTools.listExamplesInsert(listExamples);
+		if (! sys.db.TableCreate.exists(DBUserBox.manager) ) sys.db.TableCreate.create(DBUserBox.manager);
 		
-		/*
-		var listExamples = ScorxDBTools.listExamplesGetAll();
-		trace(listExamples);
-		var selectedExamples = ListExamplesTools.selectIds(listExamples, [17, 18, 19]);
-		trace(selectedExamples);
-		*/
+		var u = DBUser.manager.search( { ssnr:'22222222-2222' } ).first();
+		trace(u);
 		
-		/*
-		var box = new DBBox();
-		box.id = 'Testbox';
-		box.info = 'Här prövar vi lite grand';
-		box.setIds([17, 18, 19]);
-		box.setCategory(EBoxType.FREE);
-		box.insert();
-		*/
+		var choirs = DBChoirUser.manager.search( { user:u } );
+		trace(choirs);
+		for (choiritem in choirs) {
+			var choir = DBChoir.manager.get(choiritem.choir.id);
+			trace(' - ' + choir.name);
+		}
 		
 		/*
-		var box = new DBBox();
-		box.id = 'YourSong';
-		box.info = 'Your Song - Norsk Korforbund';
-		box.setIds([437,438,439,440,441,442]);
-		box.setCategory(EBoxType.PROJECT);
-		box.insert();
 		*/
-		
 		/*
-		var box = DBBox.manager.get('FbrFria');
-		trace(box.id);
-		trace(box.getIds());
+		ScorxDBTools.createTable(cnx, DBListExamples, sqlPath);
+		ScorxDBTools.defaultData(cnx, DBListExamples, sqlPath);
 		*/
-		
-		/*
-		var userbox = new DBUserBox();
-		userbox.userid = '11111111-1111';
-		userbox.box = box;
-		userbox.activation = Date.now();
-		userbox.start = Date.fromString('2013-01-01');
-		userbox.stop = Date.fromString('2013-06-30');
-		userbox.info = 'Anna Andersson Fria';
-		userbox.insert();
-		*/
-		
-		var userBoxes = ScorxDBTools.getTUserBoxes('19661222-8616');
-		trace(userBoxes);
 		
 	}	
 	
-	
-	
 }
+
 

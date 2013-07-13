@@ -1,6 +1,6 @@
 package cx;
 import haxe.io.Bytes;
-import nme.utils.ByteArray;
+//import nme.utils.ByteArray;
 
 /**
  * ...
@@ -9,6 +9,7 @@ import nme.utils.ByteArray;
 
 class AmfTools 
 {
+	/*
 	static public function testFiles() {
 
 		var bytesList = FileTools.filesBytesInDirectory('files/');
@@ -26,6 +27,7 @@ class AmfTools
 			var bs:Bytes = cast(f, Bytes);
 			trace(bs.length);
 		}
+		*/
 		
 		//------------------------------------------------------------------------------
 		// AS3 code:
@@ -45,32 +47,50 @@ class AmfTools
 		});
 		l.load(new URLRequest(filename));
 		*/
+		
+	/*	
 	}
-	
+	*/
+	/*
 	static public function test() {
 		var object = { test: ['Hej', 'hopp'], name:'Jonas', age:45.1, obj: { a:'abc', b: [1.1, 2.22, 3.333] }}; // ['hejsan hoppsan'];
 		objectToFile(object, 'test.object.amf');
 		var object2 = fileToObject('test.object.amf');
 		trace(object2);
 	}
+	*/
 	
-	static public function objectToFile(object:Dynamic, filename:String) {
+	static public function objectToBytes(object:Dynamic):Bytes {
 		var output = new haxe.io.BytesOutput();
 		output.bigEndian = true;
 		var writer = new nekoserver.amf.io.Amf3Writer(output);
-		writer.write(object);
-		//-----------------------------------------------------		
-		var f = neko.io.File.write(filename, true);
-		f.write(output.getBytes());
-		f.close();
+		writer.write(object);		
+		return output.getBytes();
 	}
 	
-	static public function fileToObject(filename:String):Dynamic {
-		var f = neko.io.File.read(filename, true);
-		var bytes = f.readAll();
+	#if (neko || cpp)
+	static public function objectToFile(object:Dynamic, filename:String) {
+		var bytes = objectToBytes(object);		
+		//-----------------------------------------------------		
+		var f = sys.io.File.write(filename, true);		
+		f.write(bytes);
+		f.close();
+	}
+	#end
+	
+	static public function bytesToObject(bytes:Bytes):Dynamic {
 		var input = new haxe.io.BytesInput(bytes);		
 		var reader = new nekoserver.amf.io.Amf3Reader(input);
 		var object = reader.read();
-		return object;
+		return object;				
 	}
+	
+	#if (neko || cpp)
+	static public function fileToObject(filename:String):Dynamic {
+		var f = sys.io.File.read(filename, true);
+		var bytes = f.readAll();
+		//------------------------------------------------------
+		return bytesToObject(bytes);
+	}
+	#end
 }

@@ -1,0 +1,411 @@
+/*
+ *  Templo compiler
+ *  Copyright (c)2008 Motion-Twin
+ *
+ *  This library is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU Lesser General Public
+ *  License as published by the Free Software Foundation; either
+ *  version 2.1 of the License, or (at your option) any later version.
+ *
+ *  This library is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License or the LICENSE file for more details.
+ */
+open Templo.Ast;
+
+type keyword {
+	KIf;
+	KElse;
+	KVar;
+	KWhile;
+	KDo;
+	KFor;
+	KBreak;
+	KContinue;
+	KFunction;
+	KReturn;
+	KThis;
+	KTry;
+	KCatch;
+	KDefault;
+	KSwitch;
+	KCase;
+	KIgnore;
+	KLiteral;
+}
+
+type token {
+	// element
+	Comment : string;
+	Node : string;
+	Macro : string;
+	DoubleDot;
+	Data : string;
+	EndNode : string;
+	CDataBegin;
+	CDataEnd;
+	// node
+	NodeContent : bool;
+	// attrib value
+	Quote : bool;
+	// expr
+	Dot;
+	Int : int;
+	Float : string;
+	String : string;
+	Ident : string;
+	Keyword : keyword;
+	Comma;
+	ParentOpen;
+	ParentClose;
+	BraceOpen;
+	BraceClose;
+	BracketOpen;
+	BracketClose;
+	Op : op;
+	Unop : unop;
+	Question;
+	// eof
+	Eof;
+}
+
+type error_msg {
+	Invalid_character : char;
+	Unterminated_string;
+	Invalid_escape;
+	Unclosed_comment;
+	Invalid_op : string;
+}
+
+exception Error : (error_msg , Lexer.pos)
+
+function error_msg(msg) {
+	match msg {
+	| Invalid_character c when ord c > 32 && ord c < 128 -> sprintf "Invalid character '%c'" c
+	| Invalid_character c -> sprintf "Invalid character 0x%.2X" (ord c)
+	| Invalid_escape -> "Invalid escaped char"
+	| Unterminated_string -> "Unterminated string"
+	| Unclosed_comment -> "Unclosed comment"
+	| Invalid_op s -> "Invalid operation '" + s+ "'"
+	}
+}
+
+function s_keyword(k) {
+	match k {
+	| KIf -> "if"
+	| KElse -> "else"
+	| KVar -> "var"
+	| KWhile -> "while"
+	| KDo -> "do"
+	| KFor -> "for"
+	| KBreak -> "break"
+	| KContinue -> "continue"
+	| KFunction -> "function"
+	| KReturn -> "return"
+	| KThis -> "this"
+	| KTry -> "try"
+	| KCatch -> "catch"
+	| KDefault -> "default"
+	| KSwitch -> "switch"
+	| KCase -> "case"
+	| KIgnore -> "ignore"
+	| KLiteral -> "literal"
+	}
+}
+
+function s_token(t) {
+	match t {
+	| Comment s -> s
+	| Node s -> "<" + s
+	| CDataBegin -> "<![CDATA["
+	| CDataEnd -> "]]>"
+	| EndNode s -> "</" + s + ">"
+	| Macro s -> "$$" + s
+	| DoubleDot -> "::"
+	| Data s -> s
+	| Dot -> "."
+	| Int i -> string i
+	| Float s -> s
+	| String s -> "\"" + String.escape s + "\""
+	| Ident s -> s
+	| Keyword k -> s_keyword k
+	| Comma -> ","
+	| ParentOpen -> "("
+	| ParentClose -> ")"
+	| BracketOpen -> "["
+	| BracketClose -> "]"
+	| BraceOpen -> "{"
+	| BraceClose -> "}"
+	| NodeContent b -> if b then ">" else "/>"
+	| Op op -> s_op op
+	| Unop op -> s_unop op
+	| Question -> "?"
+	| Quote b -> if b then "\"" else "'"
+	| Eof -> "<eof>"
+	}
+}
+
+function dict(f,l) {
+	List.fold (function(acc,o) Map.add acc (f o) o) Map.empty() l
+}
+
+var keywords = dict s_keyword [KIf;KElse;KVar;KWhile;KDo;KFor;KBreak;KContinue;
+	KFunction;KReturn;KThis;KTry;KCatch;KDefault;KSwitch;KCase;KIgnore;KLiteral];
+
+var ops = dict s_op [OpAdd;OpMult;OpDiv;OpSub;OpAssign;OpEq;OpNotEq;OpGt;OpGte;
+	OpLt;OpLte;OpAnd;OpOr;OpXor;OpBoolAnd;OpBoolOr;OpShl;OpShr;OpUShr;OpMod;OpCompare];
+
+var unops = dict s_unop [Increment;Decrement;Not]
+
+function error(l,msg) {
+	throw Error(msg,Lexer.curpos l)
+}
+
+function mk(l,t) {
+	(t,Lexer.curpos l)
+}
+
+function mk_int(l) {
+	mk l Int(int (Lexer.current l))
+}
+
+function mk_float(l) {
+	mk l Float(Lexer.current l)
+}
+
+function mk_data(l) {
+	mk l Data(Lexer.current l)
+}
+
+function mk_string(f,l) {
+	var p1 = Lexer.curpos l;
+	var buf = Lexer.data l;
+	Buffer.reset buf;
+	try f l catch { Exit -> throw Error(Unterminated_string,p1) };
+	var p2 = Lexer.curpos l;
+	(Buffer.string buf, Lexer.punion p1 p2)
+}
+
+function mk_ident(l) {
+	var id = Lexer.current l;
+	try {
+		var k = Map.find keywords id;
+		mk l Keyword(k)
+	} catch {
+		Not_found -> mk l Ident(id)
+	}
+}
+
+var attr = "[a-zA-Z_][-:a-zA-Z0-9_]*";
+var ident = "[a-zA-Z_][a-zA-Z0-9_]*";
+var spaces = "[ \r\t\n]+";
+var bom = "\239\187\191";
+
+var element = &Lexer.empty();
+var cdata = &Lexer.empty();
+var attributes = &Lexer.empty();
+var attrvalue = &Lexer.empty();
+var macros = &Lexer.empty();
+var expr = &Lexer.empty();
+var estring = &Lexer.empty();
+var eqstring = &Lexer.empty();
+var ecomment = &Lexer.empty();
+
+var macro = ("$$"+ident,function(l) {
+	var str = Lexer.current l;
+	mk l Macro(String.sub str 2 (String.length str - 2))
+});
+
+var ddot = ("::",function(l) mk l DoubleDot);
+
+function comment(l) {
+	Lexer.token l (*ecomment)
+}
+
+function str(l) {
+	Lexer.token l (*estring)
+}
+
+function qstr(l) {
+	Lexer.token l (*eqstring)
+}
+
+function invalid_char(l) {
+	match Lexer.char l {
+	| None -> mk l Eof
+	| Some c -> error l (Invalid_character c)
+	}
+}
+
+element := Lexer.build [
+	(bom, function(l) Lexer.token l (*element));
+	("<"+attr, function(l) {
+		var str = Lexer.current l;
+		mk l Node(String.sub str 1 (String.length str - 1))
+	});
+	macro;
+	("<!--", function(l) {
+		var p1 = Lexer.curpos l;
+		var buf = Lexer.data l;
+		Buffer.reset buf;
+		Buffer.add buf "<!--";
+		try comment l catch { Exit -> throw Error(Unclosed_comment,p1) };
+		Buffer.add buf "-->";
+		var p2 = Lexer.curpos l;
+		(Comment(Buffer.string buf) , Lexer.punion p1 p2)
+	});
+	("<!DOCTYPE[^>]+>", function(l) {
+		mk l Comment(Lexer.current l)
+	});
+	("</"+attr+">", function(l) {
+		var str = Lexer.current l;
+		mk l EndNode(String.sub str 2 (String.length str - 3))
+	});
+	("<!\\[[Cc][dD][aA][tT][aA]\\[",function(l) mk l CDataBegin);
+	ddot;
+	("[:$]", mk_data);
+	("[^:$<>]+", mk_data);
+] invalid_char;
+
+cdata := Lexer.build [
+	macro;
+	ddot;
+	("]]>",function(l) mk l CDataEnd);
+	("[:$\\]]", mk_data);
+	("[^:$\\]]+", mk_data);
+] invalid_char;
+
+attributes := Lexer.build [
+	macro;
+	("[ \r\t\n]+", function(l) { Lexer.token l (*attributes) });
+	(">", function(l) mk l NodeContent(true));
+	("/>", function(l) mk l NodeContent(false));
+	ddot;
+	(attr, function(l) mk l Ident(Lexer.current l));
+	("=", function(l) mk l Op(OpAssign));
+	("'", function(l) mk l Quote(false));
+	("\"", function(l) mk l Quote(true));
+] invalid_char;
+
+attrvalue := Lexer.build [
+	macro;
+	ddot;
+	("'", function(l) mk l Quote(false));
+	("\"", function(l) mk l Quote(true));
+	("[:$]", mk_data );
+	("[^'\"\r\n$:]+", mk_data);
+] invalid_char;
+
+macros := Lexer.build [
+	(",", function(l) { mk l Comma });
+	("(", function(l) { mk l ParentOpen });
+	(")", function(l) { mk l ParentClose });
+	("{", function(l) { mk l BraceOpen });
+	("}", function(l) { mk l BraceClose });
+	macro;
+	ddot;
+	("[:$]", mk_data);
+	("[^:$,(){}<]+", mk_data);
+	("<"+attr, function(l) {
+		var str = Lexer.current l;
+		mk l Node(String.sub str 1 (String.length str - 1))
+	});
+] invalid_char;
+
+ecomment := Lexer.build [
+	("-->", function(l) { });
+	("-", function(l) { Buffer.add (Lexer.data l) (Lexer.current l); comment l });
+	("[^-]+", function(l) { Buffer.add (Lexer.data l) (Lexer.current l); comment l });
+] (function(l) { throw Exit });
+
+expr := Lexer.build [
+	(".", function(l) { mk l Dot });
+	(",", function(l) { mk l Comma });
+	("(", function(l) { mk l ParentOpen });
+	(")", function(l) { mk l ParentClose });
+	("{", function(l) { mk l BraceOpen });
+	("}", function(l) { mk l BraceClose });
+	("\\[", function(l) { mk l BracketOpen });
+	("]", function(l) { mk l BracketClose });
+	("\\?", function(l) mk l Question);
+	("==", function(l) mk l Op(OpEq));
+	("=", function(l) mk l Op(OpAssign));
+	("[-+*/&|^!<>%~]+=?", function(l) {
+		var str = Lexer.current l;
+		var op = try Op (Map.find ops str) catch {
+			Not_found -> try Unop (Map.find unops str) catch {
+				Not_found -> error l Invalid_op(str)
+			}
+		};
+		mk l op
+	});
+	(spaces, function(l) { Lexer.token l (*expr) });
+	("0", mk_int);
+	("[1-9][0-9]*", mk_int);
+	("[0-9]+.[0-9]*", mk_float);
+	(".[0-9]+", mk_float);
+	(ident, mk_ident);
+	("\"", function(l) {
+		var str, p = mk_string str l;
+		(String str, p)
+	});
+	("'", function(l) {
+		var str, p = mk_string qstr l;
+		(String str, p)
+	});
+	ddot;
+	(":", function(l) mk l DoubleDot);
+] invalid_char;
+
+estring := Lexer.build [
+	("\\\\\"", function(l) {
+		Buffer.add_char (Lexer.data l) '"';
+		str l
+	});
+	("\\\\\\\\", function(l) {
+		Buffer.add_char (Lexer.data l) '\\';
+		str l
+	});
+	("\\\\n", function(l) {
+		Buffer.add_char (Lexer.data l) '\n';
+		str l
+	});
+	("\\\\t", function(l) {
+		Buffer.add_char (Lexer.data l) '\t';
+		str l
+	});
+	("\\\\r", function(l) {
+		Buffer.add_char (Lexer.data l) '\r';
+		str l
+	});
+	("\\\\" , function(l) { error l Invalid_escape });
+	("\"" , function(l) { });
+	("[^\"\\\\]+", function(l) { Buffer.add (Lexer.data l) (Lexer.current l); str l });
+] (function(l) throw Exit);
+
+eqstring := Lexer.build [
+	("\\\\'", function(l) {
+		Buffer.add_char (Lexer.data l) '\'';
+		qstr l
+	});
+	("\\\\\\\\", function(l) {
+		Buffer.add_char (Lexer.data l) '\\';
+		qstr l
+	});
+	("\\\\n", function(l) {
+		Buffer.add_char (Lexer.data l) '\n';
+		qstr l
+	});
+	("\\\\t", function(l) {
+		Buffer.add_char (Lexer.data l) '\t';
+		qstr l
+	});
+	("\\\\r", function(l) {
+		Buffer.add_char (Lexer.data l) '\r';
+		qstr l
+	});
+	("\\\\" , function(l) { error l Invalid_escape });
+	("'" , function(l) { });
+	("[^'\\\\]+", function(l) { Buffer.add (Lexer.data l) (Lexer.current l); qstr l });
+] (function(l) throw Exit);

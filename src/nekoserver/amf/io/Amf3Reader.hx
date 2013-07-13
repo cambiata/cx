@@ -1,6 +1,10 @@
 package nekoserver.amf.io;
 
+import haxe.io.Bytes;
+import haxe.io.BytesData;
 import nekoserver.amf.Types;
+//import neko.NativeString;
+
 
 class Amf3Reader {	
 	public var decodedStrings: Array<String>;
@@ -10,6 +14,7 @@ class Amf3Reader {
 	
 	public function new(i: haxe.io.Input) {
 		input = i;
+		input.bigEndian = true;
 		decodedStrings = [];
 		decodedObjects = [];
 		decodedClassDefs = [];
@@ -33,8 +38,10 @@ class Amf3Reader {
 	}
 
 	private function readAmf3ByteArray() {
-		var data = readAmf3String();
-		return haxe.io.Bytes.ofData(neko.NativeString.ofString(data));
+		var data = readAmf3String();		
+		//return Bytes.ofData(BytesData.ofString(data));
+		return Bytes.ofString(data);
+		//return haxe.io.Bytes.ofData(NativeString.ofString(data));
 	}
 
 	private function readAmf3Date(): Date {

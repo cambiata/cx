@@ -1,7 +1,11 @@
 package cx;
 
+<<<<<<< HEAD
 import haxe.Int32;
 //import tea.TEA;
+=======
+import tea.TEA;
+>>>>>>> dba6e4e1cf2b02c28bf72ed1733c9ae45be1b933
 
 /**
  * ...
@@ -31,8 +35,7 @@ class CryptTools
 	}
 	
 	static private function setTeaKey(keyInt:Int) {
-		var keyInt = Int32.ofInt(keyInt);
-		TEA.key = [Int32.ofInt(1), Int32.ofInt(2), Int32.ofInt(3), keyInt];
+		TEA.key = [1, 2, 3, keyInt];
 	}
 	
 }

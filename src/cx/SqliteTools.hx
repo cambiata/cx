@@ -3,7 +3,7 @@ package cx;
 import sys.db.Sqlite;
 import sys.db.Connection;
 
-import neko.FileSystem;
+import sys.FileSystem;
 /**
  * ...
  * @author Jonas Nyström
@@ -12,7 +12,7 @@ import neko.FileSystem;
 class SqliteTools {	
 	
 	static public function getCnx(sqliteFilename:String):Connection {
-		return neko.db.Sqlite.open(sqliteFilename); 
+		return Sqlite.open(sqliteFilename); 
 	}
 	
 	static public function select(sqliteFilename:String, sql:String) {

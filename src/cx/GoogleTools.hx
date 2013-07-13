@@ -1,5 +1,5 @@
 package cx;
-
+import haxe.Http;
 /**
  * ...
  * @author Jonas Nyström
@@ -18,7 +18,13 @@ class Main {
 } 
 */
 import haxe.Http; 
-import neko.io.Process;
+//import neko.io.Process;
+import sys.io.Process;
+
+
+using StringTools;
+
+
 class GoogleTools 
 {
 	private static var urlClientLogin = 'https://www.google.com/accounts/ClientLogin';
@@ -51,14 +57,14 @@ class GoogleTools
 }
 
 
-import haxe.Http;
+
 
 /**
  * ...
  * @author Jonas Nyström
  */
 
-using StringTools;
+
 
 class Spreadsheet 
 {
@@ -233,8 +239,8 @@ class Documents  {
 	}
 	
 	
-	private var documentEntries:Hash<DocumentEntry>;
-	public function getDocumentEntries():Hash<DocumentEntry> {
+	private var documentEntries:/*Map<String, DocumentEntry>*/Hash<DocumentEntry>;
+	public function getDocumentEntries():/*Map<String, DocumentEntry>*/Hash<DocumentEntry> {
 		if (this.documentEntries != null) return this.documentEntries;
 		
 		var urlDocumentList:String = 'https://docs.google.com/feeds/documents/private/full';		
@@ -253,8 +259,8 @@ class Documents  {
 		return ret;
 	}
 	
-	static private function _getDocumentEntries(xmlDocumentList:String):Hash<DocumentEntry> {		
-		var ret = new Hash<DocumentEntry>();		
+	static private function _getDocumentEntries(xmlDocumentList:String):/*Map<String, DocumentEntry>*/Hash<DocumentEntry> {		
+		var ret = new /*Map<String, DocumentEntry>*/Hash<DocumentEntry>();		
 		var xml = Xml.parse(xmlDocumentList);		
 		var xmlFeed = xml.firstElement();		
 		var entries = xmlFeed.elementsNamed('entry');

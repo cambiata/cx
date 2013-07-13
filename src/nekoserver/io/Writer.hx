@@ -2,9 +2,9 @@
 
 interface Writer {
 	public function write(val: Dynamic): Bool;
-	public function writeInt(val: Int): Void;
-	public function writeFloat(val: Float): Void;
-	public function writeString(val: String): Void;
+	public function writeInt(val: Null<Int>): Void;
+	public function writeFloat(val: Null<Float>): Void;
+	public function writeString(val: Null<String>): Void;
 	public function writeArray(val: Array < Dynamic>, writeItem: Dynamic -> Writer -> Bool): Void;
 	public function writeArrayHeader(array: Array<Dynamic>, ?withMark: Bool): Int;
 	public function writeNull(): Void;

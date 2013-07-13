@@ -26,9 +26,6 @@ class ValidationTools {
 	}
 	
 	static public function isValidFornamn(namn:String):Bool {
-		
-		if (! RegexTools.hasSwedishNameChars(namn)) return false;		
-		if (RegexTools.hasNumber(namn)) return false;
 		if (namn == null) return false;
 		if (namn.trim() == '') return false;
 		if (namn.startsWith(' ')) return false;
@@ -36,45 +33,53 @@ class ValidationTools {
 		if (namn.length < 2) return false;
 		if (namn.length > 24) return false;
 		
+		if (! RegexTools.hasSwedishNameChars(namn)) return false;		
+		if (RegexTools.hasNumber(namn)) return false;
+
+		// Must start with upper case?
 		if (namn.charAt(0).toUpperCase() != namn.charAt(0)) return false;		
 		
 		return true;
 	}
 	
+	// TODO: Review this method!
 	static public function isValidEfternamn(namn:String):Bool {
-		var bprefs = ['de la ', 'von ', 'af ', 'de '];
 		
-		for (bpref in bprefs) {
-			if (namn.toLowerCase().startsWith(bpref.toLowerCase())) {
-				// remove blue prefix
-				namn = namn.substr(bpref.length);
-			}		
-		}
-		
-		if (! RegexTools.hasSwedishNameChars(namn)) return false;
-		if (RegexTools.hasNumber(namn)) return false;
+		// first, some basic validations
 		if (namn == null) return false;
 		if (namn.trim() == '') return false;
 		if (namn.startsWith(' ')) return false;
 		if (namn.endsWith(' ')) return false;
 		if (namn.length < 2) return false;
 		if (namn.length > 32) return false;
+
+		// then remove blue prefixes and pass through the rest...
+		var bluePrefixes = ['de la ', 'von ', 'af ', 'de '];
+		for (prefix in bluePrefixes) {
+			if (namn.toLowerCase().startsWith(prefix.toLowerCase())) {
+				// remove blue prefix
+				namn = namn.substr(prefix.length);
+			}		
+		}
 		
+		//
+		if (! RegexTools.hasSwedishNameChars(namn)) return false;
+		if (RegexTools.hasNumber(namn)) return false;
 		if (namn.charAt(0).toUpperCase() != namn.charAt(0)) return false;
 		
+		// contains " " or "-"? 
 		if (namn.split(' ').length > 2) return false;
 		if (namn.split('-').length > 2) return false;		
 		
+		// check that each segment part begins with uppercase...
 		var segs = namn.split(' ');
 		for (seg in segs) {
 			if (seg.charAt(0).toUpperCase() != seg.charAt(0)) return false;
 		}
-		
 		var segs = namn.split('-');
 		for (seg in segs) {
 			if (seg.charAt(0).toUpperCase() != seg.charAt(0)) return false;
 		}		
-		
 		
 		return true;
 	}

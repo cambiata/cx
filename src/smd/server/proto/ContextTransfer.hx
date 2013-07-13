@@ -1,4 +1,6 @@
 package smd.server.proto;
+import smd.server.proto.lib.user.User;
+import smd.server.proto.lib.user.UserSub;
 
 /**
  * ...
@@ -8,14 +10,6 @@ package smd.server.proto;
 typedef ContextTransfer =
 {
 	userSub:UserSub,
-	
-	/*
-	id:String,
-	user:String,
-	firstname:String,
-	lastname:String,
-	category:String,	
-	*/
 }
 
 class ContextTransferTool {

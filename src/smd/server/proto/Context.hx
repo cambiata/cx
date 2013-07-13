@@ -2,6 +2,7 @@ package smd.server.proto;
 import cx.WebTools;
 import smd.server.proto.base.Message;
 import smd.server.proto.ContextTransfer.ContextTransferTool;
+import smd.server.proto.lib.user.User;
 
 /**
  * ...

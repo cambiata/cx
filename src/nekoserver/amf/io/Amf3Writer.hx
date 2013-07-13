@@ -1,10 +1,11 @@
 package nekoserver.amf.io;
 
+import haxe.io.BytesData;
 import nekoserver.amf.Types;
 import Type;
-
+//import neko.NativeString;
 import haxe.io.Bytes;
-import neko.NativeString;
+
 
 // aux class to maintain a cache of string with fast accesses
 class StringCache {
@@ -62,7 +63,7 @@ public static var INT29_MASK = 0x1FFFFFFF;
 	public function new(o: haxe.io.Output) {
 		output = o;
 		trace(output.bigEndian);
-		output.bigEndian=false;
+		output.bigEndian=true;
 
 		stringCache = new StringCache();
 		
@@ -214,7 +215,11 @@ public static var INT29_MASK = 0x1FFFFFFF;
 			var index = stringCache.getIndex(str); 
 			
 			if (index == -1) {
-				writeAmf3StringData(Bytes.ofData(NativeString.ofString(str)));
+				
+				//writeAmf3StringData(Bytes.ofData(neko.NativeString.ofString(str)));				
+				//writeAmf3StringData(Bytes.ofData(BytesData.ofString(str)));
+				writeAmf3StringData(Bytes.ofString(str));
+				
 				stringCache.add(str); 
 			} else {
 				var handle = index << 1;
@@ -305,7 +310,8 @@ public static var INT29_MASK = 0x1FFFFFFF;
 	// nekoserver.io.Writer interface
 	//------------------------------------------------------------
 	
-	public function writeInt(val: Int) {
+	
+	public function writeInt(val: Null<Int>) {
 		if (null != val) {
 			if (val & 0x0e000000 == 0) {
 				output.writeByte(0x04);
@@ -319,7 +325,7 @@ public static var INT29_MASK = 0x1FFFFFFF;
 		}
 	}
 
-	public function writeFloat(val: Float) {
+	public function writeFloat(val: Null<Float>) {
 		if (null != val) {
 			output.writeByte(0x05);
 			output.writeDouble(val);
@@ -328,7 +334,7 @@ public static var INT29_MASK = 0x1FFFFFFF;
 		}
 	}
 	
-	public function writeString(val: String) {
+	public function writeString(val: Null<String>) {
 		if (null != val) {
 			output.writeByte(0x06);
 			writeAmf3String(val);
@@ -336,6 +342,7 @@ public static var INT29_MASK = 0x1FFFFFFF;
 			writeNull();
 		}
 	}
+	
 	
 	public function writeObject(val: Dynamic, writeFields: Dynamic -> nekoserver.io.Writer -> Int -> Void) {
 		if (null != val) {

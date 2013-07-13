@@ -10,9 +10,11 @@ import micromvc.server.Context;
 import neko.Lib;
 import neko.Web;
 import smd.server.proto.Config;
-import sx.db.ScorxDBTools;
-import sx.db.tables.TUserBox;
-import sx.db.tables.TUserBoxes;
+import smd.server.proto.lib.db.DBChoirUser;
+import smd.server.proto.lib.db.DBUser;
+import smd.server.proto.lib.ScorxDBTools;
+import smd.server.proto.lib.db.TUserBox;
+import smd.server.proto.lib.db.TUserBoxes;
 import sys.db.Connection;
 
 import micromvc.server.Controller;
@@ -21,21 +23,24 @@ import micromvc.server.Controller;
  * ...
  * @author Jonas Nyström
  */
+
 using cx.PathTools;
 class Main 
 {
 	public static function main() 
 	{
+		
 		Log.trace = Firebug.trace;
 		ConfigTools.loadConfig(Config, Config.configFile);		
 		var uri = Web.getURI().addSlash().addSlashBefore();
 		Web.setHeader('Access-Control-Allow-Origin', '*');
-		//trace('service: ' + uri);
 		var context = new Context([UserdataController, TestController, HomeController]);
+		
 	}
 }
 
 class HomeController implements Controller {
+	
 	public function new() {
 		trace('NEW HomeController');
 	}	
@@ -71,8 +76,6 @@ class TestController implements Controller {
 	}	
 }
 
-
-
 class ResultController implements Controller {
 	public function new() {
 		
@@ -82,7 +85,6 @@ class ResultController implements Controller {
 		var out = Json.stringify(result);
 		Lib.print(out);
 	}
-	
 }
 
 
@@ -94,7 +96,6 @@ class UserdataController extends ResultController  {
 		//trace('NEW UserdataController');		
 		this.cnx = ScorxDBTools.getCnx(Config.filesPath + 'data/scorx.sqlite');
 		//ScorxDBTools.createTables(cnx);
-		
 	}
 
 	public function index() {
@@ -149,9 +150,27 @@ class UserdataController extends ResultController  {
 		//trace(Json.stringify(listExamples));
 		var result = ServiceTool.toResult('Box for user ' + userid + '/' + boxid, Serializer.run(uBox), 0, '', Serializer.run(listExamples));		
 		this.output(result);
-		
-		
 	}	
+
+	
+	@action('info')
+	public function info(userid:String) {				
+		
+		var user:DBUser;
+		var info:String = '';
+		var result:ServiceResult;
+		
+		try{
+			user = DBUser.manager.get(userid);
+			//var choirs = DBChoirUser.manager.search( { user:'11111111-1111' } );
+			info = user.toString();
+			result = ServiceTool.toResult('Info for user ' + userid, info);
+		} catch (e:Dynamic) {
+			result = ServiceTool.toResult('Error user ' + userid, Std.string(e), 1);
+		}
+		
+		this.output(result);
+	}
 	
 	
 }

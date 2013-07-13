@@ -1,15 +1,12 @@
 package smd.server.proto.base;
 
-import cx.ConfigTools;
 import harfang.configuration.AbstractServerConfiguration;
 import harfang.exception.Exception;
 import harfang.exception.HTTPException;
 import harfang.url.URLDispatcher;
-import haxe.Firebug;
 import haxe.Log;
 import neko.Lib;
 import neko.Web;
-import smd.server.proto.publ.Site;
 
 class BaseConfiguration extends AbstractServerConfiguration {
 

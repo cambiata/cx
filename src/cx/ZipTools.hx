@@ -8,10 +8,14 @@ import haxe.io.Bytes;
 import haxe.io.BytesInput;
 import haxe.io.BytesOutput;
 
-#if !flash
+#if (neko || windows || cpp)
 import sys.io.File;
 #else
+
+#if (flash || nme)
 import flash.utils.ByteArray;
+#end
+
 #end
 
 /**
@@ -20,7 +24,7 @@ import flash.utils.ByteArray;
  */
 
 class ZipTools {	
-#if !flash
+#if (neko || windows || cpp)
 	static public function getEntries(zipFilename:String): List<Entry> {
 		var zipfileBytes = File.getBytes(zipFilename);
 		return getEntriesFromBytes(zipfileBytes);
@@ -56,6 +60,7 @@ class ZipTools {
 		var zipBytesOutput = new BytesOutput();
         var zipWriter = new Writer(zipBytesOutput);
         zipWriter.writeData(entries);
+		
         var zipBytes = zipBytesOutput.getBytes();
         var file = File.write(filename, true);
         file.write(zipBytes);
@@ -65,14 +70,11 @@ class ZipTools {
 #end
 
 	static public function getEntriesFromBytes(zipfileBytes:Bytes): List<Entry> {
-		//var zipfileBytes = File.getBytes(zipFilename);
 		var bytesInput = new BytesInput(zipfileBytes);
 		var r = new Reader(bytesInput);
 		var data = r.read();		
 		return data;		
 	}	
-
-
 
 	static public function createDataEntry(filename:String, data:Bytes):Entry {
 		var entry:Entry = {

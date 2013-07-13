@@ -27,4 +27,21 @@ class PathTools
 		return path;
 	}
 	
+	static public function firstSegment(path:String, slash = '/'):String {
+		return path.split(slash).shift();		
+	}
+	
+	static public function lastSegment(path:String, slash = '/'):String {
+		return path.split(slash).pop();
+	}
+	
+	static public function getExtension(filename:String) {
+		return filename.substr(filename.lastIndexOf('.')+1);
+	}	
+	
+	static public function addHttp(path:String, http = 'http://') {
+		if (! path.startsWith(http)) return http + path;
+		return path;
+	}
+	
 }

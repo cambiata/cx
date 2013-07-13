@@ -1,10 +1,20 @@
 package micromvc.client;
 
 #if (js)
+	#if haxe3
+		import js.Browser;
+	#else
+
+	#end
 	import js.Lib;
 #elseif (neko)
 	import neko.Web;
 #end
+
+#if !haxe3
+typedef Browser = Lib;
+#end
+
 
 /**
  * ...
@@ -14,7 +24,13 @@ using StringTools;
 class Context {
 	
 	public function new(registerControllers:Array<Dynamic>, uri:String=null) {
+		
+		#if haxe3
+		this.controllers = new Map<String, String>();
+		#else
 		this.controllers = new Hash<String>();
+		#end
+		
 		this.keys = new Array<String>();
 		
 		for (cntrl in registerControllers) {
@@ -25,7 +41,13 @@ class Context {
 		var controller = getController(getURI(uri));
 		
 	}
+	
+	#if haxe3
+	private var controllers:Map<String, String> ;
+	#else
 	private var controllers:Hash<String> ;
+	#end
+	
 	private var keys:Array<String>;
 	
 	
@@ -64,8 +86,8 @@ class Context {
 	public function getURI(uri:String=null):String {
 		if (uri == null) {
 			#if (js)
-				uri = Lib.window.location.href;
-				uri = uri.split(Lib.window.location.host)[1];		
+				uri = Browser.window.location.href;
+				uri = uri.split(Browser.window.location.host)[1];		
 			#elseif (neko)
 				uri = Web.getURI();
 			#end			
