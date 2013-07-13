@@ -1,20 +1,15 @@
-package nx.enums;
+package nx3.enums;
 
 /**
  * ...
  * @author Jonas Nyström
  */
-
 enum ENoteType {
-	Note;
+	Note(variant:ENoteVariant);
 	Pause; 
 	BarPause;
-	HeadOnly;
-	StaveOnly;
-	Rythmic;
 	Tpl;
-	TplChain;
-	Lyric;
+	Lyric(text:String);
 	Chord;
 	Dynam;
 }
