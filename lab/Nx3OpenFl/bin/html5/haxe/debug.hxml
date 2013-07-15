@@ -1,0 +1,22 @@
+-main ApplicationMain 
+-lib openfl
+-lib openfl-html5
+-lib actuate
+-lib tink_core
+-lib tink_macro
+-cp src
+-cp ../../src/
+-cp F:\HaxeToolkit\haxe/lib\openfl/1,0,4/
+-cp F:\HaxeToolkit\haxe/lib\openfl-html5/1,0,3/
+-D tools=1
+-D openfl_ver=1.0.4
+-D openfl
+-D html5
+-D web
+-dce std
+-js bin/html5/bin/Nx3OpenFl.js
+-cp bin/html5/haxe
+-D html5
+-D html
+--remap flash:flash
+-debug

@@ -8,6 +8,13 @@ import haxe.Utf8;
 using StringTools;
 class StrTools 
 {
+	
+	static public function until(str:String, until:String):String
+	{
+		return str.substring(0, str.indexOf(until));
+		
+	}
+	
 	static public function tab(str:String) {
 		return str + '\t';
 	}

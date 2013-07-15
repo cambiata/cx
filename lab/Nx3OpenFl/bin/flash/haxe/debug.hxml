@@ -1,0 +1,20 @@
+-main ApplicationMain 
+-lib openfl
+-lib actuate
+-lib tink_core
+-lib tink_macro
+-cp src
+-cp ../../src/
+-cp F:\HaxeToolkit\haxe/lib\openfl/1,0,4/
+-D tools=1
+-D openfl_ver=1.0.4
+-D openfl
+-D web
+-dce std
+-swf-version 11
+-swf bin/flash/bin/Nx3OpenFl.swf
+-swf-header 800:480:60:FFFFFF
+-cp bin/flash/haxe
+#--remap nme:flash
+--no-inline
+-debug

@@ -14,47 +14,56 @@ abstract Level(Int)
 	
 	inline public function new(value:Int) {
 		// if ((value > MAX_LEVEL) || (value < MIN_LEVEL)) throw  'Level range error: $value is outside $MIN_LEVEL...$MAX_LEVEL';
-		trace('create');
+		//trace('create');
 		this = inRange(value);
 	}
+	
 	@:from static public inline function fromInt(value:Int) 
 	{
-		trace('from...');
 		return new Level(value);
 	}
 	
 	@:to public inline function toInt():Int  // <-- needed for example to run...
 	{
-		trace('to...');													// <-- but this is never called!
+		//trace('to...');													// <-- but this is never called!
 		return this;
 	}
 	
 	@:op(A + B) static public function add (l:Level, h:Level):Level
 	{
-		trace('add');
+		//trace('add');
 		return new Level(l + h);
 	}
 
 	@:op(++A) static public function addPlusPlus (l:Level):Level
 	{
-		trace('addPlusPlus');
+		//trace('addPlusPlus');
 		return new Level(l );
 	}
 
 	@:op(A++) static public function addPlusPlusAfter (l:Level):Level
 	{
-		trace('addPlusPlusAfter');
+		//trace('addPlusPlusAfter');
 		return new Level(l );
 	}	
 	
 	@:commutative @:op(A + B) static public function addInteger(l:Level, r:Int):Level
 	{
-		trace('addInteger');
+		//trace('addInteger');
 		return new Level(l + r);
 	}
 	
+	@:commutative @:op(A + B) static public function addFloat(l:Level, r:Float):Level
+	{
+		//trace('addInteger');
+		return new Level(l + r);
+	}	
 	
+	@:commutative @:op(A > B) static public function gtFloat(l:Level, r:Float):Bool return (l > r);
+	@:commutative @:op(A > B) static public function gtInt(l:Level, r:Int):Bool return (l > r);
 	
+	@:commutative @:op(A < B) static public function ltFloat(l:Level, r:Float):Bool return (l < r);
+	@:commutative @:op(A < B) static public function ltInt(l:Level, r:Int):Bool return (l < r);	
 	
 	static private function inRange(value:Int) return Std.int(Math.min(Math.max(value, MIN_LEVEL), MAX_LEVEL));
 }

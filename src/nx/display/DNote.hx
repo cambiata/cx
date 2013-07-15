@@ -44,12 +44,6 @@ class DNote
 		
 		this.flagCorrection 	= ERectCorrection.None;
 		
-		
-		
-		
-		
-		
-		
 		for (head in this.note.heads) {
 			this.dheads.push(new DHead(head));
 		}

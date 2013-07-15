@@ -8,4 +8,5 @@ package nx3.enums;
 enum ETie 
 {	
 	Tie(direction:EDirectionUAD);	
+	Gliss(direction:EDirectionUAD);
 }
