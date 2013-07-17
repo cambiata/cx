@@ -6,12 +6,12 @@
     <movie input="" />
     <movie path="www\FlashApplication.swf" />
     <movie fps="30" />
-    <movie width="800" />
-    <movie height="600" />
+    <movie width="320" />
+    <movie height="160" />
     <movie version="11" />
     <movie minorVersion="0" />
     <movie platform="Flash Player" />
-    <movie background="#FFFFFF" />
+    <movie background="#333333" />
   </output>
   <!-- Other classes to be compiled into your SWF -->
   <classpaths>

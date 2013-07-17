@@ -15,10 +15,10 @@
     <resizable>false</resizable>
     <x>100</x>
     <y>100</y>
-    <width>600</width>
+    <width>800</width>
     <height>400</height>
-    <minSize>600 400</minSize>
-    <maxSize>600 400</maxSize>
+    <minSize>800 400</minSize>
+    <maxSize>800 400</maxSize>
   </initialWindow>
   <!-- 
 	More options:

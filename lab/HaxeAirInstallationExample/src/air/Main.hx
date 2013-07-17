@@ -3,6 +3,7 @@ package air;
 import cx.AIRAppTools;
 import cx.AIRTools;
 import cx.TimerTools;
+import flash.display.Bitmap;
 import flash.geom.Point;
 import flash.Lib;
 import flash.filesystem.File;
@@ -26,6 +27,9 @@ import cx.flash.ui.UI;
  * @author 
  */
 
+ @:bitmap("assets/scorx-print.png")
+class ScorxPrint extends flash.display.BitmapData {}
+ 
 class Main 
 {	
 	static function main() 
@@ -98,8 +102,12 @@ class Main
 	
 		private function createUI()
 		{
-			textFormat =  new TextFormat('Arial', 30, 0x555555);					
-			textField = UI.createText('Scorx AIR Print application', 10, 10, textFormat);
+			var logo:Bitmap = new Bitmap(new ScorxPrint(0, 0));
+			logo.x = logo.y = 10;
+			Lib.current.addChild(logo);
+
+			textFormat =  new TextFormat('Arial', 28, 0xEEEEEE);					
+			textField = UI.createText('ScorxPrint Application', 10, 28, textFormat);
 			//textField.defaultTextFormat = textFormat;
 			Lib.current.addChild(textField);		
 
@@ -132,12 +140,12 @@ class Main
 				{
 					case AIRTools.PRINTJOB :
 						//trace('SUCCESS');
-						btn = UI.createButton('Print!', null, 100, 100, ScorxColors.ScorxGreen, 150, 150, textFormat, true);
+						btn = UI.createButton('Print!', null, 40, 80, ScorxColors.ScorxGreen, 150, 150, textFormat, true);
 						try
 						{
 							this.userId = Std.parseInt(args[1]);
 							this.productId = Std.parseInt(args[2]);							
-							this.textField.text += " " + this.userId + ":" +this.productId;
+						this.textField.text += " [" + this.userId + ":" +this.productId + "]";
 						}
 						catch (err:Dynamic)
 						{
@@ -146,12 +154,16 @@ class Main
 						
 					case AIRTools.APP_INSTALLATION_SUCCESS:
 						//trace('INSTALLATION DONE!');
-						btn = UI.createButton('Installation success!', null, 100, 100, ScorxColors.ScorxYellow, 150, 150, textFormat, true);
+						btn = UI.createButton('Installation success!', null, 40, 80, ScorxColors.ScorxYellow, 150, 150, textFormat, true);
+						TimerTools.delay(function()
+						{
+							NativeApplication.nativeApplication.exit();							
+						}, 1000);
 						
 
 					default:
 						//trace('???');
-						btn = UI.createButton('No printjob', null, 100, 100, ScorxColors.ScorxRed, 150, 150, textFormat, true);					
+						btn = UI.createButton('No printjob', null, 40, 80, ScorxColors.ScorxRed, 150, 150, textFormat, true);					
 				}
 				Lib.current.addChild(btn);
 			}, 200);
