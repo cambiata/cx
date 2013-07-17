@@ -72,7 +72,7 @@ class NoteXML
 					xml.set(XNOTE_TYPE_NOTE_ARTICULATIONS, articulationStrings.join(LIST_DELIMITER));
 				}
 				
-				if (attributes != null)
+				if (attributes != null )
 				{
 					var attributesStrings:Array<String> = [];
 					for (attribute in attributes)
@@ -141,6 +141,7 @@ class NoteXML
 						articulations.push(EnumTools.createFromString(ENoteArticulation, articulationStr));
 					}
 				}
+				if (articulations.length == 0) articulations = null;
 				
 				var attributes:Array<ENoteAttributes> = [];
 				var attributesStr:String = xml.get(XNOTE_TYPE_NOTE_ATTRIBUTES);				
@@ -152,6 +153,7 @@ class NoteXML
 						attributes.push(EnumTools.createFromString(ENoteAttributes, attributeStr));
 					}
 				}				
+				if (attributes.length == 0) attributes = null;
 				
 				type = ENoteType.Note(heads, variant, articulations, attributes);
 

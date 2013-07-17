@@ -24,11 +24,11 @@ class Note
 	
 	//----------------------------------------------------------------------------------------
 	// Constructor	
-	public function new(?type:ENoteType=null, ?value:ENoteValue=null , ?direction:EDirectionUD=null) 
+	public function new(?type:ENoteType=null, ?value:ENoteValue=null , ?direction:EDirectionUD=null, ?heads:Array<Head>=null) 
 	{
 		if (type == null) 
 		{
-			type = ENoteType.Note([new Head()], ENoteVariant.Normal, null, null);
+			type = (heads != null) ? ENoteType.Note(heads) :  ENoteType.Note([new Head()]);
 		}
 		
 		if (value == null) value = ENoteValue.Nv4;		

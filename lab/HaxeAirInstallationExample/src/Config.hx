@@ -15,6 +15,10 @@ class Config
 	
 	public static var AIR_SWF_URL:String = "http://airdownload.adobe.com/air/browserapi/air.swf";
 	public static  var airversion:String = "1.0";
+	
+	public static var userId:Int = 123;
+	public static var productId:Int = 234;
+	
 	/*
 	public static  var appinstallarg:Array<String> = [];
 	public static  var applauncharg:Array<String> = [];
