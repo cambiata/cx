@@ -8,10 +8,12 @@ import nx3.elements.Note;
 import nx3.enums.EDirectionUD;
 import nx3.enums.ENoteArticulation;
 import nx3.enums.ENoteAttributes;
+import nx3.enums.ENoteValue;
 import nx3.enums.ENoteVariant;
 import nx3.enums.tools.EDirectionTools;
 import nx3.units.Level;
 import nx3.units.NRect;
+import nx3.units.NX;
 
 /**
  * ...
@@ -27,6 +29,7 @@ class DNoteCalc implements IDNoteRects
 	
 	private var forceDirection:EDirectionUD;
 	public var direction(get, null):EDirectionUD;
+	public  var value(get, null):ENoteValue;
 	
 	public function new(note:Note, variant:ENoteVariant, articulations: Array<ENoteArticulation>, attributes:Array<ENoteAttributes>, forceDirection:EDirectionUD)
 	{
@@ -127,6 +130,7 @@ class DNoteCalc implements IDNoteRects
 	//--------------------------------------------------------------------------------------------------------------------
 
 	var headsRect_: NRect;
+	
 	public var headsRect (get, null): NRect;
 	private function get_headsRect():NRect
 	{
@@ -142,4 +146,22 @@ class DNoteCalc implements IDNoteRects
 		return this.headsRect_;		
 	}
 	
+	//------------------------------------------------------------------------------------------------------------------------
+	
+	var xAdjust_:NX = 0;
+	public var xAdjust(get, set):NX;
+	private function get_xAdjust():NX
+	{
+		return this.xAdjust_;
+	}
+	
+	private function set_xAdjust(val:NX):NX
+	{
+		return this.xAdjust_ = val;
+	}
+	
+	private function get_value():ENoteValue
+	{
+		return this.note.value;
+	}
 }

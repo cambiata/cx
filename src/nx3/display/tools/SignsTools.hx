@@ -2,6 +2,7 @@ package nx3.display.tools;
 import nx3.types.TSigns;
 import nx3.types.TSign;
 import nx3.enums.ESign;
+import nx3.units.NRect;
 
 /**
  * ...
@@ -57,4 +58,25 @@ class SignsTools
 	static public function getPositions(signs:TSigns):Array<Int> {
 		return Lambda.array(Lambda.map(signs, function(sign) { return sign.position; } ));
 	}
+	
+	//------------------------------------------------------------------------------------------------------------------------------
+	
+	static public function getSignRect(sign:ESign):NRect
+	{
+		switch (sign)
+		{
+			case ESign.None:
+				return null;
+			case ESign.DoubleSharp:
+				return new NRect( 0, -1.5, 5, 3);
+			case ESign.ParFlat, ESign.ParSharp, ESign.ParNatural:
+				return new NRect( 0,-2, 5, 4);
+			default:	
+				return new NRect( 0, -2, 3, 4);
+		}
+		throw "This shouldn't happen!";
+		return null;
+	}	
+	
+	
 }

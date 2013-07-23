@@ -15,6 +15,8 @@ abstract NX(Float)
 	static public inline function fromX(value:Float) return new NX(value / XUNIT);		
 	public inline function toX() return this * XUNIT;
 	//--------------------------------------------------------------------------------------------------------------------------------
+	@:op(-A) static public function sw (x1:NX):NX return new NX(-x1);
+	
 	@:op(A + B) static public function add (x1:NX, x2:NX):NX return new NX(x1 + x2);
 	@:op(A - B) static public function sub (x1:NX, x2:NX):NX return new NX(x1 - x2);
 	@:op(A * B) static public function mul (x1:NX, x2:NX):NX return new NX(x1 * x2);

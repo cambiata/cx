@@ -23,7 +23,7 @@ class Note
 	
 	//----------------------------------------------------------------------------------------
 	// Constructor	
-	public function new(?type:ENoteType=null, ?value:ENoteValue=null , ?direction:EDirectionUD=null, ?heads:Array<Head>=null) 
+	public function new(?type:ENoteType=null, ?heads:Array<Head>=null, ?value:ENoteValue=null , ?direction:EDirectionUD=null) 
 	{
 		if (type == null) 
 		{
