@@ -37,10 +37,10 @@ class AIRTools
 	public static var BROWSERAPI_URL = "http://airdownload.adobe.com/air/browserapi/air.swf";
 	public static var APP_INSTALLATION_SUCCESS = 'INSTALLATIONSUCCESS';
 	
-	public static var PRINTJOB = 'printjob';
 	
 	
 	public var statusCallback: String -> String -> Void = null;
+	public var errorCallback:String->Void = null;
 	
 	public function new(airAppId:String, publisherId:String, airAppUrl:String, minAirVersion:String) 
 	{
@@ -137,8 +137,11 @@ class AIRTools
 	
 	private function errorMsg(msg:String)
 	{
-		trace('ERROR ' + msg);
-		
+		//trace('ERROR ' + msg);
+		if (this.errorCallback != null) 
+		{
+			this.errorCallback(msg);
+		}
 	}
 	
 	private function statusMsg(msg:String)

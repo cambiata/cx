@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Skins>
+    <!-- buttons -->
+    <button:Paint color="0xffc926" corners="[8]" />
+    <buttonHovered:Paint color="0xffd861" corners="[8]" />
+    <buttonPressed:Paint color="0xffc208" corners="[8]" />
+    
+    <buttonTest:Paint color="0xff0000" corners="[20, 40]" />
+    <buttonTestHovered:Paint color="0xff4444" corners="[8]" />
+    <buttonTestPressed:Paint color="0xff0000" corners="[8]" />
+
+    <buttonPlay:Paint color="0xFF0000" corners="[8]" />
+    
+</Skins>    
+    

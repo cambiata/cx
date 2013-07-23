@@ -4,6 +4,7 @@ package flash;
 import cx.AIRTools;
 import cx.ConfigTools;
 import cx.flash.ui.UI;
+import cx.flash.ui.UIProgress;
 import flash.display.Sprite;
 import flash.display.StageAlign;
 import flash.display.StageScaleMode;
@@ -23,6 +24,9 @@ import flash.events.MouseEvent;
 import flash.text.TextFormat;
 import flash.utils.Timer;
 import sx.ScorxColors;
+
+
+
 /**
  * ...
  * @author 
@@ -68,6 +72,7 @@ class Main
 		this.initVars();
 		this.airTools = new AIRTools(Config.APPLICATION_ID, Config.PUBLISHER_ID, Config.APPLICATION_URL, Config.airversion);		
 		this.airTools.statusCallback = this.airStatusChange;
+		this.airTools.errorCallback = this.airErrorChange;
 
 		/*
 		this.callExternal();
@@ -76,6 +81,12 @@ class Main
 		this.kickoff();		
 		*/		
 	}
+	
+	function airErrorChange(msg:String) 
+	{
+		this.textFieldErrors.text = msg;
+	}
+	
 	private function initVars()
 	{
 		ConfigTools.loadFlashVars(Config);
@@ -98,6 +109,7 @@ class Main
 
 	var btn:Sprite = null;
 	var textFormat:TextFormat;
+	var progress:UIProgress;
 	
 	function airStatusChange(status:String=null, version:String=null) 
 	{
@@ -114,7 +126,7 @@ class Main
 					//installCheck = true;
 					textFieldBig.text = "";
 					if (this.btn != null) Lib.current.removeChild(btn);
-					this.btn = UI.createButton('Install ScorxPrint', function() {  
+					this.btn = UI.createButton(Config.INVOKER_INSTALL, function() {  
 							this.airTools.installApplication([AIRTools.APP_INSTALLATION_SUCCESS]);
 						}, 10, 10, ScorxColors.ScorxYellow, 300, 50, 20, textFormat, false);	
 					Lib.current.addChild(this.btn );							
@@ -126,8 +138,8 @@ class Main
 					//this.airTools.invokeApplication([AIRTools.PRINTJOB, Std.string(Config.userId), Std.string(Config.productId)]);
 					textFieldBig.text = "";
 					if (this.btn != null) Lib.current.removeChild(btn);
-					this.btn = UI.createButton('Start ScorxPrint', function() { 
-						this.airTools.invokeApplication([AIRTools.PRINTJOB, Std.string(Config.userId), Std.string(Config.productId)]);
+					this.btn = UI.createButton(Config.INVOKER_START_PRINT, function() { 
+						this.airTools.invokeApplication([Config.INVOKER_MESSAGE_PRINTJOB, Std.string(Config.userId), Std.string(Config.productId)]);
 						} , 10, 10, ScorxColors.ScorxGreen, 300, 50, 20, textFormat, false);								
 					Lib.current.addChild(this.btn );					
 					
@@ -138,14 +150,14 @@ class Main
 				
 				textFieldBig.text = "";
 				if (this.btn != null) Lib.current.removeChild(btn);
-				this.btn = UI.createButton('Install ScorxPrint', function() {  
+				this.btn = UI.createButton(Config.INVOKER_INSTALL, function() {  
 						this.airTools.installApplication([AIRTools.APP_INSTALLATION_SUCCESS]);
 					}, 10, 10, ScorxColors.ScorxYellow, 300, 50, 20, textFormat, false);	
 				Lib.current.addChild(this.btn );					
 				
 			case AIRTools.AIR_UNAVAILABLE:
 
-				textFieldBig.text = "Sorry! ScorxPrint not available for this device.";
+				textFieldBig.text = Config.INVOKER_NOT_AVALIABLE_MESSAGE;
 				/*
 				if (this.btn != null) Lib.current.removeChild(btn);		
 				this.btn = UI.createButton('Not avalilable', function() { 
@@ -157,6 +169,10 @@ class Main
 			default:
 				throw "This shouldn't happen";
 		}
+		
+		progress.hide();
+		progress.graphics.clear();
+		
 		this.externalStatusMessage(status, version);
 	}	
 	
@@ -164,7 +180,7 @@ class Main
 	{
 		try 
 		{
-			ExternalInterface.call('invokePrintingMessage', status, version);			
+			ExternalInterface.call(Config.INVOKER_EXTERNAL_STATUS_MESSAGE, status, version);			
 		}
 		catch (err:Error)
 		{
@@ -192,17 +208,23 @@ class Main
 	*/	
 	private function createUI()
 	{
-			
-		textFieldBig = UI.createText('Kontrollerar ScorxPrint installation...', 10, 12,  new TextFormat('Arial', 18, 0xEEEEEE));
+		
+		Config.TEXT_SIZE_BIG;
+		textFieldBig = UI.createText(Config.INVOKER_CONTROLLING_INSTALLATION_MESSAGE, 10, 12,  new TextFormat('Arial', 18, 0x888888));
 		Lib.current.addChild(textFieldBig);				
 		
-		textField = UI.createText('Flash Print Install ', 10, 70);
+		textField = UI.createText('Flash Print Install ', 10, 120);
 		textField.defaultTextFormat = new TextFormat('Arial', 12, 0x666666);
 		Lib.current.addChild(textField);		
 
-		textFieldErrors = UI.createText('', 10, 90);
+		textFieldErrors = UI.createText('', 10, 140);
 		textFieldErrors.defaultTextFormat = new TextFormat('Arial', 12, 0xff6666);
 		Lib.current.addChild(textFieldErrors);				
+		
+		
+		progress = new UIProgress(130, 60, 50, 50, 0x111111, ScorxColors.ScorxPetrol);
+		progress.spin();
+		Lib.current.addChild(progress);
 		
 		/*
 		var textFormat =  new TextFormat('Arial', 30, 0x555555);		

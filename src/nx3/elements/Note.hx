@@ -1,6 +1,5 @@
 package nx3.elements;
 import jasononeil.CleverSort;
-import nx.enums.ENoteType;
 import nx3.elements.Head;
 import nx3.enums.EDirectionUD;
 import nx3.enums.ENoteArticulation;

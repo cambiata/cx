@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<!--
+			label-embedFonts = "true"
+			format-font      = "$Assets.getFont('fonts/regular.ttf').fontName"
+-->
+
+
+<Defaults>
+	
+	<Text>
+		<Default
+			label-selectable = "false"
+			format-font	 = "'Arial'"
+			format-size      = "14"
+			format-color     = "0x000000"
+		/>
+	</Text>
+	
+	<InputText>
+		<Default
+			label-selectable = "true"
+			format-font	 = "'Arial'"			
+			format-size      = "14"
+			format-color     = "0x000000"
+		/>
+	</InputText>	
+	
+	
+	<Button>
+		<Default		
+			w                = "100"
+			h                = "32"
+			
+			label-embedFonts = "false"            
+			format-font	 = "'Arial'"
+			format-size      = "14"			
+			format-color     = "0x000000"
+
+			skinName         = "'button'"
+			skinHoveredName  = "'buttonHovered'"
+			skinPressedName  = "'buttonPressed'"
+		/>
+		
+		<Test 
+			skinName         = "'buttonTest'"
+			skinHoveredName  = "'buttonTestHovered'"
+			skinPressedName  = "'buttonTestPressed'"			
+		/>
+		
+		
+	</Button>
+
+	<Options>
+		<Default
+			skin:Paint-color   = "0x0798df"
+			skin:Paint-corners = "[8]"		
+
+			w                	= "300"
+			h                	= "32"            
+			format-color     	= "0xFFFFFF"
+			format-font		= "'Arial'"
+			format-size      	= "14"
+
+			align			= "'left'"
+			padding			= "12"
+
+			box-skin:Paint-alpha 	= "0.9"
+			box-skin:Paint-color 	= "0xffffff"
+			box-skin:Paint-corners 	= "[8]"			
+			box-padding          	= "5"
+			box-childPadding     	= "5"
+			box-w			= "300"
+		/>
+	</Options>		
+	
+	
+	<!--
+	<Scroll>
+		<Default 
+			skin:Paint-color  = "0xEEEEEE"
+
+			vBar-slider-skin:Paint-color="0xAAAAAA"
+			vBar-skin:Paint-color="0xFFFFFF"
+			vBar-skin:Paint-alpha="0.5"			
+			vBar-visible = "false"
+			vBar-w       = "3"
+			vBar-right   = "0"		
+			on-scrollStart = "$this.vBar.visible = true;"
+			on-scrollStop  = "$this.vBar.visible = false;"			
+		/>
+	</Scroll>
+	-->
+</Defaults>
+
+

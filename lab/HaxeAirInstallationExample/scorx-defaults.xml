@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defaults>
+	
+	<Text>
+		<Default
+			label-selectable = "false"
+			label-embedFonts = "true"
+			format-font      = "$Assets.getFont('fonts/regular.ttf').fontName"
+			format-size      = "20"
+			format-color     = "0x444444"
+		/>
+	</Text>
+	
+	<InputText>
+		<Default
+			label-selectable = "true"
+			label-embedFonts = "true"
+			format-font      = "$Assets.getFont('fonts/regular.ttf').fontName"
+			format-size      = "14"
+			format-color     = "0x444444"
+		/>
+	</InputText>	
+	
+	<Button>
+		<Default		
+			w                = "100"
+			h                = "32"
+
+			label-embedFonts = "true"            
+			format-font      = "$Assets.getFont('fonts/regular.ttf').fontName"
+			format-size      = "14"			
+			format-color     = "0x000000"
+
+			skinName         = "'button'"
+			skinHoveredName  = "'buttonHovered'"
+			skinPressedName  = "'buttonPressed'"
+		/>
+		
+		<Test 
+			skinName         = "'buttonTest'"
+			skinHoveredName  = "'buttonTestHovered'"
+			skinPressedName  = "'buttonTestPressed'"			
+		/>
+		
+		
+	</Button>
+	
+<!--
+	<Scroll>
+		<Default 
+			skin:Paint-color  = "0xEEEEEE"
+
+			vBar-slider-skin:Paint-color="0xAAAAAA"
+			vBar-skin:Paint-color="0xFFFFFF"
+			vBar-skin:Paint-alpha="0.5"			
+			vBar-visible = "false"
+			vBar-w       = "3"
+			vBar-right   = "0"		
+			on-scrollStart = "$this.vBar.visible = true;"
+			on-scrollStop  = "$this.vBar.visible = false;"			
+		/>
+	</Scroll>
+-->
+		
+</Defaults>
+	
+
+
+
