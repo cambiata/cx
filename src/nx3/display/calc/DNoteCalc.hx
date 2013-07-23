@@ -125,7 +125,7 @@ class DNoteCalc implements IDNoteRects
 	}
 	
 	//--------------------------------------------------------------------------------------------------------------------
-	
+
 	var headsRect_: NRect;
 	public var headsRect (get, null): NRect;
 	private function get_headsRect():NRect

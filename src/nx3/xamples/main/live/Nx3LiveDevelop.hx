@@ -5,6 +5,11 @@ import flash.display.StageAlign;
 import flash.display.StageScaleMode;
 import flash.events.Event;
 import flash.Lib;
+import nx3.display.DComplex;
+import nx3.display.DNote;
+import nx3.elements.Note;
+import nx3.elements.Head;
+import nx3.enums.ESign;
 
 /**
  * ...
@@ -24,10 +29,18 @@ class Nx3LiveDevelop extends Sprite
 	{
 		removeEventListener(Event.ADDED_TO_STAGE, onAdded);
 		
-		//write your code here
+		//write your code here		
+		//var xampleSprite = Examples.basic1();
+		//Lib.current.addChild(xampleSprite);		
 		
-		var xampleSprite = Examples.basic1();
-		Lib.current.addChild(xampleSprite);		
+		var note1:Note = new Note([new Head( -1, ESign.Flat), new Head(0, ESign.Natural)]);
+		var note2:Note = new Note([new Head(1, ESign.Sharp)]);
+		
+		var dnote1:DNote = new DNote(note1);
+		var dnote2:DNote = new DNote(note2);
+		
+		var dcomplex:DComplex = new DComplex([dnote1, dnote2]);
+		trace(dcomplex.signs);
 		
 	}
 	

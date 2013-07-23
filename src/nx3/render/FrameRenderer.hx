@@ -84,7 +84,7 @@ class FrameRenderer implements IRenderer
 		r2.inflate(2, 2);
 		this.target.graphics.drawRect(r2.x, r2.y, r2.width, r2.height);
 		
-		this.target.graphics.lineStyle(1, 0xFF0000);			
+		this.target.graphics.lineStyle(1, 0x000000);			
 		for (rect in dnote.headRects)
 		{
 			var r:Rectangle = rect.toRectangle();

@@ -10,7 +10,7 @@ typedef Column = {
 	value: 				Int,
 	complexes: 		Array<Complex>,
 	positionX:			Float,
-	widthX:				Float,
+	widthX:			Float,
 	distanceX:			Float,
 	?valueWeight:	Float,
 	
