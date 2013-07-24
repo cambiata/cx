@@ -31,6 +31,7 @@
     <library name="nme" />
     <library name="tink_macro" />
     <library name="tink_core" />
+    <library name="svg" />
   </haxelib>
   <!-- Class files to compile (other referenced classes will automatically be included) -->
   <compileTargets>

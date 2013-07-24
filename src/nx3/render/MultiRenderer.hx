@@ -1,5 +1,9 @@
 package nx3.render;
+
+
 import flash.display.Sprite;
+
+
 import nx3.display.DComplex;
 import nx3.display.DNote;
 import nx3.render.IRenderer;
@@ -43,8 +47,8 @@ class MultiRenderer implements IRenderer
 	}
 	
 	public function heads(x:Float, y:Float, dnote:DNote):Void 
-	{
-		for (r in this.renderers) r.heads(x, y, dnote);
+	{		
+		for (r in this.renderers) r.heads(x, y, dnote);  
 	}
 	
 	public function note(x:Float, y:Float, dnote:DNote):Void 
@@ -55,6 +59,14 @@ class MultiRenderer implements IRenderer
 	public function complex(x:Float, y:Float, dcomplex:DComplex):Void
 	{
 		for (r in this.renderers) r.complex(x, y, dcomplex);
+		
+	}
+	
+	/* INTERFACE nx3.render.IRenderer */
+	
+	public function signs(x:Float, y:Float, dcomplex:DComplex):Void 
+	{
+		for (r in this.renderers) r.signs(x, y, dcomplex);
 	}
 	
 }

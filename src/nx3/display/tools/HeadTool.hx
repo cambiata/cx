@@ -23,7 +23,7 @@ class HeadTool
 			case EHeadValuetype.HVT1:
 				rect =  new NRect( -2, -1, 4, 2);
 			case EHeadValuetype.HVT2, EHeadValuetype.HVT4:
-				rect = new NRect( -2, -1, 4, 2);			
+				rect = new NRect( -1.6, -1, 3.2, 2);			
 		}	
 		rect.offset(0, NY.fromInt(head.level));		
 		//trace(rect);

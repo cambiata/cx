@@ -1,10 +1,14 @@
 package nx3.xamples.main.live;
 
+import flash.display.Shape;
 import flash.display.Sprite;
 import flash.display.StageAlign;
 import flash.display.StageScaleMode;
 import flash.events.Event;
 import flash.Lib;
+import format.SVG;
+import format.svg.SVG2Gfx;
+import format.svg.SVGRenderer;
 import nx3.display.DComplex;
 import nx3.display.DNote;
 import nx3.elements.Note;
@@ -16,6 +20,8 @@ import nx3.render.FontRenderer;
 import nx3.render.FrameRenderer;
 import nx3.render.MultiRenderer;
 import nx3.render.scaling.Scaling;
+import nx3.render.svg.Elements;
+import nx3.render.svg.ShapeTools;
 
 
 /**
@@ -44,25 +50,29 @@ class Nx3LiveDevelop extends Sprite
 		this.addChild(target); 
 		
 		var note1:Note = new Note([
-			new Head( -2, ESign.DoubleSharp), 
-			//new Head(0, ESign.Natural),  
-			new Head(2, ESign.Natural)
+			//new Head( -3, ESign.DoubleSharp), 
+			new Head(0, ESign.Flat),  
+			//new Head(2, ESign.Natural)
 			], ENoteValue.Nv4, EDirectionUD.Up);
 			
 		var note2:Note = new Note([
-			new Head(0, ESign.Flat)
+			new Head(3, ESign.None)
 			], ENoteValue.Nv4, EDirectionUD.Down);
 		
 		var render:MultiRenderer = new MultiRenderer(target, Scaling.MID, [
-			FrameRenderer, 
-			FontRenderer, 			
+			FrameRenderer,
+			//FrameRenderer,
+			//FontRenderer,
 			]);
 		/*
 		var render:FrameRenderer = new FrameRenderer(target, Scaling.MID);
 		*/
 		var dnote1:DNote = new DNote(note1);
 		var dnote2:DNote = new DNote(note2);
-		var dcomplex:DComplex = new DComplex([dnote1, dnote2]);
+		var dcomplex:DComplex = new DComplex([
+			dnote1, 
+			dnote2,
+			]);
 		render.notelines(0, 100, 700);
 		render.complex(200, 100, dcomplex);
 		
@@ -74,7 +84,12 @@ class Nx3LiveDevelop extends Sprite
 		render.notelines(0, 300, 700);
 		render.complex(200, 300, dcomplex);		
 		*/
-		
+		/*
+		var svg:Shape = ShapeTools.getShape(Elements.noteBlack, Scaling.MID);
+		svg.x = 100 + Scaling.MID.svgX;
+		svg.y = 100 + Scaling.MID.svgY;
+		target.addChild(svg);
+		*/
 	}
 	
 	private function onRemoved(e:Event):Void 

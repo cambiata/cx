@@ -2,6 +2,7 @@ package nx3.display.tools;
 import nx3.types.TSigns;
 import nx3.types.TSign;
 import nx3.enums.ESign;
+import nx3.units.Constants;
 import nx3.units.NRect;
 
 /**
@@ -68,15 +69,29 @@ class SignsTools
 			case ESign.None:
 				return null;
 			case ESign.DoubleSharp:
-				return new NRect( 0, -1.5, 5, 3);
+				return new NRect( 0, -1.5, Constants.SIGN_NORMAL_WIDTH, 3);
 			case ESign.ParFlat, ESign.ParSharp, ESign.ParNatural:
-				return new NRect( 0,-2, 5, 4);
+				return new NRect( 0, -2, Constants.SIGN_PARENTHESIS_WIDTH, 4);
+			case ESign.Flat:
+				return new NRect(0, -3, Constants.SIGN_NORMAL_WIDTH, 5);
 			default:	
-				return new NRect( 0, -2, 3, 4);
+				return new NRect( 0, -3,Constants.SIGN_NORMAL_WIDTH, 6);
 		}
 		throw "This shouldn't happen!";
 		return null;
 	}	
+	
+	static public function adjustSignFontX(sign:ESign):Float
+	{
+		switch (sign)
+		{
+			case (ESign.Flat): return 0.3;
+			default:
+			
+		}
+		return 0;
+		
+	}
 	
 	
 }

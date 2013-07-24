@@ -107,7 +107,7 @@ class Grad
 
 }
 
-typedef GradHash = Hash<Grad>;
+typedef GradHash = Map<String, Grad>;
 
 enum FillType
 {
@@ -157,7 +157,7 @@ enum DisplayElement
 
 typedef DisplayElements = Array<DisplayElement>;
 
-typedef Styles = Hash<String>;
+typedef Styles = Map<String, String>;
 typedef GroupPath = Array<String>;
 typedef ObjectFilter = String->GroupPath->Bool;
 

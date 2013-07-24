@@ -4,6 +4,7 @@
 -lib actuate
 -lib tink_core
 -lib tink_macro
+-lib svg
 -cp src
 -cp ../../src/
 -cp F:\HaxeToolkit\haxe/lib\openfl/1,0,4/

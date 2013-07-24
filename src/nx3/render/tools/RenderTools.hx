@@ -1,6 +1,6 @@
 package nx3.render.tools;
-import nme.display.BitmapData;
-import nme.display.Sprite;
+import flash.display.BitmapData;
+import flash.display.Sprite;
 
 /**
  * ...

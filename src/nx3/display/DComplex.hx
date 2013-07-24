@@ -31,6 +31,7 @@ class DComplex
 		this.dnotes = dnotes;
 		this.signs = getSigns_(dnotes);
 		this.avoidCollisions_();
+		this.headsRect;
 	}
 	
 	//--------------------------------------------------------------------------------------------------------------------------
@@ -71,20 +72,45 @@ class DComplex
 		return SignsTools.adjustPositions(signs);
 	}
 	
-	public var signsRect(get, null):NRect;
-	var signsRect_:NRect;
-	function get_signsRect():NRect
+	public var signsFrame(get, null):NRect;
+	var signsFrame_:NRect;
+	function get_signsFrame():NRect
 	{
-		if (this.signsRect_ != null) return this.signsRect_;		
-		this.get_signRects();				
-		return this.signsRect_;
+		if (this.signsFrame_ != null) return this.signsFrame_;		
+		
+		if (this.signRects == null) return null;
+		//this.get_signRects();				
+		
+		for (rect in this.signRects)
+		{
+			if (this.signsFrame_ == null) 
+			{
+				this.signsFrame_ = rect.clone();
+			}
+			else 
+			{
+				this.signsFrame_ = this.signsFrame_.union(rect);				
+			}
+		}
+		
+		// Offset signsFrame_
+		//var headsRect = this.headsRect;
+		this.signsFrame_.x = this.headsRect.x - this.signsFrame_.width - NX.fromFloat(Constants.SIGN_TO_NOTE_DISTANCE);		
+		//this.signsFrame_ = new NRect( -4, -5, 3, 10);
+		
+		return this.signsFrame_;
 	}
+	
+	
+	
 	
 	public var signRects(get, null):Array<NRect>;
 	var signRects_:Array<NRect>;	
 	function get_signRects():Array<NRect>
 	{
+		
 		if (this.signRects_ != null) return this.signRects_;
+		if (this.signs.length == 0) return null;
 		
 		this.signRects_ = [];
 		
@@ -109,32 +135,34 @@ class DComplex
 			}
 			this.signRects_.push(currentRect);			
 		}			
-
-		// Combine into singsRect_
+		
+		// no signs?
+		if (this.signRects_.length == 0) 
+		{
+			this.signRects_ = null;
+			return this.signRects_;
+		}
+		
+		// Combine into singsRect_	
+		var combineRect:NRect = signRects_[0];
+		
 		for (rect in this.signRects_)
 		{
-			if (this.signsRect_ == null) 
+			
+			if (combineRect == rect) 
 			{
-				this.signsRect_ = rect;
+				//combineRect = rect;
 			}
 			else 
 			{
-				this.signsRect_ = this.signsRect_.union(rect);				
-			}
+				combineRect = combineRect.union(rect);				
+			}			
 		}
 
-		
-		// Offset signsRect_
-		var headsRect = this.headsRect;
-		this.signsRect_.x = this.headsRect.x - this.signsRect_.width - NX.fromFloat(Constants.SIGN_TO_NOTE_DISTANCE);
-		
-		// Offset each sign rect
 		for (rect in this.signRects_)
 		{
-			rect.offset(this.signsRect_.width, 0);			
+			rect.offset(combineRect.width, 0);			
 		}
-		
-		
 		
 		return this.signRects_;
 	}
@@ -156,16 +184,8 @@ class DComplex
 		if (this.dnotes.length > 1) {
 			var diff = this.dnotes[1].headTop.level - this.dnotes[0].headBottom.level;
 			
-			if (diff == 1) {				
-				//trace('second clash');		
-				/*
-				if (this.dnote(0).notevalue.dotLevel > 0) {
-					var isect = GeomUtils.overlapX(checkRect, this.dnote(1).rectHeads);
-					this._setDnoteX(1, isect.x);
-				} else {
-					this._setDnoteX(1, 	Constants.COMPLEX_COLLISION_SECOND_XSHIFT);					
-				}
-				*/
+			if (diff == 1) 
+			{				
 				this.dnotes[1].xAdjust = SECOND_CLASH_ADJUST_X;
 			} 
 			else if (diff == 0)
@@ -188,13 +208,13 @@ class DComplex
 					else
 					{
 						// do nothing						
-						this.dnotes[0].xAdjust =  NX.fromFloat(Constants.COMPLEX_COLLISION_OVERLAP_XTRA);
+						this.dnotes[1].xAdjust =  -NX.fromFloat(Constants.COMPLEX_COLLISION_OVERLAP_XTRA);
 					}
 				}
 				else 
+				{
 					this.dnotes[1].xAdjust = this.dnotes[0].headsRect.x + this.dnotes[0].headsRect.width  - this.dnotes[1].headsRect.x  + NX.fromFloat(Constants.COMPLEX_COLLISION_OVERLAP_XTRA);
-				
-				
+				}				
 			} else {
 				//trace('no overlap');
 			}

@@ -29,6 +29,7 @@
   <haxelib>
     <library name="tink_core" />
     <library name="tink_macro" />
+    <library name="svg" />
   </haxelib>
   <!-- Class files to compile (other referenced classes will automatically be included) -->
   <compileTargets>
