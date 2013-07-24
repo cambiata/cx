@@ -59,11 +59,11 @@ class Main extends Sprite
 			], ENoteValue.Nv4, EDirectionUD.Up);
 			
 		var note2:Note = new Note([
-			new Head(5, ESign.Flat)
+			new Head(-2, ESign.Flat)
 			], ENoteValue.Nv2, EDirectionUD.Down);
 		
-		var render:MultiRenderer = new MultiRenderer(target, Scaling.MID, [
-			FrameRenderer,			
+		var render:MultiRenderer = new MultiRenderer(target, Scaling.SMALL, [
+			//FrameRenderer,			
 			FontRenderer,
 			]);
 

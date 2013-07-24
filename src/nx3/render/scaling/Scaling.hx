@@ -11,7 +11,7 @@ class Scaling
 	#if js			
 		linesWidth:			0.8,
 	#elseif flash
-		linesWidth:			1.3,
+		linesWidth:			1.5,
 	#else
 		linesWidth:			1.25,
 	#end			
@@ -41,8 +41,8 @@ class Scaling
 		quarterNoteWidth: 	1.75, // 2.75
 		signPosWidth:		9.5,
 		svgScale:				.175,
-		svgX:					-5.5,
-		svgY:					-40.0,
+		svgX:					0,
+		svgY:					-36.0,
 		fontScaling:			4.0,		
 	}
 	
