@@ -6,7 +6,7 @@
 	<meta title="Nx3OpenFl" package="nx3.xamples.main.openfl.Nx3OpenFl" version="1.0.0" company="" />
 	
 	<!-- output -->
-	<app main="nx3.xamples.main.openfl.Main" file="Nx3OpenFl" path="bin" />
+	<app main="nx3.xamples.main.openfl.Main" file="Nx3OpenFl" path="bin" /> 
 	
 	<window background="#ffffff" fps="60" />
 	<window width="800" height="480" unless="mobile" />

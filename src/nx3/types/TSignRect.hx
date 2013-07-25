@@ -1,5 +1,5 @@
 package nx3.types;
-import nx3.enums.ESign;
+import nx3.elements.ESign;
 import nx3.units.NRect;
 
 /**

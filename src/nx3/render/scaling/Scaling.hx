@@ -59,5 +59,38 @@ class Scaling
 		svgX:					-0,
 		svgY:					-28.5,
 		fontScaling:			3.0,		
-	}	
+
+	}
+	
+	static public var BIG:TScaling =
+	{
+			linesWidth:			1.5,
+			space:					16.0,
+			halfSpace: 				8.0,
+			noteWidth:				14.0,
+			halfNoteWidth:		7.0,
+			quarterNoteWidth: 	5.5,
+			signPosWidth:		19.0,
+			svgScale:				.36,
+			svgX:					-0.0,
+			svgY:					-74.0,
+			fontScaling:			8.0,		
+	}
+	
+	static public var PRINT1:TScaling =
+	{
+			linesWidth:			3,
+			space:					32.0,
+			halfSpace: 			16.0,
+			noteWidth:			28.0,
+			halfNoteWidth:		14.0,
+			quarterNoteWidth: 	11.0,
+			signPosWidth:		38.0,
+			svgScale:				.72,
+			svgX:					-0.0,
+			svgY:					-148.0,
+			fontScaling:			16.0,
+		
+	}
+	
 }

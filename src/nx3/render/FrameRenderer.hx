@@ -1,8 +1,8 @@
 package nx3.render;
-import nx3.display.DComplex;
-import nx3.display.DNote;
+import nx3.elements.DComplex;
+import nx3.elements.DNote;
 import nx3.render.scaling.TScaling;
-import nx3.enums.EDirectionUD;
+import nx3.elements.EDirectionUD;
 import nx3.units.Constants;
 
 

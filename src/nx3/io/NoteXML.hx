@@ -1,16 +1,16 @@
 package nx3.io;
 import cx.EnumTools;
-import nx3.enums.EDirectionUD;
-import nx3.enums.ELyricContinuation;
-import nx3.enums.ELyricFormat;
-import nx3.enums.ENoteArticulation;
-import nx3.enums.ENoteAttributes;
-import nx3.enums.ENoteValue;
-import nx3.elements.Head;
-import nx3.elements.Note;
-import nx3.enums.ENoteType;
-import nx3.enums.ENoteVariant;
-import nx3.enums.EPosition;
+import nx3.elements.EDirectionUD;
+import nx3.elements.ELyricContinuation;
+import nx3.elements.ELyricFormat;
+import nx3.elements.ENoteArticulation;
+import nx3.elements.ENoteAttributes;
+import nx3.elements.ENoteValue;
+import nx3.elements.NHead;
+import nx3.elements.NNote;
+import nx3.elements.ENoteType;
+import nx3.elements.ENoteVariant;
+import nx3.elements.EPosition;
 import nx3.units.Level;
 
 using nx3.io.HeadXML;
@@ -44,7 +44,7 @@ class NoteXML
 	static public inline var XLYRIC_CONTINUATION:String = "continuation";
 	static public inline var XLYRIC_FORMAT:String = "format";
 
-	static public function toXml(note:Note):Xml
+	static public function toXml(note:NNote):Xml
 	{
 		var xml:Xml = null; 
 		
@@ -108,7 +108,7 @@ class NoteXML
 		return xml;
 	}
 	
-	static public function fromXmlStr(xmlStr:String):Note
+	static public function fromXmlStr(xmlStr:String):NNote
 	{
 		var xml = Xml.parse(xmlStr).firstElement();		
 		
@@ -121,7 +121,7 @@ class NoteXML
 			
 			//---------------------------------------------------------------------------------------------------------------------------
 			case XNOTE:
-				var heads:Array<Head> = [];				
+				var heads:Array<NHead> = [];				
 				for (h in xml.elementsNamed(HeadXML.XHEAD)) 
 				{
 					var head = HeadXML.fromXmlStr(h.toString());
@@ -184,10 +184,10 @@ class NoteXML
 		var direction:EDirectionUD = EnumTools.createFromString(EDirectionUD, xml.get(XNOTE_DIRECTION));
 		//if (direction == null) direction = EDirectionUAD.Auto;
 		
-		return new  Note(type, value, direction);
+		return new  NNote(type, value, direction);
 	}
 	
-	static public function test(item:Note):Bool
+	static public function test(item:NNote):Bool
 	{
 		var str = toXml(item).toString();		
 		var item2 = fromXmlStr(str);

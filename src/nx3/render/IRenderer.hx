@@ -1,6 +1,6 @@
 package nx3.render;
-import nx3.display.DComplex;
-import nx3.display.DNote;
+import nx3.elements.DComplex;
+import nx3.elements.DNote;
 
 /**
  * ...

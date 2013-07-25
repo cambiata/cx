@@ -4,8 +4,8 @@ package nx3.render;
 import flash.display.Sprite;
 
 
-import nx3.display.DComplex;
-import nx3.display.DNote;
+import nx3.elements.DComplex;
+import nx3.elements.DNote;
 import nx3.render.IRenderer;
 import nx3.render.scaling.Scaling;
 import nx3.render.scaling.TScaling;

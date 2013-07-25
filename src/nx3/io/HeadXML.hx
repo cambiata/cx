@@ -1,11 +1,10 @@
 package nx3.io;
 import cx.EnumTools;
 import cx.StrTools;
-import nx3.elements.Head;
-import nx3.elements.Note;
-import nx3.enums.EHeadType;
-import nx3.enums.ESign;
-import nx3.enums.ETie;
+import nx3.elements.NHead;
+import nx3.elements.EHeadType;
+import nx3.elements.ESign;
+import nx3.elements.ETie;
 
 /**
  * ...
@@ -13,7 +12,7 @@ import nx3.enums.ETie;
  */
 class HeadXML
 {
-	static public function toXml(head:Head)
+	static public function toXml(head:NHead)
 	{
 		var xml:Xml = Xml.createElement(XHEAD);		
 
@@ -64,7 +63,7 @@ class HeadXML
 	static public var XHEAD_TIETO = 'tieto';
 	//static public var XHEAD_TIE_DIRECTION = 'tiedirection';
 	
-	static public function fromXmlStr(xmlStr:String): Head
+	static public function fromXmlStr(xmlStr:String): NHead
 	{
 		var xml = Xml.parse(xmlStr).firstElement();		
 		
@@ -84,7 +83,7 @@ class HeadXML
 		// tieFrom
 		var tieTo:ETie = EnumTools.createFromString(ETie, xml.get(XHEAD_TIETO));		
 		
-		return new Head(type, level, sign, tie, tieTo);
+		return new NHead(type, level, sign, tie, tieTo);
 	}
 	
 	
@@ -122,7 +121,7 @@ class HeadXML
 	}
 	*/
 	
-	static public function test(item:Head):Bool
+	static public function test(item:NHead):Bool
 	{
 		var str = toXml(item).toString();		
 		var item2 = fromXmlStr(str);
