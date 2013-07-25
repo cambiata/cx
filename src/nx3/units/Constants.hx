@@ -13,5 +13,6 @@ class Constants
 	static public inline var SIGN_NORMAL_WIDTH						:Float = 2.6;
 	static public inline var SIGN_PARENTHESIS_WIDTH					:Float = 4.4;
 	static public inline var HEAD_ADJUST_X							:Float = 0;
+	static public inline var COMPLEX_COLLISION_ADJUST_X			:Float = 3.0;
 	
 }

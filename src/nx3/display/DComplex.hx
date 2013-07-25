@@ -176,9 +176,6 @@ class DComplex
 	
 	//----------------------------------------------------------------------------------------------------------
 	
-	static var SECOND_CLASH_ADJUST_X = 3.0;
-	static var THIRD_CLASH_ADJUST_X = 4.0;
-	
 	private function avoidCollisions_() {
 		
 		if (this.dnotes.length > 1) {
@@ -186,7 +183,7 @@ class DComplex
 			
 			if (diff == 1) 
 			{				
-				this.dnotes[1].xAdjust = SECOND_CLASH_ADJUST_X;
+				this.dnotes[1].xAdjust = Constants.COMPLEX_COLLISION_ADJUST_X;
 			} 
 			else if (diff == 0)
 			{

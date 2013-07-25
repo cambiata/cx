@@ -46,9 +46,6 @@ class Main extends Sprite
 		if (inited) return;
 		inited = true;
 		
-		//var target = Examples.basic1();
-		//this.addChild(target );
-		
 		var target:Sprite = new Sprite();
 		this.addChild(target); 
 		this.addChild(target);		
@@ -61,9 +58,9 @@ class Main extends Sprite
 		var note2:Note = new Note([
 			new Head(-2, ESign.Flat)
 			], ENoteValue.Nv2, EDirectionUD.Down);
-		
-		var render:MultiRenderer = new MultiRenderer(target, Scaling.SMALL, [
-			//FrameRenderer,			
+			
+		var render:MultiRenderer = new MultiRenderer(target, Scaling.MID, [
+			FrameRenderer,			
 			FontRenderer,
 			]);
 
@@ -73,10 +70,24 @@ class Main extends Sprite
 			dnote1, 
 			dnote2,
 			]);
-		render.notelines(0, 100, 700);
-		
+		render.notelines(0, 100, 700);		
 		render.complex(200, 100, dcomplex);		
+		
+		var render:MultiRenderer = new MultiRenderer(target, Scaling.SMALL, [
+			FrameRenderer,			
+			FontRenderer,
+			]);
 
+		var dnote1:DNote = new DNote(note1);
+		var dnote2:DNote = new DNote(note2);
+		var dcomplex:DComplex = new DComplex([
+			dnote1, 
+			dnote2,
+			]);
+		render.notelines(0, 300, 700);		
+		render.complex(200, 300, dcomplex);		
+		
+		
 
 	}
 
