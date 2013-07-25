@@ -1,6 +1,6 @@
 package nx3.elements;
 import nx3.elements.EHeadValuetype;
-import nx3.units.Constants;
+import nx3.Constants;
 
 /**
  * ...
@@ -51,11 +51,11 @@ import nx3.units.Constants;
 	
 	
 	public var value(default, null):Int;
-	public var type(default, null):EHeadValuetype;
-	private function new(value:Float, type:EHeadValuetype)
+	public var head(default, null):EHeadValuetype;
+	private function new(value:Float, head:EHeadValuetype)
 	{
 		this.value = Std.int(value);
-		this.type = type;
+		this.head = head;
 	}
 	
 	static public function getFromValue(value:Int)

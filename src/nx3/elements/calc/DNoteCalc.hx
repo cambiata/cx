@@ -1,6 +1,6 @@
 package nx3.elements.calc;
 
-import nx3.elements.IDNoteRects;
+
 import nx3.elements.tools.HeadsTool;
 import nx3.elements.tools.HeadTool;
 import nx3.elements.NHead;
@@ -10,7 +10,7 @@ import nx3.elements.ENoteArticulation;
 import nx3.elements.ENoteAttributes;
 import nx3.elements.ENoteValue;
 import nx3.elements.ENoteVariant;
-import nx3.elements.tools.EDirectionTools;
+import nx3.Constants;
 import nx3.units.Level;
 import nx3.units.NRect;
 import nx3.units.NX;
@@ -19,7 +19,7 @@ import nx3.units.NX;
  * ...
  * @author 
  */
-class DNoteCalc implements IDNoteRects
+class DNoteCalc 
 {
 	var note:NNote;
 	//public var heads(default, null):Array<Head>;
@@ -38,7 +38,6 @@ class DNoteCalc implements IDNoteRects
 		this.articulations = articulations;
 		this.attributes = attributes;
 		this.forceDirection = forceDirection;
-		this.rectsBack;		
 	}
 	
 	private var direction_:EDirectionUD;
@@ -56,20 +55,21 @@ class DNoteCalc implements IDNoteRects
 		return direction_;
 	}
 	
-	public var rectsFront(get, null): Array<NRect>;
-	public var rectsBack(get, null): Array<NRect>;
-
-	private function get_rectsFront():Array<NRect>
+	public var stemX(get, null):NX;
+	var stemX_:NX;
+	function get_stemX():NX
 	{
-		return null;
+		if (this.stemX_ ==null) return this.stemX_;
+		
+		this.stemX_ = Constants.NOTE_STEM_X_NORMAL;
+		
+		if (this.direction == EDirectionUD.Down) 
+		{
+			this.stemX_ = -this.stemX_;
+		}
+		
+		return this.stemX_;
 	}
-	
-	private var rectsBack_:Array<NRect>;
-	private function get_rectsBack():Array<NRect>
-	{
-		this.headRects;		
-		return null;
-	}		
 	
 	//-------------------------------------------------------------------------------
 	

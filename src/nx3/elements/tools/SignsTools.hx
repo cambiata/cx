@@ -1,8 +1,8 @@
 package nx3.elements.tools;
-import nx3.types.TSigns;
-import nx3.types.TSign;
+import nx3.elements.TSigns;
+import nx3.elements.TSign;
 import nx3.elements.ESign;
-import nx3.units.Constants;
+import nx3.Constants;
 import nx3.units.NRect;
 
 /**
@@ -86,6 +86,7 @@ class SignsTools
 		switch (sign)
 		{
 			case (ESign.Flat): return 0.3;
+			case (ESign.Natural): return 0.3;
 			default:
 			
 		}

@@ -1,4 +1,4 @@
-package nx3.types;
+package nx3.elements;
 
 /**
  * ...

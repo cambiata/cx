@@ -1,4 +1,4 @@
-package nx3.units;
+package nx3;
 
 /**
  * ...
@@ -14,5 +14,5 @@ class Constants
 	static public inline var SIGN_PARENTHESIS_WIDTH					:Float = 4.4;
 	static public inline var HEAD_ADJUST_X							:Float = 0;
 	static public inline var COMPLEX_COLLISION_ADJUST_X			:Float = 3.0;
-	
+	static public inline var NOTE_STEM_X_NORMAL					:Float = 1.6;	
 }

@@ -1,9 +1,5 @@
 package nx3.elements;
-import nx3.elements.Note;
-import nx3.enums.ELyricContinuation;
-import nx3.enums.ELyricFormat;
-import nx3.enums.ENoteType;
-import nx3.enums.EPosition;
+
 import nx3.units.NRect;
 
 /**

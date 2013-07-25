@@ -1,11 +1,11 @@
-package nx.enums;
+package nx3.elements;
 
 /**
  * ...
- * @author Jonas Nyström
+ * @author 
  */
-
-class EKey {
+class EKey 
+{
 	static public var Sharp6 		= new EKey(6);
 	static public var Sharp5 		= new EKey(5);
 	static public var Sharp4 		= new EKey(4);

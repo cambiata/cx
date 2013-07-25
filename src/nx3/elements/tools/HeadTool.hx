@@ -18,7 +18,7 @@ class HeadTool
 	//valuetype:EHeadValuetype, headtype:EHeadType, level:Level)
 	{
 		var rect:NRect = null;
-		switch(value.type)
+		switch(value.head)
 		{
 			case EHeadValuetype.HVT1:
 				rect =  new NRect( -2, -1, 4, 2);

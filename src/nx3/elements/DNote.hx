@@ -1,13 +1,11 @@
 package nx3.elements;
+import nx3.elements.calc.DNoteCalc;
 #if nme
 import nme.geom.Rectangle;
 #else
 import flash.geom.Rectangle;
 #end
-import nx3.elements.calc.DNoteCalc;
-import nx3.elements.NNote;
-import nx3.elements.EDirectionUD;
-import nx3.elements.ENoteType;
+
 import nx3.units.NRect;
 
 /**
@@ -16,7 +14,6 @@ import nx3.units.NRect;
  */
 class DNote extends DNoteCalc
 {
-
 	public function new(note:NNote, forceDirection:EDirectionUD=null) 
 	{
 		switch(note.type)
@@ -33,7 +30,4 @@ class DNote extends DNoteCalc
 		this.headRects_ = null;
 		this.headsRect_ = null;
 	}
-	
-
-	
 }

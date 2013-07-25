@@ -1,9 +1,9 @@
 package nx3.io;
 import cx.EnumTools;
-import nx3.elements.Note;
-import nx3.elements.Voice;
-import nx3.enums.EDirectionUD;
-import nx3.enums.EVoiceType;
+import nx3.elements.NNote;
+import nx3.elements.NVoice;
+import nx3.elements.EDirectionUD;
+import nx3.elements.EVoiceType;
 
 /**
  * ...
@@ -18,7 +18,7 @@ class VoiceXML
 	static public inline var XVOICE_BARPAUSE:String = "barpause";
 	static public inline var XVOICE_DIRECTION:String = "direction";
 
-	static public function toXml(voice:Voice)
+	static public function toXml(voice:NVoice): Xml
 	{
 		var xml:Xml = Xml.createElement(XVOICE);		
 		
@@ -40,34 +40,32 @@ class VoiceXML
 			}				
 		}
 		
-		
 		return xml;		
 	}
 	
-	static public function fromXmlStr(xmlStr:String): Voice
+	static public function fromXmlStr(xmlStr:String): NVoice
 	{
-		var xml = Xml.parse(xmlStr).firstElement();			
+		var xml:Xml= Xml.parse(xmlStr).firstElement();			
 		
 		// type
 		var typeStr = xml.get(XVOICE_TYPE);
 		var type:EVoiceType = EnumTools.createFromString(EVoiceType, typeStr);		
-				
 		
 		var direction:EDirectionUD = null;
 		direction = EnumTools.createFromString(EDirectionUD, xml.get(XVOICE_DIRECTION));			
 		
-		var notes:Array<Note> = [];
-		for (n in xml.elementsNamed(NoteXML.XNOTE)) 
+		var notes:Array<NNote> = [];
+		//for (n in xml.elementsNamed(NoteXML.XNOTE)) 
+		for (n in xml.elements()) 
 		{
-			var note:Note = NoteXML.fromXmlStr(n.toString());
+			var note:NNote = NoteXML.fromXmlStr(n.toString());
 			notes.push(note);
 		}			
 		
-		
-		return new Voice(notes, type, direction);
+		return new NVoice(notes, type, direction);
 	}
 	
-	static public function test(item:Voice):Bool
+	static public function test(item:NVoice):Bool
 	{
 		var str = toXml(item).toString();		
 		var item2 = fromXmlStr(str);

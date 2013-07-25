@@ -14,7 +14,7 @@ import nx3.elements.EVoiceType;
 import nx3.render.scaling.TScaling;
 import nx3.render.svg.Elements;
 import nx3.render.svg.ShapeTools;
-import nx3.units.Constants;
+import nx3.Constants;
 
 #if nme
 import nme.geom.Rectangle;
@@ -67,6 +67,8 @@ class FontRenderer implements IRenderer
 	
 	public function stave(x:Float, y:Float, dnote:DNote):Void 
 	{ 
+		if (dnote.value.head == EHeadValuetype.HVT1) return;
+		
 		this.target.graphics.lineStyle(this.scaling.linesWidth, 0x000000);			
 		var topY:Float = y + dnote.headTop.level * scaling.halfSpace;
 		var bottomY:Float = y + dnote.headBottom.level * scaling.halfSpace;		
@@ -75,12 +77,14 @@ class FontRenderer implements IRenderer
 		switch (dnote.direction)
 		{
 			case EDirectionUD.Up:
-				staveX += (dnote.headsRect.x.toFloat() + dnote.headsRect.width.toFloat())*this.scaling.halfNoteWidth;
+				//staveX += dnote.headsRect.x.toFloat() * this.scaling.halfNoteWidth + 2 * this.scaling.halfNoteWidth;
+				staveX = x + (dnote.xAdjust.toFloat() + dnote.stemX.toFloat()) *scaling.halfNoteWidth;
 				target.graphics.moveTo(staveX, bottomY);
 				target.graphics.lineTo(staveX, topY - staveLength);
 				
 			case EDirectionUD.Down:
-				staveX += dnote.headsRect.x.toFloat()*this.scaling.halfNoteWidth;
+				//staveX += dnote.headsRect.x.toFloat() * this.scaling.halfNoteWidth;
+				staveX = x  +  (dnote.xAdjust.toFloat() + dnote.stemX.toFloat()) *scaling.halfNoteWidth;
 				target.graphics.moveTo(staveX, topY);
 				target.graphics.lineTo(staveX, bottomY + staveLength);
 		}
@@ -91,7 +95,7 @@ class FontRenderer implements IRenderer
 		for (rect in dnote.headRects)
 		{
 			var xmlStr:String = null;
-			switch (dnote.value.type)
+			switch (dnote.value.head)
 			{
 				case EHeadValuetype.HVT1: xmlStr = Elements.noteWhole;
 				case EHeadValuetype.HVT2: xmlStr = Elements.noteWhite;

@@ -27,9 +27,7 @@ class NoteXML
 
 	static public inline var XLYRIC:String = "lyric";
 	static public inline var XLYRIC_TEXT:String = "text";
-
 	static public inline var XUNDEFINED:String = "undefined";
-	
 	
 	static public inline var XNOTE_TYPE:String = "type";
 	static public inline var XNOTE_TYPE_NOTE:String = "note";
@@ -112,10 +110,9 @@ class NoteXML
 	{
 		var xml = Xml.parse(xmlStr).firstElement();		
 		
-		
-		var xmlType:String = xml.nodeName;
-	
+		var xmlType:String = xml.nodeName;	
 		var type:ENoteType = null;
+		
 		switch(xmlType)
 		{
 			
@@ -159,20 +156,19 @@ class NoteXML
 
 			//---------------------------------------------------------------------------------------------------------------------------
 			case XPAUSE:				
-				var level:Level = Std.parseInt(xml.get(XPAUSE_LEVEL));
-				type = ENoteType.Pause(level);
+				var pauseLevelStr = xml.get(XPAUSE_LEVEL);
+				var levelInt:Int = (pauseLevelStr == null) ? 0 : Std.parseInt(pauseLevelStr);
+				type = ENoteType.Pause(0);
 				
 			//---------------------------------------------------------------------------------------------------------------------------
 			case XLYRIC:
-				var text = xml.get(XLYRIC_TEXT);				
-				
+				var text = xml.get(XLYRIC_TEXT);								
 				var offsetStr = xml.get(XOFFSET);
 				var offset:EPosition = EnumTools.createFromString(EPosition, offsetStr);
 				var continuationStr = xml.get(XLYRIC_CONTINUATION);				
 				var continuation:ELyricContinuation = EnumTools.createFromString(ELyricContinuation, continuationStr);
 				var formatStr = xml.get(XLYRIC_FORMAT);
-				var format:ELyricFormat = EnumTools.createFromString(ELyricFormat, formatStr);
-				
+				var format:ELyricFormat = EnumTools.createFromString(ELyricFormat, formatStr);				
 				type = ENoteType.Lyric(text, offset, continuation, format);
 		}
 		
@@ -182,7 +178,6 @@ class NoteXML
 		
 		// direction		
 		var direction:EDirectionUD = EnumTools.createFromString(EDirectionUD, xml.get(XNOTE_DIRECTION));
-		//if (direction == null) direction = EDirectionUAD.Auto;
 		
 		return new  NNote(type, value, direction);
 	}

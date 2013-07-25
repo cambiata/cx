@@ -22,7 +22,7 @@ class ShapeTools
 	{
 		if (xmlStr == null) return null;
 		var svg:SVG2Gfx = new SVG2Gfx(Xml.parse(xmlStr));		
-		var shape:Shape = svg.CreateShape();
+		var shape:Shape = svg.createShape();
 		shape.scaleX = shape.scaleY = scaling.svgScale;		
 		shape.cacheAsBitmap = true;
 		return shape;

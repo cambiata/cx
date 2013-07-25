@@ -1,7 +1,7 @@
 package nx3.elements;
 import nx3.elements.NNote;
-import nx3.enums.EDirectionUD;
-import nx3.enums.EVoiceType;
+import nx3.elements.EDirectionUD;
+import nx3.elements.EVoiceType;
 
 /**
  * ...
@@ -9,6 +9,7 @@ import nx3.enums.EVoiceType;
  */
 class NVoice
 {
+	
 	public var direction(default, null):EDirectionUD;
 	public var notes(default, null):Array<NNote>;
 	public var type(default, null):EVoiceType;

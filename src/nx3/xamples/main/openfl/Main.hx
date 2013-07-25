@@ -9,11 +9,14 @@ import flash.Lib;
 import nx3.elements.DComplex;
 import nx3.elements.ENoteValue;
 import nx3.elements.ESign;
+import nx3.elements.NPart;
+import nx3.elements.NVoice;
 import nx3.render.FontRenderer;
 import nx3.render.MultiRenderer;
 import nx3.render.svg.Elements;
 import nx3.render.svg.ShapeTools;
 import nx3.render.tools.RenderTools;
+import nx3.xamples.Examples;
 
 import nx3.render.scaling.Scaling;
 import nx3.render.FrameRenderer;
@@ -30,6 +33,7 @@ import nx3.io.NoteXML;
  * @author 
  */
 import nx3.io.NoteXML;
+import nx3.io.VoiceXML;
 
 class Main extends Sprite 
 {
@@ -48,8 +52,26 @@ class Main extends Sprite
 		if (inited) return;
 		inited = true;
 		
-		var target:Sprite = new Sprite();
-		this.addChild(target); 
+		//this.addChild(Examples.basic2()); 
+		var note1:NNote = new NNote([new NHead(-4, ESign.Flat), /*new NHead(0, ESign.Natural),*/ new NHead(0, ESign.Natural)], ENoteValue.Nv4);		
+		var dnote1:DNote = new DNote(note1, EDirectionUD.Up);		
+		
+		var note2:NNote = new NNote([new NHead(0, ESign.Sharp)], ENoteValue.Nv4);
+		var dnote2:DNote = new DNote(note2, EDirectionUD.Down);
+		
+		var dcomplex:DComplex = new DComplex([dnote1, dnote2]);
+		//var renderer:FontRenderer = new FontRenderer(this, Scaling.NORMAL);	
+		var renderer:MultiRenderer = new MultiRenderer(this, Scaling.PRINT1, [
+			FrameRenderer, 
+			FontRenderer,
+			]);
+		renderer.complex(300, 300, dcomplex);
+		renderer.notelines(0, 300, 500);
+		
+		
+		
+
+		/*
 		this.addChild(target);		
 		var note1:NNote = new NNote([
 			new NHead( -4, ESign.Flat), 			
@@ -90,9 +112,7 @@ class Main extends Sprite
 			]);
 		render.notelines(0, 300, 700);		
 		render.complex(200, 300, dcomplex);		
-		
-		NoteXML.test(note1);
-
+		*/
 	}
 
 	/* SETUP */

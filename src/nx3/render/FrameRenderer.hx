@@ -3,7 +3,7 @@ import nx3.elements.DComplex;
 import nx3.elements.DNote;
 import nx3.render.scaling.TScaling;
 import nx3.elements.EDirectionUD;
-import nx3.units.Constants;
+import nx3.Constants;
 
 
 
@@ -20,13 +20,11 @@ import flash.display.Sprite;
  * ...
  * @author 
  */
-
  
 class FrameRenderer implements IRenderer implements ISpriteRenderer
 {
 	var scaling:TScaling;
 	var target:Sprite;
-
 	 
 	public function initTargetSprite(target:Sprite, scaling:TScaling): Void
 	{
@@ -98,7 +96,7 @@ class FrameRenderer implements IRenderer implements ISpriteRenderer
 	
 	public function stave(x:Float, y:Float, dnote:DNote)
 	{
-		
+		/*
 		this.target.graphics.lineStyle(this.scaling.linesWidth, 0x000000);			
 		var topY:Float = y + dnote.headTop.level * scaling.halfSpace;
 		var bottomY:Float = y + dnote.headBottom.level * scaling.halfSpace;		
@@ -107,7 +105,7 @@ class FrameRenderer implements IRenderer implements ISpriteRenderer
 		switch (dnote.direction)
 		{
 			case EDirectionUD.Up:
-				staveX += (dnote.headsRect.x.toFloat() + dnote.headsRect.width.toFloat())*this.scaling.halfNoteWidth;
+				staveX += dnote.headsRect.x.toFloat()*this.scaling.halfNoteWidth;
 				target.graphics.moveTo(staveX, bottomY);
 				target.graphics.lineTo(staveX, topY - staveLength);
 				
@@ -116,7 +114,7 @@ class FrameRenderer implements IRenderer implements ISpriteRenderer
 				target.graphics.moveTo(staveX, topY);
 				target.graphics.lineTo(staveX, bottomY + staveLength);
 		}
-		
+		*/
 	}
 	
 	public function heads(x:Float, y:Float, dnote:DNote)

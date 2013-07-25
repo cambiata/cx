@@ -1,10 +1,7 @@
 package nx3.elements;
+import nx3.elements.interfaces.IDistanceRects;
 import nx3.elements.tools.HeadsTool;
-import nx3.elements.tools.SignsTools;
-import nx3.elements.ESign;
-import nx3.types.TSignRects;
-import nx3.types.TSigns;
-import nx3.units.Constants;
+import nx3.Constants;
 import nx3.units.NRect;
 import nx3.units.NX;
 
@@ -15,14 +12,10 @@ import nx3.units.NX;
 
  using nx3.elements.tools.SignsTools;
  
-class DComplex
+class DComplex implements IDistanceRects
 {
-
 	public var dnotes(default, null):Array<DNote>;
 	public var signs(default, null):TSigns;
-	
-	//public var signsRect(get, null):NRect;
-	
 	
 	public var dnotesXAdjust(get, null):Array<NX>;
 
@@ -33,6 +26,33 @@ class DComplex
 		this.avoidCollisions_();
 		this.headsRect;
 	}
+	
+	/* INTERFACE nx3.elements.interfaces.IDistanceRects */
+	var rectsFront_:Array<NRect>;
+	function get_rectsFront():Array<NRect> 
+	{
+		return rectsFront_;
+	}
+	
+	public var rectsFront(get_rectsFront, null):Array<NRect>;
+	
+	var rectCenter_:NRect;
+	function get_rectCenter():NRect 
+	{
+		return rectCenter_;
+	}
+	
+	public var rectCenter(get_rectCenter, null):NRect;
+	
+	var rectsBack_:Array<NRect>;
+	function get_rectsBack():Array<NRect> 
+	{
+		return rectsBack_;
+	}
+	
+	public var rectsBack(get_rectsBack, null):Array<NRect>;
+	
+
 	
 	//--------------------------------------------------------------------------------------------------------------------------
 	var headsRect_:NRect = null;
@@ -182,8 +202,9 @@ class DComplex
 			var diff = this.dnotes[1].headTop.level - this.dnotes[0].headBottom.level;
 			
 			if (diff == 1) 
+			// second touch
 			{				
-				this.dnotes[1].xAdjust = Constants.COMPLEX_COLLISION_ADJUST_X;
+				this.dnotes[1].xAdjust = Constants.COMPLEX_COLLISION_ADJUST_X;				
 			} 
 			else if (diff == 0)
 			{
