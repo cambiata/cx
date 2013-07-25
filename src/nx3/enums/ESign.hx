@@ -13,6 +13,7 @@ enum ESign
 	Sharp;
 	DoubleFlat;
 	DoubleSharp;
+	ParNatural;
 	ParFlat;
-	ParSharp;
+	ParSharp;	
 }

@@ -1,6 +1,5 @@
 package nx3.elements;
 import jasononeil.CleverSort;
-import nx.enums.ENoteType;
 import nx3.elements.Head;
 import nx3.enums.EDirectionUD;
 import nx3.enums.ENoteArticulation;
@@ -24,11 +23,11 @@ class Note
 	
 	//----------------------------------------------------------------------------------------
 	// Constructor	
-	public function new(?type:ENoteType=null, ?value:ENoteValue=null , ?direction:EDirectionUD=null) 
+	public function new(?type:ENoteType=null, ?heads:Array<Head>=null, ?value:ENoteValue=null , ?direction:EDirectionUD=null) 
 	{
 		if (type == null) 
 		{
-			type = ENoteType.Note([new Head()], ENoteVariant.Normal, null, null);
+			type = (heads != null) ? ENoteType.Note(heads) :  ENoteType.Note([new Head()]);
 		}
 		
 		if (value == null) value = ENoteValue.Nv4;		

@@ -59,5 +59,14 @@ class TimerTools
 		#end
 	}
 	
+	//---------------------------------------------------------------------------------------------------------------
+	
+	static public function timer(func:Void->Void, milliSeconds:Int = 500):Dynamic
+	{
+		var timer:Timer = new Timer(milliSeconds);
+		timer.run = func;
+		return timer;
+	}
+	
 	
 }

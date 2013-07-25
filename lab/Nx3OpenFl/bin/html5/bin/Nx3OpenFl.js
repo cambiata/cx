@@ -78,7 +78,12 @@ flash.events.IEventDispatcher = function() { }
 $hxClasses["flash.events.IEventDispatcher"] = flash.events.IEventDispatcher;
 flash.events.IEventDispatcher.__name__ = ["flash","events","IEventDispatcher"];
 flash.events.IEventDispatcher.prototype = {
-	__class__: flash.events.IEventDispatcher
+	willTrigger: null
+	,removeEventListener: null
+	,hasEventListener: null
+	,dispatchEvent: null
+	,addEventListener: null
+	,__class__: flash.events.IEventDispatcher
 }
 flash.events.EventDispatcher = function(target) {
 	if(target != null) this.nmeTarget = target; else this.nmeTarget = this;
@@ -156,6 +161,8 @@ flash.events.EventDispatcher.prototype = {
 		list.push(new flash.events.Listener(inListener,capture,priority));
 		list.sort(flash.events.EventDispatcher.compareListeners);
 	}
+	,nmeEventMap: null
+	,nmeTarget: null
 	,__class__: flash.events.EventDispatcher
 }
 flash.display = {}
@@ -163,7 +170,8 @@ flash.display.IBitmapDrawable = function() { }
 $hxClasses["flash.display.IBitmapDrawable"] = flash.display.IBitmapDrawable;
 flash.display.IBitmapDrawable.__name__ = ["flash","display","IBitmapDrawable"];
 flash.display.IBitmapDrawable.prototype = {
-	__class__: flash.display.IBitmapDrawable
+	drawToSurface: null
+	,__class__: flash.display.IBitmapDrawable
 }
 flash.display.DisplayObject = function() {
 	flash.events.EventDispatcher.call(this,null);
@@ -795,6 +803,37 @@ flash.display.DisplayObject.prototype = $extend(flash.events.EventDispatcher.pro
 		if(event.bubbles && this.parent != null) this.parent.dispatchEvent(event);
 		return result;
 	}
+	,_srAxes: null
+	,_srWindow: null
+	,_topmostSurface: null
+	,_nmeRenderFlags: null
+	,_nmeId: null
+	,_fullScaleY: null
+	,_fullScaleX: null
+	,_bottommostSurface: null
+	,nmeY: null
+	,nmeX: null
+	,nmeWidth: null
+	,nmeVisible: null
+	,nmeScrollRect: null
+	,nmeScaleY: null
+	,nmeScaleX: null
+	,nmeRotation: null
+	,nmeMaskingObj: null
+	,nmeMask: null
+	,nmeHeight: null
+	,nmeFilters: null
+	,nmeBoundsRect: null
+	,transform: null
+	,scale9Grid: null
+	,parent: null
+	,nmeCombinedVisible: null
+	,name: null
+	,loaderInfo: null
+	,cacheAsBitmap: null
+	,blendMode: null
+	,alpha: null
+	,accessibilityProperties: null
 	,__class__: flash.display.DisplayObject
 	,__properties__: {set_filters:"set_filters",get_filters:"get_filters",set_height:"set_height",get_height:"get_height",set_mask:"set_mask",get_mask:"get_mask",get_mouseX:"get_mouseX",get_mouseY:"get_mouseY",set_nmeCombinedVisible:"set_nmeCombinedVisible",set_parent:"set_parent",set_rotation:"set_rotation",get_rotation:"get_rotation",set_scaleX:"set_scaleX",get_scaleX:"get_scaleX",set_scaleY:"set_scaleY",get_scaleY:"get_scaleY",set_scrollRect:"set_scrollRect",get_scrollRect:"get_scrollRect",get_stage:"get_stage",set_transform:"set_transform",set_visible:"set_visible",get_visible:"get_visible",set_width:"set_width",get_width:"get_width",set_x:"set_x",get_x:"get_x",set_y:"set_y",get_y:"get_y",get__bottommostSurface:"get__bottommostSurface",get__boundsInvalid:"get__boundsInvalid",get__matrixChainInvalid:"get__matrixChainInvalid",get__matrixInvalid:"get__matrixInvalid",get__topmostSurface:"get__topmostSurface"}
 });
@@ -821,6 +860,12 @@ flash.display.InteractiveObject.prototype = $extend(flash.display.DisplayObject.
 	,nmeGetObjectUnderPoint: function(point) {
 		if(!this.mouseEnabled) return null; else return flash.display.DisplayObject.prototype.nmeGetObjectUnderPoint.call(this,point);
 	}
+	,nmeTabIndex: null
+	,nmeDoubleClickEnabled: null
+	,tabEnabled: null
+	,mouseEnabled: null
+	,focusRect: null
+	,doubleClickEnabled: null
 	,__class__: flash.display.InteractiveObject
 	,__properties__: $extend(flash.display.DisplayObject.prototype.__properties__,{set_tabIndex:"set_tabIndex",get_tabIndex:"get_tabIndex"})
 });
@@ -1146,6 +1191,11 @@ flash.display.DisplayObjectContainer.prototype = $extend(flash.display.Interacti
 	,__removeChild: function(child) {
 		HxOverrides.remove(this.nmeChildren,child);
 	}
+	,nmeAddedChildren: null
+	,tabChildren: null
+	,nmeCombinedAlpha: null
+	,nmeChildren: null
+	,mouseChildren: null
 	,__class__: flash.display.DisplayObjectContainer
 	,__properties__: $extend(flash.display.InteractiveObject.prototype.__properties__,{get_numChildren:"get_numChildren"})
 });
@@ -1205,6 +1255,12 @@ flash.display.Sprite.prototype = $extend(flash.display.DisplayObjectContainer.pr
 	,nmeGetGraphics: function() {
 		return this.nmeGraphics;
 	}
+	,nmeGraphics: null
+	,nmeDropTarget: null
+	,nmeCursorCallbackOver: null
+	,nmeCursorCallbackOut: null
+	,useHandCursor: null
+	,buttonMode: null
 	,__class__: flash.display.Sprite
 	,__properties__: $extend(flash.display.DisplayObjectContainer.prototype.__properties__,{get_dropTarget:"get_dropTarget",get_graphics:"get_graphics",set_useHandCursor:"set_useHandCursor"})
 });
@@ -1233,12 +1289,21 @@ nx3.xamples.main.openfl.Main.prototype = $extend(flash.display.Sprite.prototype,
 	,init: function() {
 		if(this.inited) return;
 		this.inited = true;
-		var target = nx3.xamples.Examples.basic1();
+		var target = new flash.display.Sprite();
+		var note1 = new nx3.elements.Note(null,[new nx3.elements.Head(null,nx3.units._Level.Level_Impl_.inRange(-4),nx3.enums.ESign.Flat),new nx3.elements.Head(null,nx3.units._Level.Level_Impl_.inRange(0),nx3.enums.ESign.Flat),new nx3.elements.Head(null,nx3.units._Level.Level_Impl_.inRange(2),nx3.enums.ESign.Flat)],nx3.enums.ENoteValue.Nv4,nx3.enums.EDirectionUD.Up);
+		var note2 = new nx3.elements.Note(null,[new nx3.elements.Head(null,nx3.units._Level.Level_Impl_.inRange(5),nx3.enums.ESign.Flat)],nx3.enums.ENoteValue.Nv2,nx3.enums.EDirectionUD.Down);
+		var render = new nx3.render.MultiRenderer(target,nx3.render.scaling.Scaling.MID,[nx3.render.FontRenderer]);
+		var dnote1 = new nx3.display.DNote(note1);
+		var dnote2 = new nx3.display.DNote(note2);
+		var dcomplex = new nx3.display.DComplex([dnote1,dnote2]);
+		render.notelines(0,100,700);
 		this.addChild(target);
+		render.complex(200,100,dcomplex);
 	}
 	,resize: function(e) {
 		if(!this.inited) this.init();
 	}
+	,inited: null
 	,__class__: nx3.xamples.main.openfl.Main
 });
 var DocumentClass = function() {
@@ -1263,6 +1328,10 @@ EReg.prototype = {
 	replace: function(s,by) {
 		return s.replace(this.r,by);
 	}
+	,split: function(s) {
+		var d = "#__delim__#";
+		return s.replace(this.r,d).split(d);
+	}
 	,matchedPos: function() {
 		if(this.r.m == null) throw "No string matched";
 		return { pos : this.r.m.index, len : this.r.m[0].length};
@@ -1285,6 +1354,7 @@ EReg.prototype = {
 		this.r.s = s;
 		return this.r.m != null;
 	}
+	,r: null
 	,__class__: EReg
 }
 var HxOverrides = function() { }
@@ -1322,6 +1392,35 @@ HxOverrides.iter = function(a) {
 	}, next : function() {
 		return this.arr[this.cur++];
 	}};
+}
+var Lambda = function() { }
+$hxClasses["Lambda"] = Lambda;
+Lambda.__name__ = ["Lambda"];
+Lambda.array = function(it) {
+	var a = new Array();
+	var $it0 = $iterator(it)();
+	while( $it0.hasNext() ) {
+		var i = $it0.next();
+		a.push(i);
+	}
+	return a;
+}
+Lambda.map = function(it,f) {
+	var l = new List();
+	var $it0 = $iterator(it)();
+	while( $it0.hasNext() ) {
+		var x = $it0.next();
+		l.add(f(x));
+	}
+	return l;
+}
+Lambda.has = function(it,elt) {
+	var $it0 = $iterator(it)();
+	while( $it0.hasNext() ) {
+		var x = $it0.next();
+		if(x == elt) return true;
+	}
+	return false;
 }
 var List = function() {
 	this.length = 0;
@@ -1365,6 +1464,9 @@ List.prototype = {
 		this.q = x;
 		this.length++;
 	}
+	,length: null
+	,q: null
+	,h: null
 	,__class__: List
 }
 var IMap = function() { }
@@ -1423,6 +1525,8 @@ NMEPreloader.prototype = $extend(flash.display.Sprite.prototype,{
 	,getBackgroundColor: function() {
 		return 16777215;
 	}
+	,progress: null
+	,outline: null
 	,__class__: NMEPreloader
 });
 var Reflect = function() { }
@@ -1493,6 +1597,7 @@ StringBuf.prototype = {
 	addSub: function(s,pos,len) {
 		this.b += len == null?HxOverrides.substr(s,pos,null):HxOverrides.substr(s,pos,len);
 	}
+	,b: null
 	,__class__: StringBuf
 }
 var StringTools = function() { }
@@ -1598,6 +1703,18 @@ Type.createEnum = function(e,constr,params) {
 	}
 	if(params != null && params.length != 0) throw "Constructor " + constr + " does not need parameters";
 	return f;
+}
+Type.createEnumIndex = function(e,index,params) {
+	var c = e.__constructs__[index];
+	if(c == null) throw index + " is not a valid enum constructor index";
+	return Type.createEnum(e,c,params);
+}
+Type.getInstanceFields = function(c) {
+	var a = [];
+	for(var i in c.prototype) a.push(i);
+	HxOverrides.remove(a,"__class__");
+	HxOverrides.remove(a,"__properties__");
+	return a;
 }
 var XmlType = $hxClasses["XmlType"] = { __ename__ : true, __constructs__ : [] }
 var Xml = function() {
@@ -1732,6 +1849,31 @@ Xml.prototype = {
 			return null;
 		}};
 	}
+	,elements: function() {
+		if(this._children == null) throw "bad nodetype";
+		return { cur : 0, x : this._children, hasNext : function() {
+			var k = this.cur;
+			var l = this.x.length;
+			while(k < l) {
+				if(this.x[k].nodeType == Xml.Element) break;
+				k += 1;
+			}
+			this.cur = k;
+			return k < l;
+		}, next : function() {
+			var k = this.cur;
+			var l = this.x.length;
+			while(k < l) {
+				var n = this.x[k];
+				k += 1;
+				if(n.nodeType == Xml.Element) {
+					this.cur = k;
+					return n;
+				}
+			}
+			return null;
+		}};
+	}
 	,iterator: function() {
 		if(this._children == null) throw "bad nodetype";
 		return { cur : 0, x : this._children, hasNext : function() {
@@ -1764,6 +1906,12 @@ Xml.prototype = {
 		if(this.nodeType != Xml.Element) throw "bad nodeType";
 		return this._nodeName;
 	}
+	,_parent: null
+	,_children: null
+	,_attributes: null
+	,_nodeValue: null
+	,_nodeName: null
+	,nodeType: null
 	,__class__: Xml
 }
 var cx = {}
@@ -1783,6 +1931,47 @@ cx.EnumTools.createFromString = function(e,str) {
 	} catch( e1 ) {
 	}
 	return null;
+}
+cx.ReflectTools = function() { }
+$hxClasses["cx.ReflectTools"] = cx.ReflectTools;
+cx.ReflectTools.__name__ = ["cx","ReflectTools"];
+cx.ReflectTools.getMethods = function(object) {
+	var result = [];
+	var fields = Type.getInstanceFields(Type.getClass(object));
+	var _g = 0;
+	while(_g < fields.length) {
+		var field = fields[_g];
+		++_g;
+		var f = Reflect.field(object,field);
+		if(Reflect.isFunction(f)) result.push(field);
+	}
+	return result;
+}
+cx.ReflectTools.callMethod = function(object,methodName,args) {
+	if(args == null) args = [];
+	try {
+		return Reflect.field(object,methodName).apply(object,args);
+	} catch( e ) {
+		throw "Error on ReflectTools.callMethod: " + methodName + " > " + Std.string(e);
+	}
+}
+cx.ReflectTools.hasMethod = function(object,methodName) {
+	return Lambda.has(cx.ReflectTools.getMethods(object),methodName);
+}
+cx.ReflectTools.getClass = function(object) {
+	return Type.getClass(object);
+}
+cx.ReflectTools.getClassName = function(object) {
+	return Type.getClassName(cx.ReflectTools.getClass(object));
+}
+cx.ReflectTools.getStaticFields = function(object) {
+	return Reflect.fields(cx.ReflectTools.getClass(object));
+}
+cx.ReflectTools.getObjectFields = function(object) {
+	return Reflect.fields(object);
+}
+cx.ReflectTools.getStaticField = function(object,fieldName) {
+	return Reflect.field(cx.ReflectTools.getClass(object),fieldName);
 }
 cx.StrTools = function() { }
 $hxClasses["cx.StrTools"] = cx.StrTools;
@@ -2497,7 +2686,10 @@ flash.Lib.get_current = function() {
 	return flash.Lib.mMainClassRoot;
 }
 flash.Lib.prototype = {
-	__class__: flash.Lib
+	__scr: null
+	,mKilled: null
+	,mArgs: null
+	,__class__: flash.Lib
 }
 flash._Lib = {}
 flash._Lib.CursorType = $hxClasses["flash._Lib.CursorType"] = { __ename__ : true, __constructs__ : ["Pointer","Text","Default"] }
@@ -2613,7 +2805,13 @@ flash.accessibility.AccessibilityProperties = function() {
 $hxClasses["flash.accessibility.AccessibilityProperties"] = flash.accessibility.AccessibilityProperties;
 flash.accessibility.AccessibilityProperties.__name__ = ["flash","accessibility","AccessibilityProperties"];
 flash.accessibility.AccessibilityProperties.prototype = {
-	__class__: flash.accessibility.AccessibilityProperties
+	silent: null
+	,shortcut: null
+	,noAutoLabeling: null
+	,name: null
+	,forceSimple: null
+	,description: null
+	,__class__: flash.accessibility.AccessibilityProperties
 }
 flash.display.Bitmap = function(inBitmapData,inPixelSnapping,inSmoothing) {
 	if(inSmoothing == null) inSmoothing = false;
@@ -2719,6 +2917,12 @@ flash.display.Bitmap.prototype = $extend(flash.display.DisplayObject.prototype,{
 		fm.nmeTranslateTransformed(extent.get_topLeft());
 		return fm;
 	}
+	,nmeInit: null
+	,nmeCurrentLease: null
+	,nmeGraphics: null
+	,smoothing: null
+	,pixelSnapping: null
+	,bitmapData: null
 	,__class__: flash.display.Bitmap
 	,__properties__: $extend(flash.display.DisplayObject.prototype.__properties__,{set_bitmapData:"set_bitmapData"})
 });
@@ -3436,6 +3640,24 @@ flash.display.BitmapData.prototype = {
 			this.copyPixels(bitmapData,bitmapData.rect,destPoint);
 		}
 	}
+	,_nmeTextureBuffer: null
+	,_nmeId: null
+	,nmeTransparentFiller: null
+	,nmeTransparent: null
+	,nmeLocked: null
+	,nmeLeaseNum: null
+	,nmeLease: null
+	,nmeInitColor: null
+	,nmeImageDataChanged: null
+	,nmeCopyPixelList: null
+	,nmeAssignedBitmaps: null
+	,width: null
+	,transparent: null
+	,rect: null
+	,nmeReferenceCount: null
+	,nmeGLTexture: null
+	,nmeImageData: null
+	,height: null
 	,__class__: flash.display.BitmapData
 	,__properties__: {get_height:"get_height",get_transparent:"get_transparent",get_width:"get_width"}
 }
@@ -3454,6 +3676,8 @@ flash.display.ImageDataLease.prototype = {
 		leaseClone.time = this.time;
 		return leaseClone;
 	}
+	,time: null
+	,seed: null
 	,__class__: flash.display.ImageDataLease
 }
 flash.display._BitmapData = {}
@@ -3478,6 +3702,7 @@ flash.display._BitmapData.MinstdGenerator.prototype = {
 		}
 		return this.value = lo;
 	}
+	,value: null
 	,__class__: flash.display._BitmapData.MinstdGenerator
 }
 flash.display.BitmapDataChannel = function() { }
@@ -4290,6 +4515,27 @@ flash.display.Graphics.prototype = {
 		if(inDrawable == null) return;
 		this.mDrawList.unshift(inDrawable);
 	}
+	,_padding: null
+	,nmeClearNextCycle: null
+	,nmeChanged: null
+	,nextDrawIndex: null
+	,mSolidGradient: null
+	,mPoints: null
+	,mPenY: null
+	,mPenX: null
+	,mLineJobs: null
+	,mLineDraws: null
+	,mLastMoveID: null
+	,mFilling: null
+	,mFillAlpha: null
+	,mFillColour: null
+	,mDrawList: null
+	,mCurrentLine: null
+	,mBitmap: null
+	,nmeSurface: null
+	,nmeExtentWithFilters: null
+	,nmeExtent: null
+	,boundsDirty: null
 	,__class__: flash.display.Graphics
 }
 flash.display.Drawable = function(inPoints,inFillColour,inFillAlpha,inSolidGradient,inBitmap,inLineJobs,inTileJob) {
@@ -4304,7 +4550,14 @@ flash.display.Drawable = function(inPoints,inFillColour,inFillAlpha,inSolidGradi
 $hxClasses["flash.display.Drawable"] = flash.display.Drawable;
 flash.display.Drawable.__name__ = ["flash","display","Drawable"];
 flash.display.Drawable.prototype = {
-	__class__: flash.display.Drawable
+	tileJob: null
+	,solidGradient: null
+	,points: null
+	,lineJobs: null
+	,fillColour: null
+	,fillAlpha: null
+	,bitmap: null
+	,__class__: flash.display.Drawable
 }
 flash.display.GfxPoint = function(inX,inY,inCX,inCY,inType) {
 	this.x = inX;
@@ -4316,7 +4569,12 @@ flash.display.GfxPoint = function(inX,inY,inCX,inCY,inType) {
 $hxClasses["flash.display.GfxPoint"] = flash.display.GfxPoint;
 flash.display.GfxPoint.__name__ = ["flash","display","GfxPoint"];
 flash.display.GfxPoint.prototype = {
-	__class__: flash.display.GfxPoint
+	y: null
+	,x: null
+	,type: null
+	,cy: null
+	,cx: null
+	,__class__: flash.display.GfxPoint
 }
 flash.display.Grad = function(inPoints,inMatrix,inFlags,inFocal) {
 	this.points = inPoints;
@@ -4327,7 +4585,11 @@ flash.display.Grad = function(inPoints,inMatrix,inFlags,inFocal) {
 $hxClasses["flash.display.Grad"] = flash.display.Grad;
 flash.display.Grad.__name__ = ["flash","display","Grad"];
 flash.display.Grad.prototype = {
-	__class__: flash.display.Grad
+	points: null
+	,matrix: null
+	,focal: null
+	,flags: null
+	,__class__: flash.display.Grad
 }
 flash.display.GradPoint = function(inCol,inAlpha,inRatio) {
 	this.col = inCol;
@@ -4337,7 +4599,10 @@ flash.display.GradPoint = function(inCol,inAlpha,inRatio) {
 $hxClasses["flash.display.GradPoint"] = flash.display.GradPoint;
 flash.display.GradPoint.__name__ = ["flash","display","GradPoint"];
 flash.display.GradPoint.prototype = {
-	__class__: flash.display.GradPoint
+	ratio: null
+	,col: null
+	,alpha: null
+	,__class__: flash.display.GradPoint
 }
 flash.display.LineJob = function(inGrad,inPoint_idx0,inPoint_idx1,inThickness,inAlpha,inColour,inPixel_hinting,inJoints,inCaps,inScale_mode,inMiter_limit) {
 	this.grad = inGrad;
@@ -4355,7 +4620,18 @@ flash.display.LineJob = function(inGrad,inPoint_idx0,inPoint_idx1,inThickness,in
 $hxClasses["flash.display.LineJob"] = flash.display.LineJob;
 flash.display.LineJob.__name__ = ["flash","display","LineJob"];
 flash.display.LineJob.prototype = {
-	__class__: flash.display.LineJob
+	thickness: null
+	,scale_mode: null
+	,point_idx1: null
+	,point_idx0: null
+	,pixel_hinting: null
+	,miter_limit: null
+	,joints: null
+	,grad: null
+	,colour: null
+	,caps: null
+	,alpha: null
+	,__class__: flash.display.LineJob
 }
 flash.display.PointInPathMode = $hxClasses["flash.display.PointInPathMode"] = { __ename__ : true, __constructs__ : ["USER_SPACE","DEVICE_SPACE"] }
 flash.display.PointInPathMode.USER_SPACE = ["USER_SPACE",0];
@@ -4372,19 +4648,24 @@ flash.display.TileJob = function(sheet,drawList,flags) {
 $hxClasses["flash.display.TileJob"] = flash.display.TileJob;
 flash.display.TileJob.__name__ = ["flash","display","TileJob"];
 flash.display.TileJob.prototype = {
-	__class__: flash.display.TileJob
+	sheet: null
+	,flags: null
+	,drawList: null
+	,__class__: flash.display.TileJob
 }
 flash.display.IGraphicsFill = function() { }
 $hxClasses["flash.display.IGraphicsFill"] = flash.display.IGraphicsFill;
 flash.display.IGraphicsFill.__name__ = ["flash","display","IGraphicsFill"];
 flash.display.IGraphicsFill.prototype = {
-	__class__: flash.display.IGraphicsFill
+	nmeGraphicsFillType: null
+	,__class__: flash.display.IGraphicsFill
 }
 flash.display.IGraphicsData = function() { }
 $hxClasses["flash.display.IGraphicsData"] = flash.display.IGraphicsData;
 flash.display.IGraphicsData.__name__ = ["flash","display","IGraphicsData"];
 flash.display.IGraphicsData.prototype = {
-	__class__: flash.display.IGraphicsData
+	nmeGraphicsDataType: null
+	,__class__: flash.display.IGraphicsData
 }
 flash.display.GraphicsGradientFill = function(type,colors,alphas,ratios,matrix,spreadMethod,interpolationMethod,focalPointRatio) {
 	if(focalPointRatio == null) focalPointRatio = 0;
@@ -4403,7 +4684,17 @@ $hxClasses["flash.display.GraphicsGradientFill"] = flash.display.GraphicsGradien
 flash.display.GraphicsGradientFill.__name__ = ["flash","display","GraphicsGradientFill"];
 flash.display.GraphicsGradientFill.__interfaces__ = [flash.display.IGraphicsFill,flash.display.IGraphicsData];
 flash.display.GraphicsGradientFill.prototype = {
-	__class__: flash.display.GraphicsGradientFill
+	type: null
+	,spreadMethod: null
+	,ratios: null
+	,nmeGraphicsFillType: null
+	,nmeGraphicsDataType: null
+	,matrix: null
+	,interpolationMethod: null
+	,focalPointRatio: null
+	,colors: null
+	,alphas: null
+	,__class__: flash.display.GraphicsGradientFill
 }
 flash.display.IGraphicsPath = function() { }
 $hxClasses["flash.display.IGraphicsPath"] = flash.display.IGraphicsPath;
@@ -4441,6 +4732,10 @@ flash.display.GraphicsPath.prototype = {
 			flash._Vector.Vector_Impl_.push(this.data,controlY);
 		}
 	}
+	,winding: null
+	,nmeGraphicsDataType: null
+	,data: null
+	,commands: null
 	,__class__: flash.display.GraphicsPath
 }
 flash.display.GraphicsPathCommand = function() { }
@@ -4465,7 +4760,11 @@ $hxClasses["flash.display.GraphicsSolidFill"] = flash.display.GraphicsSolidFill;
 flash.display.GraphicsSolidFill.__name__ = ["flash","display","GraphicsSolidFill"];
 flash.display.GraphicsSolidFill.__interfaces__ = [flash.display.IGraphicsFill,flash.display.IGraphicsData];
 flash.display.GraphicsSolidFill.prototype = {
-	__class__: flash.display.GraphicsSolidFill
+	nmeGraphicsFillType: null
+	,nmeGraphicsDataType: null
+	,color: null
+	,alpha: null
+	,__class__: flash.display.GraphicsSolidFill
 }
 flash.display.IGraphicsStroke = function() { }
 $hxClasses["flash.display.IGraphicsStroke"] = flash.display.IGraphicsStroke;
@@ -4487,7 +4786,15 @@ $hxClasses["flash.display.GraphicsStroke"] = flash.display.GraphicsStroke;
 flash.display.GraphicsStroke.__name__ = ["flash","display","GraphicsStroke"];
 flash.display.GraphicsStroke.__interfaces__ = [flash.display.IGraphicsStroke,flash.display.IGraphicsData];
 flash.display.GraphicsStroke.prototype = {
-	__class__: flash.display.GraphicsStroke
+	thickness: null
+	,scaleMode: null
+	,pixelHinting: null
+	,nmeGraphicsDataType: null
+	,miterLimit: null
+	,joints: null
+	,fill: null
+	,caps: null
+	,__class__: flash.display.GraphicsStroke
 }
 flash.display.GraphicsDataType = $hxClasses["flash.display.GraphicsDataType"] = { __ename__ : true, __constructs__ : ["STROKE","SOLID","GRADIENT","PATH"] }
 flash.display.GraphicsDataType.STROKE = ["STROKE",0];
@@ -4649,6 +4956,10 @@ flash.display.Loader.prototype = $extend(flash.display.Sprite.prototype,{
 			this.addChild(this.mShape);
 		}
 	}
+	,mShape: null
+	,mImage: null
+	,contentLoaderInfo: null
+	,content: null
 	,__class__: flash.display.Loader
 });
 flash.display.LoaderInfo = function() {
@@ -4668,7 +4979,24 @@ flash.display.LoaderInfo.create = function(ldr) {
 }
 flash.display.LoaderInfo.__super__ = flash.events.EventDispatcher;
 flash.display.LoaderInfo.prototype = $extend(flash.events.EventDispatcher.prototype,{
-	__class__: flash.display.LoaderInfo
+	width: null
+	,url: null
+	,sharedEvents: null
+	,sameDomain: null
+	,parentAllowsChild: null
+	,parameters: null
+	,loaderURL: null
+	,loader: null
+	,height: null
+	,frameRate: null
+	,contentType: null
+	,content: null
+	,childAllowsParent: null
+	,bytesTotal: null
+	,bytesLoaded: null
+	,bytes: null
+	,applicationDomain: null
+	,__class__: flash.display.LoaderInfo
 });
 flash.display.MovieClip = function() {
 	flash.display.Sprite.call(this);
@@ -4707,6 +5035,12 @@ flash.display.MovieClip.prototype = $extend(flash.display.Sprite.prototype,{
 	,gotoAndPlay: function(frame,scene) {
 		if(scene == null) scene = "";
 	}
+	,__totalFrames: null
+	,__currentFrame: null
+	,totalFrames: null
+	,framesLoaded: null
+	,enabled: null
+	,currentFrame: null
 	,__class__: flash.display.MovieClip
 	,__properties__: $extend(flash.display.Sprite.prototype.__properties__,{get_currentFrame:"get_currentFrame",get_framesLoaded:"get_framesLoaded",get_totalFrames:"get_totalFrames"})
 });
@@ -4741,6 +5075,7 @@ flash.display.Shape.prototype = $extend(flash.display.DisplayObject.prototype,{
 	,nmeGetGraphics: function() {
 		return this.nmeGraphics;
 	}
+	,nmeGraphics: null
 	,__class__: flash.display.Shape
 	,__properties__: $extend(flash.display.DisplayObject.prototype.__properties__,{get_graphics:"get_graphics"})
 });
@@ -4796,6 +5131,14 @@ flash.events.Event.prototype = {
 	,clone: function() {
 		return new flash.events.Event(this.type,this.bubbles,this.cancelable);
 	}
+	,nmeIsCancelledNow: null
+	,nmeIsCancelled: null
+	,type: null
+	,target: null
+	,eventPhase: null
+	,currentTarget: null
+	,cancelable: null
+	,bubbles: null
 	,__class__: flash.events.Event
 }
 flash.events.MouseEvent = function(type,bubbles,cancelable,localX,localY,relatedObject,ctrlKey,altKey,shiftKey,buttonDown,delta,commandKey,clickCount) {
@@ -4854,6 +5197,18 @@ flash.events.MouseEvent.prototype = $extend(flash.events.Event.prototype,{
 		if(targ != null) result.target = targ;
 		return result;
 	}
+	,stageY: null
+	,stageX: null
+	,shiftKey: null
+	,relatedObject: null
+	,localY: null
+	,localX: null
+	,delta: null
+	,ctrlKey: null
+	,clickCount: null
+	,commandKey: null
+	,buttonDown: null
+	,altKey: null
 	,__class__: flash.events.MouseEvent
 });
 flash.display.Stage = function(width,height) {
@@ -5278,6 +5633,38 @@ flash.display.Stage.prototype = $extend(flash.display.DisplayObjectContainer.pro
 	,invalidate: function() {
 		this.nmeInvalid = true;
 	}
+	,_mouseY: null
+	,_mouseX: null
+	,nmeWindowHeight: null
+	,nmeWindowWidth: null
+	,nmeUIEventsQueueIndex: null
+	,nmeUIEventsQueue: null
+	,nmeTouchInfo: null
+	,nmeTimer: null
+	,nmeStageMatrix: null
+	,nmeStageActive: null
+	,nmeShowDefaultContextMenu: null
+	,nmeMouseOverObjects: null
+	,nmeInvalid: null
+	,nmeInterval: null
+	,nmeFrameRate: null
+	,nmeFocusOverObjects: null
+	,nmeFocusObject: null
+	,nmeDragOffsetY: null
+	,nmeDragOffsetX: null
+	,nmeDragObject: null
+	,nmeDragBounds: null
+	,nmeBackgroundColour: null
+	,stageWidth: null
+	,stageHeight: null
+	,stageFocusRect: null
+	,scaleMode: null
+	,quality: null
+	,nmePointInPathMode: null
+	,fullScreenWidth: null
+	,fullScreenHeight: null
+	,displayState: null
+	,align: null
 	,__class__: flash.display.Stage
 	,__properties__: $extend(flash.display.DisplayObjectContainer.prototype.__properties__,{set_backgroundColor:"set_backgroundColor",get_backgroundColor:"get_backgroundColor",set_displayState:"set_displayState",get_displayState:"get_displayState",set_focus:"set_focus",get_focus:"get_focus",set_frameRate:"set_frameRate",get_frameRate:"get_frameRate",get_fullScreenHeight:"get_fullScreenHeight",get_fullScreenWidth:"get_fullScreenWidth",set_quality:"set_quality",get_quality:"get_quality",set_showDefaultContextMenu:"set_showDefaultContextMenu",get_showDefaultContextMenu:"get_showDefaultContextMenu",get_stageHeight:"get_stageHeight",get_stageWidth:"get_stageWidth"})
 });
@@ -5288,7 +5675,8 @@ flash.display._Stage.TouchInfo = function() {
 $hxClasses["flash.display._Stage.TouchInfo"] = flash.display._Stage.TouchInfo;
 flash.display._Stage.TouchInfo.__name__ = ["flash","display","_Stage","TouchInfo"];
 flash.display._Stage.TouchInfo.prototype = {
-	__class__: flash.display._Stage.TouchInfo
+	touchOverObjects: null
+	,__class__: flash.display._Stage.TouchInfo
 }
 flash.display.StageAlign = $hxClasses["flash.display.StageAlign"] = { __ename__ : true, __constructs__ : ["TOP_RIGHT","TOP_LEFT","TOP","RIGHT","LEFT","BOTTOM_RIGHT","BOTTOM_LEFT","BOTTOM"] }
 flash.display.StageAlign.TOP_RIGHT = ["TOP_RIGHT",0];
@@ -5357,6 +5745,9 @@ flash.errors.Error.prototype = {
 	,getStackTrace: function() {
 		return haxe.CallStack.toString(haxe.CallStack.exceptionStack());
 	}
+	,name: null
+	,message: null
+	,errorID: null
 	,__class__: flash.errors.Error
 }
 flash.errors.IOError = function(message) {
@@ -5380,7 +5771,8 @@ $hxClasses["flash.events.TextEvent"] = flash.events.TextEvent;
 flash.events.TextEvent.__name__ = ["flash","events","TextEvent"];
 flash.events.TextEvent.__super__ = flash.events.Event;
 flash.events.TextEvent.prototype = $extend(flash.events.Event.prototype,{
-	__class__: flash.events.TextEvent
+	text: null
+	,__class__: flash.events.TextEvent
 });
 flash.events.ErrorEvent = function(type,bubbles,cancelable,text) {
 	flash.events.TextEvent.call(this,type,bubbles,cancelable);
@@ -5407,6 +5799,10 @@ flash.events.Listener.prototype = {
 	,dispatchEvent: function(event) {
 		this.mListner(event);
 	}
+	,mUseCapture: null
+	,mPriority: null
+	,mListner: null
+	,mID: null
 	,__class__: flash.events.Listener
 }
 flash.events.EventPhase = function() { }
@@ -5426,7 +5822,10 @@ $hxClasses["flash.events.FocusEvent"] = flash.events.FocusEvent;
 flash.events.FocusEvent.__name__ = ["flash","events","FocusEvent"];
 flash.events.FocusEvent.__super__ = flash.events.Event;
 flash.events.FocusEvent.prototype = $extend(flash.events.Event.prototype,{
-	__class__: flash.events.FocusEvent
+	shiftKey: null
+	,relatedObject: null
+	,keyCode: null
+	,__class__: flash.events.FocusEvent
 });
 flash.events.HTTPStatusEvent = function(type,bubbles,cancelable,status) {
 	if(status == null) status = 0;
@@ -5439,7 +5838,10 @@ $hxClasses["flash.events.HTTPStatusEvent"] = flash.events.HTTPStatusEvent;
 flash.events.HTTPStatusEvent.__name__ = ["flash","events","HTTPStatusEvent"];
 flash.events.HTTPStatusEvent.__super__ = flash.events.Event;
 flash.events.HTTPStatusEvent.prototype = $extend(flash.events.Event.prototype,{
-	__class__: flash.events.HTTPStatusEvent
+	status: null
+	,responseURL: null
+	,responseHeaders: null
+	,__class__: flash.events.HTTPStatusEvent
 });
 flash.events.IOErrorEvent = function(type,bubbles,cancelable,inText) {
 	if(inText == null) inText = "";
@@ -5452,7 +5854,8 @@ $hxClasses["flash.events.IOErrorEvent"] = flash.events.IOErrorEvent;
 flash.events.IOErrorEvent.__name__ = ["flash","events","IOErrorEvent"];
 flash.events.IOErrorEvent.__super__ = flash.events.Event;
 flash.events.IOErrorEvent.prototype = $extend(flash.events.Event.prototype,{
-	__class__: flash.events.IOErrorEvent
+	text: null
+	,__class__: flash.events.IOErrorEvent
 });
 flash.events.KeyboardEvent = function(type,bubbles,cancelable,inCharCode,inKeyCode,inKeyLocation,inCtrlKey,inAltKey,inShiftKey) {
 	if(inShiftKey == null) inShiftKey = false;
@@ -5475,7 +5878,13 @@ $hxClasses["flash.events.KeyboardEvent"] = flash.events.KeyboardEvent;
 flash.events.KeyboardEvent.__name__ = ["flash","events","KeyboardEvent"];
 flash.events.KeyboardEvent.__super__ = flash.events.Event;
 flash.events.KeyboardEvent.prototype = $extend(flash.events.Event.prototype,{
-	__class__: flash.events.KeyboardEvent
+	keyLocation: null
+	,shiftKey: null
+	,ctrlKey: null
+	,charCode: null
+	,keyCode: null
+	,altKey: null
+	,__class__: flash.events.KeyboardEvent
 });
 flash.events.ProgressEvent = function(type,bubbles,cancelable,bytesLoaded,bytesTotal) {
 	if(bytesTotal == null) bytesTotal = 0;
@@ -5490,7 +5899,9 @@ $hxClasses["flash.events.ProgressEvent"] = flash.events.ProgressEvent;
 flash.events.ProgressEvent.__name__ = ["flash","events","ProgressEvent"];
 flash.events.ProgressEvent.__super__ = flash.events.Event;
 flash.events.ProgressEvent.prototype = $extend(flash.events.Event.prototype,{
-	__class__: flash.events.ProgressEvent
+	bytesTotal: null
+	,bytesLoaded: null
+	,__class__: flash.events.ProgressEvent
 });
 flash.events.SecurityErrorEvent = function(type,bubbles,cancelable,text) {
 	if(text == null) text = "";
@@ -5549,6 +5960,19 @@ flash.events.TouchEvent.prototype = $extend(flash.events.Event.prototype,{
 		if(targ != null) result.target = targ;
 		return result;
 	}
+	,touchPointID: null
+	,stageY: null
+	,stageX: null
+	,shiftKey: null
+	,relatedObject: null
+	,localY: null
+	,localX: null
+	,isPrimaryTouchPoint: null
+	,delta: null
+	,ctrlKey: null
+	,commandKey: null
+	,buttonDown: null
+	,altKey: null
 	,__class__: flash.events.TouchEvent
 });
 flash.filters = {}
@@ -5567,6 +5991,8 @@ flash.filters.BitmapFilter.prototype = {
 		throw "Implement in subclass. BitmapFilter::clone";
 		return null;
 	}
+	,_nmeCached: null
+	,_mType: null
 	,__class__: flash.filters.BitmapFilter
 }
 flash.filters.DropShadowFilter = function(in_distance,in_angle,in_color,in_alpha,in_blurX,in_blurY,in_strength,in_quality,in_inner,in_knockout,in_hideObject) {
@@ -5616,6 +6042,17 @@ flash.filters.DropShadowFilter.prototype = $extend(flash.filters.BitmapFilter.pr
 	,clone: function() {
 		return new flash.filters.DropShadowFilter(this.distance,this.angle,this.color,this.alpha,this.blurX,this.blurY,this.strength,this.quality,this.inner,this.knockout,this.hideObject);
 	}
+	,strength: null
+	,quality: null
+	,knockout: null
+	,inner: null
+	,hideObject: null
+	,distance: null
+	,color: null
+	,blurY: null
+	,blurX: null
+	,angle: null
+	,alpha: null
 	,__class__: flash.filters.DropShadowFilter
 });
 flash.geom = {}
@@ -5658,6 +6095,14 @@ flash.geom.ColorTransform.prototype = {
 		this.blueMultiplier += second.blueMultiplier;
 		this.alphaMultiplier += second.alphaMultiplier;
 	}
+	,redOffset: null
+	,redMultiplier: null
+	,greenOffset: null
+	,greenMultiplier: null
+	,blueOffset: null
+	,blueMultiplier: null
+	,alphaOffset: null
+	,alphaMultiplier: null
 	,__class__: flash.geom.ColorTransform
 	,__properties__: {set_color:"set_color",get_color:"get_color"}
 }
@@ -5878,6 +6323,14 @@ flash.geom.Matrix.prototype = {
 		this.set_tx(Math.round(this.tx * 10) / 10);
 		this.set_ty(Math.round(this.ty * 10) / 10);
 	}
+	,_sy: null
+	,_sx: null
+	,ty: null
+	,tx: null
+	,d: null
+	,c: null
+	,b: null
+	,a: null
 	,__class__: flash.geom.Matrix
 	,__properties__: {set_tx:"set_tx",set_ty:"set_ty"}
 }
@@ -5927,6 +6380,9 @@ flash.geom.Point.prototype = {
 	,add: function(v) {
 		return new flash.geom.Point(v.x + this.x,v.y + this.y);
 	}
+	,y: null
+	,x: null
+	,length: null
 	,__class__: flash.geom.Point
 	,__properties__: {get_length:"get_length"}
 }
@@ -6098,6 +6554,10 @@ flash.geom.Rectangle.prototype = {
 	,clone: function() {
 		return new flash.geom.Rectangle(this.x,this.y,this.width,this.height);
 	}
+	,y: null
+	,x: null
+	,width: null
+	,height: null
 	,__class__: flash.geom.Rectangle
 	,__properties__: {set_bottom:"set_bottom",get_bottom:"get_bottom",set_bottomRight:"set_bottomRight",get_bottomRight:"get_bottomRight",set_left:"set_left",get_left:"get_left",set_right:"set_right",get_right:"get_right",set_size:"set_size",get_size:"get_size",set_top:"set_top",get_top:"get_top",set_topLeft:"set_topLeft",get_topLeft:"get_topLeft"}
 }
@@ -6141,6 +6601,11 @@ flash.geom.Transform.prototype = {
 		if(localMatrix != null) m = localMatrix.mult(this._fullMatrix); else m = this._fullMatrix.clone();
 		return m;
 	}
+	,_matrix: null
+	,_fullMatrix: null
+	,_displayObject: null
+	,concatenatedMatrix: null
+	,colorTransform: null
 	,__class__: flash.geom.Transform
 	,__properties__: {set_colorTransform:"set_colorTransform",get_concatenatedMatrix:"get_concatenatedMatrix",set_matrix:"set_matrix",get_matrix:"get_matrix",get_pixelBounds:"get_pixelBounds"}
 }
@@ -6241,6 +6706,16 @@ flash.media.Sound.prototype = $extend(flash.events.EventDispatcher.prototype,{
 	}
 	,close: function() {
 	}
+	,nmeStreamUrl: null
+	,nmeSoundIdx: null
+	,nmeSoundChannels: null
+	,nmeSoundCache: null
+	,url: null
+	,length: null
+	,isBuffering: null
+	,id3: null
+	,bytesTotal: null
+	,bytesLoaded: null
 	,__class__: flash.media.Sound
 });
 flash.media.SoundChannel = function() {
@@ -6321,6 +6796,16 @@ flash.media.SoundChannel.prototype = $extend(flash.events.EventDispatcher.protot
 			if(this.nmeRemoveRef != null) this.nmeRemoveRef();
 		}
 	}
+	,nmeStartTime: null
+	,nmeRemoveRef: null
+	,nmeAudioTotalLoops: null
+	,nmeAudioCurrentLoop: null
+	,soundTransform: null
+	,rightPeak: null
+	,position: null
+	,nmeAudio: null
+	,leftPeak: null
+	,ChannelId: null
 	,__class__: flash.media.SoundChannel
 	,__properties__: {set_soundTransform:"set_soundTransform"}
 });
@@ -6333,7 +6818,9 @@ flash.media.SoundLoaderContext = function(bufferTime,checkPolicyFile) {
 $hxClasses["flash.media.SoundLoaderContext"] = flash.media.SoundLoaderContext;
 flash.media.SoundLoaderContext.__name__ = ["flash","media","SoundLoaderContext"];
 flash.media.SoundLoaderContext.prototype = {
-	__class__: flash.media.SoundLoaderContext
+	checkPolicyFile: null
+	,bufferTime: null
+	,__class__: flash.media.SoundLoaderContext
 }
 flash.media.SoundTransform = function(vol,panning) {
 	if(panning == null) panning = 0;
@@ -6342,7 +6829,13 @@ flash.media.SoundTransform = function(vol,panning) {
 $hxClasses["flash.media.SoundTransform"] = flash.media.SoundTransform;
 flash.media.SoundTransform.__name__ = ["flash","media","SoundTransform"];
 flash.media.SoundTransform.prototype = {
-	__class__: flash.media.SoundTransform
+	volume: null
+	,rightToRight: null
+	,rightToLeft: null
+	,pan: null
+	,leftToRight: null
+	,leftToLeft: null
+	,__class__: flash.media.SoundTransform
 }
 flash.net = {}
 flash.net.URLLoader = function(request) {
@@ -6486,6 +6979,10 @@ flash.net.URLLoader.prototype = $extend(flash.events.EventDispatcher.prototype,{
 		if(inputVal == flash.net.URLLoaderDataFormat.BINARY && !Reflect.hasField(js.Browser.window,"ArrayBuffer")) this.dataFormat = flash.net.URLLoaderDataFormat.TEXT; else this.dataFormat = inputVal;
 		return this.dataFormat;
 	}
+	,dataFormat: null
+	,data: null
+	,bytesTotal: null
+	,bytesLoaded: null
 	,__class__: flash.net.URLLoader
 	,__properties__: {set_dataFormat:"set_dataFormat"}
 });
@@ -6518,6 +7015,11 @@ flash.net.URLRequest.prototype = {
 		}
 		return res;
 	}
+	,url: null
+	,requestHeaders: null
+	,method: null
+	,data: null
+	,contentType: null
 	,__class__: flash.net.URLRequest
 }
 flash.net.URLRequestHeader = function(name,value) {
@@ -6529,7 +7031,9 @@ flash.net.URLRequestHeader = function(name,value) {
 $hxClasses["flash.net.URLRequestHeader"] = flash.net.URLRequestHeader;
 flash.net.URLRequestHeader.__name__ = ["flash","net","URLRequestHeader"];
 flash.net.URLRequestHeader.prototype = {
-	__class__: flash.net.URLRequestHeader
+	value: null
+	,name: null
+	,__class__: flash.net.URLRequestHeader
 }
 flash.net.URLRequestMethod = function() { }
 $hxClasses["flash.net.URLRequestMethod"] = flash.net.URLRequestMethod;
@@ -6583,6 +7087,7 @@ flash.system.ApplicationDomain.prototype = {
 	,getDefinition: function(name) {
 		return Type.resolveClass(name);
 	}
+	,parentDomain: null
 	,__class__: flash.system.ApplicationDomain
 }
 flash.system.LoaderContext = function(checkPolicyFile,applicationDomain,securityDomain) {
@@ -6594,7 +7099,12 @@ flash.system.LoaderContext = function(checkPolicyFile,applicationDomain,security
 $hxClasses["flash.system.LoaderContext"] = flash.system.LoaderContext;
 flash.system.LoaderContext.__name__ = ["flash","system","LoaderContext"];
 flash.system.LoaderContext.prototype = {
-	__class__: flash.system.LoaderContext
+	securityDomain: null
+	,checkPolicyFile: null
+	,applicationDomain: null
+	,allowLoadBytesCodeExecution: null
+	,allowCodeImport: null
+	,__class__: flash.system.LoaderContext
 }
 flash.system.SecurityDomain = function() {
 };
@@ -6999,6 +7509,14 @@ flash.utils.ByteArray.prototype = {
 	,__get: function(pos) {
 		return this.data.getUint8(pos);
 	}
+	,littleEndian: null
+	,data: null
+	,byteView: null
+	,allocated: null
+	,position: null
+	,objectEncoding: null
+	,length: null
+	,bytesAvailable: null
 	,__class__: flash.utils.ByteArray
 	,__properties__: {get_bytesAvailable:"get_bytesAvailable",set_endian:"set_endian",get_endian:"get_endian",set_length:"set_length"}
 }
@@ -7021,6 +7539,1586 @@ flash.utils.Uuid.random = function(size) {
 }
 flash.utils.Uuid.uuid = function() {
 	return flash.utils.Uuid.random(8) + "-" + flash.utils.Uuid.random(4) + "-" + flash.utils.Uuid.random(4) + "-" + flash.utils.Uuid.random(4) + "-" + flash.utils.Uuid.random(12);
+}
+var format = {}
+format.SVG = function(content) {
+	this.data = new format.svg.SVGData(Xml.parse(content));
+};
+$hxClasses["format.SVG"] = format.SVG;
+format.SVG.__name__ = ["format","SVG"];
+format.SVG.prototype = {
+	render: function(graphics,x,y,width,height) {
+		if(height == null) height = -1;
+		if(width == null) width = -1;
+		if(y == null) y = 0;
+		if(x == null) x = 0;
+		var matrix = new flash.geom.Matrix();
+		matrix.identity();
+		matrix.translate(x,y);
+		if(width > -1 && height > -1) matrix.scale(width / this.data.width,height / this.data.height);
+		var renderer = new format.svg.SVGRenderer(this.data);
+		renderer.render(graphics,matrix);
+	}
+	,data: null
+	,__class__: format.SVG
+}
+format.gfx = {}
+format.gfx.Gfx = function() {
+};
+$hxClasses["format.gfx.Gfx"] = format.gfx.Gfx;
+format.gfx.Gfx.__name__ = ["format","gfx","Gfx"];
+format.gfx.Gfx.prototype = {
+	eof: function() {
+	}
+	,renderText: function(text) {
+	}
+	,curveTo: function(inCX,inCY,inX,inY) {
+	}
+	,lineTo: function(inX,inY) {
+	}
+	,moveTo: function(inX,inY) {
+	}
+	,endLineStyle: function() {
+	}
+	,lineStyle: function(style) {
+	}
+	,endFill: function() {
+	}
+	,beginFill: function(color,alpha) {
+	}
+	,beginGradientFill: function(grad) {
+	}
+	,size: function(inWidth,inHeight) {
+	}
+	,geometryOnly: function() {
+		return false;
+	}
+	,__class__: format.gfx.Gfx
+}
+format.gfx.Gfx2Haxe = function() {
+	format.gfx.Gfx.call(this);
+	this.commands = [];
+};
+$hxClasses["format.gfx.Gfx2Haxe"] = format.gfx.Gfx2Haxe;
+format.gfx.Gfx2Haxe.__name__ = ["format","gfx","Gfx2Haxe"];
+format.gfx.Gfx2Haxe.__super__ = format.gfx.Gfx;
+format.gfx.Gfx2Haxe.prototype = $extend(format.gfx.Gfx.prototype,{
+	curveTo: function(inCX,inCY,inX,inY) {
+		this.commands.push("g.curveTo(" + inCX + "," + inCY + "," + inX + "," + inY + ");");
+	}
+	,lineTo: function(inX,inY) {
+		this.commands.push("g.lineTo(" + inX + "," + inY + ");");
+	}
+	,moveTo: function(inX,inY) {
+		this.commands.push("g.moveTo(" + inX + "," + inY + ");");
+	}
+	,endLineStyle: function() {
+		this.commands.push("g.lineStyle();");
+	}
+	,lineStyle: function(style) {
+		this.commands.push("g.lineStyle(" + this.f2a(style.thickness) + "," + style.color + "," + this.f2a(style.alpha) + "," + Std.string(style.pixelHinting) + "," + Std.string(style.scaleMode) + "," + Std.string(style.capsStyle) + "," + Std.string(style.jointStyle) + "," + this.f2a(style.miterLimit));
+	}
+	,endFill: function() {
+		this.commands.push("g.endFill();");
+	}
+	,beginFill: function(color,alpha) {
+		this.commands.push("g.beginFill(" + color + "," + this.f2a(alpha) + ");");
+	}
+	,beginGradientFill: function(grad) {
+		this.commands.push("g.beginGradientFill(" + Std.string(grad.type) + "," + Std.string(grad.colors) + "," + Std.string(grad.alphas) + "," + Std.string(grad.ratios) + "," + this.newMatrix(grad.matrix) + "," + Std.string(grad.spread) + "," + Std.string(grad.interp) + "," + grad.focus + ");");
+	}
+	,newMatrix: function(m) {
+		return "new Matrix(" + this.f2a(m.a) + "," + this.f2a(m.b) + "," + this.f2a(m.c) + "," + this.f2a(m.d) + "," + this.f2a(m.tx) + "," + this.f2a(m.ty) + ")";
+	}
+	,f2a: function(f) {
+		if(Math.abs(f) < 0.000001) return "0";
+		if(Math.abs(1 - f) < 0.000001) return "1";
+		return f + "";
+	}
+	,commands: null
+	,__class__: format.gfx.Gfx2Haxe
+});
+format.gfx.GfxBytes = function(inBuffer,inFlags) {
+	if(inFlags == null) inFlags = 0;
+	format.gfx.Gfx.call(this);
+	this.buffer = inBuffer == null?new flash.utils.ByteArray():inBuffer;
+};
+$hxClasses["format.gfx.GfxBytes"] = format.gfx.GfxBytes;
+format.gfx.GfxBytes.__name__ = ["format","gfx","GfxBytes"];
+format.gfx.GfxBytes.fromString = function(inString) {
+	if(format.gfx.GfxBytes.baseCoder == null) format.gfx.GfxBytes.baseCoder = new haxe.crypto.BaseCode(haxe.io.Bytes.ofString(format.gfx.GfxBytes.base64));
+	var bytes = new flash.utils.ByteArray();
+	bytes.writeUTF(inString);
+	return new format.gfx.GfxBytes(bytes);
+}
+format.gfx.GfxBytes.__super__ = format.gfx.Gfx;
+format.gfx.GfxBytes.prototype = $extend(format.gfx.Gfx.prototype,{
+	curveTo: function(inCX,inCY,inX,inY) {
+		this.buffer.writeByte(32);
+		this.buffer.writeFloat(inCX);
+		this.buffer.writeFloat(inCY);
+		this.buffer.writeFloat(inX);
+		this.buffer.writeFloat(inY);
+	}
+	,lineTo: function(inX,inY) {
+		this.buffer.writeByte(31);
+		this.buffer.writeFloat(inX);
+		this.buffer.writeFloat(inY);
+	}
+	,moveTo: function(inX,inY) {
+		this.buffer.writeByte(30);
+		this.buffer.writeFloat(inX);
+		this.buffer.writeFloat(inY);
+	}
+	,endLineStyle: function() {
+		this.buffer.writeByte(21);
+	}
+	,lineStyle: function(style) {
+		this.buffer.writeByte(20);
+		this.buffer.writeFloat(style.thickness);
+		this.writeRGB(style.color);
+		this.buffer.writeFloat(style.alpha);
+		this.buffer.writeByte(style.pixelHinting?1:0);
+		this.buffer.writeByte(style.scaleMode[1]);
+		this.buffer.writeByte(style.capsStyle[1]);
+		this.buffer.writeByte(style.jointStyle[1]);
+		this.buffer.writeFloat(style.miterLimit);
+	}
+	,endFill: function() {
+		this.buffer.writeByte(12);
+	}
+	,beginFill: function(color,alpha) {
+		this.buffer.writeByte(10);
+		this.writeRGB(color);
+		this.buffer.writeFloat(alpha);
+	}
+	,beginGradientFill: function(grad) {
+		this.buffer.writeByte(11);
+		this.buffer.writeByte(grad.type[1]);
+		this.buffer.writeByte(grad.colors.length);
+		var _g1 = 0, _g = grad.colors.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			this.writeRGB(grad.colors[i] | 0);
+			this.pushClipped(grad.alphas[i] * 255.0);
+			this.pushClipped(grad.ratios[i]);
+		}
+		this.buffer.writeFloat(grad.matrix.a);
+		this.buffer.writeFloat(grad.matrix.b);
+		this.buffer.writeFloat(grad.matrix.c);
+		this.buffer.writeFloat(grad.matrix.d);
+		this.buffer.writeFloat(grad.matrix.tx);
+		this.buffer.writeFloat(grad.matrix.ty);
+		this.buffer.writeByte(grad.spread[1]);
+		this.buffer.writeByte(grad.interp[1]);
+		this.buffer.writeFloat(grad.focus);
+	}
+	,readRGB: function() {
+		var r = this.buffer.readByte();
+		var g = this.buffer.readByte();
+		var b = this.buffer.readByte();
+		return r << 16 | g << 8 | b;
+	}
+	,writeRGB: function(inVal) {
+		this.buffer.writeByte(inVal >> 16 & 255);
+		this.buffer.writeByte(inVal >> 8 & 255);
+		this.buffer.writeByte(inVal & 255);
+	}
+	,pushClipped: function(inVal) {
+		this.buffer.writeByte(inVal < 0?0:inVal > 255.0?255:inVal | 0);
+	}
+	,size: function(inWidth,inHeight) {
+		this.buffer.writeByte(1);
+		this.buffer.writeFloat(inWidth);
+		this.buffer.writeFloat(inHeight);
+	}
+	,iterate: function(inGfx) {
+		this.buffer.position = 0;
+		while(true) {
+			var _g = this.buffer.readByte();
+			switch(_g) {
+			case 0:
+				return;
+			case 1:
+				var w = this.buffer.readFloat();
+				var h = this.buffer.readFloat();
+				inGfx.size(w,h);
+				break;
+			case 10:
+				var col = this.readRGB();
+				var alpha = this.buffer.readFloat();
+				inGfx.beginFill(col,alpha);
+				break;
+			case 11:
+				var grad = new format.gfx.Gradient();
+				grad.type = Type.createEnumIndex(flash.display.GradientType,this.buffer.readByte());
+				var len = this.buffer.readByte();
+				var _g1 = 0;
+				while(_g1 < len) {
+					var i = _g1++;
+					grad.colors.push(this.readRGB());
+					grad.alphas.push(this.buffer.readByte() / 255.0);
+					grad.ratios.push(this.buffer.readByte());
+				}
+				grad.matrix.a = this.buffer.readFloat();
+				grad.matrix.b = this.buffer.readFloat();
+				grad.matrix.c = this.buffer.readFloat();
+				grad.matrix.d = this.buffer.readFloat();
+				grad.matrix.set_tx(this.buffer.readFloat());
+				grad.matrix.set_ty(this.buffer.readFloat());
+				grad.spread = format.gfx.GfxBytes.spreadMethods[this.buffer.readByte()];
+				grad.interp = format.gfx.GfxBytes.interpolationMethods[this.buffer.readByte()];
+				grad.focus = this.buffer.readFloat();
+				inGfx.beginGradientFill(grad);
+				break;
+			case 12:
+				inGfx.endFill();
+				break;
+			case 20:
+				var style = new format.gfx.LineStyle();
+				style.thickness = this.buffer.readFloat();
+				style.color = this.readRGB();
+				style.alpha = this.buffer.readFloat();
+				style.pixelHinting = this.buffer.readByte() > 0;
+				style.scaleMode = format.gfx.GfxBytes.scaleModes[this.buffer.readByte()];
+				style.capsStyle = format.gfx.GfxBytes.capsStyles[this.buffer.readByte()];
+				style.jointStyle = format.gfx.GfxBytes.jointStyles[this.buffer.readByte()];
+				style.miterLimit = this.buffer.readFloat();
+				inGfx.lineStyle(style);
+				break;
+			case 21:
+				inGfx.endLineStyle();
+				break;
+			case 30:
+				var x = this.buffer.readFloat();
+				var y = this.buffer.readFloat();
+				inGfx.moveTo(x,y);
+				break;
+			case 31:
+				var x = this.buffer.readFloat();
+				var y = this.buffer.readFloat();
+				inGfx.lineTo(x,y);
+				break;
+			case 32:
+				var cx = this.buffer.readFloat();
+				var cy = this.buffer.readFloat();
+				var x = this.buffer.readFloat();
+				var y = this.buffer.readFloat();
+				inGfx.curveTo(cx,cy,x,y);
+				break;
+			default:
+				throw "Unknown gfx buffer format.";
+			}
+		}
+	}
+	,eof: function() {
+		this.buffer.writeByte(0);
+	}
+	,toString: function() {
+		return "";
+	}
+	,buffer: null
+	,__class__: format.gfx.GfxBytes
+});
+format.gfx.GfxExtent = function() {
+	format.gfx.Gfx.call(this);
+	this.extent = null;
+};
+$hxClasses["format.gfx.GfxExtent"] = format.gfx.GfxExtent;
+format.gfx.GfxExtent.__name__ = ["format","gfx","GfxExtent"];
+format.gfx.GfxExtent.__super__ = format.gfx.Gfx;
+format.gfx.GfxExtent.prototype = $extend(format.gfx.Gfx.prototype,{
+	curveTo: function(inCX,inCY,inX,inY) {
+		this.addExtent(inCX,inCY);
+		this.addExtent(inX,inY);
+	}
+	,lineTo: function(inX,inY) {
+		this.addExtent(inX,inY);
+	}
+	,moveTo: function(inX,inY) {
+		this.addExtent(inX,inY);
+	}
+	,geometryOnly: function() {
+		return true;
+	}
+	,addExtent: function(inX,inY) {
+		if(this.extent == null) {
+			this.extent = new flash.geom.Rectangle(inX,inY,0,0);
+			return;
+		}
+		if(inX < this.extent.get_left()) this.extent.set_left(inX);
+		if(inX > this.extent.get_right()) this.extent.set_right(inX);
+		if(inY < this.extent.get_top()) this.extent.set_top(inY);
+		if(inY > this.extent.get_bottom()) this.extent.set_bottom(inY);
+	}
+	,extent: null
+	,__class__: format.gfx.GfxExtent
+});
+format.gfx.GfxGraphics = function(inGraphics) {
+	format.gfx.Gfx.call(this);
+	this.graphics = inGraphics;
+};
+$hxClasses["format.gfx.GfxGraphics"] = format.gfx.GfxGraphics;
+format.gfx.GfxGraphics.__name__ = ["format","gfx","GfxGraphics"];
+format.gfx.GfxGraphics.__super__ = format.gfx.Gfx;
+format.gfx.GfxGraphics.prototype = $extend(format.gfx.Gfx.prototype,{
+	curveTo: function(inCX,inCY,inX,inY) {
+		this.graphics.curveTo(inCX,inCY,inX,inY);
+	}
+	,lineTo: function(inX,inY) {
+		this.graphics.lineTo(inX,inY);
+	}
+	,moveTo: function(inX,inY) {
+		this.graphics.moveTo(inX,inY);
+	}
+	,endLineStyle: function() {
+		this.graphics.lineStyle();
+	}
+	,lineStyle: function(style) {
+		this.graphics.lineStyle(style.thickness,style.color,style.alpha,style.pixelHinting,style.scaleMode,style.capsStyle,style.jointStyle,style.miterLimit);
+	}
+	,endFill: function() {
+		this.graphics.endFill();
+	}
+	,beginFill: function(color,alpha) {
+		this.graphics.beginFill(color,alpha);
+	}
+	,beginGradientFill: function(grad) {
+	}
+	,graphics: null
+	,__class__: format.gfx.GfxGraphics
+});
+format.gfx.GfxTextFinder = function() {
+	format.gfx.Gfx.call(this);
+};
+$hxClasses["format.gfx.GfxTextFinder"] = format.gfx.GfxTextFinder;
+format.gfx.GfxTextFinder.__name__ = ["format","gfx","GfxTextFinder"];
+format.gfx.GfxTextFinder.__super__ = format.gfx.Gfx;
+format.gfx.GfxTextFinder.prototype = $extend(format.gfx.Gfx.prototype,{
+	renderText: function(inText) {
+		if(this.text == null) this.text = inText;
+	}
+	,geometryOnly: function() {
+		return true;
+	}
+	,text: null
+	,__class__: format.gfx.GfxTextFinder
+});
+format.gfx.Gradient = function() {
+	this.type = flash.display.GradientType.LINEAR;
+	this.colors = [];
+	this.alphas = [];
+	this.ratios = [];
+	this.matrix = new flash.geom.Matrix();
+	this.spread = flash.display.SpreadMethod.PAD;
+	this.interp = flash.display.InterpolationMethod.RGB;
+	this.focus = 0.0;
+};
+$hxClasses["format.gfx.Gradient"] = format.gfx.Gradient;
+format.gfx.Gradient.__name__ = ["format","gfx","Gradient"];
+format.gfx.Gradient.prototype = {
+	focus: null
+	,interp: null
+	,spread: null
+	,matrix: null
+	,ratios: null
+	,alphas: null
+	,colors: null
+	,type: null
+	,__class__: format.gfx.Gradient
+}
+format.gfx.LineStyle = function() {
+	this.thickness = 1.0;
+	this.color = 0;
+	this.alpha = 1.0;
+	this.pixelHinting = false;
+	this.scaleMode = flash.display.LineScaleMode.NORMAL;
+	this.capsStyle = flash.display.CapsStyle.ROUND;
+	this.jointStyle = flash.display.JointStyle.ROUND;
+	this.miterLimit = 3.0;
+};
+$hxClasses["format.gfx.LineStyle"] = format.gfx.LineStyle;
+format.gfx.LineStyle.__name__ = ["format","gfx","LineStyle"];
+format.gfx.LineStyle.prototype = {
+	miterLimit: null
+	,jointStyle: null
+	,capsStyle: null
+	,scaleMode: null
+	,pixelHinting: null
+	,alpha: null
+	,color: null
+	,thickness: null
+	,__class__: format.gfx.LineStyle
+}
+format.svg = {}
+format.svg.FillType = $hxClasses["format.svg.FillType"] = { __ename__ : true, __constructs__ : ["FillGrad","FillSolid","FillNone"] }
+format.svg.FillType.FillGrad = function(grad) { var $x = ["FillGrad",0,grad]; $x.__enum__ = format.svg.FillType; $x.toString = $estr; return $x; }
+format.svg.FillType.FillSolid = function(colour) { var $x = ["FillSolid",1,colour]; $x.__enum__ = format.svg.FillType; $x.toString = $estr; return $x; }
+format.svg.FillType.FillNone = ["FillNone",2];
+format.svg.FillType.FillNone.toString = $estr;
+format.svg.FillType.FillNone.__enum__ = format.svg.FillType;
+format.svg.Grad = function(inType) {
+	format.gfx.Gradient.call(this);
+	this.type = inType;
+	this.radius = 0.0;
+	this.gradMatrix = new flash.geom.Matrix();
+	this.x1 = 0.0;
+	this.y1 = 0.0;
+	this.x2 = 0.0;
+	this.y2 = 0.0;
+};
+$hxClasses["format.svg.Grad"] = format.svg.Grad;
+format.svg.Grad.__name__ = ["format","svg","Grad"];
+format.svg.Grad.__super__ = format.gfx.Gradient;
+format.svg.Grad.prototype = $extend(format.gfx.Gradient.prototype,{
+	updateMatrix: function(inMatrix) {
+		var dx = this.x2 - this.x1;
+		var dy = this.y2 - this.y1;
+		var theta = Math.atan2(dy,dx);
+		var len = Math.sqrt(dx * dx + dy * dy);
+		var mtx = new flash.geom.Matrix();
+		if(this.type == flash.display.GradientType.LINEAR) {
+			mtx.createGradientBox(1.0,1.0);
+			mtx.scale(len,len);
+		} else {
+			if(this.radius != 0.0) this.focus = len / this.radius;
+			mtx.createGradientBox(1.0,1.0);
+			mtx.translate(-0.5,-0.5);
+			mtx.scale(this.radius * 2,this.radius * 2);
+		}
+		mtx.rotate(theta);
+		mtx.translate(this.x1,this.y1);
+		mtx.concat(this.gradMatrix);
+		mtx.concat(inMatrix);
+		this.matrix = mtx;
+	}
+	,y2: null
+	,x2: null
+	,y1: null
+	,x1: null
+	,radius: null
+	,gradMatrix: null
+	,__class__: format.svg.Grad
+});
+format.svg.Group = function() {
+	this.name = "";
+	this.children = [];
+};
+$hxClasses["format.svg.Group"] = format.svg.Group;
+format.svg.Group.__name__ = ["format","svg","Group"];
+format.svg.Group.prototype = {
+	children: null
+	,name: null
+	,findGroup: function(inName) {
+		var _g = 0, _g1 = this.children;
+		while(_g < _g1.length) {
+			var child = _g1[_g];
+			++_g;
+			var $e = (child);
+			switch( $e[1] ) {
+			case 1:
+				var group = $e[2];
+				if(group.name == inName) return group;
+				break;
+			default:
+			}
+		}
+		return null;
+	}
+	,hasGroup: function(inName) {
+		return this.findGroup(inName) != null;
+	}
+	,__class__: format.svg.Group
+}
+format.svg.DisplayElement = $hxClasses["format.svg.DisplayElement"] = { __ename__ : true, __constructs__ : ["DisplayPath","DisplayGroup","DisplayText"] }
+format.svg.DisplayElement.DisplayPath = function(path) { var $x = ["DisplayPath",0,path]; $x.__enum__ = format.svg.DisplayElement; $x.toString = $estr; return $x; }
+format.svg.DisplayElement.DisplayGroup = function(group) { var $x = ["DisplayGroup",1,group]; $x.__enum__ = format.svg.DisplayElement; $x.toString = $estr; return $x; }
+format.svg.DisplayElement.DisplayText = function(text) { var $x = ["DisplayText",2,text]; $x.__enum__ = format.svg.DisplayElement; $x.toString = $estr; return $x; }
+format.svg.Path = function() {
+};
+$hxClasses["format.svg.Path"] = format.svg.Path;
+format.svg.Path.__name__ = ["format","svg","Path"];
+format.svg.Path.prototype = {
+	segments: null
+	,miter_limit: null
+	,joint_style: null
+	,stroke_caps: null
+	,stroke_width: null
+	,stroke_colour: null
+	,stroke_alpha: null
+	,fill_alpha: null
+	,alpha: null
+	,fill: null
+	,font_size: null
+	,name: null
+	,matrix: null
+	,__class__: format.svg.Path
+}
+format.svg.PathParser = function() {
+	if(format.svg.PathParser.sCommandArgs == null) {
+		format.svg.PathParser.sCommandArgs = [];
+		var _g = 0;
+		while(_g < 128) {
+			var i = _g++;
+			format.svg.PathParser.sCommandArgs[i] = this.commandArgs(i);
+		}
+	}
+};
+$hxClasses["format.svg.PathParser"] = format.svg.PathParser;
+format.svg.PathParser.__name__ = ["format","svg","PathParser"];
+format.svg.PathParser.prototype = {
+	createCommand: function(code,a) {
+		switch(code) {
+		case 77:
+			this.lastMoveX = a[0];
+			this.lastMoveY = a[1];
+			return new format.svg.MoveSegment(this.lastMoveX,this.lastMoveY);
+		case 109:
+			this.lastMoveX = a[0] + this.prevX();
+			this.lastMoveY = a[1] + this.prevY();
+			return new format.svg.MoveSegment(this.lastMoveX,this.lastMoveY);
+		case 76:
+			return new format.svg.DrawSegment(a[0],a[1]);
+		case 108:
+			return new format.svg.DrawSegment(a[0] + this.prevX(),a[1] + this.prevY());
+		case 72:
+			return new format.svg.DrawSegment(a[0],this.prevY());
+		case 104:
+			return new format.svg.DrawSegment(a[0] + this.prevX(),this.prevY());
+		case 86:
+			return new format.svg.DrawSegment(this.prevX(),a[0]);
+		case 118:
+			return new format.svg.DrawSegment(this.prevX(),a[0] + this.prevY());
+		case 67:
+			return new format.svg.CubicSegment(a[0],a[1],a[2],a[3],a[4],a[5]);
+		case 99:
+			var rx = this.prevX();
+			var ry = this.prevY();
+			return new format.svg.CubicSegment(a[0] + rx,a[1] + ry,a[2] + rx,a[3] + ry,a[4] + rx,a[5] + ry);
+		case 83:
+			var rx = this.prevX();
+			var ry = this.prevY();
+			return new format.svg.CubicSegment(rx * 2 - this.prevCX(),ry * 2 - this.prevCY(),a[0],a[1],a[2],a[3]);
+		case 115:
+			var rx = this.prevX();
+			var ry = this.prevY();
+			return new format.svg.CubicSegment(rx * 2 - this.prevCX(),ry * 2 - this.prevCY(),a[0] + rx,a[1] + ry,a[2] + rx,a[3] + ry);
+		case 81:
+			return new format.svg.QuadraticSegment(a[0],a[1],a[2],a[3]);
+		case 113:
+			var rx = this.prevX();
+			var ry = this.prevY();
+			return new format.svg.QuadraticSegment(a[0] + rx,a[1] + ry,a[2] + rx,a[3] + ry);
+		case 84:
+			var rx = this.prevX();
+			var ry = this.prevY();
+			return new format.svg.QuadraticSegment(rx * 2 - this.prevCX(),rx * 2 - this.prevCY(),a[2],a[3]);
+		case 116:
+			var rx = this.prevX();
+			var ry = this.prevY();
+			return new format.svg.QuadraticSegment(rx * 2 - this.prevCX(),ry * 2 - this.prevCY(),a[0] + rx,a[1] + ry);
+		case 65:
+			return new format.svg.ArcSegment(this.prevX(),this.prevY(),a[0],a[1],a[2],a[3] != 0.,a[4] != 0.,a[5],a[6]);
+		case 97:
+			var rx = this.prevX();
+			var ry = this.prevY();
+			return new format.svg.ArcSegment(rx,ry,a[0],a[1],a[2],a[3] != 0.,a[4] != 0.,a[5] + rx,a[6] + ry);
+		case 90:
+			return new format.svg.DrawSegment(this.lastMoveX,this.lastMoveY);
+		case 122:
+			return new format.svg.DrawSegment(this.lastMoveX,this.lastMoveY);
+		}
+		return null;
+	}
+	,prevCY: function() {
+		return this.prev != null?this.prev.prevCY():0;
+	}
+	,prevCX: function() {
+		return this.prev != null?this.prev.prevCX():0;
+	}
+	,prevY: function() {
+		return this.prev != null?this.prev.prevY():0;
+	}
+	,prevX: function() {
+		return this.prev != null?this.prev.prevX():0;
+	}
+	,commandArgs: function(inCode) {
+		if(inCode == 10) return format.svg.PathParser.SEPARATOR;
+		var str = String.fromCharCode(inCode).toUpperCase();
+		if(str >= "0" && str <= "9") return format.svg.PathParser.FLOAT;
+		switch(str) {
+		case "Z":
+			return 0;
+		case "H":case "V":
+			return 1;
+		case "M":case "L":case "T":
+			return 2;
+		case "S":case "Q":
+			return 4;
+		case "C":
+			return 6;
+		case "A":
+			return 7;
+		case "\t":case "\n":case " ":case "\r":case ",":
+			return format.svg.PathParser.SEPARATOR;
+		case "-":
+			return format.svg.PathParser.FLOAT_SIGN;
+		case "+":
+			return format.svg.PathParser.FLOAT_SIGN;
+		case "E":case "e":
+			return format.svg.PathParser.FLOAT_EXP;
+		case ".":
+			return format.svg.PathParser.FLOAT_DOT;
+		}
+		return format.svg.PathParser.UNKNOWN;
+	}
+	,parse: function(pathToParse,inConvertCubics) {
+		this.lastMoveX = this.lastMoveY = 0;
+		var pos = 0;
+		var args = new Array();
+		var segments = new Array();
+		var current_command_pos = 0;
+		var current_command = -1;
+		var current_args = -1;
+		this.prev = null;
+		var len = pathToParse.length;
+		var finished = false;
+		while(pos <= len) {
+			var code = pos == len?32:HxOverrides.cca(pathToParse,pos);
+			var command = code > 0 && code < 128?format.svg.PathParser.sCommandArgs[code]:format.svg.PathParser.UNKNOWN;
+			if(command == format.svg.PathParser.UNKNOWN) throw "failed parsing path near '" + HxOverrides.substr(pathToParse,pos,null) + "'";
+			if(command == format.svg.PathParser.SEPARATOR) pos++; else if(command <= format.svg.PathParser.FLOAT) {
+				var end = pos + 1;
+				var e_pos = -1;
+				var seen_dot = command == format.svg.PathParser.FLOAT_DOT;
+				if(command == format.svg.PathParser.FLOAT_EXP) {
+					e_pos = 0;
+					seen_dot = true;
+				}
+				while(end < pathToParse.length) {
+					var ch = HxOverrides.cca(pathToParse,end);
+					var code1 = ch < 0 || ch > 127?format.svg.PathParser.UNKNOWN:format.svg.PathParser.sCommandArgs[ch];
+					if(code1 > format.svg.PathParser.FLOAT) break;
+					if(code1 == format.svg.PathParser.FLOAT_DOT && seen_dot) break;
+					if(e_pos >= 0) {
+						if(code1 == format.svg.PathParser.FLOAT_SIGN) {
+							if(e_pos != 0) break;
+						} else if(code1 != format.svg.PathParser.FLOAT) break;
+						e_pos++;
+					} else if(code1 == format.svg.PathParser.FLOAT_EXP) {
+						if(e_pos >= 0) break;
+						e_pos = 0;
+						seen_dot = true;
+					} else if(code1 == format.svg.PathParser.FLOAT_SIGN) break;
+					end++;
+				}
+				if(current_command < 0) {
+				} else {
+					var f = Std.parseFloat(HxOverrides.substr(pathToParse,pos,end - pos));
+					args.push(f);
+				}
+				pos = end;
+			} else {
+				current_command = code;
+				current_args = command;
+				finished = false;
+				current_command_pos = pos;
+				args = [];
+				pos++;
+			}
+			var px = 0.0;
+			var py = 0.0;
+			if(current_command >= 0) {
+				if(current_args == args.length) {
+					if(inConvertCubics && this.prev != null) {
+						px = this.prev.prevX();
+						py = this.prev.prevY();
+					}
+					this.prev = this.createCommand(current_command,args);
+					if(this.prev == null) throw "Unknown command " + String.fromCharCode(current_command) + " near '" + HxOverrides.substr(pathToParse,current_command_pos,null) + "'";
+					if(inConvertCubics && this.prev.getType() == 4) {
+						var cubic = this.prev;
+						var quads = cubic.toQuadratics(px,py);
+						var _g = 0;
+						while(_g < quads.length) {
+							var q = quads[_g];
+							++_g;
+							segments.push(q);
+						}
+					} else segments.push(this.prev);
+					finished = true;
+					if(current_args == 0) {
+						current_args = -1;
+						current_command = -1;
+					} else if(current_command == 77) current_command = 76; else if(current_command == 109) current_command = 108;
+					current_command_pos = pos;
+					args = [];
+				}
+			}
+		}
+		if(current_command >= 0 && !finished) throw "Unfinished command (" + args.length + "/" + current_args + ") near '" + HxOverrides.substr(pathToParse,current_command_pos,null) + "'";
+		return segments;
+	}
+	,prev: null
+	,lastMoveY: null
+	,lastMoveX: null
+	,__class__: format.svg.PathParser
+}
+format.svg.PathSegment = function(inX,inY) {
+	this.x = inX;
+	this.y = inY;
+};
+$hxClasses["format.svg.PathSegment"] = format.svg.PathSegment;
+format.svg.PathSegment.__name__ = ["format","svg","PathSegment"];
+format.svg.PathSegment.prototype = {
+	toGfx: function(inGfx,ioContext) {
+		ioContext.setLast(this.x,this.y);
+		ioContext.firstX = ioContext.lastX;
+		ioContext.firstY = ioContext.lastY;
+		inGfx.moveTo(ioContext.lastX,ioContext.lastY);
+	}
+	,prevCY: function() {
+		return this.y;
+	}
+	,prevCX: function() {
+		return this.x;
+	}
+	,prevY: function() {
+		return this.y;
+	}
+	,prevX: function() {
+		return this.x;
+	}
+	,getType: function() {
+		return 0;
+	}
+	,y: null
+	,x: null
+	,__class__: format.svg.PathSegment
+}
+format.svg.MoveSegment = function(inX,inY) {
+	format.svg.PathSegment.call(this,inX,inY);
+};
+$hxClasses["format.svg.MoveSegment"] = format.svg.MoveSegment;
+format.svg.MoveSegment.__name__ = ["format","svg","MoveSegment"];
+format.svg.MoveSegment.__super__ = format.svg.PathSegment;
+format.svg.MoveSegment.prototype = $extend(format.svg.PathSegment.prototype,{
+	getType: function() {
+		return 1;
+	}
+	,__class__: format.svg.MoveSegment
+});
+format.svg.DrawSegment = function(inX,inY) {
+	format.svg.PathSegment.call(this,inX,inY);
+};
+$hxClasses["format.svg.DrawSegment"] = format.svg.DrawSegment;
+format.svg.DrawSegment.__name__ = ["format","svg","DrawSegment"];
+format.svg.DrawSegment.__super__ = format.svg.PathSegment;
+format.svg.DrawSegment.prototype = $extend(format.svg.PathSegment.prototype,{
+	getType: function() {
+		return 2;
+	}
+	,toGfx: function(inGfx,ioContext) {
+		ioContext.setLast(this.x,this.y);
+		inGfx.lineTo(ioContext.lastX,ioContext.lastY);
+	}
+	,__class__: format.svg.DrawSegment
+});
+format.svg.QuadraticSegment = function(inCX,inCY,inX,inY) {
+	format.svg.PathSegment.call(this,inX,inY);
+	this.cx = inCX;
+	this.cy = inCY;
+};
+$hxClasses["format.svg.QuadraticSegment"] = format.svg.QuadraticSegment;
+format.svg.QuadraticSegment.__name__ = ["format","svg","QuadraticSegment"];
+format.svg.QuadraticSegment.__super__ = format.svg.PathSegment;
+format.svg.QuadraticSegment.prototype = $extend(format.svg.PathSegment.prototype,{
+	getType: function() {
+		return 3;
+	}
+	,toGfx: function(inGfx,ioContext) {
+		ioContext.setLast(this.x,this.y);
+		inGfx.curveTo(ioContext.transX(this.cx,this.cy),ioContext.transY(this.cx,this.cy),ioContext.lastX,ioContext.lastY);
+	}
+	,prevCY: function() {
+		return this.cy;
+	}
+	,prevCX: function() {
+		return this.cx;
+	}
+	,cy: null
+	,cx: null
+	,__class__: format.svg.QuadraticSegment
+});
+format.svg.CubicSegment = function(inCX1,inCY1,inCX2,inCY2,inX,inY) {
+	format.svg.PathSegment.call(this,inX,inY);
+	this.cx1 = inCX1;
+	this.cy1 = inCY1;
+	this.cx2 = inCX2;
+	this.cy2 = inCY2;
+};
+$hxClasses["format.svg.CubicSegment"] = format.svg.CubicSegment;
+format.svg.CubicSegment.__name__ = ["format","svg","CubicSegment"];
+format.svg.CubicSegment.__super__ = format.svg.PathSegment;
+format.svg.CubicSegment.prototype = $extend(format.svg.PathSegment.prototype,{
+	getType: function() {
+		return 4;
+	}
+	,toQuadratics: function(tx0,ty0) {
+		var result = new Array();
+		var pa_x = this.Interp(tx0,this.cx1,0.75);
+		var pa_y = this.Interp(ty0,this.cy1,0.75);
+		var pb_x = this.Interp(this.x,this.cx2,0.75);
+		var pb_y = this.Interp(this.y,this.cy2,0.75);
+		var dx = (this.x - tx0) / 16;
+		var dy = (this.y - ty0) / 16;
+		var pcx_1 = this.Interp(tx0,this.cx1,0.375);
+		var pcy_1 = this.Interp(ty0,this.cy1,0.375);
+		var pcx_2 = this.Interp(pa_x,pb_x,0.375) - dx;
+		var pcy_2 = this.Interp(pa_y,pb_y,0.375) - dy;
+		var pcx_3 = this.Interp(pb_x,pa_x,0.375) + dx;
+		var pcy_3 = this.Interp(pb_y,pa_y,0.375) + dy;
+		var pcx_4 = this.Interp(this.x,this.cx2,0.375);
+		var pcy_4 = this.Interp(this.y,this.cy2,0.375);
+		var pax_1 = (pcx_1 + pcx_2) * 0.5;
+		var pay_1 = (pcy_1 + pcy_2) * 0.5;
+		var pax_2 = (pa_x + pb_x) * 0.5;
+		var pay_2 = (pa_y + pb_y) * 0.5;
+		var pax_3 = (pcx_3 + pcx_4) * 0.5;
+		var pay_3 = (pcy_3 + pcy_4) * 0.5;
+		result.push(new format.svg.QuadraticSegment(pcx_1,pcy_1,pax_1,pay_1));
+		result.push(new format.svg.QuadraticSegment(pcx_2,pcy_2,pax_2,pay_2));
+		result.push(new format.svg.QuadraticSegment(pcx_3,pcy_3,pax_3,pay_3));
+		result.push(new format.svg.QuadraticSegment(pcx_4,pcy_4,this.x,this.y));
+		return result;
+	}
+	,toGfx: function(inGfx,ioContext) {
+		var tx0 = ioContext.lastX;
+		var ty0 = ioContext.lastY;
+		var tx1 = ioContext.transX(this.cx1,this.cy1);
+		var ty1 = ioContext.transY(this.cx1,this.cy1);
+		var tx2 = ioContext.transX(this.cx2,this.cy2);
+		var ty2 = ioContext.transY(this.cx2,this.cy2);
+		ioContext.setLast(this.x,this.y);
+		var tx3 = ioContext.lastX;
+		var ty3 = ioContext.lastY;
+		var pa_x = this.Interp(tx0,tx1,0.75);
+		var pa_y = this.Interp(ty0,ty1,0.75);
+		var pb_x = this.Interp(tx3,tx2,0.75);
+		var pb_y = this.Interp(ty3,ty2,0.75);
+		var dx = (tx3 - tx0) / 16;
+		var dy = (ty3 - ty0) / 16;
+		var pcx_1 = this.Interp(tx0,tx1,0.375);
+		var pcy_1 = this.Interp(ty0,ty1,0.375);
+		var pcx_2 = this.Interp(pa_x,pb_x,0.375) - dx;
+		var pcy_2 = this.Interp(pa_y,pb_y,0.375) - dy;
+		var pcx_3 = this.Interp(pb_x,pa_x,0.375) + dx;
+		var pcy_3 = this.Interp(pb_y,pa_y,0.375) + dy;
+		var pcx_4 = this.Interp(tx3,tx2,0.375);
+		var pcy_4 = this.Interp(ty3,ty2,0.375);
+		var pax_1 = (pcx_1 + pcx_2) * 0.5;
+		var pay_1 = (pcy_1 + pcy_2) * 0.5;
+		var pax_2 = (pa_x + pb_x) * 0.5;
+		var pay_2 = (pa_y + pb_y) * 0.5;
+		var pax_3 = (pcx_3 + pcx_4) * 0.5;
+		var pay_3 = (pcy_3 + pcy_4) * 0.5;
+		inGfx.curveTo(pcx_1,pcy_1,pax_1,pay_1);
+		inGfx.curveTo(pcx_2,pcy_2,pax_2,pay_2);
+		inGfx.curveTo(pcx_3,pcy_3,pax_3,pay_3);
+		inGfx.curveTo(pcx_4,pcy_4,tx3,ty3);
+	}
+	,Interp: function(a,b,frac) {
+		return a + (b - a) * frac;
+	}
+	,prevCY: function() {
+		return this.cy2;
+	}
+	,prevCX: function() {
+		return this.cx2;
+	}
+	,cy2: null
+	,cx2: null
+	,cy1: null
+	,cx1: null
+	,__class__: format.svg.CubicSegment
+});
+format.svg.ArcSegment = function(inX1,inY1,inRX,inRY,inRotation,inLargeArc,inSweep,x,y) {
+	this.x1 = inX1;
+	this.y1 = inY1;
+	format.svg.PathSegment.call(this,x,y);
+	this.rx = inRX;
+	this.ry = inRY;
+	this.phi = inRotation;
+	this.fA = inLargeArc;
+	this.fS = inSweep;
+};
+$hxClasses["format.svg.ArcSegment"] = format.svg.ArcSegment;
+format.svg.ArcSegment.__name__ = ["format","svg","ArcSegment"];
+format.svg.ArcSegment.__super__ = format.svg.PathSegment;
+format.svg.ArcSegment.prototype = $extend(format.svg.PathSegment.prototype,{
+	getType: function() {
+		return 5;
+	}
+	,toGfx: function(inGfx,ioContext) {
+		if(this.x1 == this.x && this.y1 == this.y) return;
+		ioContext.setLast(this.x,this.y);
+		if(this.rx == 0 || this.ry == 0) {
+			inGfx.lineTo(ioContext.lastX,ioContext.lastY);
+			return;
+		}
+		if(this.rx < 0) this.rx = -this.rx;
+		if(this.ry < 0) this.ry = -this.ry;
+		var p = this.phi * Math.PI / 180.0;
+		var cos = Math.cos(p);
+		var sin = Math.sin(p);
+		var dx = (this.x1 - this.x) * 0.5;
+		var dy = (this.y1 - this.y) * 0.5;
+		var x1_ = cos * dx + sin * dy;
+		var y1_ = -sin * dx + cos * dy;
+		var rx2 = this.rx * this.rx;
+		var ry2 = this.ry * this.ry;
+		var x1_2 = x1_ * x1_;
+		var y1_2 = y1_ * y1_;
+		var s = (rx2 * ry2 - rx2 * y1_2 - ry2 * x1_2) / (rx2 * y1_2 + ry2 * x1_2);
+		if(s < 0) s = 0; else if(this.fA == this.fS) s = -Math.sqrt(s); else s = Math.sqrt(s);
+		var cx_ = s * this.rx * y1_ / this.ry;
+		var cy_ = -s * this.ry * x1_ / this.rx;
+		var xm = (this.x1 + this.x) * 0.5;
+		var ym = (this.y1 + this.y) * 0.5;
+		var cx = cos * cx_ - sin * cy_ + xm;
+		var cy = sin * cx_ + cos * cy_ + ym;
+		var theta = Math.atan2((y1_ - cy_) / this.ry,(x1_ - cx_) / this.rx);
+		var dtheta = Math.atan2((-y1_ - cy_) / this.ry,(-x1_ - cx_) / this.rx) - theta;
+		if(this.fS && dtheta < 0) dtheta += 2.0 * Math.PI; else if(!this.fS && dtheta > 0) dtheta -= 2.0 * Math.PI;
+		var m = ioContext.matrix;
+		var Txc;
+		var Txs;
+		var Tx0;
+		var Tyc;
+		var Tys;
+		var Ty0;
+		if(m != null) {
+			Txc = m.a * this.rx;
+			Txs = m.c * this.ry;
+			Tx0 = m.a * cx + m.c * cy + m.tx;
+			Tyc = m.b * this.rx;
+			Tys = m.d * this.ry;
+			Ty0 = m.b * cx + m.d * cy + m.ty;
+		} else {
+			Txc = this.rx;
+			Txs = 0;
+			Tx0 = cx + m.tx;
+			Tyc = 0;
+			Tys = this.ry;
+			Ty0 = cy + m.ty;
+		}
+		var len = Math.abs(dtheta) * Math.sqrt(Txc * Txc + Txs * Txs + Tyc * Tyc + Tys * Tys);
+		len *= 5;
+		var steps = Math.round(len);
+		if(steps > 1) {
+			dtheta /= steps;
+			var _g1 = 1, _g = steps - 1;
+			while(_g1 < _g) {
+				var i = _g1++;
+				var c = Math.cos(theta);
+				var s1 = Math.sin(theta);
+				theta += dtheta;
+				inGfx.lineTo(Txc * c + Txs * s1 + Tx0,Tyc * c + Tys * s1 + Ty0);
+			}
+		}
+		inGfx.lineTo(ioContext.lastX,ioContext.lastY);
+	}
+	,fS: null
+	,fA: null
+	,phi: null
+	,ry: null
+	,rx: null
+	,y1: null
+	,x1: null
+	,__class__: format.svg.ArcSegment
+});
+format.svg.RenderContext = function(inMatrix,inRect,inW,inH) {
+	this.matrix = inMatrix;
+	this.rect = inRect;
+	this.rectW = inW != null?inW:inRect != null?inRect.width:1;
+	this.rectH = inH != null?inH:inRect != null?inRect.height:1;
+	this.firstX = 0;
+	this.firstY = 0;
+	this.lastX = 0;
+	this.lastY = 0;
+};
+$hxClasses["format.svg.RenderContext"] = format.svg.RenderContext;
+format.svg.RenderContext.__name__ = ["format","svg","RenderContext"];
+format.svg.RenderContext.prototype = {
+	lastY: null
+	,lastX: null
+	,firstY: null
+	,firstX: null
+	,rectH: null
+	,rectW: null
+	,rect: null
+	,matrix: null
+	,setLast: function(inX,inY) {
+		this.lastX = this.transX(inX,inY);
+		this.lastY = this.transY(inX,inY);
+	}
+	,transY: function(inX,inY) {
+		if(this.rect != null && inY > this.rect.y) {
+			if(inY > this.rect.get_right()) inY += this.rectH - this.rect.height; else inY = this.rect.y + this.rectH * (inY - this.rect.y) / this.rect.height;
+		}
+		return inX * this.matrix.b + inY * this.matrix.d + this.matrix.ty;
+	}
+	,transX: function(inX,inY) {
+		if(this.rect != null && inX > this.rect.x) {
+			if(inX > this.rect.get_right()) inX += this.rectW - this.rect.width; else inX = this.rect.x + this.rectW * (inX - this.rect.x) / this.rect.width;
+		}
+		return inX * this.matrix.a + inY * this.matrix.c + this.matrix.tx;
+	}
+	,__class__: format.svg.RenderContext
+}
+format.svg.SVG2Gfx = function(inXml) {
+	this.renderer = new format.svg.SVGRenderer(new format.svg.SVGData(inXml));
+};
+$hxClasses["format.svg.SVG2Gfx"] = format.svg.SVG2Gfx;
+format.svg.SVG2Gfx.__name__ = ["format","svg","SVG2Gfx"];
+format.svg.SVG2Gfx.prototype = {
+	createShape: function() {
+		return this.renderer.createShape();
+	}
+	,renderer: null
+	,__class__: format.svg.SVG2Gfx
+}
+format.svg.SVGData = function(inXML,inConvertCubics) {
+	if(inConvertCubics == null) inConvertCubics = false;
+	format.svg.Group.call(this);
+	var svg = inXML.firstElement();
+	if(svg == null || svg.get_nodeName() != "svg" && svg.get_nodeName() != "svg:svg") throw "Not an SVG file (" + (svg == null?"null":svg.get_nodeName()) + ")";
+	this.mGrads = new haxe.ds.StringMap();
+	this.mPathParser = new format.svg.PathParser();
+	this.mConvertCubics = inConvertCubics;
+	this.width = this.getFloatStyle("width",svg,null,0.0);
+	this.height = this.getFloatStyle("height",svg,null,0.0);
+	if(this.width == 0 && this.height == 0) this.width = this.height = 400; else if(this.width == 0) this.width = this.height; else if(this.height == 0) this.height = this.width;
+	this.loadGroup(this,svg,new flash.geom.Matrix(),null);
+};
+$hxClasses["format.svg.SVGData"] = format.svg.SVGData;
+format.svg.SVGData.__name__ = ["format","svg","SVGData"];
+format.svg.SVGData.__super__ = format.svg.Group;
+format.svg.SVGData.prototype = $extend(format.svg.Group.prototype,{
+	loadText: function(inText,matrix,inStyles) {
+		if(inText.exists("transform")) {
+			matrix = matrix.clone();
+			this.applyTransform(matrix,inText.get("transform"));
+		}
+		var styles = this.getStyles(inText,inStyles);
+		var text = new format.svg.Text();
+		text.matrix = matrix;
+		text.name = inText.exists("id")?inText.get("id"):"";
+		text.x = this.getFloat(inText,"x",0.0);
+		text.y = this.getFloat(inText,"y",0.0);
+		text.fill = this.getFillStyle("fill",inText,styles);
+		text.fill_alpha = this.getFloatStyle("fill-opacity",inText,styles,1.0);
+		text.stroke_alpha = this.getFloatStyle("stroke-opacity",inText,styles,1.0);
+		text.stroke_colour = this.getStrokeStyle("stroke",inText,styles,null);
+		text.stroke_width = this.getFloatStyle("stroke-width",inText,styles,1.0);
+		text.font_family = this.getStyle("font-family",inText,styles,"");
+		text.font_size = this.getFloatStyle("font-size",inText,styles,12);
+		text.letter_spacing = this.getFloatStyle("letter-spacing",inText,styles,0);
+		text.kerning = this.getFloatStyle("kerning",inText,styles,0);
+		var string = "";
+		var $it0 = inText.elements();
+		while( $it0.hasNext() ) {
+			var el = $it0.next();
+			string += el.toString();
+		}
+		text.text = string;
+		return text;
+	}
+	,loadPath: function(inPath,matrix,inStyles,inIsRect,inIsEllipse,inIsCircle) {
+		if(inIsCircle == null) inIsCircle = false;
+		if(inPath.exists("transform")) {
+			matrix = matrix.clone();
+			this.applyTransform(matrix,inPath.get("transform"));
+		}
+		var styles = this.getStyles(inPath,inStyles);
+		var name = inPath.exists("id")?inPath.get("id"):"";
+		var path = new format.svg.Path();
+		path.fill = this.getFillStyle("fill",inPath,styles);
+		path.alpha = this.getFloatStyle("opacity",inPath,styles,1.0);
+		path.fill_alpha = this.getFloatStyle("fill-opacity",inPath,styles,1.0);
+		path.stroke_alpha = this.getFloatStyle("stroke-opacity",inPath,styles,1.0);
+		path.stroke_colour = this.getStrokeStyle("stroke",inPath,styles,null);
+		path.stroke_width = this.getFloatStyle("stroke-width",inPath,styles,1.0);
+		path.stroke_caps = flash.display.CapsStyle.ROUND;
+		path.joint_style = flash.display.JointStyle.ROUND;
+		path.miter_limit = this.getFloatStyle("stroke-miterlimit",inPath,styles,3.0);
+		path.segments = [];
+		path.matrix = matrix;
+		path.name = name;
+		if(inIsRect) {
+			var x = inPath.exists("x")?Std.parseFloat(inPath.get("x")):0;
+			var y = inPath.exists("y")?Std.parseFloat(inPath.get("y")):0;
+			var w = Std.parseFloat(inPath.get("width"));
+			var h = Std.parseFloat(inPath.get("height"));
+			var rx = inPath.exists("rx")?Std.parseFloat(inPath.get("rx")):0.0;
+			var ry = inPath.exists("ry")?Std.parseFloat(inPath.get("ry")):0.0;
+			if(rx == 0 || ry == 0) {
+				path.segments.push(new format.svg.MoveSegment(x,y));
+				path.segments.push(new format.svg.DrawSegment(x + w,y));
+				path.segments.push(new format.svg.DrawSegment(x + w,y + h));
+				path.segments.push(new format.svg.DrawSegment(x,y + h));
+				path.segments.push(new format.svg.DrawSegment(x,y));
+			} else {
+				path.segments.push(new format.svg.MoveSegment(x,y + ry));
+				path.segments.push(new format.svg.QuadraticSegment(x,y,x + rx,y));
+				path.segments.push(new format.svg.DrawSegment(x + w - rx,y));
+				path.segments.push(new format.svg.QuadraticSegment(x + w,y,x + w,y + rx));
+				path.segments.push(new format.svg.DrawSegment(x + w,y + h - ry));
+				path.segments.push(new format.svg.QuadraticSegment(x + w,y + h,x + w - rx,y + h));
+				path.segments.push(new format.svg.DrawSegment(x + rx,y + h));
+				path.segments.push(new format.svg.QuadraticSegment(x,y + h,x,y + h - ry));
+				path.segments.push(new format.svg.DrawSegment(x,y + ry));
+			}
+		} else if(inIsEllipse) {
+			var x = inPath.exists("cx")?Std.parseFloat(inPath.get("cx")):0;
+			var y = inPath.exists("cy")?Std.parseFloat(inPath.get("cy")):0;
+			var r = inIsCircle && inPath.exists("r")?Std.parseFloat(inPath.get("r")):0.0;
+			var w = inIsCircle?r:inPath.exists("rx")?Std.parseFloat(inPath.get("rx")):0.0;
+			var w_ = w * format.svg.SVGData.SIN45;
+			var cw_ = w * format.svg.SVGData.TAN22;
+			var h = inIsCircle?r:inPath.exists("ry")?Std.parseFloat(inPath.get("ry")):0.0;
+			var h_ = h * format.svg.SVGData.SIN45;
+			var ch_ = h * format.svg.SVGData.TAN22;
+			path.segments.push(new format.svg.MoveSegment(x + w,y));
+			path.segments.push(new format.svg.QuadraticSegment(x + w,y + ch_,x + w_,y + h_));
+			path.segments.push(new format.svg.QuadraticSegment(x + cw_,y + h,x,y + h));
+			path.segments.push(new format.svg.QuadraticSegment(x - cw_,y + h,x - w_,y + h_));
+			path.segments.push(new format.svg.QuadraticSegment(x - w,y + ch_,x - w,y));
+			path.segments.push(new format.svg.QuadraticSegment(x - w,y - ch_,x - w_,y - h_));
+			path.segments.push(new format.svg.QuadraticSegment(x - cw_,y - h,x,y - h));
+			path.segments.push(new format.svg.QuadraticSegment(x + cw_,y - h,x + w_,y - h_));
+			path.segments.push(new format.svg.QuadraticSegment(x + w,y - ch_,x + w,y));
+		} else {
+			var d = inPath.exists("points")?"M" + inPath.get("points") + "z":inPath.exists("x1")?"M" + inPath.get("x1") + "," + inPath.get("y1") + " " + inPath.get("x2") + "," + inPath.get("y2") + "z":inPath.get("d");
+			var _g = 0, _g1 = this.mPathParser.parse(d,this.mConvertCubics);
+			while(_g < _g1.length) {
+				var segment = _g1[_g];
+				++_g;
+				path.segments.push(segment);
+			}
+		}
+		return path;
+	}
+	,loadGroup: function(g,inG,matrix,inStyles) {
+		if(inG.exists("transform")) {
+			matrix = matrix.clone();
+			this.applyTransform(matrix,inG.get("transform"));
+		}
+		if(inG.exists("inkscape:label")) g.name = inG.get("inkscape:label"); else if(inG.exists("id")) g.name = inG.get("id");
+		var styles = this.getStyles(inG,inStyles);
+		var $it0 = inG.elements();
+		while( $it0.hasNext() ) {
+			var el = $it0.next();
+			var name = el.get_nodeName();
+			if(HxOverrides.substr(name,0,4) == "svg:") name = HxOverrides.substr(name,4,null);
+			if(name == "defs") this.loadDefs(el); else if(name == "g") {
+				if(!(el.exists("display") && el.get("display") == "none")) g.children.push(format.svg.DisplayElement.DisplayGroup(this.loadGroup(new format.svg.Group(),el,matrix,styles)));
+			} else if(name == "path" || name == "line" || name == "polyline") g.children.push(format.svg.DisplayElement.DisplayPath(this.loadPath(el,matrix,styles,false,false))); else if(name == "rect") g.children.push(format.svg.DisplayElement.DisplayPath(this.loadPath(el,matrix,styles,true,false))); else if(name == "polygon") g.children.push(format.svg.DisplayElement.DisplayPath(this.loadPath(el,matrix,styles,false,false))); else if(name == "ellipse") g.children.push(format.svg.DisplayElement.DisplayPath(this.loadPath(el,matrix,styles,false,true))); else if(name == "circle") g.children.push(format.svg.DisplayElement.DisplayPath(this.loadPath(el,matrix,styles,false,true,true))); else if(name == "text") g.children.push(format.svg.DisplayElement.DisplayText(this.loadText(el,matrix,styles))); else if(name == "linearGradient") this.loadGradient(el,flash.display.GradientType.LINEAR,true); else if(name == "radialGradient") this.loadGradient(el,flash.display.GradientType.RADIAL,true); else {
+			}
+		}
+		return g;
+	}
+	,loadGradient: function(inGrad,inType,inCrossLink) {
+		var name = inGrad.get("id");
+		var grad = new format.svg.Grad(inType);
+		if(inCrossLink && inGrad.exists("xlink:href")) {
+			var xlink = inGrad.get("xlink:href");
+			if(xlink.charAt(0) != "#") throw "xlink - unkown syntax : " + xlink;
+			var base = this.mGrads.get(HxOverrides.substr(xlink,1,null));
+			if(base != null) {
+				grad.colors = base.colors;
+				grad.alphas = base.alphas;
+				grad.ratios = base.ratios;
+				grad.gradMatrix = base.gradMatrix.clone();
+				grad.spread = base.spread;
+				grad.interp = base.interp;
+				grad.radius = base.radius;
+			} else throw "Unknown xlink : " + xlink;
+		}
+		if(inGrad.exists("x1")) {
+			grad.x1 = this.getFloat(inGrad,"x1");
+			grad.y1 = this.getFloat(inGrad,"y1");
+			grad.x2 = this.getFloat(inGrad,"x2");
+			grad.y2 = this.getFloat(inGrad,"y2");
+		} else {
+			grad.x1 = this.getFloat(inGrad,"cx");
+			grad.y1 = this.getFloat(inGrad,"cy");
+			grad.x2 = this.getFloat(inGrad,"fx",grad.x1);
+			grad.y2 = this.getFloat(inGrad,"fy",grad.y1);
+		}
+		grad.radius = this.getFloat(inGrad,"r");
+		if(inGrad.exists("gradientTransform")) this.applyTransform(grad.gradMatrix,inGrad.get("gradientTransform"));
+		var $it0 = inGrad.elements();
+		while( $it0.hasNext() ) {
+			var stop = $it0.next();
+			var styles = this.getStyles(stop,null);
+			grad.colors.push(this.getColorStyle("stop-color",stop,styles,0));
+			grad.alphas.push(this.getFloatStyle("stop-opacity",stop,styles,1.0));
+			grad.ratios.push(Std.parseFloat(stop.get("offset")) * 255.0 | 0);
+		}
+		this.mGrads.set(name,grad);
+	}
+	,loadDefs: function(inXML) {
+		var _g = 0;
+		while(_g < 2) {
+			var pass = _g++;
+			var $it0 = inXML.elements();
+			while( $it0.hasNext() ) {
+				var def = $it0.next();
+				var name = def.get_nodeName();
+				if(HxOverrides.substr(name,0,4) == "svg:") name = HxOverrides.substr(name,4,null);
+				if(name == "linearGradient") this.loadGradient(def,flash.display.GradientType.LINEAR,pass == 1); else if(name == "radialGradient") this.loadGradient(def,flash.display.GradientType.RADIAL,pass == 1);
+			}
+		}
+	}
+	,getStyles: function(inNode,inPrevStyles) {
+		if(!inNode.exists("style")) return inPrevStyles;
+		var styles = new haxe.ds.StringMap();
+		if(inPrevStyles != null) {
+			var $it0 = inPrevStyles.keys();
+			while( $it0.hasNext() ) {
+				var s = $it0.next();
+				styles.set(s,inPrevStyles.get(s));
+			}
+		}
+		var style = inNode.get("style");
+		var strings = format.svg.SVGData.mStyleSplit.split(style);
+		var _g = 0;
+		while(_g < strings.length) {
+			var s = strings[_g];
+			++_g;
+			if(format.svg.SVGData.mStyleValue.match(s)) styles.set(format.svg.SVGData.mStyleValue.matched(1),format.svg.SVGData.mStyleValue.matched(2));
+		}
+		return styles;
+	}
+	,getStyle: function(inKey,inNode,inStyles,inDefault) {
+		if(inNode != null && inNode.exists(inKey)) return inNode.get(inKey);
+		if(inStyles != null && inStyles.exists(inKey)) return inStyles.get(inKey);
+		return inDefault;
+	}
+	,getStrokeStyle: function(inKey,inNode,inStyles,inDefault) {
+		var s = this.getStyle(inKey,inNode,inStyles,"");
+		if(s == "") return inDefault;
+		if(s == "none") return null;
+		if(s.charAt(0) == "#") return Std.parseInt("0x" + HxOverrides.substr(s,1,null));
+		return Std.parseInt(s);
+	}
+	,getFloatStyle: function(inKey,inNode,inStyles,inDefault) {
+		var s = this.getStyle(inKey,inNode,inStyles,"");
+		if(s == "") return inDefault;
+		return Std.parseFloat(s);
+	}
+	,getFloat: function(inXML,inName,inDef) {
+		if(inDef == null) inDef = 0.0;
+		if(inXML.exists(inName)) return Std.parseFloat(inXML.get(inName));
+		return inDef;
+	}
+	,getFillStyle: function(inKey,inNode,inStyles) {
+		var s = this.getStyle(inKey,inNode,inStyles,"");
+		if(s == "") return format.svg.SVGData.defaultFill;
+		if(s.charAt(0) == "#") return format.svg.FillType.FillSolid(Std.parseInt("0x" + HxOverrides.substr(s,1,null)));
+		if(s == "none") return format.svg.FillType.FillNone;
+		if(format.svg.SVGData.mURLMatch.match(s)) {
+			var url = format.svg.SVGData.mURLMatch.matched(1);
+			if(this.mGrads.exists(url)) return format.svg.FillType.FillGrad(this.mGrads.get(url));
+			throw "Unknown url:" + url;
+		}
+		throw "Unknown fill string:" + s;
+		return format.svg.FillType.FillNone;
+	}
+	,getColorStyle: function(inKey,inNode,inStyles,inDefault) {
+		var s = this.getStyle(inKey,inNode,inStyles,"");
+		if(s == "") return inDefault;
+		if(s.charAt(0) == "#") return Std.parseInt("0x" + HxOverrides.substr(s,1,null));
+		return Std.parseInt(s);
+	}
+	,dumpGroup: function(g,indent) {
+		console.log(indent + "Group:" + g.name);
+		indent += "  ";
+		var _g = 0, _g1 = g.children;
+		while(_g < _g1.length) {
+			var e = _g1[_g];
+			++_g;
+			var $e = (e);
+			switch( $e[1] ) {
+			case 0:
+				var path = $e[2];
+				console.log(indent + "Path" + "  " + Std.string(path.matrix));
+				break;
+			case 1:
+				var group = $e[2];
+				this.dumpGroup(group,indent + "   ");
+				break;
+			case 2:
+				var text = $e[2];
+				console.log(indent + "Text " + text.text);
+				break;
+			}
+		}
+	}
+	,applyTransform: function(ioMatrix,inTrans) {
+		var scale = 1.0;
+		if(format.svg.SVGData.mTranslateMatch.match(inTrans)) ioMatrix.translate(Std.parseFloat(format.svg.SVGData.mTranslateMatch.matched(1)),Std.parseFloat(format.svg.SVGData.mTranslateMatch.matched(2))); else if(format.svg.SVGData.mScaleMatch.match(inTrans)) {
+			var s = Std.parseFloat(format.svg.SVGData.mScaleMatch.matched(1));
+			ioMatrix.scale(s,s);
+			scale = s;
+		} else if(format.svg.SVGData.mMatrixMatch.match(inTrans)) {
+			var m = new flash.geom.Matrix(Std.parseFloat(format.svg.SVGData.mMatrixMatch.matched(1)),Std.parseFloat(format.svg.SVGData.mMatrixMatch.matched(2)),Std.parseFloat(format.svg.SVGData.mMatrixMatch.matched(3)),Std.parseFloat(format.svg.SVGData.mMatrixMatch.matched(4)),Std.parseFloat(format.svg.SVGData.mMatrixMatch.matched(5)),Std.parseFloat(format.svg.SVGData.mMatrixMatch.matched(6)));
+			m.concat(ioMatrix);
+			ioMatrix.a = m.a;
+			ioMatrix.b = m.b;
+			ioMatrix.c = m.c;
+			ioMatrix.d = m.d;
+			ioMatrix.set_tx(m.tx);
+			ioMatrix.set_ty(m.ty);
+			scale = Math.sqrt(ioMatrix.a * ioMatrix.a + ioMatrix.c * ioMatrix.c);
+		} else console.log("Warning, unknown transform:" + inTrans);
+		return scale;
+	}
+	,mPathParser: null
+	,mGrads: null
+	,mConvertCubics: null
+	,width: null
+	,height: null
+	,__class__: format.svg.SVGData
+});
+format.svg.SVGRenderer = function(inSvg,inLayer) {
+	this.mSvg = inSvg;
+	this.width = this.mSvg.width;
+	this.height = this.mSvg.height;
+	this.mRoot = this.mSvg;
+	if(inLayer != null) {
+		this.mRoot = this.mSvg.findGroup(inLayer);
+		if(this.mRoot == null) throw "Could not find SVG group: " + inLayer;
+	}
+};
+$hxClasses["format.svg.SVGRenderer"] = format.svg.SVGRenderer;
+format.svg.SVGRenderer.__name__ = ["format","svg","SVGRenderer"];
+format.svg.SVGRenderer.toHaxe = function(inXML,inFilter) {
+	return new format.svg.SVGRenderer(new format.svg.SVGData(inXML,true)).iterate(new format.gfx.Gfx2Haxe(),inFilter).commands;
+}
+format.svg.SVGRenderer.toBytes = function(inXML,inFilter) {
+	return new format.svg.SVGRenderer(new format.svg.SVGData(inXML,true)).iterate(new format.gfx.GfxBytes(),inFilter);
+}
+format.svg.SVGRenderer.prototype = {
+	renderBitmap: function(inRect,inScale) {
+		if(inScale == null) inScale = 1.0;
+		this.mMatrix = new flash.geom.Matrix(inScale,0,0,inScale,-inRect.x * inScale,-inRect.y * inScale);
+		var w = Math.ceil(inRect == null?this.width:inRect.width * inScale) | 0;
+		var h = Math.ceil(inRect == null?this.width:inRect.height * inScale) | 0;
+		var bmp = new flash.display.BitmapData(w,h,true,0);
+		var shape = new flash.display.Shape();
+		this.mGfx = new format.gfx.GfxGraphics(shape.get_graphics());
+		this.mGroupPath = [];
+		this.iterateGroup(this.mRoot,true);
+		bmp.draw(shape);
+		this.mGfx = null;
+		return bmp;
+	}
+	,namedShape: function(inName) {
+		return this.createShape(null,function(name,_) {
+			return name == inName;
+		});
+	}
+	,createShape: function(inMatrix,inFilter,inScale9) {
+		var shape = new flash.display.Shape();
+		this.renderObject(shape,shape.get_graphics(),inMatrix,inFilter,inScale9);
+		return shape;
+	}
+	,renderSprite: function(inObj,inMatrix,inFilter,inScale9) {
+		this.renderObject(inObj,inObj.get_graphics(),inMatrix,inFilter,inScale9);
+	}
+	,renderObject: function(inObj,inGfx,inMatrix,inFilter,inScale9) {
+		this.render(inGfx,inMatrix,inFilter,inScale9);
+		var rect = this.getExtent(inMatrix,function(_,groups) {
+			return groups[1] == ".scale9";
+		});
+	}
+	,getMatchingRect: function(inMatch) {
+		return this.getExtent(null,function(_,groups) {
+			return groups[1] != null && inMatch.match(groups[1]);
+		},false);
+	}
+	,findText: function(inFilter) {
+		this.mFilter = inFilter;
+		this.mGroupPath = [];
+		var finder = new format.gfx.GfxTextFinder();
+		this.mGfx = finder;
+		this.iterateGroup(this.mRoot,false);
+		return finder.text;
+	}
+	,getExtent: function(inMatrix,inFilter,inIgnoreDot) {
+		if(inIgnoreDot == null) inIgnoreDot = inFilter == null;
+		var gfx = new format.gfx.GfxExtent();
+		this.mGfx = gfx;
+		if(inMatrix == null) this.mMatrix = new flash.geom.Matrix(); else this.mMatrix = inMatrix.clone();
+		this.mFilter = inFilter;
+		this.mGroupPath = [];
+		this.iterateGroup(this.mRoot,inIgnoreDot);
+		return gfx.extent;
+	}
+	,renderRect0: function(inGfx,inFilter,scaleRect,inBounds,inRect) {
+		var matrix = new flash.geom.Matrix();
+		matrix.set_tx(-inBounds.x);
+		matrix.set_ty(-inBounds.y);
+		if(scaleRect != null) {
+			var extraX = inRect.width - (inBounds.width - scaleRect.width);
+			var extraY = inRect.height - (inBounds.height - scaleRect.height);
+			this.render(inGfx,matrix,inFilter,scaleRect,extraX,extraY);
+		} else this.render(inGfx,matrix,inFilter);
+	}
+	,renderRect: function(inGfx,inFilter,scaleRect,inBounds,inRect) {
+		var matrix = new flash.geom.Matrix();
+		matrix.set_tx(inRect.x - inBounds.x);
+		matrix.set_ty(inRect.y - inBounds.y);
+		if(scaleRect != null) {
+			var extraX = inRect.width - (inBounds.width - scaleRect.width);
+			var extraY = inRect.height - (inBounds.height - scaleRect.height);
+			this.render(inGfx,matrix,inFilter,scaleRect,extraX,extraY);
+		} else this.render(inGfx,matrix,inFilter);
+	}
+	,render: function(inGfx,inMatrix,inFilter,inScaleRect,inScaleW,inScaleH) {
+		this.mGfx = new format.gfx.GfxGraphics(inGfx);
+		if(inMatrix == null) this.mMatrix = new flash.geom.Matrix(); else this.mMatrix = inMatrix.clone();
+		this.mScaleRect = inScaleRect;
+		this.mScaleW = inScaleW;
+		this.mScaleH = inScaleH;
+		this.mFilter = inFilter;
+		this.mGroupPath = [];
+		this.iterateGroup(this.mRoot,inFilter == null);
+	}
+	,iterateGroup: function(inGroup,inIgnoreDot) {
+		if(inIgnoreDot && inGroup.name != null && HxOverrides.substr(inGroup.name,0,1) == ".") return;
+		this.mGroupPath.push(inGroup.name);
+		var _g = 0, _g1 = inGroup.children;
+		while(_g < _g1.length) {
+			var child = _g1[_g];
+			++_g;
+			var $e = (child);
+			switch( $e[1] ) {
+			case 1:
+				var group = $e[2];
+				this.iterateGroup(group,inIgnoreDot);
+				break;
+			case 0:
+				var path = $e[2];
+				this.iteratePath(path);
+				break;
+			case 2:
+				var text = $e[2];
+				this.iterateText(text);
+				break;
+			}
+		}
+		this.mGroupPath.pop();
+	}
+	,iteratePath: function(inPath) {
+		if(this.mFilter != null && !this.mFilter(inPath.name,this.mGroupPath)) return;
+		if(inPath.segments.length == 0 || this.mGfx == null) return;
+		var px = 0.0;
+		var py = 0.0;
+		var m = inPath.matrix.clone();
+		m.concat(this.mMatrix);
+		var context = new format.svg.RenderContext(m,this.mScaleRect,this.mScaleW,this.mScaleH);
+		var geomOnly = this.mGfx.geometryOnly();
+		if(!geomOnly) {
+			inPath.segments[0].toGfx(this.mGfx,context);
+			var $e = (inPath.fill);
+			switch( $e[1] ) {
+			case 0:
+				var grad = $e[2];
+				grad.updateMatrix(m);
+				this.mGfx.beginGradientFill(grad);
+				break;
+			case 1:
+				var colour = $e[2];
+				this.mGfx.beginFill(colour,inPath.fill_alpha * inPath.alpha);
+				break;
+			case 2:
+				break;
+			}
+			if(inPath.stroke_colour == null) {
+			} else {
+				var style = new format.gfx.LineStyle();
+				var scale = Math.sqrt(m.a * m.a + m.c * m.c);
+				style.thickness = inPath.stroke_width * scale;
+				style.alpha = inPath.stroke_alpha * inPath.alpha;
+				style.color = inPath.stroke_colour;
+				style.capsStyle = inPath.stroke_caps;
+				style.jointStyle = inPath.joint_style;
+				style.miterLimit = inPath.miter_limit;
+				this.mGfx.lineStyle(style);
+			}
+		}
+		var _g = 0, _g1 = inPath.segments;
+		while(_g < _g1.length) {
+			var segment = _g1[_g];
+			++_g;
+			segment.toGfx(this.mGfx,context);
+		}
+		this.mGfx.endFill();
+		this.mGfx.endLineStyle();
+	}
+	,iterateText: function(inText) {
+		if(this.mFilter != null && !this.mFilter(inText.name,this.mGroupPath)) return;
+		this.mGfx.renderText(inText);
+	}
+	,hasGroup: function(inName) {
+		return this.mRoot.hasGroup(inName);
+	}
+	,iterate: function(inGfx,inFilter) {
+		this.mGfx = inGfx;
+		this.mMatrix = new flash.geom.Matrix();
+		this.mFilter = inFilter;
+		this.mGroupPath = [];
+		this.mGfx.size(this.width,this.height);
+		this.iterateGroup(this.mRoot,true);
+		this.mGfx.eof();
+		return inGfx;
+	}
+	,mGroupPath: null
+	,mFilter: null
+	,mScaleH: null
+	,mScaleW: null
+	,mScaleRect: null
+	,mMatrix: null
+	,mGfx: null
+	,mRoot: null
+	,mSvg: null
+	,height: null
+	,width: null
+	,__class__: format.svg.SVGRenderer
+}
+format.svg.Text = function() {
+};
+$hxClasses["format.svg.Text"] = format.svg.Text;
+format.svg.Text.__name__ = ["format","svg","Text"];
+format.svg.Text.prototype = {
+	letter_spacing: null
+	,kerning: null
+	,font_size: null
+	,font_family: null
+	,stroke_width: null
+	,stroke_colour: null
+	,stroke_alpha: null
+	,fill_alpha: null
+	,fill: null
+	,text: null
+	,matrix: null
+	,y: null
+	,x: null
+	,name: null
+	,__class__: format.svg.Text
 }
 haxe.StackItem = $hxClasses["haxe.StackItem"] = { __ename__ : true, __constructs__ : ["CFunction","Module","FilePos","Method","Lambda"] }
 haxe.StackItem.CFunction = ["CFunction",0];
@@ -7474,6 +9572,11 @@ haxe.Template.prototype = {
 		this.run(this.expr);
 		return this.buf.b;
 	}
+	,buf: null
+	,stack: null
+	,macros: null
+	,context: null
+	,expr: null
 	,__class__: haxe.Template
 }
 haxe.Utf8 = function() { }
@@ -7482,6 +9585,22 @@ haxe.Utf8.__name__ = ["haxe","Utf8"];
 haxe.Utf8.decode = function(s) {
 	throw "Not implemented";
 	return s;
+}
+haxe.crypto = {}
+haxe.crypto.BaseCode = function(base) {
+	var len = base.length;
+	var nbits = 1;
+	while(len > 1 << nbits) nbits++;
+	if(nbits > 8 || len != 1 << nbits) throw "BaseCode : base length must be a power of two.";
+	this.base = base;
+	this.nbits = nbits;
+};
+$hxClasses["haxe.crypto.BaseCode"] = haxe.crypto.BaseCode;
+haxe.crypto.BaseCode.__name__ = ["haxe","crypto","BaseCode"];
+haxe.crypto.BaseCode.prototype = {
+	nbits: null
+	,base: null
+	,__class__: haxe.crypto.BaseCode
 }
 haxe.ds = {}
 haxe.ds.IntMap = function() {
@@ -7499,6 +9618,7 @@ haxe.ds.IntMap.prototype = {
 	,set: function(key,value) {
 		this.h[key] = value;
 	}
+	,h: null
 	,__class__: haxe.ds.IntMap
 }
 haxe.ds.StringMap = function() {
@@ -7524,14 +9644,42 @@ haxe.ds.StringMap.prototype = {
 	,set: function(key,value) {
 		this.h["$" + key] = value;
 	}
+	,h: null
 	,__class__: haxe.ds.StringMap
 }
 haxe.io = {}
-haxe.io.Bytes = function() { }
+haxe.io.Bytes = function(length,b) {
+	this.length = length;
+	this.b = b;
+};
 $hxClasses["haxe.io.Bytes"] = haxe.io.Bytes;
 haxe.io.Bytes.__name__ = ["haxe","io","Bytes"];
+haxe.io.Bytes.ofString = function(s) {
+	var a = new Array();
+	var _g1 = 0, _g = s.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		var c = s.charCodeAt(i);
+		if(c <= 127) a.push(c); else if(c <= 2047) {
+			a.push(192 | c >> 6);
+			a.push(128 | c & 63);
+		} else if(c <= 65535) {
+			a.push(224 | c >> 12);
+			a.push(128 | c >> 6 & 63);
+			a.push(128 | c & 63);
+		} else {
+			a.push(240 | c >> 18);
+			a.push(128 | c >> 12 & 63);
+			a.push(128 | c >> 6 & 63);
+			a.push(128 | c & 63);
+		}
+	}
+	return new haxe.io.Bytes(a.length,a);
+}
 haxe.io.Bytes.prototype = {
-	__class__: haxe.io.Bytes
+	b: null
+	,length: null
+	,__class__: haxe.io.Bytes
 }
 haxe.io.Eof = function() { }
 $hxClasses["haxe.io.Eof"] = haxe.io.Eof;
@@ -7911,51 +10059,140 @@ js.Boot.__cast = function(o,t) {
 js.Browser = function() { }
 $hxClasses["js.Browser"] = js.Browser;
 js.Browser.__name__ = ["js","Browser"];
-var nx = {}
-nx.enums = {}
-nx.enums.ENoteType = $hxClasses["nx.enums.ENoteType"] = { __ename__ : true, __constructs__ : ["Note","Pause","BarPause","HeadOnly","StaveOnly","Rythmic","Tpl","TplChain","Lyric","Chord","Dynam"] }
-nx.enums.ENoteType.Note = ["Note",0];
-nx.enums.ENoteType.Note.toString = $estr;
-nx.enums.ENoteType.Note.__enum__ = nx.enums.ENoteType;
-nx.enums.ENoteType.Pause = ["Pause",1];
-nx.enums.ENoteType.Pause.toString = $estr;
-nx.enums.ENoteType.Pause.__enum__ = nx.enums.ENoteType;
-nx.enums.ENoteType.BarPause = ["BarPause",2];
-nx.enums.ENoteType.BarPause.toString = $estr;
-nx.enums.ENoteType.BarPause.__enum__ = nx.enums.ENoteType;
-nx.enums.ENoteType.HeadOnly = ["HeadOnly",3];
-nx.enums.ENoteType.HeadOnly.toString = $estr;
-nx.enums.ENoteType.HeadOnly.__enum__ = nx.enums.ENoteType;
-nx.enums.ENoteType.StaveOnly = ["StaveOnly",4];
-nx.enums.ENoteType.StaveOnly.toString = $estr;
-nx.enums.ENoteType.StaveOnly.__enum__ = nx.enums.ENoteType;
-nx.enums.ENoteType.Rythmic = ["Rythmic",5];
-nx.enums.ENoteType.Rythmic.toString = $estr;
-nx.enums.ENoteType.Rythmic.__enum__ = nx.enums.ENoteType;
-nx.enums.ENoteType.Tpl = ["Tpl",6];
-nx.enums.ENoteType.Tpl.toString = $estr;
-nx.enums.ENoteType.Tpl.__enum__ = nx.enums.ENoteType;
-nx.enums.ENoteType.TplChain = ["TplChain",7];
-nx.enums.ENoteType.TplChain.toString = $estr;
-nx.enums.ENoteType.TplChain.__enum__ = nx.enums.ENoteType;
-nx.enums.ENoteType.Lyric = ["Lyric",8];
-nx.enums.ENoteType.Lyric.toString = $estr;
-nx.enums.ENoteType.Lyric.__enum__ = nx.enums.ENoteType;
-nx.enums.ENoteType.Chord = ["Chord",9];
-nx.enums.ENoteType.Chord.toString = $estr;
-nx.enums.ENoteType.Chord.__enum__ = nx.enums.ENoteType;
-nx.enums.ENoteType.Dynam = ["Dynam",10];
-nx.enums.ENoteType.Dynam.toString = $estr;
-nx.enums.ENoteType.Dynam.__enum__ = nx.enums.ENoteType;
 nx3.display = {}
+nx3.display.DComplex = function(dnotes) {
+	this.headsRect_ = null;
+	this.dnotes = dnotes;
+	this.signs = this.getSigns_(dnotes);
+	this.avoidCollisions_();
+	this.get_headsRect();
+};
+$hxClasses["nx3.display.DComplex"] = nx3.display.DComplex;
+nx3.display.DComplex.__name__ = ["nx3","display","DComplex"];
+nx3.display.DComplex.prototype = {
+	avoidCollisions_: function() {
+		if(this.dnotes.length > 1) {
+			var diff = this.dnotes[1].get_headTop().level - this.dnotes[0].get_headBottom().level;
+			if(diff == 1) this.dnotes[1].set_xAdjust(nx3.display.DComplex.SECOND_CLASH_ADJUST_X); else if(diff == 0) {
+				if(this.dnotes[1].get_value() != this.dnotes[0].get_value()) this.dnotes[1].set_xAdjust(nx3.units._NX.NX_Impl_.add(nx3.units._NX.NX_Impl_.sub(nx3.units._NX.NX_Impl_.add(this.dnotes[0].get_headsRect().x,this.dnotes[0].get_headsRect().width),this.dnotes[1].get_headsRect().x),0.6));
+			} else if(diff < 1) {
+				if(this.dnotes[1].get_value() == this.dnotes[0].get_value()) {
+					if(nx3.display.tools.HeadsTool.headsCollide(this.dnotes[0].get_heads(),this.dnotes[1].get_heads())) this.dnotes[1].set_xAdjust(nx3.units._NX.NX_Impl_.add(nx3.units._NX.NX_Impl_.sub(nx3.units._NX.NX_Impl_.add(this.dnotes[0].get_headsRect().x,this.dnotes[0].get_headsRect().width),this.dnotes[1].get_headsRect().x),0.6)); else this.dnotes[1].set_xAdjust(nx3.units._NX.NX_Impl_.sw(0.6));
+				} else this.dnotes[1].set_xAdjust(nx3.units._NX.NX_Impl_.add(nx3.units._NX.NX_Impl_.sub(nx3.units._NX.NX_Impl_.add(this.dnotes[0].get_headsRect().x,this.dnotes[0].get_headsRect().width),this.dnotes[1].get_headsRect().x),0.6));
+			} else {
+			}
+		}
+	}
+	,get_dnotesXAdjust: function() {
+		return null;
+	}
+	,get_signRects: function() {
+		if(this.signRects_ != null) return this.signRects_;
+		if(this.signs.length == 0) return null;
+		this.signRects_ = [];
+		var currentRect = null;
+		var _g = 0, _g1 = this.signs;
+		while(_g < _g1.length) {
+			var sign = _g1[_g];
+			++_g;
+			currentRect = nx3.display.tools.SignsTools.getSignRect(sign.sign);
+			currentRect.offset(0,sign.level);
+			if(currentRect == null) continue;
+			currentRect.offset(nx3.units._NX.NX_Impl_.sw(currentRect.width),0);
+			var xMove = 0;
+			var _g2 = 0, _g3 = this.signRects_;
+			while(_g2 < _g3.length) {
+				var checkRect = _g3[_g2];
+				++_g2;
+				var isect = checkRect.intersection(currentRect);
+				if(checkRect.intersects(currentRect)) currentRect.x = nx3.units._NX.NX_Impl_.sub(checkRect.x,currentRect.width);
+			}
+			this.signRects_.push(currentRect);
+		}
+		if(this.signRects_.length == 0) {
+			this.signRects_ = null;
+			return this.signRects_;
+		}
+		var combineRect = this.signRects_[0];
+		var _g = 0, _g1 = this.signRects_;
+		while(_g < _g1.length) {
+			var rect = _g1[_g];
+			++_g;
+			if(combineRect == rect) {
+			} else combineRect = combineRect.union(rect);
+		}
+		var _g = 0, _g1 = this.signRects_;
+		while(_g < _g1.length) {
+			var rect = _g1[_g];
+			++_g;
+			rect.offset(combineRect.width,0);
+		}
+		return this.signRects_;
+	}
+	,signRects_: null
+	,signRects: null
+	,get_signsFrame: function() {
+		if(this.signsFrame_ != null) return this.signsFrame_;
+		if(this.get_signRects() == null) return null;
+		var _g = 0, _g1 = this.get_signRects();
+		while(_g < _g1.length) {
+			var rect = _g1[_g];
+			++_g;
+			if(this.signsFrame_ == null) this.signsFrame_ = rect.clone(); else this.signsFrame_ = this.signsFrame_.union(rect);
+		}
+		this.signsFrame_.x = nx3.units._NX.NX_Impl_.sub(nx3.units._NX.NX_Impl_.sub(this.get_headsRect().x,this.signsFrame_.width),0.8);
+		return this.signsFrame_;
+	}
+	,signsFrame_: null
+	,signsFrame: null
+	,getSigns_: function(dnotes) {
+		var signs = new Array();
+		var _g = 0;
+		while(_g < dnotes.length) {
+			var dnote = dnotes[_g];
+			++_g;
+			var _g1 = 0, _g2 = dnote.get_heads();
+			while(_g1 < _g2.length) {
+				var head = _g2[_g1];
+				++_g1;
+				signs.push({ sign : head.sign, level : head.level, position : 0});
+			}
+		}
+		return nx3.display.tools.SignsTools.adjustPositions(signs);
+	}
+	,get_headsRect: function() {
+		if(this.headsRect_ != null) return this.headsRect_;
+		this.headsRect_ = this.dnotes[0].get_headsRect();
+		this.headsRect_.offset(this.dnotes[0].get_xAdjust(),0);
+		if(this.dnotes.length == 1) return this.headsRect_;
+		var _g1 = 1, _g = this.dnotes.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			var dnoteRect = this.dnotes[i].get_headsRect();
+			dnoteRect.offset(this.dnotes[i].get_xAdjust(),0);
+			this.headsRect_ = this.headsRect_.union(dnoteRect);
+		}
+		return this.headsRect_;
+	}
+	,headsRect: null
+	,headsRect_: null
+	,dnotesXAdjust: null
+	,signs: null
+	,dnotes: null
+	,__class__: nx3.display.DComplex
+	,__properties__: {get_dnotesXAdjust:"get_dnotesXAdjust",get_headsRect:"get_headsRect",get_signsFrame:"get_signsFrame",get_signRects:"get_signRects"}
+}
 nx3.display.IDNoteRects = function() { }
 $hxClasses["nx3.display.IDNoteRects"] = nx3.display.IDNoteRects;
 nx3.display.IDNoteRects.__name__ = ["nx3","display","IDNoteRects"];
 nx3.display.IDNoteRects.prototype = {
-	__class__: nx3.display.IDNoteRects
+	rectsBack: null
+	,rectsFront: null
+	,__class__: nx3.display.IDNoteRects
 }
 nx3.display.calc = {}
 nx3.display.calc.DNoteCalc = function(note,variant,articulations,attributes,forceDirection) {
+	this.xAdjust_ = 0;
 	this.headRects_ = null;
 	this.note = note;
 	this.variant = variant;
@@ -7968,7 +10205,17 @@ $hxClasses["nx3.display.calc.DNoteCalc"] = nx3.display.calc.DNoteCalc;
 nx3.display.calc.DNoteCalc.__name__ = ["nx3","display","calc","DNoteCalc"];
 nx3.display.calc.DNoteCalc.__interfaces__ = [nx3.display.IDNoteRects];
 nx3.display.calc.DNoteCalc.prototype = {
-	get_headsRect: function() {
+	get_value: function() {
+		return this.note.value;
+	}
+	,set_xAdjust: function(val) {
+		return this.xAdjust_ = val;
+	}
+	,get_xAdjust: function() {
+		return this.xAdjust_;
+	}
+	,xAdjust_: null
+	,get_headsRect: function() {
 		if(this.headsRect_ != null) return this.headsRect_;
 		this.headsRect_ = this.get_headRects()[0];
 		if(this.get_heads().length > 1) {
@@ -7980,25 +10227,34 @@ nx3.display.calc.DNoteCalc.prototype = {
 		}
 		return this.headsRect_;
 	}
+	,headsRect: null
+	,headsRect_: null
 	,get_headBottom: function() {
 		if(this.headBottom_ != null) return this.headBottom_;
 		this.headBottom_ = this.get_heads()[this.get_heads().length - 1];
 		return this.headBottom_;
 	}
+	,headBottom: null
+	,headBottom_: null
 	,get_headTop: function() {
 		if(this.heads_ != null) return this.heads_[0];
 		return this.get_heads()[0];
 	}
+	,headTop: null
 	,get_heads: function() {
 		if(this.heads_ != null) return this.heads_;
 		this.heads_ = this.note.get_heads();
 		return this.heads_;
 	}
+	,heads: null
+	,heads_: null
 	,get_midLevel: function() {
 		if(this.midLevel_ != null) return this.midLevel_;
 		this.midLevel_ = nx3.display.tools.HeadsTool.midLevel(this.note.get_heads());
 		return this.midLevel_;
 	}
+	,midLevel_: null
+	,midLevel: null
 	,get_headRects: function() {
 		if(this.headRects_ != null) return this.headRects_;
 		this.headRects_ = [];
@@ -8015,20 +10271,33 @@ nx3.display.calc.DNoteCalc.prototype = {
 		}
 		return this.headRects_;
 	}
+	,headRects: null
+	,headRects_: null
 	,get_rectsBack: function() {
 		this.get_headRects();
 		return null;
 	}
+	,rectsBack_: null
 	,get_rectsFront: function() {
 		return null;
 	}
+	,rectsBack: null
+	,rectsFront: null
 	,get_direction: function() {
 		if(this.direction_ != null) return this.direction_;
 		if(this.forceDirection != null) this.direction_ = this.forceDirection; else this.direction_ = this.note.direction != null?this.note.direction:nx3.display.tools.HeadsTool.getDirection(this.note.get_heads());
 		return this.direction_;
 	}
+	,direction_: null
+	,value: null
+	,direction: null
+	,forceDirection: null
+	,attributes: null
+	,articulations: null
+	,variant: null
+	,note: null
 	,__class__: nx3.display.calc.DNoteCalc
-	,__properties__: {get_direction:"get_direction",get_rectsFront:"get_rectsFront",get_rectsBack:"get_rectsBack",get_headRects:"get_headRects",get_midLevel:"get_midLevel",get_heads:"get_heads",get_headTop:"get_headTop",get_headBottom:"get_headBottom",get_headsRect:"get_headsRect"}
+	,__properties__: {get_direction:"get_direction",get_value:"get_value",get_rectsFront:"get_rectsFront",get_rectsBack:"get_rectsBack",get_headRects:"get_headRects",get_midLevel:"get_midLevel",get_heads:"get_heads",get_headTop:"get_headTop",get_headBottom:"get_headBottom",get_headsRect:"get_headsRect",set_xAdjust:"set_xAdjust",get_xAdjust:"get_xAdjust"}
 }
 nx3.display.DNote = function(note,forceDirection) {
 	var $e = (note.type);
@@ -8045,7 +10314,11 @@ $hxClasses["nx3.display.DNote"] = nx3.display.DNote;
 nx3.display.DNote.__name__ = ["nx3","display","DNote"];
 nx3.display.DNote.__super__ = nx3.display.calc.DNoteCalc;
 nx3.display.DNote.prototype = $extend(nx3.display.calc.DNoteCalc.prototype,{
-	__class__: nx3.display.DNote
+	reset: function() {
+		this.headRects_ = null;
+		this.headsRect_ = null;
+	}
+	,__class__: nx3.display.DNote
 });
 nx3.display.tools = {}
 nx3.display.tools.HeadTool = function() { }
@@ -8059,7 +10332,7 @@ nx3.display.tools.HeadTool.getHeadRect = function(head,value) {
 		break;
 	case 1:
 	case 0:
-		rect = new nx3.units.NRect(-2,-1,4,2);
+		rect = new nx3.units.NRect(-1.6,-1,3.2,2);
 		break;
 	}
 	rect.offset(0,head.level);
@@ -8120,6 +10393,96 @@ nx3.display.tools.HeadsTool.getHeadPositions = function(heads,direction) {
 	}
 	return result;
 }
+nx3.display.tools.HeadsTool.headsCollide = function(heads1,heads2) {
+	var _g = 0;
+	while(_g < heads1.length) {
+		var head1 = heads1[_g];
+		++_g;
+		var _g1 = 0;
+		while(_g1 < heads2.length) {
+			var head2 = heads2[_g1];
+			++_g1;
+			if(head1.level == head2.level - 1) return true;
+			if(head1.level == head2.level) return true;
+			if(head1.level == nx3.units._Level.Level_Impl_.addInteger(head2.level,1)) return true;
+		}
+	}
+	return false;
+}
+nx3.display.tools.SignsTools = function() { }
+$hxClasses["nx3.display.tools.SignsTools"] = nx3.display.tools.SignsTools;
+nx3.display.tools.SignsTools.__name__ = ["nx3","display","tools","SignsTools"];
+nx3.display.tools.SignsTools.adjustPositions = function(signs) {
+	signs = nx3.display.tools.SignsTools.removeNones(signs);
+	if(signs.length < 2) return signs;
+	signs = nx3.display.tools.SignsTools.sortSigns(signs);
+	signs = nx3.display.tools.SignsTools.calcPositions(signs);
+	return signs;
+}
+nx3.display.tools.SignsTools.calcPositions = function(signs) {
+	var levels = [-999,-999,-999,-999];
+	var _g = 0;
+	while(_g < signs.length) {
+		var sign = signs[_g];
+		++_g;
+		var cpos = 0;
+		var diff = sign.level - levels[cpos];
+		while(diff < nx3.display.tools.SignsTools.BREAKPOINT) {
+			cpos++;
+			diff = sign.level - levels[cpos];
+		}
+		levels[cpos] = sign.level;
+		sign.position = cpos;
+	}
+	return signs;
+}
+nx3.display.tools.SignsTools.removeNones = function(signs) {
+	var r = [];
+	var _g = 0;
+	while(_g < signs.length) {
+		var sign = signs[_g];
+		++_g;
+		if(sign.sign != nx3.enums.ESign.None) r.push(sign);
+	}
+	return r;
+}
+nx3.display.tools.SignsTools.sortSigns = function(signs) {
+	signs.sort(function(signA,signB) {
+		if(signA.level <= signB.level) return -1; else return 1;
+	});
+	return signs;
+}
+nx3.display.tools.SignsTools.getPositions = function(signs) {
+	return Lambda.array(Lambda.map(signs,function(sign) {
+		return sign.position;
+	}));
+}
+nx3.display.tools.SignsTools.getSignRect = function(sign) {
+	switch( (sign)[1] ) {
+	case 0:
+		return null;
+	case 5:
+		return new nx3.units.NRect(0,-1.5,2.6,3);
+	case 7:
+	case 8:
+	case 6:
+		return new nx3.units.NRect(0,-2,4.4,4);
+	case 2:
+		return new nx3.units.NRect(0,-3,2.6,5);
+	default:
+		return new nx3.units.NRect(0,-3,2.6,6);
+	}
+	throw "This shouldn't happen!";
+	return null;
+}
+nx3.display.tools.SignsTools.adjustSignFontX = function(sign) {
+	switch( (sign)[1] ) {
+	case 2:
+		return 0.3;
+	default:
+	}
+	return 0;
+}
 nx3.elements = {}
 nx3.elements.Head = function(type,level,sign,tie,tieTo) {
 	if(level == null) level = 0;
@@ -8132,10 +10495,15 @@ nx3.elements.Head = function(type,level,sign,tie,tieTo) {
 $hxClasses["nx3.elements.Head"] = nx3.elements.Head;
 nx3.elements.Head.__name__ = ["nx3","elements","Head"];
 nx3.elements.Head.prototype = {
-	__class__: nx3.elements.Head
+	tieTo: null
+	,tie: null
+	,sign: null
+	,type: null
+	,level: null
+	,__class__: nx3.elements.Head
 }
-nx3.elements.Note = function(type,value,direction) {
-	if(type == null) type = nx3.enums.ENoteType.Note([new nx3.elements.Head()],nx3.enums.ENoteVariant.Normal,null,null);
+nx3.elements.Note = function(type,heads,value,direction) {
+	if(type == null) type = heads != null?nx3.enums.ENoteType.Note(heads):nx3.enums.ENoteType.Note([new nx3.elements.Head()]);
 	if(value == null) value = nx3.enums.ENoteValue.Nv4;
 	this.type = type;
 	this.value = value;
@@ -8158,6 +10526,11 @@ nx3.elements.Note.prototype = {
 		}
 		return null;
 	}
+	,heads_: null
+	,heads: null
+	,direction: null
+	,value: null
+	,type: null
 	,__class__: nx3.elements.Note
 	,__properties__: {get_heads:"get_heads"}
 }
@@ -8288,7 +10661,9 @@ nx3.enums.ENoteValue.getFromValue = function(value) {
 	return nx3.enums.ENoteValue.Nv4;
 }
 nx3.enums.ENoteValue.prototype = {
-	__class__: nx3.enums.ENoteValue
+	type: null
+	,value: null
+	,__class__: nx3.enums.ENoteValue
 }
 nx3.enums.ENoteVariant = $hxClasses["nx3.enums.ENoteVariant"] = { __ename__ : true, __constructs__ : ["Normal","Rythmic","RythmicSingleLevel","HeadsOnly","StavesOnly"] }
 nx3.enums.ENoteVariant.Normal = ["Normal",0];
@@ -8309,7 +10684,7 @@ nx3.enums.EPosition.X = function(x) { var $x = ["X",0,x]; $x.__enum__ = nx3.enum
 nx3.enums.EPosition.Y = function(y) { var $x = ["Y",1,y]; $x.__enum__ = nx3.enums.EPosition; $x.toString = $estr; return $x; }
 nx3.enums.EPosition.XY = function(x,y) { var $x = ["XY",2,x,y]; $x.__enum__ = nx3.enums.EPosition; $x.toString = $estr; return $x; }
 nx3.enums.EPosition.XYW = function(x,y,w) { var $x = ["XYW",3,x,y,w]; $x.__enum__ = nx3.enums.EPosition; $x.toString = $estr; return $x; }
-nx3.enums.ESign = $hxClasses["nx3.enums.ESign"] = { __ename__ : true, __constructs__ : ["None","Natural","Flat","Sharp","DoubleFlat","DoubleSharp","ParFlat","ParSharp"] }
+nx3.enums.ESign = $hxClasses["nx3.enums.ESign"] = { __ename__ : true, __constructs__ : ["None","Natural","Flat","Sharp","DoubleFlat","DoubleSharp","ParNatural","ParFlat","ParSharp"] }
 nx3.enums.ESign.None = ["None",0];
 nx3.enums.ESign.None.toString = $estr;
 nx3.enums.ESign.None.__enum__ = nx3.enums.ESign;
@@ -8328,15 +10703,25 @@ nx3.enums.ESign.DoubleFlat.__enum__ = nx3.enums.ESign;
 nx3.enums.ESign.DoubleSharp = ["DoubleSharp",5];
 nx3.enums.ESign.DoubleSharp.toString = $estr;
 nx3.enums.ESign.DoubleSharp.__enum__ = nx3.enums.ESign;
-nx3.enums.ESign.ParFlat = ["ParFlat",6];
+nx3.enums.ESign.ParNatural = ["ParNatural",6];
+nx3.enums.ESign.ParNatural.toString = $estr;
+nx3.enums.ESign.ParNatural.__enum__ = nx3.enums.ESign;
+nx3.enums.ESign.ParFlat = ["ParFlat",7];
 nx3.enums.ESign.ParFlat.toString = $estr;
 nx3.enums.ESign.ParFlat.__enum__ = nx3.enums.ESign;
-nx3.enums.ESign.ParSharp = ["ParSharp",7];
+nx3.enums.ESign.ParSharp = ["ParSharp",8];
 nx3.enums.ESign.ParSharp.toString = $estr;
 nx3.enums.ESign.ParSharp.__enum__ = nx3.enums.ESign;
 nx3.enums.ETie = $hxClasses["nx3.enums.ETie"] = { __ename__ : true, __constructs__ : ["Tie","Gliss"] }
 nx3.enums.ETie.Tie = function(direction) { var $x = ["Tie",0,direction]; $x.__enum__ = nx3.enums.ETie; $x.toString = $estr; return $x; }
 nx3.enums.ETie.Gliss = function(direction) { var $x = ["Gliss",1,direction]; $x.__enum__ = nx3.enums.ETie; $x.toString = $estr; return $x; }
+nx3.enums.EVoiceType = $hxClasses["nx3.enums.EVoiceType"] = { __ename__ : true, __constructs__ : ["Normal","Barpause"] }
+nx3.enums.EVoiceType.Normal = ["Normal",0];
+nx3.enums.EVoiceType.Normal.toString = $estr;
+nx3.enums.EVoiceType.Normal.__enum__ = nx3.enums.EVoiceType;
+nx3.enums.EVoiceType.Barpause = ["Barpause",1];
+nx3.enums.EVoiceType.Barpause.toString = $estr;
+nx3.enums.EVoiceType.Barpause.__enum__ = nx3.enums.EVoiceType;
 nx3.enums.tools = {}
 nx3.enums.tools.EDirectionTools = function() { }
 $hxClasses["nx3.enums.tools.EDirectionTools"] = nx3.enums.tools.EDirectionTools;
@@ -8505,6 +10890,7 @@ nx3.io.NoteXML.fromXmlStr = function(xmlStr) {
 				articulations.push(cx.EnumTools.createFromString(nx3.enums.ENoteArticulation,articulationStr));
 			}
 		}
+		if(articulations.length == 0) articulations = null;
 		var attributes = [];
 		var attributesStr = xml.get("attributes");
 		if(attributesStr != null) {
@@ -8516,6 +10902,7 @@ nx3.io.NoteXML.fromXmlStr = function(xmlStr) {
 				attributes.push(cx.EnumTools.createFromString(nx3.enums.ENoteAttributes,attributeStr));
 			}
 		}
+		if(attributes.length == 0) attributes = null;
 		type = nx3.enums.ENoteType.Note(heads,variant,articulations,attributes);
 		break;
 	case "pause":
@@ -8536,7 +10923,7 @@ nx3.io.NoteXML.fromXmlStr = function(xmlStr) {
 	var val = Std.parseInt(xml.get("value"));
 	var value = nx3.enums.ENoteValue.getFromValue(val);
 	var direction = cx.EnumTools.createFromString(nx3.enums.EDirectionUD,xml.get("direction"));
-	return new nx3.elements.Note(type,value,direction);
+	return new nx3.elements.Note(type,null,value,direction);
 }
 nx3.io.NoteXML.test = function(item) {
 	var str = nx3.io.NoteXML.toXml(item).toString();
@@ -8551,29 +10938,80 @@ nx3.render.IRenderer = function() { }
 $hxClasses["nx3.render.IRenderer"] = nx3.render.IRenderer;
 nx3.render.IRenderer.__name__ = ["nx3","render","IRenderer"];
 nx3.render.IRenderer.prototype = {
-	__class__: nx3.render.IRenderer
+	complex: null
+	,note: null
+	,signs: null
+	,heads: null
+	,stave: null
+	,notelines: null
+	,__class__: nx3.render.IRenderer
 }
-nx3.render.FrameRenderer = function(target,scaling) {
-	this.target = target;
-	this.scaling = scaling;
+nx3.render.FontRenderer = function(target,scaling) {
+	this.initTargetSprite(target,scaling);
 };
-$hxClasses["nx3.render.FrameRenderer"] = nx3.render.FrameRenderer;
-nx3.render.FrameRenderer.__name__ = ["nx3","render","FrameRenderer"];
-nx3.render.FrameRenderer.__interfaces__ = [nx3.render.IRenderer];
-nx3.render.FrameRenderer.prototype = {
-	heads: function(x,y,dnote) {
-		this.target.get_graphics().lineStyle(1,255);
-		var r = dnote.get_headsRect().toRectangle();
-		var r2 = new flash.geom.Rectangle(x + r.x * this.scaling.halfNoteWidth,y + r.y * this.scaling.halfSpace,r.width * this.scaling.halfNoteWidth,r.height * this.scaling.halfSpace);
-		r2.inflate(2,2);
-		this.target.get_graphics().drawRect(r2.x,r2.y,r2.width,r2.height);
-		this.target.get_graphics().lineStyle(1,0);
+$hxClasses["nx3.render.FontRenderer"] = nx3.render.FontRenderer;
+nx3.render.FontRenderer.__name__ = ["nx3","render","FontRenderer"];
+nx3.render.FontRenderer.__interfaces__ = [nx3.render.IRenderer];
+nx3.render.FontRenderer.prototype = {
+	signs: function(x,y,dcomplex) {
+		if(dcomplex.get_signRects() == null) return;
+		var signsX = x + dcomplex.get_signsFrame().x * this.scaling.halfNoteWidth;
+		var _g1 = 0, _g = dcomplex.get_signRects().length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			var signRect = dcomplex.get_signRects()[i];
+			var sign = dcomplex.signs[i].sign;
+			var signStr = "sign" + Std.string(sign);
+			var xmlStr = nx3.render.svg.ShapeTools.getElementStr(signStr);
+			if(xmlStr == null) continue;
+			var shape = nx3.render.svg.ShapeTools.getShape(xmlStr,this.scaling);
+			if(shape == null) return;
+			var r = signRect.toRectangle();
+			var shapeX = signsX + (r.x + nx3.display.tools.SignsTools.adjustSignFontX(sign)) * this.scaling.halfNoteWidth + this.scaling.svgX;
+			var shapeY = y + (r.y + 2) * this.scaling.halfSpace + this.scaling.svgY;
+			shape.set_x(shapeX);
+			shape.set_y(shapeY);
+			this.target.addChild(shape);
+		}
+	}
+	,complex: function(x,y,dcomplex) {
+		var _g = 0, _g1 = dcomplex.dnotes;
+		while(_g < _g1.length) {
+			var dnote = _g1[_g];
+			++_g;
+			this.note(x,y,dnote);
+		}
+		this.signs(x,y,dcomplex);
+	}
+	,note: function(x,y,dnote) {
+		this.stave(x,y,dnote);
+		this.heads(x,y,dnote);
+	}
+	,heads: function(x,y,dnote) {
 		var _g = 0, _g1 = dnote.get_headRects();
 		while(_g < _g1.length) {
 			var rect = _g1[_g];
 			++_g;
-			var r1 = rect.toRectangle();
-			this.target.get_graphics().drawRect(x + r1.x * this.scaling.halfNoteWidth,y + r1.y * this.scaling.halfSpace,r1.width * this.scaling.halfNoteWidth,r1.height * this.scaling.halfSpace);
+			var xmlStr = null;
+			var _g2 = dnote.get_value();
+			switch( (_g2.type)[1] ) {
+			case 2:
+				xmlStr = nx3.render.svg.Elements.noteWhole;
+				break;
+			case 1:
+				xmlStr = nx3.render.svg.Elements.noteWhite;
+				break;
+			default:
+				xmlStr = nx3.render.svg.Elements.noteBlack;
+			}
+			var shape = nx3.render.svg.ShapeTools.getShape(xmlStr,this.scaling);
+			if(shape == null) return;
+			var r = rect.toRectangle();
+			var shapeX = x + r.x * this.scaling.halfNoteWidth + this.scaling.svgX;
+			var shapeY = y + r.y * this.scaling.halfSpace + this.scaling.svgY;
+			shape.set_x(shapeX);
+			shape.set_y(shapeY);
+			this.target.addChild(shape);
 		}
 	}
 	,stave: function(x,y,dnote) {
@@ -8585,12 +11023,12 @@ nx3.render.FrameRenderer.prototype = {
 		var _g = dnote.get_direction();
 		switch( (_g)[1] ) {
 		case 0:
-			staveX += this.scaling.noteWidth;
+			staveX += (dnote.get_headsRect().x + dnote.get_headsRect().width) * this.scaling.halfNoteWidth;
 			this.target.get_graphics().moveTo(staveX,bottomY);
 			this.target.get_graphics().lineTo(staveX,topY - staveLength);
 			break;
 		case 1:
-			staveX -= this.scaling.noteWidth;
+			staveX += dnote.get_headsRect().x * this.scaling.halfNoteWidth;
 			this.target.get_graphics().moveTo(staveX,topY);
 			this.target.get_graphics().lineTo(staveX,bottomY + staveLength);
 			break;
@@ -8606,20 +11044,231 @@ nx3.render.FrameRenderer.prototype = {
 			this.target.get_graphics().lineTo(x + width,cy);
 		}
 	}
+	,initTargetSprite: function(target,scaling) {
+		this.target = target;
+		this.scaling = scaling;
+	}
+	,target: null
+	,scaling: null
+	,__class__: nx3.render.FontRenderer
+}
+nx3.render.ISpriteRenderer = function() { }
+$hxClasses["nx3.render.ISpriteRenderer"] = nx3.render.ISpriteRenderer;
+nx3.render.ISpriteRenderer.__name__ = ["nx3","render","ISpriteRenderer"];
+nx3.render.ISpriteRenderer.prototype = {
+	initTargetSprite: null
+	,__class__: nx3.render.ISpriteRenderer
+}
+nx3.render.FrameRenderer = function(target,scaling) {
+	this.initTargetSprite(target,scaling);
+};
+$hxClasses["nx3.render.FrameRenderer"] = nx3.render.FrameRenderer;
+nx3.render.FrameRenderer.__name__ = ["nx3","render","FrameRenderer"];
+nx3.render.FrameRenderer.__interfaces__ = [nx3.render.ISpriteRenderer,nx3.render.IRenderer];
+nx3.render.FrameRenderer.prototype = {
+	signs: function(x,y,dcomplex) {
+		if(dcomplex.get_signsFrame() != null) {
+			this.target.get_graphics().lineStyle(1,16711680);
+			var r = dcomplex.get_signsFrame().toRectangle();
+			var signsX = x + r.x * this.scaling.halfNoteWidth;
+			var r2 = new flash.geom.Rectangle(signsX,y + r.y * this.scaling.halfSpace,r.width * this.scaling.halfNoteWidth,r.height * this.scaling.halfSpace);
+			r2.inflate(2,2);
+			this.target.get_graphics().drawRect(r2.x,r2.y,r2.width,r2.height);
+		}
+		if(dcomplex.get_signRects() != null) {
+			this.target.get_graphics().lineStyle(1,0);
+			var signsX = x + dcomplex.get_signsFrame().x * this.scaling.halfNoteWidth;
+			var _g = 0, _g1 = dcomplex.get_signRects();
+			while(_g < _g1.length) {
+				var signRect = _g1[_g];
+				++_g;
+				var r = signRect.toRectangle();
+				var r2 = new flash.geom.Rectangle(signsX + r.x * this.scaling.halfNoteWidth,y + r.y * this.scaling.halfSpace,r.width * this.scaling.halfNoteWidth,r.height * this.scaling.halfSpace);
+				this.target.get_graphics().drawRect(r2.x,r2.y,r2.width,r2.height);
+			}
+		}
+	}
+	,heads: function(x,y,dnote) {
+		var headsX = x;
+		this.target.get_graphics().lineStyle(1,11184895);
+		var _g = 0, _g1 = dnote.get_headRects();
+		while(_g < _g1.length) {
+			var rect = _g1[_g];
+			++_g;
+			var r = rect.toRectangle();
+			var rx = headsX + r.x * this.scaling.halfNoteWidth;
+			this.target.get_graphics().drawRect(rx,y + r.y * this.scaling.halfSpace,r.width * this.scaling.halfNoteWidth,r.height * this.scaling.halfSpace);
+		}
+	}
+	,stave: function(x,y,dnote) {
+		this.target.get_graphics().lineStyle(this.scaling.linesWidth,0);
+		var topY = y + dnote.get_headTop().level * this.scaling.halfSpace;
+		var bottomY = y + dnote.get_headBottom().level * this.scaling.halfSpace;
+		var staveLength = 6.8 * this.scaling.halfSpace;
+		var staveX = x;
+		var _g = dnote.get_direction();
+		switch( (_g)[1] ) {
+		case 0:
+			staveX += (dnote.get_headsRect().x + dnote.get_headsRect().width) * this.scaling.halfNoteWidth;
+			this.target.get_graphics().moveTo(staveX,bottomY);
+			this.target.get_graphics().lineTo(staveX,topY - staveLength);
+			break;
+		case 1:
+			staveX += dnote.get_headsRect().x * this.scaling.halfNoteWidth;
+			this.target.get_graphics().moveTo(staveX,topY);
+			this.target.get_graphics().lineTo(staveX,bottomY + staveLength);
+			break;
+		}
+	}
+	,notelines: function(x,y,width) {
+		this.target.get_graphics().lineStyle(this.scaling.linesWidth,11184810);
+		var _g = -2;
+		while(_g < 3) {
+			var i = _g++;
+			var cy = y + i * this.scaling.space;
+			this.target.get_graphics().moveTo(x,cy);
+			this.target.get_graphics().lineTo(x + width,cy);
+		}
+	}
+	,complex: function(x,y,dcomplex) {
+		var _g = 0, _g1 = dcomplex.dnotes;
+		while(_g < _g1.length) {
+			var dnote = _g1[_g];
+			++_g;
+			this.note(x,y,dnote);
+		}
+		this.signs(x,y,dcomplex);
+		this.target.get_graphics().lineStyle(1,255);
+		var r = dcomplex.get_headsRect().toRectangle();
+		var r2 = new flash.geom.Rectangle(x + r.x * this.scaling.halfNoteWidth,y + r.y * this.scaling.halfSpace,r.width * this.scaling.halfNoteWidth,r.height * this.scaling.halfSpace);
+		r2.inflate(2,2);
+		this.target.get_graphics().drawRect(r2.x,r2.y,r2.width,r2.height);
+	}
 	,note: function(x,y,dnote) {
+		this.heads(x,y,dnote);
+		this.stave(x,y,dnote);
+		this.target.get_graphics().lineStyle(1,16755370);
+		var r = dnote.get_headsRect().toRectangle();
+		var r2 = new flash.geom.Rectangle(x + r.x * this.scaling.halfNoteWidth,y + r.y * this.scaling.halfSpace,r.width * this.scaling.halfNoteWidth,r.height * this.scaling.halfSpace);
+		r2.inflate(2,2);
+		this.target.get_graphics().drawRect(r2.x,r2.y,r2.width,r2.height);
 		this.target.get_graphics().lineStyle(1,11184810);
 		this.target.get_graphics().drawCircle(x,y,2);
 		this.target.get_graphics().moveTo(x,y + this.scaling.space * 6);
 		this.target.get_graphics().lineTo(x,y - this.scaling.space * 6);
-		this.stave(x,y,dnote);
-		this.heads(x,y,dnote);
 	}
+	,initTargetSprite: function(target,scaling) {
+		this.target = target;
+		this.scaling = scaling;
+	}
+	,target: null
+	,scaling: null
 	,__class__: nx3.render.FrameRenderer
+}
+nx3.render.MultiRenderer = function(target,scaling,renderers) {
+	this.target = target;
+	this.scaling = scaling;
+	this.renderers = [];
+	var _g = 0;
+	while(_g < renderers.length) {
+		var r = renderers[_g];
+		++_g;
+		var renderer = Type.createInstance(r,[target,scaling]);
+		this.renderers.push(renderer);
+	}
+};
+$hxClasses["nx3.render.MultiRenderer"] = nx3.render.MultiRenderer;
+nx3.render.MultiRenderer.__name__ = ["nx3","render","MultiRenderer"];
+nx3.render.MultiRenderer.__interfaces__ = [nx3.render.IRenderer];
+nx3.render.MultiRenderer.prototype = {
+	signs: function(x,y,dcomplex) {
+		var _g = 0, _g1 = this.renderers;
+		while(_g < _g1.length) {
+			var r = _g1[_g];
+			++_g;
+			r.signs(x,y,dcomplex);
+		}
+	}
+	,complex: function(x,y,dcomplex) {
+		var _g = 0, _g1 = this.renderers;
+		while(_g < _g1.length) {
+			var r = _g1[_g];
+			++_g;
+			r.complex(x,y,dcomplex);
+		}
+	}
+	,note: function(x,y,dnote) {
+		var _g = 0, _g1 = this.renderers;
+		while(_g < _g1.length) {
+			var r = _g1[_g];
+			++_g;
+			r.note(x,y,dnote);
+		}
+	}
+	,heads: function(x,y,dnote) {
+		var _g = 0, _g1 = this.renderers;
+		while(_g < _g1.length) {
+			var r = _g1[_g];
+			++_g;
+			r.heads(x,y,dnote);
+		}
+	}
+	,stave: function(x,y,dnote) {
+		var _g = 0, _g1 = this.renderers;
+		while(_g < _g1.length) {
+			var r = _g1[_g];
+			++_g;
+			r.stave(x,y,dnote);
+		}
+	}
+	,notelines: function(x,y,width) {
+		var _g = 0, _g1 = this.renderers;
+		while(_g < _g1.length) {
+			var r = _g1[_g];
+			++_g;
+			r.notelines(x,y,width);
+		}
+	}
+	,renderers: null
+	,scaling: null
+	,target: null
+	,__class__: nx3.render.MultiRenderer
 }
 nx3.render.scaling = {}
 nx3.render.scaling.Scaling = function() { }
 $hxClasses["nx3.render.scaling.Scaling"] = nx3.render.scaling.Scaling;
 nx3.render.scaling.Scaling.__name__ = ["nx3","render","scaling","Scaling"];
+nx3.render.svg = {}
+nx3.render.svg.Elements = function() { }
+$hxClasses["nx3.render.svg.Elements"] = nx3.render.svg.Elements;
+nx3.render.svg.Elements.__name__ = ["nx3","render","svg","Elements"];
+nx3.render.svg.ShapeTools = function() { }
+$hxClasses["nx3.render.svg.ShapeTools"] = nx3.render.svg.ShapeTools;
+nx3.render.svg.ShapeTools.__name__ = ["nx3","render","svg","ShapeTools"];
+nx3.render.svg.ShapeTools.getShape = function(xmlStr,scaling) {
+	if(xmlStr == null) return null;
+	var svg = new format.svg.SVG2Gfx(Xml.parse(xmlStr));
+	var shape = svg.createShape();
+	shape.set_scaleX(shape.set_scaleY(scaling.svgScale));
+	shape.cacheAsBitmap = true;
+	return shape;
+}
+nx3.render.svg.ShapeTools.getElementStr = function(element) {
+	try {
+		var str = Reflect.field(nx3.render.svg.Elements,element);
+		return str;
+	} catch( err ) {
+		return nx3.render.svg.Elements.noteBlack;
+	}
+	return null;
+}
+nx3.render.tools = {}
+nx3.render.tools.RenderTools = function() { }
+$hxClasses["nx3.render.tools.RenderTools"] = nx3.render.tools.RenderTools;
+nx3.render.tools.RenderTools.__name__ = ["nx3","render","tools","RenderTools"];
+nx3.render.tools.RenderTools.spriteToPng = function(sprite,filename,extraHeight) {
+	if(extraHeight == null) extraHeight = 100;
+}
 nx3.units = {}
 nx3.units.Constants = function() { }
 $hxClasses["nx3.units.Constants"] = nx3.units.Constants;
@@ -8756,6 +11405,10 @@ nx3.units.NRect.prototype = {
 	,clone: function() {
 		return new nx3.units.NRect(this.x,this.y,this.width,this.height);
 	}
+	,height: null
+	,width: null
+	,y: null
+	,x: null
 	,__class__: nx3.units.NRect
 	,__properties__: {set_bottom:"set_bottom",get_bottom:"get_bottom",set_top:"set_top",get_top:"get_top",set_left:"set_left",get_left:"get_left",set_right:"set_right",get_right:"get_right"}
 }
@@ -8777,6 +11430,9 @@ nx3.units._NX.NX_Impl_.fromX = function(value) {
 }
 nx3.units._NX.NX_Impl_.toX = function(this1) {
 	return this1;
+}
+nx3.units._NX.NX_Impl_.sw = function(x1) {
+	return -x1;
 }
 nx3.units._NX.NX_Impl_.add = function(x1,x2) {
 	return x1 + x2;
@@ -8896,28 +11552,6 @@ nx3.units._NY.NY_Impl_.gtFloat = function(x1,x2) {
 nx3.units._NY.NY_Impl_.gtInt = function(x1,x2) {
 	return x1 > x2;
 }
-nx3.xamples.Examples = function() { }
-$hxClasses["nx3.xamples.Examples"] = nx3.xamples.Examples;
-nx3.xamples.Examples.__name__ = ["nx3","xamples","Examples"];
-nx3.xamples.Examples.basic1 = function(target) {
-	if(target == null) target = new flash.display.Sprite();
-	var note = new nx3.elements.Note(nx3.enums.ENoteType.Note([new nx3.elements.Head(null,nx3.units._Level.Level_Impl_.inRange(0)),new nx3.elements.Head(null,nx3.units._Level.Level_Impl_.inRange(1)),new nx3.elements.Head(null,nx3.units._Level.Level_Impl_.inRange(-1))]));
-	var dnote = new nx3.display.DNote(note,nx3.enums.EDirectionUD.Up);
-	var dnote2 = new nx3.display.DNote(note,nx3.enums.EDirectionUD.Down);
-	var render = new nx3.render.FrameRenderer(target,nx3.render.scaling.Scaling.NORMAL);
-	render.notelines(0,100,700);
-	render.note(100,100,dnote);
-	render.note(200,100,dnote2);
-	var render1 = new nx3.render.FrameRenderer(target,nx3.render.scaling.Scaling.SMALL);
-	render1.notelines(0,200,700);
-	render1.note(100,200,dnote);
-	render1.note(200,200,dnote2);
-	var render2 = new nx3.render.FrameRenderer(target,nx3.render.scaling.Scaling.MID);
-	render2.notelines(0,300,700);
-	render2.note(100,300,dnote);
-	render2.note(200,300,dnote2);
-	return target;
-}
 var openfl = {}
 openfl.display = {}
 openfl.display.Tilesheet = function(image) {
@@ -8939,6 +11573,9 @@ openfl.display.Tilesheet.prototype = {
 		this.nmeCenterPoints.push(centerPoint);
 		return this.nmeTileRects.length - 1;
 	}
+	,nmeTileRects: null
+	,nmeCenterPoints: null
+	,nmeBitmap: null
 	,__class__: openfl.display.Tilesheet
 }
 var tink = {}
@@ -9370,6 +12007,62 @@ flash.ui.Keyboard.DOM_VK_SLEEP = 95;
 flash.utils.Endian.BIG_ENDIAN = "bigEndian";
 flash.utils.Endian.LITTLE_ENDIAN = "littleEndian";
 flash.utils.Uuid.UID_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+format.gfx.GfxBytes.EOF = 0;
+format.gfx.GfxBytes.SIZE = 1;
+format.gfx.GfxBytes.BEGIN_FILL = 10;
+format.gfx.GfxBytes.GRADIENT_FILL = 11;
+format.gfx.GfxBytes.END_FILL = 12;
+format.gfx.GfxBytes.LINE_STYLE = 20;
+format.gfx.GfxBytes.END_LINE_STYLE = 21;
+format.gfx.GfxBytes.MOVE = 30;
+format.gfx.GfxBytes.LINE = 31;
+format.gfx.GfxBytes.CURVE = 32;
+format.gfx.GfxBytes.base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+format.gfx.GfxBytes.scaleModes = [flash.display.LineScaleMode.NORMAL,flash.display.LineScaleMode.NONE,flash.display.LineScaleMode.VERTICAL,flash.display.LineScaleMode.HORIZONTAL];
+format.gfx.GfxBytes.capsStyles = [flash.display.CapsStyle.ROUND,flash.display.CapsStyle.NONE,flash.display.CapsStyle.SQUARE];
+format.gfx.GfxBytes.jointStyles = [flash.display.JointStyle.ROUND,flash.display.JointStyle.MITER,flash.display.JointStyle.BEVEL];
+format.gfx.GfxBytes.spreadMethods = [flash.display.SpreadMethod.PAD,flash.display.SpreadMethod.REPEAT,flash.display.SpreadMethod.REFLECT];
+format.gfx.GfxBytes.interpolationMethods = [flash.display.InterpolationMethod.RGB,flash.display.InterpolationMethod.LINEAR_RGB];
+format.svg.PathParser.MOVE = 77;
+format.svg.PathParser.MOVER = 109;
+format.svg.PathParser.LINE = 76;
+format.svg.PathParser.LINER = 108;
+format.svg.PathParser.HLINE = 72;
+format.svg.PathParser.HLINER = 104;
+format.svg.PathParser.VLINE = 86;
+format.svg.PathParser.VLINER = 118;
+format.svg.PathParser.CUBIC = 67;
+format.svg.PathParser.CUBICR = 99;
+format.svg.PathParser.SCUBIC = 83;
+format.svg.PathParser.SCUBICR = 115;
+format.svg.PathParser.QUAD = 81;
+format.svg.PathParser.QUADR = 113;
+format.svg.PathParser.SQUAD = 84;
+format.svg.PathParser.SQUADR = 116;
+format.svg.PathParser.ARC = 65;
+format.svg.PathParser.ARCR = 97;
+format.svg.PathParser.CLOSE = 90;
+format.svg.PathParser.CLOSER = 122;
+format.svg.PathParser.UNKNOWN = -1;
+format.svg.PathParser.SEPARATOR = -2;
+format.svg.PathParser.FLOAT = -3;
+format.svg.PathParser.FLOAT_SIGN = -4;
+format.svg.PathParser.FLOAT_DOT = -5;
+format.svg.PathParser.FLOAT_EXP = -6;
+format.svg.PathSegment.MOVE = 1;
+format.svg.PathSegment.DRAW = 2;
+format.svg.PathSegment.CURVE = 3;
+format.svg.PathSegment.CUBIC = 4;
+format.svg.PathSegment.ARC = 5;
+format.svg.SVGData.SIN45 = 0.70710678118654752440084436210485;
+format.svg.SVGData.TAN22 = 0.4142135623730950488016887242097;
+format.svg.SVGData.mStyleSplit = new EReg(";","g");
+format.svg.SVGData.mStyleValue = new EReg("\\s*(.*)\\s*:\\s*(.*)\\s*","");
+format.svg.SVGData.mTranslateMatch = new EReg("translate\\((.*)[, ](.*)\\)","");
+format.svg.SVGData.mScaleMatch = new EReg("scale\\((.*)\\)","");
+format.svg.SVGData.mMatrixMatch = new EReg("matrix\\((.*)[, ](.*)[, ](.*)[, ](.*)[, ](.*)[, ](.*)\\)","");
+format.svg.SVGData.mURLMatch = new EReg("url\\(#(.*)\\)","");
+format.svg.SVGData.defaultFill = format.svg.FillType.FillSolid(0);
 haxe.Template.splitter = new EReg("(::[A-Za-z0-9_ ()&|!+=/><*.\"-]+::|\\$\\$([A-Za-z0-9_-]+)\\()","");
 haxe.Template.expr_splitter = new EReg("(\\(|\\)|[ \r\n\t]*\"[^\"]*\"[ \r\n\t]*|[!+=/><*.&|-]+)","");
 haxe.Template.expr_trim = new EReg("^[ ]*([^ ]+)[ ]*$","");
@@ -9390,6 +12083,9 @@ haxe.xml.Parser.escapes = (function($this) {
 }(this));
 js.Browser.window = typeof window != "undefined" ? window : null;
 js.Browser.document = typeof window != "undefined" ? window.document : null;
+nx3.display.DComplex.SECOND_CLASH_ADJUST_X = 3.0;
+nx3.display.DComplex.THIRD_CLASH_ADJUST_X = 4.0;
+nx3.display.tools.SignsTools.BREAKPOINT = 5;
 nx3.enums.ENoteValue.DOT = 1.5;
 nx3.enums.ENoteValue.DOTDOT = 1.75;
 nx3.enums.ENoteValue.TRI = 2 / 3;
@@ -9446,11 +12142,59 @@ nx3.io.NoteXML.XNOTE_TYPE_NOTE_ATTRIBUTES = "attributes";
 nx3.io.NoteXML.XOFFSET = "offset";
 nx3.io.NoteXML.XLYRIC_CONTINUATION = "continuation";
 nx3.io.NoteXML.XLYRIC_FORMAT = "format";
-nx3.render.scaling.Scaling.MID = { linesWidth : 0.8, space : 12.0, halfSpace : 6.0, noteWidth : 10, halfNoteWidth : 5, quarterNoteWidth : 2.5, signPosWidth : 14.0, svgScale : .27, svgX : -8.5, svgY : -61.0, fontScaling : 6.0};
+nx3.render.scaling.Scaling.MID = { linesWidth : 0.8, space : 12.0, halfSpace : 6.0, noteWidth : 10, halfNoteWidth : 5, quarterNoteWidth : 2.5, signPosWidth : 14.0, svgScale : .27, svgX : 0, svgY : -55.0, fontScaling : 6.0};
 nx3.render.scaling.Scaling.NORMAL = { linesWidth : .5, space : 8.0, halfSpace : 4.0, noteWidth : 7.0, halfNoteWidth : 3.5, quarterNoteWidth : 1.75, signPosWidth : 9.5, svgScale : .175, svgX : -5.5, svgY : -40.0, fontScaling : 4.0};
 nx3.render.scaling.Scaling.SMALL = { linesWidth : .5, space : 6.0, halfSpace : 3.0, noteWidth : 5.0, halfNoteWidth : 2.5, quarterNoteWidth : 1.25, signPosWidth : 7.0, svgScale : .14, svgX : -5.0, svgY : -32.0, fontScaling : 3.0};
+nx3.render.svg.Elements.clefG = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none\"\r\n\t\t\td=\"m 95.72971,266.7949 c -5.57504,2.79274 -12.48498,4.1891 -20.72511,4.1891 -9.69981,0 -18.99938,-1.66998 -27.91049,-5.00757 -8.90876,-3.33996 -16.75807,-7.86163 -23.54558,-13.56975 -6.78751,-5.70339 -12.24248,-12.38094 -16.36254,-20.03029 -4.12007,-7.64934 -6.1801,-15.78458 -6.1801,-24.40572 0,-29.26234 20.72746,-61.31506 62.18472,-96.1605 -1.3349,-5.34251 -2.33313,-10.74399 -2.99941,-16.209153 -0.66627,-5.460449 -1.00058,-11.107236 -1.00058,-16.938007 0,-8.010226 0.66392,-15.871864 1.99646,-23.582532 1.3302,-7.710668 3.23955,-14.935434 5.72336,-21.674325 2.48617,-6.738864 5.54208,-12.869193 9.17715,-18.393316 3.63272,-5.5265031 7.814,-10.1708424 12.53677,-13.9306366 16.47555,22.8253826 24.71097,44.6247216 24.71097,65.3862176 0,13.480109 -3.18069,26.321 -9.54442,38.522682 -6.36138,12.20404 -16.32959,24.07079 -29.90225,35.60967 l 7.99763,38.42834 c 4.36256,-0.35616 6.78751,-0.53307 7.2725,-0.53307 6.05767,0 11.72453,1.09209 16.99586,3.27863 5.27368,2.18418 9.88109,5.18919 13.82693,9.01269 3.94349,3.82349 7.07003,8.34517 9.37727,13.56502 2.30488,5.21986 3.4585,10.86193 3.46085,16.93329 -0.002,4.36836 -0.78869,8.68011 -2.36374,12.92581 -1.57504,4.25042 -3.814,8.28856 -6.72159,12.10969 -2.90994,3.82586 -6.36373,7.34272 -10.36137,10.55766 -3.99764,3.21965 -8.42141,5.98172 -13.26896,8.28856 0,-0.24294 0.18129,0.45523 0.54385,2.09218 0.36492,1.63932 0.8193,3.79048 1.36315,6.46291 0.5462,2.67008 1.18187,5.64443 1.90935,8.92306 0.72749,3.27626 1.36316,6.43224 1.90936,9.46556 0.5462,3.03568 1.02884,5.73878 1.45497,8.10222 0.42378,2.37052 0.63567,3.97681 0.63567,4.82595 0,5.70576 -1.21248,10.92561 -3.63508,15.65957 -2.42495,4.73396 -5.69746,8.80041 -9.81988,12.19933 -4.12006,3.39656 -8.90875,6.03833 -14.36136,7.9206 -5.45497,1.88226 -11.21364,2.82339 -17.27602,2.82339 -4.60506,0 -8.90641,-0.72885 -12.90875,-2.18654 -4,-1.45769 -7.515,-3.52157 -10.54502,-6.18929 -3.02765,-2.67244 -5.422,-5.91568 -7.18068,-9.73918 -1.75632,-3.82113 -2.63449,-8.03853 -2.63449,-12.64984 0,-3.27862 0.54621,-6.37563 1.63626,-9.2863 1.09005,-2.91066 2.60623,-5.39912 4.54384,-7.463 1.93996,-2.06389 4.3037,-3.7032 7.09122,-4.91323 2.78987,-1.21474 5.81989,-1.82329 9.09004,-1.82329 2.90994,0 5.63625,0.66988 8.18127,2.00492 2.54502,1.33503 4.72748,3.06634 6.54502,5.18919 1.81754,2.12521 3.27251,4.5547 4.36491,7.2861 1.09005,2.72905 1.63626,5.49111 1.63626,8.28384 0,6.31431 -2.33314,11.4752 -7.00176,15.48267 -4.66627,4.00512 -10.51205,6.37328 -17.54441,7.09976 5.57504,2.79509 11.329,4.19146 17.2666,4.1891 4.8452,0.002 9.57268,-0.87745 14.17773,-2.64177 4.6027,-1.75961 8.62859,-4.12777 12.08474,-7.10212 3.45379,-2.97436 6.24131,-6.43932 8.3602,-10.38547 2.11889,-3.94614 3.18069,-8.16354 3.18069,-12.65692 0,-1.70299 -0.18365,-3.58526 -0.54385,-5.64914 L 95.72971,266.7949 z M 95.18821,27.488123 c -1.21483,-0.243068 -2.30724,-0.365597 -3.27486,-0.365597 -3.75986,0 -7.24661,1.912917 -10.46026,5.738777 -3.21365,3.823478 -6.00352,8.80275 -8.36726,14.933079 -2.36374,6.132684 -4.21188,13.022518 -5.54914,20.671856 -1.33254,7.649365 -2.00117,15.298698 -2.00117,22.948042 0,3.158334 0.12478,6.194011 0.36492,9.10704 0.24485,2.91538 0.67333,5.70811 1.2831,8.37819 24.73216,-21.976242 37.09942,-41.768292 37.09942,-59.373819 0,-8.378205 -3.03237,-15.723276 -9.09475,-22.037568 z m 3.814,231.850857 c 5.94467,-4.37072 10.46026,-9.16837 13.55619,-14.39058 3.09123,-5.21986 4.63802,-10.86429 4.63802,-16.93801 0,-3.76216 -0.63802,-7.4347 -1.91171,-11.01996 -1.27134,-3.57818 -3.08887,-6.76718 -5.45497,-9.56227 -2.36609,-2.78801 -5.18657,-5.03588 -8.46143,-6.7318 -3.27486,-1.69828 -6.85108,-2.54506 -10.72865,-2.54506 -0.24249,0 -0.72749,0.0307 -1.45497,0.0873 -0.72513,0.0613 -1.75633,0.15097 -3.08887,0.2689 l 12.90639,60.83151 z M 81.56374,199.26225 c -3.75749,0.48354 -7.2725,1.42468 -10.545,2.82104 -3.27251,1.39637 -6.08828,3.12767 -8.45202,5.19155 -2.36374,2.06389 -4.24249,4.43205 -5.63625,7.10212 -1.39376,2.67244 -2.09064,5.58546 -2.09064,8.7438 0,9.34762 4.96527,17.11962 14.88874,23.31127 -8.24013,-1.33503 -14.84636,-4.52167 -19.81634,-9.56227 -4.96997,-5.03823 -7.45378,-11.38084 -7.45378,-19.03255 0,-4.49101 0.93937,-8.83106 2.81812,-13.02016 1.87875,-4.18909 4.39317,-7.95598 7.54325,-11.30065 3.15479,-3.34703 6.85108,-6.23647 11.09121,-8.66595 4.24249,-2.43421 8.72748,-4.13721 13.45261,-5.10664 l -7.63507,-36.42579 c -17.08768,12.86684 -30.02468,25.49546 -38.81101,37.88112 -8.78633,12.38567 -13.1795,24.64868 -13.1795,36.79139 0,6.67755 1.48322,12.99421 4.45438,18.94292 2.97115,5.95106 6.9735,11.14026 12.00469,15.5723 5.03119,4.4344 10.85107,7.92531 17.45966,10.47274 6.60623,2.55214 13.60563,3.82821 20.9982,3.82821 4.24249,0 8.18127,-0.39627 11.81634,-1.18408 3.63743,-0.79017 7.03001,-2.03558 10.1801,-3.73386 L 81.56374,199.26225 z\" />\r\n\t\t</g></svg>";
+nx3.render.svg.Elements.clefC = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none\"\r\n\t\t\td=\"M 90,276 C 86,276 81,275 77,274 73,273 70,271 67,268 64,266 61,263 60,260 58,256 57,253 57,249 57,247 57,245 58,243 59,241 60,239 61,238 63,236 64,235 66,234 68,233 70,232 72,232 74,232 76,233 77,233 79,234 81,236 82,237 84,238 85,240 86,242 87,244 87,246 87,248 87,250 86,252 85,253 84,255 82,256 80,258 79,259 77,260 76,261 75,262 74,262 74,263 74,267 79,269 88,269 92,269 96,268 98,267 101,266 103,264 105,261 107,258 108,255 109,250 110,245 110,239 110,232 110,228 110,224 109,220 108,216 107,212 105,210 104,207 102,204 100,203 98,201 96,200 93,200 84,200 76,207 67,222 66,217 65,213 64,209 63,205 62,201 60,199 59,196 57,193 55,192 53,190 52,189 49,189 48,189 47,189 46,190 L 46,275 39,275 39,93 46,93 46,179 C 46,179 47,179 47,179 48,180 48,180 49,180 51,180 53,179 55,177 57,175 59,173 60,170 62,167 63,163 64,159 65,155 66,151 67,147 77,160 86,166 92,166 94,166 97,165 99,164 101,162 103,160 104,157 106,155 107,151 108,148 109,144 109,140 109,135 109,128 109,122 108,117 107,113 106,109 104,107 102,104 99,102 96,101 93,100 89,100 84,100 75,100 71,102 71,105 71,106 73,107 75,108 80,110 83,112 85,114 86,116 87,118 87,121 87,123 87,124 86,126 85,128 84,130 83,131 81,133 80,134 78,135 76,136 74,137 72,137 68,137 64,135 61,132 58,129 56,125 56,120 56,114 58,108 62,102 66,98 70,95 74,94 79,93 83,92 88,92 95,92 101,93 106,95 112,96 116,99 120,102 124,105 127,110 129,114 131,119 132,125 132,131 132,136 131,142 129,147 128,152 125,157 122,161 119,165 116,168 112,170 108,173 103,174 98,174 89,174 81,172 76,169 L 76,169 C 74,169 72,170 71,173 70,175 69,178 69,182 69,184 69,186 69,188 70,191 70,193 71,194 72,196 72,197 73,198 74,199 75,200 76,200 79,197 82,194 86,193 89,191 93,190 97,190 102,190 107,191 111,194 116,196 120,200 123,204 126,209 129,214 130,219 132,225 133,231 133,237 133,250 129,259 122,266 114,273 104,276 90,276 Z M 27,93 L 27,275 4,275 4,93 27,93 Z\"/>\r\n\t\t</g></svg>";
+nx3.render.svg.Elements.clefF = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none\"\r\n\t\t\td=\"M 8,240 C 21,236 32,230 39,224 45,218 51,211 57,204 62,197 67,190 70,183 74,176 77,168 79,161 81,153 82,146 82,139 82,133 81,127 80,122 78,118 76,113 73,110 70,106 66,103 62,101 58,99 53,98 48,98 44,98 41,99 37,100 33,101 30,103 27,106 24,108 22,111 20,114 18,117 17,120 17,123 17,125 17,126 18,126 18,126 18,126 19,125 20,125 20,124 22,123 23,123 24,122 26,122 27,121 29,121 31,121 33,121 35,121 36,122 38,123 40,124 41,126 42,127 43,129 44,131 45,133 45,135 45,137 45,143 43,147 40,151 36,155 32,157 26,157 23,157 20,156 18,155 16,154 14,152 12,149 10,147 9,144 8,141 7,138 7,134 7,131 7,126 8,121 11,116 13,111 16,107 21,104 25,101 29,98 35,96 40,94 46,93 52,93 62,93 71,95 78,98 85,101 91,105 95,111 99,116 102,122 104,128 105,134 106,140 106,147 106,150 106,154 105,157 105,161 104,164 102,168 101,172 99,176 97,180 94,185 91,190 88,195 84,202 78,209 71,215 64,221 57,226 50,230 43,235 36,238 29,240 23,243 18,244 14,244 10,244 8,243 8,240 Z M 121,116 C 121,113 122,111 124,110 125,108 127,107 130,107 133,107 135,108 136,110 138,111 139,113 139,116 139,119 138,121 136,122 135,124 133,125 130,125 127,125 125,124 124,122 122,121 121,119 121,116 Z M 121,162 C 121,159 122,157 124,156 125,154 127,153 130,153 133,153 135,154 136,156 138,157 139,159 139,162 139,165 138,167 136,168 135,170 133,171 130,171 127,171 125,170 124,168 122,167 121,165 121,162 Z\"/>\r\n\t\t</g></svg>";
+nx3.render.svg.Elements.HVT4 = nx3.render.svg.Elements.noteBlack;
+nx3.render.svg.Elements.noteBlack = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none\"\r\n\t\t\td = \"m 20.557649,250.57631 c -5.81753,-0.002 -10.6650905,-1.36806 -14.5450105,-4.0971 -3.87756,-2.73612 -5.81516995,-6.6516 -5.81516995,-11.74881 0,-4.12777 1.30193995,-8.10458 3.90816995,-11.92807 2.60387,-3.82585 5.9069905,-7.19411 9.9070005,-10.1095 3.99998,-2.91302 8.452014,-5.24816 13.360774,-7.01013 4.90876,-1.7596 9.66448,-2.63941 14.2719,-2.63941 6.1801,0 11.17834,1.42467 14.99703,4.27637 3.81636,2.85406 5.72572,6.70821 5.72572,11.56483 0,4.00747 -1.30195,7.92295 -3.90817,11.7488 -2.60623,3.8235 -5.93761,7.19412 -9.99882,10.10714 -4.05885,2.91303 -8.54382,5.27883 -13.45258,7.10448 -4.90878,1.81858 -9.72573,2.72905 -14.450844,2.7314 z\" />\r\n\t\t</g></svg>";
+nx3.render.svg.Elements.HVT2 = nx3.render.svg.Elements.noteWhite;
+nx3.render.svg.Elements.noteWhite = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none\"\r\n\t\t\td=\"m -0.01820308,235.29885 c 0,-4.12777 1.15125988,-8.19421 3.45376988,-12.20168 2.30253,-4.00747 5.3325496,-7.55735 9.0900592,-10.65436 3.7575,-3.09701 7.96936,-5.58546 12.63565,-7.46772 4.66627,-1.88227 9.30428,-2.8234 13.90934,-2.8234 7.63741,0 13.69743,1.60865 18.18243,4.82831 4.48262,3.2173 6.72393,7.73898 6.72863,13.56739 -0.005,4.25042 -1.21482,8.25553 -3.63977,12.02006 -2.4226,3.76452 -5.57504,7.04315 -9.4526,9.83588 -3.87756,2.79037 -8.30134,5.00522 -13.27367,6.64689 -4.96763,1.63695 -10.06001,2.45779 -15.27249,2.46015 -6.18245,-0.002 -11.45615,-1.42939 -15.8186992,-4.28109 -4.36254,-2.85641 -6.54264988,-6.83322 -6.54264988,-11.93043 z M 49.439026,207.62158 c -1.93759,0 -4.39551,0.48589 -7.3643,1.45769 -2.97117,0.96944 -6.15186,2.2455 -9.54915,3.82113 -3.39257,1.57799 -6.75924,3.39893 -10.09297,5.46517 -3.33606,2.06388 -6.36843,4.18438 -9.09475,6.37091 -2.731,2.18182 -4.9417295,4.39902 -6.6391792,6.64453 -1.69512,2.24787 -2.54502,4.28109 -2.54738,6.10202 0.002,5.7034 3.4561299,8.55746 10.3684392,8.55746 3.27486,0 7.45849,-1.06143 12.55087,-3.18664 5.09241,-2.12285 10.0624,-4.73396 14.91464,-7.82861 4.84756,-3.097 9.03119,-6.34497 12.54619,-9.74153 3.51735,-3.40128 5.27603,-6.4346 5.27603,-9.10468 0,-5.7034 -3.45377,-8.55745 -10.36844,-8.55745 z\" />\r\n\t\t</g></svg>";
+nx3.render.svg.Elements.HVT1 = nx3.render.svg.Elements.noteWhole;
+nx3.render.svg.Elements.noteWhole = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none\"\r\n\t\t\td=\"m 0.14197458,226.9183 c 0,-3.64187 1.21011002,-6.97946 3.63271012,-10.01514 2.4226,-3.03568 5.66217,-5.64679 9.7233503,-7.83569 4.0565,-2.18182 8.692204,-3.85179 13.899944,-5.00757 5.21012,-1.15106 10.54031,-1.72894 15.99057,-1.7313 5.09006,0.002 10.08827,0.64157 14.99232,1.91292 4.9064,1.27843 9.32782,3.00738 13.26661,5.19156 3.93643,2.18653 7.11712,4.76698 9.54208,7.74133 2.42025,2.97671 3.63271,6.22468 3.63271,9.74389 0,3.88718 -1.0312,7.34743 -3.08885,10.38311 -2.06004,3.03568 -4.99825,5.58546 -8.81461,7.64935 -3.81636,2.06388 -8.38843,3.67253 -13.71862,4.8283 -5.33019,1.15106 -11.26544,1.72895 -17.8081,1.73131 -5.81517,-0.002 -11.23482,-0.58025 -16.26603,-1.73131 -5.026479,-1.15577 -9.389044,-2.79508 -13.082984,-4.9203 -3.6962903,-2.12521 -6.6015203,-4.70565 -8.7204103,-7.73897 -2.1212401,-3.03568 -3.18069012,-6.43696 -3.18069012,-10.20149 z m 65.06407442,9.28158 c 0,-4.00511 -1.39376,-8.80276 -4.18363,-14.38822 -1.33254,-2.67007 -2.75691,-5.00757 -4.27074,-7.01248 -1.51618,-2.00256 -3.18305,-3.61121 -5.00057,-4.82595 -1.81754,-1.21239 -3.90817,-2.12522 -6.27193,-2.73141 -2.36373,-0.60619 -5.06179,-0.91047 -8.09181,-0.91047 -11.63506,0 -17.452602,4.675 -17.452602,14.02498 0,3.51922 0.696896,6.88984 2.090662,10.10714 1.39376,3.2173 3.24189,6.10202 5.54443,8.6518 2.30253,2.54978 4.84756,4.583 7.63508,6.09966 2.78751,1.51902 5.63859,2.27853 8.54853,2.27853 2.6651,0 5.17951,-0.12266 7.54324,-0.3656 2.36376,-0.24296 4.485,-0.72885 6.36375,-1.45769 1.8811,-0.72649 3.48674,-1.8516 4.81694,-3.36826 1.33489,-1.51666 2.24367,-3.55224 2.72865,-6.10203 z\" />\r\n\t\t</g></svg>";
+nx3.render.svg.Elements.signNatural = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;display:inline\"\r\n\t\t\td=\"m 27.763524,289.1105 0,-36.43051 -27.82574358,9.65191 0,-97.8116 4.52499988,0 0.0183,36.60977 27.8092637,-9.83589 0,97.81632 -4.52736,0 z m -23.3007437,-42.80378 23.3007437,-8.38055 -0.0157,-30.60209 -23.2842537,8.55981 0,30.42283 z\" />\t\r\n\t\t</g></svg>";
+nx3.render.svg.Elements.signSharp = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;display:inline\"\r\n\t\t\td=\"m 31.526296,208.23455 -17.48556,5.8284 0.0157,31.51021 17.46908,-5.82841 0,-31.5102 z m 4.52736,-43.89588 0.0131,26.0474 9.44083,-3.09464 0,16.5724 -9.4526,3.097 0,31.50785 9.4526,-3.09701 0,16.57476 -9.4526,3.09701 0,28.59482 -4.52736,0 0,-27.32111 -17.48556,5.82841 0,27.31875 -4.52736,0 0,-26.04268 -9.4526,3.09464 0,-16.57239 9.4526,-3.09701 -0.0131,-31.50785 -9.43847,3.09465 0,-16.5724 9.4526,-3.09701 0,-28.59482 4.52736,0 0.0157,27.32111 17.46908,-5.82841 0,-27.32347 4.52736,0 z\" />\t\r\n\t\t</g></svg>";
+nx3.render.svg.Elements.signFlat = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none;display:inline\"\r\n\t\t\t\td=\"m 0.119631,150.69109 5.81283,0 -1.25721,57.37598 c 3.63742,-5.96993 9.26898,-8.95607 16.901689,-8.95371 2.66507,-0.002 5.23835,0.45287 7.72451,1.3657 2.48383,0.91046 4.63332,2.15823 6.45084,3.73622 1.8152,1.58034 3.27018,3.46025 4.36022,5.64914 1.09004,2.18654 1.63625,4.55234 1.63625,7.10684 -0.24254,3.52158 -1.54679,7.44178 -3.90817,11.75353 -2.36373,4.3141 -6.39435,8.53622 -12.08944,12.66399 l -25.631519,18.95235 0,-109.65004 z m 16.901689,55.71308 c -5.082969,0 -8.960559,2.55214 -11.620919,7.65407 -0.71102,6.92521 -1.06652,12.87863 -1.06652,17.86026 0,8.62586 0.29665,14.63825 0.88758,18.03953 2.30253,-1.45769 4.75337,-3.61121 7.35491,-6.46763 2.603867,-2.85641 4.991139,-5.89445 7.171249,-9.11175 2.17775,-3.21966 3.96469,-6.43696 5.35609,-9.65898 1.39141,-3.21966 2.08592,-6.04541 2.08827,-8.47254 -0.002,-2.79509 -0.96997,-5.13494 -2.90523,-7.0172 -1.93762,-1.88463 -4.35784,-2.82576 -7.26543,-2.82576 z\" />\r\n\t\t</g></svg>";
+nx3.render.svg.Elements.flagDown8 = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none\" \r\n\t\t\td=\"M 10,227 C 12,227 14,227 15,227 16,227 17,226 19,226 20,225 22,224 23,223 25,222 27,220 30,218 39,211 44,206 46,205 54,195 58,185 58,174 58,166 55,156 48,144 48,143 47,142 47,141 47,140 48,139 48,139 49,139 50,140 52,142 53,144 55,146 56,149 57,152 59,155 60,158 61,161 62,164 62,166 63,171 64,176 64,181 64,186 63,190 61,195 60,200 57,204 54,209 50,213 47,216 43,220 39,224 36,228 33,232 29,237 25,243 22,249 18,255 15,262 13,269 12,269 12,270 12,271 12,271 12,272 13,272 13,273 12,273 10,273 L 10,227 Z\"/>\r\n\t\t</g></svg>";
+nx3.render.svg.Elements.flagUp8 = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none\" \r\n\t\t\td=\"M 12,181 C 14,181 15,181 14,181 14,181 14,182 14,182 14,183 14,184 14,184 20,199 27,211 35,221 45,234 50,241 52,243 56,250 58,258 58,266 L 58,267 C 58,273 58,278 57,282 56,287 55,291 53,294 52,297 51,299 50,301 48,302 48,303 47,303 46,303 46,303 46,302 46,301 46,300 47,298 48,295 49,293 50,291 50,290 51,288 51,286 51,284 52,282 52,280 52,277 52,274 52,270 L 52,269 C 52,256 45,245 30,234 28,233 27,232 26,231 25,230 24,230 22,229 21,228 20,228 18,227 16,227 14,227 12,227 L 12,181 Z\"/>\r\n\t\t</g></svg>";
+nx3.render.svg.Elements.flagDown16 = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none\" \r\n\t\t\td=\"M 65,152 C 65,157 64,162 63,165 65,169 66,175 66,181 66,186 65,191 64,196 62,200 59,205 56,209 52,213 49,217 45,221 42,224 38,228 35,232 31,238 27,243 23,250 20,256 17,262 15,269 15,269 15,270 15,271 15,271 15,272 15,272 15,273 14,273 12,273 L 12,192 C 16,192 20,192 24,190 28,188 32,186 36,183 39,181 42,178 45,176 47,174 49,172 50,171 55,165 58,158 58,150 58,143 56,135 53,127 52,125 51,124 51,123 51,122 52,122 53,122 55,122 56,123 58,126 59,129 60,132 61,136 62,139 63,143 64,146 65,149 65,151 65,152 Z M 60,179 C 60,178 60,177 60,177 60,176 60,175 60,174 59,175 58,177 55,180 53,182 50,185 47,187 45,190 42,192 40,194 37,196 36,198 35,199 29,207 23,216 19,226 20,225 22,225 24,224 26,222 28,221 30,219 36,214 41,210 44,207 48,204 50,202 50,202 57,195 60,187 60,179 Z\"/>\r\n\t\t</g></svg>";
+nx3.render.svg.Elements.flagUp16 = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none\" \r\n\t\t\td=\"M 52,321 C 51,321 50,321 50,320 50,319 51,318 51,316 51,314 52,312 52,310 53,308 53,305 53,303 54,301 54,299 54,297 54,295 54,293 53,291 52,290 51,288 50,286 48,284 46,281 43,279 40,276 36,273 31,269 28,268 27,266 25,265 23,264 22,263 21,263 20,262 19,262 17,262 16,262 15,262 13,262 L 13,181 14,181 C 14,181 15,181 15,182 15,182 15,183 16,184 19,196 26,208 36,221 39,225 41,228 45,232 48,235 51,239 53,242 56,246 58,250 59,255 60,259 61,264 61,269 61,275 60,281 58,285 59,286 59,288 59,290 60,292 60,295 60,298 L 60,298 C 60,300 60,302 59,305 59,307 58,310 57,312 56,315 56,317 55,318 54,320 53,321 52,321 Z M 55,272 C 55,263 53,256 48,250 48,250 46,249 44,247 42,245 40,242 37,240 34,237 31,235 28,233 24,230 22,229 19,228 22,233 24,238 27,243 30,247 32,252 36,255 36,256 37,257 39,259 41,260 43,262 45,264 47,267 49,269 51,271 53,273 54,275 55,277 55,276 55,275 55,274 55,273 55,272 55,272 Z\"/>\r\n\t\t</g></svg>";
+nx3.render.svg.Elements.pauseNv4 = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none\"\r\n\t\t\td=\"M 54,263 C 49,261 43,260 38,260 34,260 30,261 27,263 24,266 22,269 22,273 22,280 26,287 34,294 33,295 33,295 32,295 31,295 29,294 26,292 23,291 20,288 17,285 14,283 12,280 9,276 7,273 6,269 6,266 6,264 6,261 7,258 8,256 9,254 11,252 12,250 14,248 17,247 19,246 21,245 24,245 28,245 31,246 35,248 34,246 32,244 30,241 29,239 27,237 24,234 22,231 20,228 17,225 14,221 11,217 7,213 20,201 26,191 26,181 26,179 25,176 24,173 23,170 21,167 19,165 18,162 16,160 15,158 13,156 13,155 13,155 13,154 14,153 16,153 L 48,198 C 37,212 31,222 31,228 31,231 32,233 34,236 35,239 37,242 40,245 42,248 45,251 47,254 50,257 52,260 54,263 Z\" />\r\n\t\t</g></svg>";
+nx3.render.svg.Elements.pauseNv8 = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none\"\r\n\t\t\td=\"M 30,273 L 22,273 52,208 C 42,211 34,213 28,213 17,213 11,208 11,199 11,197 12,194 15,193 18,191 21,190 24,190 31,190 34,193 34,199 34,202 33,205 31,209 32,209 32,209 34,209 42,209 50,205 60,197 L 30,273 Z\"/>\r\n\t\t</g></svg>";
+nx3.render.svg.Elements.pauseNv16 = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none\"\r\n\t\t\td=\"M 26,314 L 18,314 44,253 C 37,256 30,258 23,258 12,258 6,254 6,245 6,242 8,240 10,238 13,236 16,235 20,235 27,235 30,238 30,244 30,246 29,249 27,253 28,253 29,253 29,253 30,253 31,253 31,253 34,253 39,252 46,249 L 65,207 C 57,210 49,212 42,212 31,212 25,208 25,200 25,197 26,194 29,192 31,190 34,189 38,189 44,189 48,192 48,198 48,201 47,204 45,208 46,208 47,208 48,208 53,208 62,204 73,196 L 26,314 Z\"/>\r\n\t\t</g></svg>";
+nx3.render.svg.Elements.time0 = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none\" \r\n\t\t\td=\"M 81,227 C 81,232 80,238 78,243 76,248 74,252 70,256 67,260 63,263 59,265 54,268 50,269 45,269 40,269 35,268 30,265 26,263 22,260 19,256 16,252 13,247 11,242 9,237 8,232 8,227 8,222 9,216 11,211 13,206 16,202 19,197 22,193 26,190 30,188 35,185 40,184 45,184 49,184 54,185 58,188 63,190 67,193 70,197 73,201 76,206 78,211 80,216 81,221 81,227 Z M 58,229 C 58,202 54,189 45,189 36,189 31,202 31,227 31,252 36,264 45,264 54,264 58,252 58,229 Z\"/>\r\n\t\t</g></svg>";
+nx3.render.svg.Elements.time1 = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none\" \r\n\t\t\td=\"M 10,269 C 10,266 11,264 13,264 16,263 18,262 19,261 20,259 20,257 20,253 L 20,215 C 20,211 20,208 19,207 19,207 18,208 17,210 16,211 15,212 13,214 12,216 11,217 9,219 8,220 8,221 7,221 7,221 6,221 5,221 14,203 19,191 20,184 21,184 23,185 25,185 26,185 29,185 31,185 37,185 41,185 43,184 L 43,253 C 43,257 44,259 45,261 46,262 47,262 48,263 50,263 51,264 52,264 53,265 54,266 54,269 L 10,269 Z\"/>\r\n\t\t</g></svg>";
+nx3.render.svg.Elements.time2 = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none\" \r\n\t\t\td=\"M 76,239 C 75,260 68,271 55,271 53,271 51,270 48,269 45,268 41,267 38,266 35,265 32,263 29,262 26,261 24,261 23,261 21,261 19,261 18,262 17,263 16,263 15,264 14,265 13,266 12,267 11,267 10,268 9,268 8,268 7,267 7,267 7,263 8,259 10,257 12,255 13,252 15,250 18,245 23,240 29,236 34,232 38,229 40,227 43,225 45,223 47,221 48,219 49,217 49,215 50,213 50,211 50,209 50,204 49,199 46,196 43,193 39,191 34,191 28,191 24,193 22,196 24,197 27,199 29,201 31,203 32,205 32,208 32,210 32,211 31,213 30,214 29,215 28,216 27,217 25,218 24,219 22,219 21,220 19,220 12,220 8,216 8,208 8,200 11,194 17,189 23,185 31,183 42,183 48,183 54,184 58,186 62,188 65,190 68,192 70,195 72,198 73,201 74,204 74,206 74,208 74,214 72,219 68,223 67,224 64,225 61,227 57,229 53,231 49,233 44,235 40,237 36,239 32,241 29,243 27,245 L 27,245 C 27,245 28,245 29,245 29,245 30,245 31,245 33,245 35,245 38,246 41,247 44,247 48,248 51,249 54,250 56,251 59,252 61,252 62,252 65,252 68,251 69,249 69,249 70,248 71,246 71,244 73,242 76,239 Z\"/>\r\n\t\t</g></svg>";
+nx3.render.svg.Elements.time3 = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none\" \r\n\t\t\td=\"M 70,245 C 70,253 67,260 61,264 56,268 48,270 37,270 33,270 29,270 25,269 21,268 18,267 15,265 12,263 10,261 8,259 7,257 6,254 6,251 6,248 7,245 10,243 12,241 15,240 18,240 21,240 24,241 26,243 28,245 29,247 29,250 29,255 27,259 24,262 26,264 30,265 35,265 39,265 43,263 45,260 48,257 49,253 49,249 49,243 48,239 46,237 44,234 41,232 37,231 33,231 30,231 28,230 25,230 24,229 24,228 24,227 24,225 24,225 24,224 25,223 25,223 26,223 27,223 28,223 29,223 30,222 32,222 37,222 41,220 44,218 47,216 48,212 48,206 48,195 43,189 32,189 28,189 25,190 23,192 25,194 26,196 28,198 29,200 30,202 30,205 30,208 29,211 27,212 24,214 22,215 19,215 15,215 13,214 10,212 8,210 7,207 7,203 7,197 10,192 15,189 21,186 28,184 37,184 46,184 54,186 60,190 65,194 68,199 68,207 68,211 67,215 64,219 61,222 58,225 53,226 L 54,227 C 58,228 62,230 65,233 68,236 70,240 70,245 Z\"/>\r\n\t\t</g></svg>";
+nx3.render.svg.Elements.time4 = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none\" \r\n\t\t\td=\"M 66,250 L 66,255 C 66,256 66,256 66,257 66,257 66,258 66,258 66,260 67,262 68,262 69,263 72,264 76,264 L 77,269 32,269 32,264 C 38,264 41,262 42,261 43,260 43,256 43,250 L 6,250 6,243 C 8,239 11,235 14,230 16,225 19,220 21,215 23,209 25,204 26,199 28,193 29,189 29,184 L 60,184 C 58,192 52,202 41,213 28,226 21,235 18,242 L 43,242 43,221 66,201 66,242 78,242 78,250 66,250 Z\"/>\r\n\t\t</g></svg>";
+nx3.render.svg.Elements.time5 = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none\" \r\n\t\t\td=\"M 4,249 C 4,245 5,242 8,239 10,236 13,235 16,235 25,235 29,239 29,247 29,248 29,250 28,251 27,253 27,254 26,255 25,256 24,258 24,258 23,259 22,260 22,260 24,263 28,264 32,264 43,264 48,256 48,241 48,234 47,230 44,226 42,222 38,220 33,220 29,220 24,222 18,225 17,225 17,225 17,226 17,226 16,226 16,226 16,227 15,227 14,227 13,227 11,227 9,228 9,223 10,217 10,209 11,202 11,193 12,183 20,185 31,186 44,186 52,186 61,185 69,184 68,197 56,204 34,204 34,204 32,204 31,204 30,204 28,204 27,204 25,203 23,203 22,203 21,203 20,203 19,203 19,203 18,204 18,205 18,206 18,207 18,209 18,210 17,212 17,213 17,215 17,217 17,218 24,215 31,213 39,213 43,213 47,214 51,215 56,216 59,218 62,220 65,223 68,226 69,229 71,232 72,236 72,240 72,245 71,249 69,252 67,256 65,259 62,261 58,264 55,266 50,267 46,268 41,269 36,269 31,269 26,268 23,267 19,266 15,265 13,263 10,261 8,259 6,256 5,254 4,251 4,249 Z\"/>\r\n\t\t</g></svg>";
+nx3.render.svg.Elements.time6 = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none\" \r\n\t\t\td=\"M 74,241 C 74,245 73,249 72,253 70,257 68,260 65,262 62,265 59,267 55,268 51,269 46,270 42,270 30,270 21,266 15,259 9,251 6,240 6,227 6,221 7,215 9,210 10,204 13,200 16,196 19,192 23,189 27,186 31,184 36,183 41,183 46,183 49,183 53,184 57,185 60,186 63,188 66,189 68,191 69,193 71,196 72,198 72,201 72,204 71,207 68,210 66,212 63,213 59,213 55,213 52,212 50,209 47,207 46,204 46,201 46,200 46,198 47,196 48,195 48,193 48,192 48,189 46,188 42,188 40,188 38,189 36,190 34,192 33,194 32,196 31,198 30,201 29,204 28,207 28,211 28,214 28,214 28,215 28,217 28,219 28,221 28,223 35,220 43,218 50,218 57,218 63,220 67,224 72,228 74,234 74,241 Z M 43,226 C 34,226 29,232 29,245 29,258 33,264 41,264 49,264 53,258 53,245 53,232 50,226 43,226 Z\"/>\r\n\t\t</g></svg>";
+nx3.render.svg.Elements.time7 = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none\" \r\n\t\t\td=\"M 77,188 C 77,194 72,207 63,227 54,245 50,259 50,269 L 50,271 C 47,270 42,270 34,270 32,270 29,270 27,270 25,270 24,271 22,271 23,257 32,242 49,225 55,219 59,214 61,209 56,212 50,213 45,213 44,213 41,213 39,212 36,211 34,210 31,209 28,208 26,207 23,206 21,206 20,205 19,205 18,205 16,207 15,209 14,212 13,214 12,217 10,215 9,213 8,211 L 8,203 C 8,203 8,201 8,200 8,198 8,197 8,195 L 8,186 C 14,188 17,190 17,190 18,190 18,189 20,189 21,188 23,187 25,186 26,185 28,185 30,184 32,183 34,183 36,183 38,183 40,184 42,185 45,186 48,188 50,190 53,192 55,193 57,195 59,196 61,197 62,197 67,197 71,193 72,187 L 74,187 C 76,187 77,187 77,188 Z\"/>\r\n\t\t</g></svg>";
+nx3.render.svg.Elements.time8 = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none\" \r\n\t\t\td=\"M 75,244 C 75,248 74,251 72,255 71,258 68,260 65,263 62,265 58,267 54,268 50,269 46,270 42,270 37,270 32,269 28,268 24,267 21,266 18,264 15,262 12,259 11,256 9,253 8,250 8,246 8,242 9,238 12,234 14,231 18,229 22,227 14,223 10,216 10,207 10,203 11,200 12,197 14,195 16,192 19,190 21,188 25,187 28,186 32,185 36,184 40,184 50,184 58,186 64,189 70,193 73,198 73,204 73,213 69,219 61,225 70,229 75,235 75,244 Z M 60,203 C 60,198 58,195 55,192 52,190 47,189 41,189 31,189 26,193 26,200 26,208 34,214 50,219 57,215 60,210 60,203 L 60,203 Z M 58,252 C 58,249 57,247 56,246 54,244 52,242 49,240 47,239 44,237 40,235 37,234 33,232 30,231 23,234 20,240 20,246 20,251 22,256 26,259 30,262 35,263 41,263 45,263 49,262 53,260 56,258 58,255 58,252 Z\"/>\r\n\t\t</g></svg>";
+nx3.render.svg.Elements.time9 = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none\" \r\n\t\t\td=\"M 4,212 C 4,202 7,195 13,190 20,185 28,183 39,183 50,183 58,187 64,195 70,203 73,213 73,227 73,233 72,238 70,244 68,249 66,253 63,257 59,261 55,264 51,267 46,269 41,270 36,270 32,270 29,270 25,269 22,268 19,267 16,265 14,263 11,262 10,259 8,257 7,255 7,252 7,249 8,246 11,244 13,241 15,240 19,240 23,240 26,241 28,244 30,246 31,249 31,253 31,254 31,255 30,257 30,259 29,260 29,261 29,264 31,265 35,265 45,265 50,254 50,232 L 50,229 C 42,233 35,235 29,235 21,235 15,233 11,229 6,225 4,219 4,212 Z M 38,189 C 34,189 30,191 28,195 25,198 24,203 24,209 24,214 25,218 27,222 29,225 32,227 36,227 45,227 50,221 50,209 50,203 49,199 47,195 45,191 42,189 38,189 Z\"/>\r\n\t\t</g></svg>";
+nx3.render.svg.Elements.timeCommon = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none\" \r\n\t\t\td=\"M 78,247 C 77,250 76,253 74,255 72,258 70,261 67,263 64,265 61,267 58,268 55,269 52,270 49,270 43,270 37,269 32,267 27,264 23,261 19,257 16,253 13,248 11,243 9,238 8,232 8,226 8,220 9,214 11,209 13,204 15,199 19,196 22,192 26,189 31,187 36,185 42,184 48,184 51,184 55,184 59,185 62,186 66,187 68,189 71,190 73,192 75,194 76,197 77,199 77,202 77,205 76,208 73,210 71,212 68,213 65,213 62,213 59,212 56,210 53,208 52,205 52,202 52,198 54,193 59,189 56,189 54,189 52,189 48,189 45,190 42,192 39,193 36,196 34,199 32,202 31,205 30,210 29,214 28,218 28,224 28,229 29,234 30,239 31,244 33,248 35,252 37,256 39,259 42,261 45,264 48,265 52,265 60,265 69,259 78,247 Z\"/>\r\n\t\t</g></svg>";
+nx3.render.svg.Elements.timeAllabreve = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none\" \r\n\t\t\td=\"M 39,191 C 30,197 26,207 26,223 26,227 26,230 27,234 28,238 29,241 30,245 31,248 32,251 34,254 35,257 37,259 39,261 L 39,191 Z M 74,247 C 73,250 72,253 70,256 68,259 66,261 63,263 61,265 58,267 55,268 52,270 49,270 46,270 L 45,270 45,284 39,284 39,270 C 34,269 29,267 25,264 21,262 18,259 15,255 12,251 10,246 8,241 7,236 6,231 6,225 6,220 7,215 8,210 10,205 12,201 15,198 18,194 21,191 25,188 29,186 34,185 39,184 L 39,171 45,171 45,184 C 49,184 52,184 56,185 59,186 63,187 65,189 68,191 70,192 72,195 73,197 74,199 74,202 74,205 73,207 70,210 68,212 65,213 62,213 59,213 56,212 53,210 50,208 49,205 49,202 49,198 51,193 56,189 55,189 54,189 52,189 51,188 50,188 49,188 48,188 48,188 47,188 46,188 46,188 45,189 L 45,265 C 46,265 48,265 49,265 57,265 66,259 74,247 Z\"/>\r\n\t\t</g></svg>";
+nx3.render.svg.Elements.tplCircle = "<svg ><g visibility=\"visible\" id=\"page1\"><desc>Slide</desc><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:#FFFFFFF\"><path d=\"M 93,253 C 78,253 66,250 53,242 41,235 32,226 25,214 17,201 14,189 14,175 14,160 17,148 25,135 32,123 41,114 53,107 66,99 78,96 92,96 107,96 119,99 132,107 144,114 153,123 160,135 168,148 171,160 171,174 171,189 168,201 160,214 153,226 144,235 132,242 119,250 107,253 93,253 L 93,253 Z\"/></g><g style=\"stroke:#000000;fill:none\"><path style=\"fill:none\" d=\"M 93,253 C 78,253 66,250 53,242 41,235 32,226 25,214 17,201 14,189 14,175 14,160 17,148 25,135 32,123 41,114 53,107 66,99 78,96 92,96 107,96 119,99 132,107 144,114 153,123 160,135 168,148 171,160 171,174 171,189 168,201 160,214 153,226 144,235 132,242 119,250 107,253 93,253\"/></g><g/></g></g><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:#000000\"><path d=\"M 71,256 C 64,254 57,252 50,248 44,244 38,239 33,234 28,229 23,223 19,217 15,210 13,203 11,196 9,189 8,182 8,175 8,167 9,160 11,153 13,146 15,139 19,132 23,126 28,120 33,115 38,110 44,105 50,101 57,97 64,95 71,93 78,91 85,90 92,90 100,90 107,91 114,93 121,95 128,97 135,101 141,105 147,110 152,115 157,120 162,126 166,132 170,139 172,146 174,153 176,160 177,167 177,174 177,182 176,189 174,196 172,203 170,210 166,217 162,223 157,229 152,234 147,239 141,244 135,248 128,252 121,254 114,256 107,258 100,259 93,259 85,259 78,258 71,256 Z M 130,239 C 136,236 141,232 145,227 150,223 154,218 157,212 160,206 163,200 165,194 166,188 167,181 167,174 167,168 166,161 165,155 163,149 160,143 157,137 154,131 150,126 145,122 141,117 136,113 130,110 124,107 118,104 112,102 106,101 99,100 92,100 86,100 79,101 73,102 67,104 61,107 55,110 49,113 44,117 40,122 35,126 31,131 28,137 25,143 22,149 20,155 19,161 18,168 18,175 18,181 19,188 20,194 22,200 25,206 28,212 31,218 35,223 40,227 44,232 49,236 55,239 61,242 67,245 73,247 79,248 86,249 93,249 99,249 106,248 112,247 118,245 124,242 130,239 Z\"/></g><g style=\"stroke:none;fill:none\"><rect x=\"8\" y=\"89\" width=\"170\" height=\"171\"/></g><g/></g></g><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:none\"><rect x=\"0\" y=\"464\" width=\"854\" height=\"964\"/></g><g/></g></g></g></svg>";
+nx3.render.svg.Elements.tplCircleUp = "\r\n<svg ><g visibility=\"visible\" id=\"page1\"><desc>Slide</desc><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:#000000\"><path d=\"M 71,256 C 64,254 57,252 50,248 44,244 38,239 33,234 28,229 23,223 19,217 15,210 13,203 11,196 9,189 8,182 8,175 8,167 9,160 11,153 13,146 15,139 19,132 23,126 28,120 33,115 38,110 44,105 50,101 57,97 64,95 71,93 78,91 85,90 92,90 100,90 107,91 114,93 121,95 128,97 135,101 141,105 147,110 152,115 157,120 162,126 166,132 170,139 172,146 174,153 176,160 177,167 177,174 177,182 176,189 174,196 172,203 170,210 166,217 162,223 157,229 152,234 147,239 141,244 135,248 128,252 121,254 114,256 107,258 100,259 93,259 85,259 78,258 71,256 Z M 130,239 C 136,236 141,232 145,227 150,223 154,218 157,212 160,206 163,200 165,194 166,188 167,181 167,174 167,168 166,161 165,155 163,149 160,143 157,137 154,131 150,126 145,122 141,117 136,113 130,110 124,107 118,104 112,102 106,101 99,100 92,100 86,100 79,101 73,102 67,104 61,107 55,110 49,113 44,117 40,122 35,126 31,131 28,137 25,143 22,149 20,155 19,161 18,168 18,175 18,181 19,188 20,194 22,200 25,206 28,212 31,218 35,223 40,227 44,232 49,236 55,239 61,242 67,245 73,247 79,248 86,249 93,249 99,249 106,248 112,247 118,245 124,242 130,239 Z\"/></g><g style=\"stroke:none;fill:none\"><rect x=\"8\" y=\"89\" width=\"170\" height=\"171\"/></g><g/></g></g><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:none\"><rect x=\"0\" y=\"464\" width=\"854\" height=\"964\"/></g><g/></g></g><g><desc>Group</desc><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:#000000\"><path d=\"M 70,52 L 92,10 114,52 70,52 Z\"/></g><g style=\"stroke:none;fill:none\"><rect x=\"70\" y=\"10\" width=\"45\" height=\"44\"/></g><g/></g></g><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:#000000\"><path d=\"M 92,95 L 84,95 84,43 100,43 100,95 92,95 Z\"/></g><g style=\"stroke:none;fill:none\"><rect x=\"84\" y=\"43\" width=\"17\" height=\"53\"/></g><g/></g></g></g></g></svg>\r\n\t";
+nx3.render.svg.Elements.tplArrowDown = "\t\r\n<svg ><g visibility=\"visible\" id=\"page1\"><desc>Slide</desc><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:none\"><rect x=\"0\" y=\"464\" width=\"854\" height=\"964\"/></g><g/></g></g><g><desc>Group</desc><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:#000000\"><path d=\"M 69,298 L 92,344 115,298 69,298 Z\"/></g><g style=\"stroke:none;fill:none\"><rect x=\"69\" y=\"298\" width=\"47\" height=\"47\"/></g><g/></g></g><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:#000000\"><path d=\"M 92,252 L 100,252 100,309 84,309 84,252 92,252 Z\"/></g><g style=\"stroke:none;fill:none\"><rect x=\"83\" y=\"252\" width=\"18\" height=\"59\"/></g><g/></g></g></g></g></svg>\t\r\n\t";
+nx3.render.svg.Elements.tplArrowUp = "\t\r\n<svg ><g visibility=\"visible\" id=\"page1\"><desc>Slide</desc><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:none\"><rect x=\"0\" y=\"464\" width=\"854\" height=\"964\"/></g><g/></g></g><g><desc>Group</desc><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:#000000\"><path d=\"M 70,52 L 92,10 114,52 70,52 Z\"/></g><g style=\"stroke:none;fill:none\"><rect x=\"70\" y=\"10\" width=\"45\" height=\"44\"/></g><g/></g></g><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:#000000\"><path d=\"M 92,95 L 84,95 84,43 100,43 100,95 92,95 Z\"/></g><g style=\"stroke:none;fill:none\"><rect x=\"84\" y=\"43\" width=\"17\" height=\"53\"/></g><g/></g></g></g></g></svg>\r\n\t";
+nx3.render.svg.Elements.tpl1 = "\r\n<svg ><g visibility=\"visible\" id=\"page1\"><desc>Slide</desc><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:none\"><rect x=\"0\" y=\"464\" width=\"503\" height=\"1205\"/></g><g/></g></g><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:#000000\"><path d=\"M 106,225 L 93,225 93,146 C 90,149 86,152 82,155 77,158 73,160 69,161 L 69,149 C 76,146 82,142 87,137 92,133 96,128 98,124 L 106,124 106,225 Z\"/></g><g style=\"stroke:none;fill:none\"><rect x=\"69\" y=\"124\" width=\"38\" height=\"103\"/></g><g/></g></g></g></svg>\t\r\n\t";
+nx3.render.svg.Elements.tpl2 = "\r\n<svg ><g visibility=\"visible\" id=\"page1\"><desc>Slide</desc><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:none\"><rect x=\"0\" y=\"464\" width=\"503\" height=\"1205\"/></g><g/></g></g><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:#000000\"><path d=\"M 124,212 L 124,225 58,225 C 58,222 58,219 59,216 61,211 64,207 67,202 71,197 76,192 83,187 93,178 101,171 104,166 108,161 110,157 110,152 110,148 108,144 105,141 102,138 97,136 92,136 86,136 82,138 78,141 75,144 73,148 73,154 L 60,152 C 61,143 64,136 70,131 75,126 83,124 92,124 102,124 109,127 115,132 120,137 123,144 123,152 123,156 122,160 121,164 119,168 117,172 113,176 109,180 103,186 95,193 87,199 83,203 80,206 78,208 77,210 75,212 L 124,212 Z\"/></g><g style=\"stroke:none;fill:none\"><rect x=\"57\" y=\"124\" width=\"68\" height=\"103\"/></g><g/></g></g></g></svg>\t\r\n\t";
+nx3.render.svg.Elements.tpl3 = "\r\n<svg ><g visibility=\"visible\" id=\"page1\"><desc>Slide</desc><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:none\"><rect x=\"0\" y=\"464\" width=\"503\" height=\"1205\"/></g><g/></g></g><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:#000000\"><path d=\"M 60,198 L 73,196 C 74,202 77,207 80,210 83,213 87,214 92,214 99,214 104,212 107,208 111,204 113,200 113,194 113,189 111,184 108,181 104,177 99,176 94,176 91,176 88,176 85,177 L 86,165 C 87,165 88,165 88,165 93,165 98,164 102,161 106,159 108,155 108,150 108,146 106,143 103,140 100,137 97,136 92,136 87,136 83,137 80,140 77,143 75,147 74,152 L 61,150 C 63,142 66,135 71,131 77,126 83,124 91,124 97,124 102,125 107,127 111,130 115,133 117,137 120,141 121,145 121,150 121,154 120,158 117,161 115,165 112,167 107,169 113,171 118,174 121,178 124,182 126,188 126,194 126,203 123,211 116,217 110,223 102,226 92,226 83,226 76,223 70,218 64,213 61,206 60,198 Z\"/></g><g style=\"stroke:none;fill:none\"><rect x=\"60\" y=\"124\" width=\"67\" height=\"104\"/></g><g/></g></g></g></svg>\t\r\n\t";
+nx3.render.svg.Elements.tpl4 = "\r\n<svg ><g visibility=\"visible\" id=\"page1\"><desc>Slide</desc><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:none\"><rect x=\"0\" y=\"464\" width=\"503\" height=\"1205\"/></g><g/></g></g><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:#000000\"><path d=\"M 101,225 L 101,201 56,201 56,188 104,125 114,125 114,188 126,188 126,201 114,201 114,225 101,225 Z M 101,188 L 101,145 69,188 101,188 Z\"/></g><g style=\"stroke:none;fill:none\"><rect x=\"55\" y=\"125\" width=\"72\" height=\"101\"/></g><g/></g></g></g></svg>\t\r\n\t";
+nx3.render.svg.Elements.tpl5 = "\r\n<svg ><g visibility=\"visible\" id=\"page1\"><desc>Slide</desc><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:none\"><rect x=\"0\" y=\"464\" width=\"503\" height=\"1205\"/></g><g/></g></g><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:#000000\"><path d=\"M 60,198 L 73,197 C 74,203 76,207 79,210 83,213 87,214 92,214 98,214 103,212 107,208 111,204 113,198 113,191 113,185 111,179 108,176 104,172 99,170 93,170 88,170 85,171 82,173 79,174 77,176 75,179 L 62,177 72,125 121,125 121,138 83,138 78,165 C 84,160 90,158 96,158 104,158 112,161 117,167 123,173 126,181 126,190 126,199 123,207 118,214 112,222 103,226 92,226 83,226 76,223 70,218 64,213 61,206 60,198 Z\"/></g><g style=\"stroke:none;fill:none\"><rect x=\"60\" y=\"125\" width=\"67\" height=\"103\"/></g><g/></g></g></g></svg>\t\r\n\t";
+nx3.render.svg.Elements.tpl6x = "\r\n<svg ><g visibility=\"visible\" id=\"page1\"><desc>Slide</desc><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:none\"><rect x=\"0\" y=\"464\" width=\"503\" height=\"1205\"/></g><g/></g></g><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:#000000\"><path d=\"M 124,150 L 111,151 C 110,146 108,143 106,141 103,138 99,136 94,136 90,136 86,137 83,139 80,142 77,145 74,150 72,155 71,162 71,172 74,168 78,165 82,162 86,160 91,159 96,159 104,159 111,162 117,168 123,174 126,182 126,192 126,198 125,204 122,209 119,215 115,219 110,222 105,225 100,226 94,226 83,226 75,222 68,215 61,207 58,195 58,178 58,158 62,144 69,135 75,128 84,124 95,124 103,124 110,126 115,131 120,136 123,142 124,150 Z M 71,191 C 71,195 72,199 74,203 76,206 78,209 82,211 85,213 89,214 93,214 99,214 103,212 107,208 111,204 113,199 113,192 113,186 111,180 107,177 104,173 99,171 92,171 86,171 81,173 77,177 73,180 71,185 71,191 Z\"/></g><g style=\"stroke:none;fill:none\"><rect x=\"58\" y=\"124\" width=\"69\" height=\"104\"/></g><g/></g></g></g></svg>\t\r\n\t";
+nx3.render.svg.Elements.tpl6 = "\r\n<svg ><g style=\"stroke:none;fill:#000000\"><path d=\"M 124,150 L 111,151 C 110,146 108,143 106,141 103,138 99,136 94,136 90,136 86,137 83,139 80,142 77,145 74,150 72,155 71,162 71,172 74,168 78,165 82,162 86,160 91,159 96,159 104,159 111,162 117,168 123,174 126,182 126,192 126,198 125,204 122,209 119,215 115,219 110,222 105,225 100,226 94,226 83,226 75,222 68,215 61,207 58,195 58,178 58,158 62,144 69,135 75,128 84,124 95,124 103,124 110,126 115,131 120,136 123,142 124,150 Z M 71,191 C 71,195 72,199 74,203 76,206 78,209 82,211 85,213 89,214 93,214 99,214 103,212 107,208 111,204 113,199 113,192 113,186 111,180 107,177 104,173 99,171 92,171 86,171 81,173 77,177 73,180 71,185 71,191 Z\"/></g></svg>\t\r\n\t";
+nx3.render.svg.Elements.tpl7 = "\r\n<svg ><g visibility=\"visible\" id=\"page1\"><desc>Slide</desc><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:none\"><rect x=\"0\" y=\"464\" width=\"503\" height=\"1205\"/></g><g/></g></g><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:#000000\"><path d=\"M 61,138 L 61,125 126,125 126,136 C 120,142 114,152 108,163 102,174 97,186 94,197 91,206 90,215 89,225 L 76,225 C 76,217 78,208 81,196 83,185 87,175 93,164 98,154 104,145 110,138 L 61,138 Z\"/></g><g style=\"stroke:none;fill:none\"><rect x=\"61\" y=\"125\" width=\"67\" height=\"101\"/></g><g/></g></g></g></svg>\t\r\n\t";
 nx3.units.Constants.BASE_NOTE_VALUE = 3024;
 nx3.units.Constants.STAVE_LENGTH = 6.8;
+nx3.units.Constants.SIGN_TO_NOTE_DISTANCE = 0.8;
+nx3.units.Constants.COMPLEX_COLLISION_OVERLAP_XTRA = 0.6;
+nx3.units.Constants.SIGN_NORMAL_WIDTH = 2.6;
+nx3.units.Constants.SIGN_PARENTHESIS_WIDTH = 4.4;
+nx3.units.Constants.HEAD_ADJUST_X = 0;
 nx3.units._Level.Level_Impl_.MAX_LEVEL = 15;
 nx3.units._Level.Level_Impl_.MIN_LEVEL = -15;
 nx3.units._NX.NX_Impl_.XUNIT = 1;

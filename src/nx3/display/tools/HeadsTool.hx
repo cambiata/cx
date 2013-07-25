@@ -66,6 +66,19 @@ class HeadsTool
 		return result;
 	}
 	
+	public static function headsCollide(heads1:Array<Head>, heads2:Array<Head>):Bool
+	{
+		for (head1 in heads1)
+		{
+			for (head2 in heads2)
+			{
+				if (head1.level == head2.level - 1) return true;
+				if (head1.level == head2.level) return true;
+				if (head1.level == head2.level + 1) return true;
+			}
+		}
+		return false;
+	}
 	
 	
 }

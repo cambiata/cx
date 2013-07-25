@@ -2,11 +2,12 @@ package nx3.xamples;
 
 #if neko
 import nme.display.Sprite;
-import nx3.render.FrameRenderer;
 #else
 import flash.display.Sprite;
 #end
 
+
+import nx3.render.FrameRenderer;
 import nx3.render.scaling.Scaling;
 import nx3.render.FrameRenderer;
 

@@ -28,6 +28,12 @@ class DNote extends DNoteCalc
 		}
 	}
 	
+	public function reset()
+	{
+		this.headRects_ = null;
+		this.headsRect_ = null;
+	}
+	
 
 	
 }

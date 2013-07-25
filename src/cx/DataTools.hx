@@ -2,7 +2,7 @@ package cx;
 import haxe.io.BytesInput;
 import haxe.io.BytesOutput;
 import haxe.io.Bytes;
-import haxe.Int32;
+//import haxe.Int32;
 
 /**
  * ...
@@ -33,7 +33,7 @@ class DataTools
 	{		
 		var bout:BytesOutput = new BytesOutput();	
 		bout.bigEndian = false;				
-		bout.writeInt32(Int32.ofInt(items.length));
+		bout.writeInt32(items.length);
 
 		for (item in items)
 		{
@@ -52,7 +52,7 @@ class DataTools
 	{			
 		var bin:BytesInput = new BytesInput(bytes);
 		bin.bigEndian = false;		
-		var length = Int32.toInt(bin.readInt32());
+		var length = bin.readInt32();
 		
 		var metas = new Array<DataItemMeta>();
 		var datas = new Array<Bytes>();
@@ -85,7 +85,7 @@ class DataTools
 		var bin = new BytesInput(bytes);
 		bin.bigEndian = false;		
 
-		var length = Int32.toInt(bin.readInt32());
+		var length = bin.readInt32();
 		
 		var metas = new Array<DataItemMeta>();		
 		for (i in 0...length)
@@ -100,7 +100,7 @@ class DataTools
 	
 	static private function writeItemMeta(out:BytesOutput, id:String, data:Bytes)
 	{
-		out.writeInt32(Int32.ofInt(data.length));		
+		out.writeInt32(data.length);		
 		out.writeByte(id.length);
 		out.writeString(id);
 	}
@@ -112,7 +112,7 @@ class DataTools
 	
 	static private function readItemMeta(bin:BytesInput): DataItemMeta
 	{
-		var dataLength = Int32.toInt(bin.readInt32());
+		var dataLength = bin.readInt32();
 		var idLength = bin.readByte();
 		var id = bin.readString(idLength);
 		return { dataLength:dataLength, idLength:idLength, id:id };
