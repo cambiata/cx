@@ -11,17 +11,17 @@ import flash.geom.Rectangle;
  */
 class NRect
 {
-	public var x:NX;
-	public var y:NY;
-	public var width:NX;
-	public var height:NY;	
+	public var x:Float;
+	public var y:Float;
+	public var width:Float;
+	public var height:Float;	
 	
-	public var bottom(get, set):NY;
-	public var top(get, set):NY;	
-	public var left(get, set):NX;
-	public var right(get, set):NX;	
+	public var bottom(get, set):Float;
+	public var top(get, set):Float;	
+	public var left(get, set):Float;
+	public var right(get, set):Float;	
 	
-	public function new(?inX:NX=0, ?inY:NY=0, ?inWidth:NX=0, ?inHeight:NY=0):Void 
+	public function new(?inX:Float=0, ?inY:Float=0, ?inWidth:Float=0, ?inHeight:Float=0):Void 
 	{
 		x = inX; // == null ? 0 : inX;
 		y = inY; // == null ? 0 : inY;
@@ -34,7 +34,7 @@ class NRect
 		return new NRect(x, y, width, height);
 	}	
 	
-	public function contains(inX:NX, inY:NY):Bool 
+	public function contains(inX:Float, inY:Float):Bool 
 	{
 		return inX >= x && inY >= y && inX < right && inY < bottom;
 	}	
@@ -44,7 +44,7 @@ class NRect
 		return x == toCompare.x && y == toCompare.y && width == toCompare.width && height == toCompare.height;
 	}   
 
-	public function inflate(dx:NX, dy:NY):Void 
+	public function inflate(dx:Float, dy:Float):Void 
 	{
 		x -= dx; width += dx * 2;
 		y -= dy; height += dy * 2;
@@ -74,7 +74,7 @@ class NRect
 		return y1 > y0;
 	}   
 
-	public function offset(dx:NX, dy:NY):Void 
+	public function offset(dx:Float, dy:Float):Void 
 	{
 		x += dx;
 		y += dy;
@@ -92,22 +92,22 @@ class NRect
 	
 	// Getters & Setters
 	private function get_bottom() { return y + height; }
-	private function set_bottom(b:NY) { height = b - y; return b; }
+	private function set_bottom(b:Float) { height = b - y; return b; }
 	//private function get_bottomRight() { return new Point(x + width, y + height); }
 	//private function set_bottomRight(p:Point) { width = p.x - x;   height = p.y - y; return p.clone(); }
 	private function get_left() { return x; }
-	private function set_left(l:NX) { width -= l - x; x = l; return l; }
+	private function set_left(l:Float) { width -= l - x; x = l; return l; }
 	private function get_right() { return x + width; }
-	private function set_right(r:NX) { width = r - x; return r; }
+	private function set_right(r:Float) { width = r - x; return r; }
 	//private function get_size() { return new Point(width, height); }
 	//private function set_size(p:Point) { width = p.x; height = p.y; return p.clone(); }
 	private function get_top() { return y; }
-	private function set_top(t:NY) { height -= t - y; y = t; return t; }
+	private function set_top(t:Float) { height -= t - y; y = t; return t; }
 	//private function get_topLeft() { return new Point(x, y); }
 	//private function set_topLeft(p:Point) { x = p.x; y = p.y; return p.clone(); }	
 	
 	public function toRectangle():Rectangle
 	{
-		return new Rectangle(this.x.toX(), this.y.toY(), this.width.toX(), this.height.toY());
+		return new Rectangle(this.x, this.y, this.width, this.height);
 	}
 }

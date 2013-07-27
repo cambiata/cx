@@ -1,9 +1,8 @@
 package nx3.elements;
+import flash.geom.Rectangle;
 import nx3.elements.interfaces.IDistanceRects;
 import nx3.elements.tools.HeadsTool;
 import nx3.Constants;
-import nx3.units.NRect;
-import nx3.units.NX;
 
 /**
  * ...
@@ -17,7 +16,7 @@ class DComplex implements IDistanceRects
 	public var dnotes(default, null):Array<DNote>;
 	public var signs(default, null):TSigns;
 	
-	public var dnotesXAdjust(get, null):Array<NX>;
+	public var dnotesXAdjust(get, null):Array<Float>;
 
 	public function new(dnotes:Array<DNote>) 
 	{
@@ -28,37 +27,37 @@ class DComplex implements IDistanceRects
 	}
 	
 	/* INTERFACE nx3.elements.interfaces.IDistanceRects */
-	var rectsFront_:Array<NRect>;
-	function get_rectsFront():Array<NRect> 
+	var rectsFront_:Array<Rectangle>;
+	function get_rectsFront():Array<Rectangle> 
 	{
 		return rectsFront_;
 	}
 	
-	public var rectsFront(get_rectsFront, null):Array<NRect>;
+	public var rectsFront(get_rectsFront, null):Array<Rectangle>;
 	
-	var rectCenter_:NRect;
-	function get_rectCenter():NRect 
+	var rectCenter_:Rectangle;
+	function get_rectCenter():Rectangle 
 	{
 		return rectCenter_;
 	}
 	
-	public var rectCenter(get_rectCenter, null):NRect;
+	public var rectCenter(get_rectCenter, null):Rectangle;
 	
-	var rectsBack_:Array<NRect>;
-	function get_rectsBack():Array<NRect> 
+	var rectsBack_:Array<Rectangle>;
+	function get_rectsBack():Array<Rectangle> 
 	{
 		return rectsBack_;
 	}
 	
-	public var rectsBack(get_rectsBack, null):Array<NRect>;
+	public var rectsBack(get_rectsBack, null):Array<Rectangle>;
 	
 
 	
 	//--------------------------------------------------------------------------------------------------------------------------
-	var headsRect_:NRect = null;
-	public var headsRect(get, null):NRect;
+	var headsRect_:Rectangle = null;
+	public var headsRect(get, null):Rectangle;
 	
-	function get_headsRect():NRect
+	function get_headsRect():Rectangle
 	{
 		if (this.headsRect_ != null) return this.headsRect_;
 
@@ -69,7 +68,7 @@ class DComplex implements IDistanceRects
 		
 		for (i  in 1...this.dnotes.length)
 		{
-			var dnoteRect:NRect = dnotes[i].headsRect;
+			var dnoteRect:Rectangle = dnotes[i].headsRect;
 			dnoteRect.offset(dnotes[i].xAdjust, 0);
 			this.headsRect_ = this.headsRect_.union(dnoteRect);
 		}
@@ -92,9 +91,9 @@ class DComplex implements IDistanceRects
 		return SignsTools.adjustPositions(signs);
 	}
 	
-	public var signsFrame(get, null):NRect;
-	var signsFrame_:NRect;
-	function get_signsFrame():NRect
+	public var signsFrame(get, null):Rectangle;
+	var signsFrame_:Rectangle;
+	function get_signsFrame():Rectangle
 	{
 		if (this.signsFrame_ != null) return this.signsFrame_;		
 		
@@ -115,7 +114,7 @@ class DComplex implements IDistanceRects
 		
 		// Offset signsFrame_
 		//var headsRect = this.headsRect;
-		this.signsFrame_.x = this.headsRect.x - this.signsFrame_.width - NX.fromFloat(Constants.SIGN_TO_NOTE_DISTANCE);		
+		this.signsFrame_.x = this.headsRect.x - this.signsFrame_.width - Constants.SIGN_TO_NOTE_DISTANCE;		
 		//this.signsFrame_ = new NRect( -4, -5, 3, 10);
 		
 		return this.signsFrame_;
@@ -124,9 +123,9 @@ class DComplex implements IDistanceRects
 	
 	
 	
-	public var signRects(get, null):Array<NRect>;
-	var signRects_:Array<NRect>;	
-	function get_signRects():Array<NRect>
+	public var signRects(get, null):Array<Rectangle>;
+	var signRects_:Array<Rectangle>;	
+	function get_signRects():Array<Rectangle>
 	{
 		
 		if (this.signRects_ != null) return this.signRects_;
@@ -134,7 +133,7 @@ class DComplex implements IDistanceRects
 		
 		this.signRects_ = [];
 		
-		var currentRect:NRect = null;
+		var currentRect:Rectangle = null;
 		for (sign in signs)
 		{
 			currentRect = sign.sign.getSignRect();
@@ -143,10 +142,10 @@ class DComplex implements IDistanceRects
 			if (currentRect == null) continue;			
 			currentRect.offset( -currentRect.width, 0 );
 			
-			var xMove:NX = 0;
+			var xMove:Float = 0;
 			for (checkRect in this.signRects_)
 			{
-				var isect:NRect = checkRect.intersection(currentRect);					
+				var isect:Rectangle = checkRect.intersection(currentRect);					
 				if (checkRect.intersects(currentRect)) 
 				{
 					//trace('intersects ' + checkRect.rect.x); 
@@ -164,7 +163,7 @@ class DComplex implements IDistanceRects
 		}
 		
 		// Combine into singsRect_	
-		var combineRect:NRect = signRects_[0];
+		var combineRect:Rectangle = signRects_[0];
 		
 		for (rect in this.signRects_)
 		{
@@ -189,7 +188,7 @@ class DComplex implements IDistanceRects
 	
 	//------------------------------------------------------------------------------------------------------
 	
-	private function get_dnotesXAdjust():Array<NX>
+	private function get_dnotesXAdjust():Array<Float>
 	{
 		return null;
 	}
@@ -211,7 +210,7 @@ class DComplex implements IDistanceRects
 				// If different values, then adjust
 				if (this.dnotes[1].value != this.dnotes[0].value)
 				{
-					this.dnotes[1].xAdjust = this.dnotes[0].headsRect.x + this.dnotes[0].headsRect.width  - this.dnotes[1].headsRect.x + NX.fromFloat(Constants.COMPLEX_COLLISION_OVERLAP_XTRA);
+					this.dnotes[1].xAdjust = this.dnotes[0].headsRect.x + this.dnotes[0].headsRect.width  - this.dnotes[1].headsRect.x +Constants.COMPLEX_COLLISION_OVERLAP_XTRA;
 				}	
 				
 			}			
@@ -221,17 +220,17 @@ class DComplex implements IDistanceRects
 				{				
 					if (HeadsTool.headsCollide(this.dnotes[0].heads, this.dnotes[1].heads))
 					{
-						this.dnotes[1].xAdjust = this.dnotes[0].headsRect.x + this.dnotes[0].headsRect.width  - this.dnotes[1].headsRect.x + NX.fromFloat(Constants.COMPLEX_COLLISION_OVERLAP_XTRA);
+						this.dnotes[1].xAdjust = this.dnotes[0].headsRect.x + this.dnotes[0].headsRect.width  - this.dnotes[1].headsRect.x + Constants.COMPLEX_COLLISION_OVERLAP_XTRA;
 					}
 					else
 					{
 						// do nothing						
-						this.dnotes[1].xAdjust =  -NX.fromFloat(Constants.COMPLEX_COLLISION_OVERLAP_XTRA);
+						this.dnotes[1].xAdjust =  -Constants.COMPLEX_COLLISION_OVERLAP_XTRA;
 					}
 				}
 				else 
 				{
-					this.dnotes[1].xAdjust = this.dnotes[0].headsRect.x + this.dnotes[0].headsRect.width  - this.dnotes[1].headsRect.x  + NX.fromFloat(Constants.COMPLEX_COLLISION_OVERLAP_XTRA);
+					this.dnotes[1].xAdjust = this.dnotes[0].headsRect.x + this.dnotes[0].headsRect.width  - this.dnotes[1].headsRect.x  + Constants.COMPLEX_COLLISION_OVERLAP_XTRA;
 				}				
 			} else {
 				//trace('no overlap');

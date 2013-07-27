@@ -1,6 +1,7 @@
 package nx3.elements.calc;
 
 
+import flash.geom.Rectangle;
 import nx3.elements.tools.HeadsTool;
 import nx3.elements.tools.HeadTool;
 import nx3.elements.NHead;
@@ -12,8 +13,6 @@ import nx3.elements.ENoteValue;
 import nx3.elements.ENoteVariant;
 import nx3.Constants;
 import nx3.units.Level;
-import nx3.units.NRect;
-import nx3.units.NX;
 
 /**
  * ...
@@ -55,11 +54,11 @@ class DNoteCalc
 		return direction_;
 	}
 	
-	public var stemX(get, null):NX;
-	var stemX_:NX;
-	function get_stemX():NX
+	public var stemX(get, null):Null<Float>;
+	var stemX_:Null<Float>;
+	function get_stemX():Null<Float>
 	{
-		if (this.stemX_ ==null) return this.stemX_;
+		if (this.stemX_ !=null) return this.stemX_;
 		
 		this.stemX_ = Constants.NOTE_STEM_X_NORMAL;
 		
@@ -73,9 +72,9 @@ class DNoteCalc
 	
 	//-------------------------------------------------------------------------------
 	
-	var headRects_:Array<NRect> = null;
-	public var headRects(get, null):Array<NRect>;
-	private function  get_headRects():Array<NRect>
+	var headRects_:Array<Rectangle> = null;
+	public var headRects(get, null):Array<Rectangle>;
+	private function  get_headRects():Array<Rectangle>
 	{		
 		if (this.headRects_ != null) return this.headRects_;
 		this.headRects_ = [];
@@ -83,7 +82,7 @@ class DNoteCalc
 		var i = 0;
 		for (head in note.heads)
 		{			
-			var rect:NRect = HeadTool.getHeadRect(head, this.note.value);
+			var rect:Rectangle = HeadTool.getHeadRect(head, this.note.value);
 			rect.offset(rect.width * headPositions[i], 0);
 			this.headRects_.push(rect);	
 			i++;
@@ -129,10 +128,10 @@ class DNoteCalc
 	
 	//--------------------------------------------------------------------------------------------------------------------
 
-	var headsRect_: NRect;
+	var headsRect_: Rectangle;
 	
-	public var headsRect (get, null): NRect;
-	private function get_headsRect():NRect
+	public var headsRect (get, null): Rectangle;
+	private function get_headsRect():Rectangle
 	{
 		if (this.headsRect_ != null) return this.headsRect_;		
 		this.headsRect_ = this.headRects[0];			
@@ -148,14 +147,14 @@ class DNoteCalc
 	
 	//------------------------------------------------------------------------------------------------------------------------
 	
-	var xAdjust_:NX = 0;
-	public var xAdjust(get, set):NX;
-	private function get_xAdjust():NX
+	var xAdjust_:Float = 0;
+	public var xAdjust(get, set):Float;
+	private function get_xAdjust():Float
 	{
 		return this.xAdjust_;
 	}
 	
-	private function set_xAdjust(val:NX):NX
+	private function set_xAdjust(val:Float):Float
 	{
 		return this.xAdjust_ = val;
 	}

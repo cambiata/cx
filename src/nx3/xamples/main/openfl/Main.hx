@@ -52,67 +52,8 @@ class Main extends Sprite
 		if (inited) return;
 		inited = true;
 		
-		//this.addChild(Examples.basic2()); 
-		var note1:NNote = new NNote([new NHead(-4, ESign.Flat), /*new NHead(0, ESign.Natural),*/ new NHead(0, ESign.Natural)], ENoteValue.Nv4);		
-		var dnote1:DNote = new DNote(note1, EDirectionUD.Up);		
-		
-		var note2:NNote = new NNote([new NHead(0, ESign.Sharp)], ENoteValue.Nv4);
-		var dnote2:DNote = new DNote(note2, EDirectionUD.Down);
-		
-		var dcomplex:DComplex = new DComplex([dnote1, dnote2]);
-		//var renderer:FontRenderer = new FontRenderer(this, Scaling.NORMAL);	
-		var renderer:MultiRenderer = new MultiRenderer(this, Scaling.PRINT1, [
-			FrameRenderer, 
-			FontRenderer,
-			]);
-		renderer.complex(300, 300, dcomplex);
-		renderer.notelines(0, 300, 500);
-		
-		
-		
+		this.addChild(Examples.basic2()); 
 
-		/*
-		this.addChild(target);		
-		var note1:NNote = new NNote([
-			new NHead( -4, ESign.Flat), 			
-			new NHead(0, ESign.Flat),  
-			new NHead(2, ESign.Flat)
-			], ENoteValue.Nv4, EDirectionUD.Up);
-			
-		var note2:NNote = new NNote([
-			new NHead(-2, ESign.Flat)
-			], ENoteValue.Nv2, EDirectionUD.Down);
-
-		
-			
-		var render:MultiRenderer = new MultiRenderer(target, Scaling.MID, [
-			FrameRenderer,			
-			FontRenderer,
-			]);
-
-		var dnote1:DNote = new DNote(note1);
-		var dnote2:DNote = new DNote(note2);
-		var dcomplex:DComplex = new DComplex([
-			dnote1, 
-			dnote2,
-			]);
-		render.notelines(0, 100, 700);		
-		render.complex(200, 100, dcomplex);		
-		
-		var render:MultiRenderer = new MultiRenderer(target, Scaling.PRINT1, [
-			FrameRenderer,			
-			FontRenderer,
-			]);
-
-		var dnote1:DNote = new DNote(note1);
-		var dnote2:DNote = new DNote(note2);
-		var dcomplex:DComplex = new DComplex([
-			dnote1, 
-			dnote2,
-			]);
-		render.notelines(0, 300, 700);		
-		render.complex(200, 300, dcomplex);		
-		*/
 	}
 
 	/* SETUP */

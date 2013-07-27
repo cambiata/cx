@@ -1289,23 +1289,7 @@ nx3.xamples.main.openfl.Main.prototype = $extend(flash.display.Sprite.prototype,
 	,init: function() {
 		if(this.inited) return;
 		this.inited = true;
-		var target = new flash.display.Sprite();
-		this.addChild(target);
-		this.addChild(target);
-		var note1 = new nx3.elements.Note(null,[new nx3.elements.Head(null,nx3.units._Level.Level_Impl_.inRange(-4),nx3.enums.ESign.Flat),new nx3.elements.Head(null,nx3.units._Level.Level_Impl_.inRange(0),nx3.enums.ESign.Flat),new nx3.elements.Head(null,nx3.units._Level.Level_Impl_.inRange(2),nx3.enums.ESign.Flat)],nx3.enums.ENoteValue.Nv4,nx3.enums.EDirectionUD.Up);
-		var note2 = new nx3.elements.Note(null,[new nx3.elements.Head(null,nx3.units._Level.Level_Impl_.inRange(-2),nx3.enums.ESign.Flat)],nx3.enums.ENoteValue.Nv2,nx3.enums.EDirectionUD.Down);
-		var render = new nx3.render.MultiRenderer(target,nx3.render.scaling.Scaling.MID,[nx3.render.FrameRenderer,nx3.render.FontRenderer]);
-		var dnote1 = new nx3.display.DNote(note1);
-		var dnote2 = new nx3.display.DNote(note2);
-		var dcomplex = new nx3.display.DComplex([dnote1,dnote2]);
-		render.notelines(0,100,700);
-		render.complex(200,100,dcomplex);
-		var render1 = new nx3.render.MultiRenderer(target,nx3.render.scaling.Scaling.SMALL,[nx3.render.FrameRenderer,nx3.render.FontRenderer]);
-		var dnote11 = new nx3.display.DNote(note1);
-		var dnote21 = new nx3.display.DNote(note2);
-		var dcomplex1 = new nx3.display.DComplex([dnote11,dnote21]);
-		render1.notelines(0,300,700);
-		render1.complex(200,300,dcomplex1);
+		this.addChild(nx3.xamples.Examples.basic2());
 	}
 	,resize: function(e) {
 		if(!this.inited) this.init();
@@ -10066,26 +10050,40 @@ js.Boot.__cast = function(o,t) {
 js.Browser = function() { }
 $hxClasses["js.Browser"] = js.Browser;
 js.Browser.__name__ = ["js","Browser"];
-nx3.display = {}
-nx3.display.DComplex = function(dnotes) {
+nx3.Constants = function() { }
+$hxClasses["nx3.Constants"] = nx3.Constants;
+nx3.Constants.__name__ = ["nx3","Constants"];
+nx3.elements = {}
+nx3.elements.interfaces = {}
+nx3.elements.interfaces.IDistanceRects = function() { }
+$hxClasses["nx3.elements.interfaces.IDistanceRects"] = nx3.elements.interfaces.IDistanceRects;
+nx3.elements.interfaces.IDistanceRects.__name__ = ["nx3","elements","interfaces","IDistanceRects"];
+nx3.elements.interfaces.IDistanceRects.prototype = {
+	rectsBack: null
+	,rectCenter: null
+	,rectsFront: null
+	,__class__: nx3.elements.interfaces.IDistanceRects
+}
+nx3.elements.DComplex = function(dnotes) {
 	this.headsRect_ = null;
 	this.dnotes = dnotes;
 	this.signs = this.getSigns_(dnotes);
 	this.avoidCollisions_();
 	this.get_headsRect();
 };
-$hxClasses["nx3.display.DComplex"] = nx3.display.DComplex;
-nx3.display.DComplex.__name__ = ["nx3","display","DComplex"];
-nx3.display.DComplex.prototype = {
+$hxClasses["nx3.elements.DComplex"] = nx3.elements.DComplex;
+nx3.elements.DComplex.__name__ = ["nx3","elements","DComplex"];
+nx3.elements.DComplex.__interfaces__ = [nx3.elements.interfaces.IDistanceRects];
+nx3.elements.DComplex.prototype = {
 	avoidCollisions_: function() {
 		if(this.dnotes.length > 1) {
 			var diff = this.dnotes[1].get_headTop().level - this.dnotes[0].get_headBottom().level;
 			if(diff == 1) this.dnotes[1].set_xAdjust(3.0); else if(diff == 0) {
-				if(this.dnotes[1].get_value() != this.dnotes[0].get_value()) this.dnotes[1].set_xAdjust(nx3.units._NX.NX_Impl_.add(nx3.units._NX.NX_Impl_.sub(nx3.units._NX.NX_Impl_.add(this.dnotes[0].get_headsRect().x,this.dnotes[0].get_headsRect().width),this.dnotes[1].get_headsRect().x),0.6));
+				if(this.dnotes[1].get_value() != this.dnotes[0].get_value()) this.dnotes[1].set_xAdjust(this.dnotes[0].get_headsRect().x + this.dnotes[0].get_headsRect().width - this.dnotes[1].get_headsRect().x + 0.6);
 			} else if(diff < 1) {
 				if(this.dnotes[1].get_value() == this.dnotes[0].get_value()) {
-					if(nx3.display.tools.HeadsTool.headsCollide(this.dnotes[0].get_heads(),this.dnotes[1].get_heads())) this.dnotes[1].set_xAdjust(nx3.units._NX.NX_Impl_.add(nx3.units._NX.NX_Impl_.sub(nx3.units._NX.NX_Impl_.add(this.dnotes[0].get_headsRect().x,this.dnotes[0].get_headsRect().width),this.dnotes[1].get_headsRect().x),0.6)); else this.dnotes[1].set_xAdjust(nx3.units._NX.NX_Impl_.sw(0.6));
-				} else this.dnotes[1].set_xAdjust(nx3.units._NX.NX_Impl_.add(nx3.units._NX.NX_Impl_.sub(nx3.units._NX.NX_Impl_.add(this.dnotes[0].get_headsRect().x,this.dnotes[0].get_headsRect().width),this.dnotes[1].get_headsRect().x),0.6));
+					if(nx3.elements.tools.HeadsTool.headsCollide(this.dnotes[0].get_heads(),this.dnotes[1].get_heads())) this.dnotes[1].set_xAdjust(this.dnotes[0].get_headsRect().x + this.dnotes[0].get_headsRect().width - this.dnotes[1].get_headsRect().x + 0.6); else this.dnotes[1].set_xAdjust(-0.6);
+				} else this.dnotes[1].set_xAdjust(this.dnotes[0].get_headsRect().x + this.dnotes[0].get_headsRect().width - this.dnotes[1].get_headsRect().x + 0.6);
 			} else {
 			}
 		}
@@ -10102,17 +10100,17 @@ nx3.display.DComplex.prototype = {
 		while(_g < _g1.length) {
 			var sign = _g1[_g];
 			++_g;
-			currentRect = nx3.display.tools.SignsTools.getSignRect(sign.sign);
+			currentRect = nx3.elements.tools.SignsTools.getSignRect(sign.sign);
 			currentRect.offset(0,sign.level);
 			if(currentRect == null) continue;
-			currentRect.offset(nx3.units._NX.NX_Impl_.sw(currentRect.width),0);
+			currentRect.offset(-currentRect.width,0);
 			var xMove = 0;
 			var _g2 = 0, _g3 = this.signRects_;
 			while(_g2 < _g3.length) {
 				var checkRect = _g3[_g2];
 				++_g2;
 				var isect = checkRect.intersection(currentRect);
-				if(checkRect.intersects(currentRect)) currentRect.x = nx3.units._NX.NX_Impl_.sub(checkRect.x,currentRect.width);
+				if(checkRect.intersects(currentRect)) currentRect.x = checkRect.x - currentRect.width;
 			}
 			this.signRects_.push(currentRect);
 		}
@@ -10147,7 +10145,7 @@ nx3.display.DComplex.prototype = {
 			++_g;
 			if(this.signsFrame_ == null) this.signsFrame_ = rect.clone(); else this.signsFrame_ = this.signsFrame_.union(rect);
 		}
-		this.signsFrame_.x = nx3.units._NX.NX_Impl_.sub(nx3.units._NX.NX_Impl_.sub(this.get_headsRect().x,this.signsFrame_.width),0.8);
+		this.signsFrame_.x = this.get_headsRect().x - this.signsFrame_.width - 0.8;
 		return this.signsFrame_;
 	}
 	,signsFrame_: null
@@ -10165,7 +10163,7 @@ nx3.display.DComplex.prototype = {
 				signs.push({ sign : head.sign, level : head.level, position : 0});
 			}
 		}
-		return nx3.display.tools.SignsTools.adjustPositions(signs);
+		return nx3.elements.tools.SignsTools.adjustPositions(signs);
 	}
 	,get_headsRect: function() {
 		if(this.headsRect_ != null) return this.headsRect_;
@@ -10183,22 +10181,29 @@ nx3.display.DComplex.prototype = {
 	}
 	,headsRect: null
 	,headsRect_: null
+	,rectsBack: null
+	,get_rectsBack: function() {
+		return this.rectsBack_;
+	}
+	,rectsBack_: null
+	,rectCenter: null
+	,get_rectCenter: function() {
+		return this.rectCenter_;
+	}
+	,rectCenter_: null
+	,rectsFront: null
+	,get_rectsFront: function() {
+		return this.rectsFront_;
+	}
+	,rectsFront_: null
 	,dnotesXAdjust: null
 	,signs: null
 	,dnotes: null
-	,__class__: nx3.display.DComplex
-	,__properties__: {get_dnotesXAdjust:"get_dnotesXAdjust",get_headsRect:"get_headsRect",get_signsFrame:"get_signsFrame",get_signRects:"get_signRects"}
+	,__class__: nx3.elements.DComplex
+	,__properties__: {get_dnotesXAdjust:"get_dnotesXAdjust",get_rectsFront:"get_rectsFront",get_rectCenter:"get_rectCenter",get_rectsBack:"get_rectsBack",get_headsRect:"get_headsRect",get_signsFrame:"get_signsFrame",get_signRects:"get_signRects"}
 }
-nx3.display.IDNoteRects = function() { }
-$hxClasses["nx3.display.IDNoteRects"] = nx3.display.IDNoteRects;
-nx3.display.IDNoteRects.__name__ = ["nx3","display","IDNoteRects"];
-nx3.display.IDNoteRects.prototype = {
-	rectsBack: null
-	,rectsFront: null
-	,__class__: nx3.display.IDNoteRects
-}
-nx3.display.calc = {}
-nx3.display.calc.DNoteCalc = function(note,variant,articulations,attributes,forceDirection) {
+nx3.elements.calc = {}
+nx3.elements.calc.DNoteCalc = function(note,variant,articulations,attributes,forceDirection) {
 	this.xAdjust_ = 0;
 	this.headRects_ = null;
 	this.note = note;
@@ -10206,12 +10211,10 @@ nx3.display.calc.DNoteCalc = function(note,variant,articulations,attributes,forc
 	this.articulations = articulations;
 	this.attributes = attributes;
 	this.forceDirection = forceDirection;
-	this.get_rectsBack();
 };
-$hxClasses["nx3.display.calc.DNoteCalc"] = nx3.display.calc.DNoteCalc;
-nx3.display.calc.DNoteCalc.__name__ = ["nx3","display","calc","DNoteCalc"];
-nx3.display.calc.DNoteCalc.__interfaces__ = [nx3.display.IDNoteRects];
-nx3.display.calc.DNoteCalc.prototype = {
+$hxClasses["nx3.elements.calc.DNoteCalc"] = nx3.elements.calc.DNoteCalc;
+nx3.elements.calc.DNoteCalc.__name__ = ["nx3","elements","calc","DNoteCalc"];
+nx3.elements.calc.DNoteCalc.prototype = {
 	get_value: function() {
 		return this.note.value;
 	}
@@ -10257,7 +10260,7 @@ nx3.display.calc.DNoteCalc.prototype = {
 	,heads_: null
 	,get_midLevel: function() {
 		if(this.midLevel_ != null) return this.midLevel_;
-		this.midLevel_ = nx3.display.tools.HeadsTool.midLevel(this.note.get_heads());
+		this.midLevel_ = nx3.elements.tools.HeadsTool.midLevel(this.note.get_heads());
 		return this.midLevel_;
 	}
 	,midLevel_: null
@@ -10265,14 +10268,14 @@ nx3.display.calc.DNoteCalc.prototype = {
 	,get_headRects: function() {
 		if(this.headRects_ != null) return this.headRects_;
 		this.headRects_ = [];
-		var headPositions = nx3.display.tools.HeadsTool.getHeadPositions(this.note.get_heads(),this.get_direction());
+		var headPositions = nx3.elements.tools.HeadsTool.getHeadPositions(this.note.get_heads(),this.get_direction());
 		var i = 0;
 		var _g = 0, _g1 = this.note.get_heads();
 		while(_g < _g1.length) {
 			var head = _g1[_g];
 			++_g;
-			var rect = nx3.display.tools.HeadTool.getHeadRect(head,this.note.value);
-			rect.offset(nx3.units._NX.NX_Impl_.mulInt(rect.width,headPositions[i]),0);
+			var rect = nx3.elements.tools.HeadTool.getHeadRect(head,this.note.value);
+			rect.offset(rect.width * headPositions[i],0);
 			this.headRects_.push(rect);
 			i++;
 		}
@@ -10280,19 +10283,17 @@ nx3.display.calc.DNoteCalc.prototype = {
 	}
 	,headRects: null
 	,headRects_: null
-	,get_rectsBack: function() {
-		this.get_headRects();
-		return null;
+	,get_stemX: function() {
+		if(this.stemX_ != null) return this.stemX_;
+		this.stemX_ = 1.6;
+		if(this.get_direction() == nx3.elements.EDirectionUD.Down) this.stemX_ = -this.stemX_;
+		return this.stemX_;
 	}
-	,rectsBack_: null
-	,get_rectsFront: function() {
-		return null;
-	}
-	,rectsBack: null
-	,rectsFront: null
+	,stemX_: null
+	,stemX: null
 	,get_direction: function() {
 		if(this.direction_ != null) return this.direction_;
-		if(this.forceDirection != null) this.direction_ = this.forceDirection; else this.direction_ = this.note.direction != null?this.note.direction:nx3.display.tools.HeadsTool.getDirection(this.note.get_heads());
+		if(this.forceDirection != null) this.direction_ = this.forceDirection; else this.direction_ = this.note.direction != null?this.note.direction:nx3.elements.tools.HeadsTool.getDirection(this.note.get_heads());
 		return this.direction_;
 	}
 	,direction_: null
@@ -10303,69 +10304,424 @@ nx3.display.calc.DNoteCalc.prototype = {
 	,articulations: null
 	,variant: null
 	,note: null
-	,__class__: nx3.display.calc.DNoteCalc
-	,__properties__: {get_direction:"get_direction",get_value:"get_value",get_rectsFront:"get_rectsFront",get_rectsBack:"get_rectsBack",get_headRects:"get_headRects",get_midLevel:"get_midLevel",get_heads:"get_heads",get_headTop:"get_headTop",get_headBottom:"get_headBottom",get_headsRect:"get_headsRect",set_xAdjust:"set_xAdjust",get_xAdjust:"get_xAdjust"}
+	,__class__: nx3.elements.calc.DNoteCalc
+	,__properties__: {get_direction:"get_direction",get_value:"get_value",get_stemX:"get_stemX",get_headRects:"get_headRects",get_midLevel:"get_midLevel",get_heads:"get_heads",get_headTop:"get_headTop",get_headBottom:"get_headBottom",get_headsRect:"get_headsRect",set_xAdjust:"set_xAdjust",get_xAdjust:"get_xAdjust"}
 }
-nx3.display.DNote = function(note,forceDirection) {
+nx3.elements.DNote = function(note,forceDirection) {
 	var $e = (note.type);
 	switch( $e[1] ) {
 	case 0:
 		var attributes = $e[5], articulations = $e[4], variant = $e[3], heads = $e[2];
-		nx3.display.calc.DNoteCalc.call(this,note,variant,articulations,attributes,forceDirection);
+		nx3.elements.calc.DNoteCalc.call(this,note,variant,articulations,attributes,forceDirection);
 		break;
 	default:
 		throw "DNote should have type ENoteType.Note, but has " + Std.string(note.type);
 	}
 };
-$hxClasses["nx3.display.DNote"] = nx3.display.DNote;
-nx3.display.DNote.__name__ = ["nx3","display","DNote"];
-nx3.display.DNote.__super__ = nx3.display.calc.DNoteCalc;
-nx3.display.DNote.prototype = $extend(nx3.display.calc.DNoteCalc.prototype,{
+$hxClasses["nx3.elements.DNote"] = nx3.elements.DNote;
+nx3.elements.DNote.__name__ = ["nx3","elements","DNote"];
+nx3.elements.DNote.__super__ = nx3.elements.calc.DNoteCalc;
+nx3.elements.DNote.prototype = $extend(nx3.elements.calc.DNoteCalc.prototype,{
 	reset: function() {
 		this.headRects_ = null;
 		this.headsRect_ = null;
 	}
-	,__class__: nx3.display.DNote
+	,__class__: nx3.elements.DNote
 });
-nx3.display.tools = {}
-nx3.display.tools.HeadTool = function() { }
-$hxClasses["nx3.display.tools.HeadTool"] = nx3.display.tools.HeadTool;
-nx3.display.tools.HeadTool.__name__ = ["nx3","display","tools","HeadTool"];
-nx3.display.tools.HeadTool.getHeadRect = function(head,value) {
+nx3.elements.EClef = $hxClasses["nx3.elements.EClef"] = { __ename__ : true, __constructs__ : ["ClefG","ClefF","ClefC"] }
+nx3.elements.EClef.ClefG = ["ClefG",0];
+nx3.elements.EClef.ClefG.toString = $estr;
+nx3.elements.EClef.ClefG.__enum__ = nx3.elements.EClef;
+nx3.elements.EClef.ClefF = ["ClefF",1];
+nx3.elements.EClef.ClefF.toString = $estr;
+nx3.elements.EClef.ClefF.__enum__ = nx3.elements.EClef;
+nx3.elements.EClef.ClefC = ["ClefC",2];
+nx3.elements.EClef.ClefC.toString = $estr;
+nx3.elements.EClef.ClefC.__enum__ = nx3.elements.EClef;
+nx3.elements.EDirectionUAD = $hxClasses["nx3.elements.EDirectionUAD"] = { __ename__ : true, __constructs__ : ["Up","Auto","Down"] }
+nx3.elements.EDirectionUAD.Up = ["Up",0];
+nx3.elements.EDirectionUAD.Up.toString = $estr;
+nx3.elements.EDirectionUAD.Up.__enum__ = nx3.elements.EDirectionUAD;
+nx3.elements.EDirectionUAD.Auto = ["Auto",1];
+nx3.elements.EDirectionUAD.Auto.toString = $estr;
+nx3.elements.EDirectionUAD.Auto.__enum__ = nx3.elements.EDirectionUAD;
+nx3.elements.EDirectionUAD.Down = ["Down",2];
+nx3.elements.EDirectionUAD.Down.toString = $estr;
+nx3.elements.EDirectionUAD.Down.__enum__ = nx3.elements.EDirectionUAD;
+nx3.elements.EDirectionUD = $hxClasses["nx3.elements.EDirectionUD"] = { __ename__ : true, __constructs__ : ["Up","Down"] }
+nx3.elements.EDirectionUD.Up = ["Up",0];
+nx3.elements.EDirectionUD.Up.toString = $estr;
+nx3.elements.EDirectionUD.Up.__enum__ = nx3.elements.EDirectionUD;
+nx3.elements.EDirectionUD.Down = ["Down",1];
+nx3.elements.EDirectionUD.Down.toString = $estr;
+nx3.elements.EDirectionUD.Down.__enum__ = nx3.elements.EDirectionUD;
+nx3.elements.EDisplayALN = $hxClasses["nx3.elements.EDisplayALN"] = { __ename__ : true, __constructs__ : ["Always","Layout","Never"] }
+nx3.elements.EDisplayALN.Always = ["Always",0];
+nx3.elements.EDisplayALN.Always.toString = $estr;
+nx3.elements.EDisplayALN.Always.__enum__ = nx3.elements.EDisplayALN;
+nx3.elements.EDisplayALN.Layout = ["Layout",1];
+nx3.elements.EDisplayALN.Layout.toString = $estr;
+nx3.elements.EDisplayALN.Layout.__enum__ = nx3.elements.EDisplayALN;
+nx3.elements.EDisplayALN.Never = ["Never",2];
+nx3.elements.EDisplayALN.Never.toString = $estr;
+nx3.elements.EDisplayALN.Never.__enum__ = nx3.elements.EDisplayALN;
+nx3.elements.EHeadType = $hxClasses["nx3.elements.EHeadType"] = { __ename__ : true, __constructs__ : ["Normal","Rythmic","Crossed"] }
+nx3.elements.EHeadType.Normal = ["Normal",0];
+nx3.elements.EHeadType.Normal.toString = $estr;
+nx3.elements.EHeadType.Normal.__enum__ = nx3.elements.EHeadType;
+nx3.elements.EHeadType.Rythmic = ["Rythmic",1];
+nx3.elements.EHeadType.Rythmic.toString = $estr;
+nx3.elements.EHeadType.Rythmic.__enum__ = nx3.elements.EHeadType;
+nx3.elements.EHeadType.Crossed = ["Crossed",2];
+nx3.elements.EHeadType.Crossed.toString = $estr;
+nx3.elements.EHeadType.Crossed.__enum__ = nx3.elements.EHeadType;
+nx3.elements.EHeadValuetype = $hxClasses["nx3.elements.EHeadValuetype"] = { __ename__ : true, __constructs__ : ["HVT4","HVT2","HVT1"] }
+nx3.elements.EHeadValuetype.HVT4 = ["HVT4",0];
+nx3.elements.EHeadValuetype.HVT4.toString = $estr;
+nx3.elements.EHeadValuetype.HVT4.__enum__ = nx3.elements.EHeadValuetype;
+nx3.elements.EHeadValuetype.HVT2 = ["HVT2",1];
+nx3.elements.EHeadValuetype.HVT2.toString = $estr;
+nx3.elements.EHeadValuetype.HVT2.__enum__ = nx3.elements.EHeadValuetype;
+nx3.elements.EHeadValuetype.HVT1 = ["HVT1",2];
+nx3.elements.EHeadValuetype.HVT1.toString = $estr;
+nx3.elements.EHeadValuetype.HVT1.__enum__ = nx3.elements.EHeadValuetype;
+nx3.elements.EKey = function(levelShift) {
+	this.levelShift = levelShift;
+};
+$hxClasses["nx3.elements.EKey"] = nx3.elements.EKey;
+nx3.elements.EKey.__name__ = ["nx3","elements","EKey"];
+nx3.elements.EKey.getSignLevel = function(levelShift,signIndex,clef) {
+	var shift = [0];
+	if(levelShift < 0) shift = [0,-3,1,-2,2,-1,3]; else shift = [-4,-1,-5,-2,-6,-3];
+	var level = shift[signIndex];
+	if(clef != null) {
+		switch( (clef)[1] ) {
+		case 2:
+			level += 1;
+			break;
+		case 1:
+			level += 2;
+			break;
+		default:
+		}
+	}
+	if(level < -5) level += 7;
+	return level;
+}
+nx3.elements.EKey.prototype = {
+	levelShift: null
+	,__class__: nx3.elements.EKey
+}
+nx3.elements.ELyricContinuation = $hxClasses["nx3.elements.ELyricContinuation"] = { __ename__ : true, __constructs__ : ["Hyphen","Melisma"] }
+nx3.elements.ELyricContinuation.Hyphen = ["Hyphen",0];
+nx3.elements.ELyricContinuation.Hyphen.toString = $estr;
+nx3.elements.ELyricContinuation.Hyphen.__enum__ = nx3.elements.ELyricContinuation;
+nx3.elements.ELyricContinuation.Melisma = ["Melisma",1];
+nx3.elements.ELyricContinuation.Melisma.toString = $estr;
+nx3.elements.ELyricContinuation.Melisma.__enum__ = nx3.elements.ELyricContinuation;
+nx3.elements.ELyricFormat = $hxClasses["nx3.elements.ELyricFormat"] = { __ename__ : true, __constructs__ : ["Bold","Italic","Format"] }
+nx3.elements.ELyricFormat.Bold = ["Bold",0];
+nx3.elements.ELyricFormat.Bold.toString = $estr;
+nx3.elements.ELyricFormat.Bold.__enum__ = nx3.elements.ELyricFormat;
+nx3.elements.ELyricFormat.Italic = ["Italic",1];
+nx3.elements.ELyricFormat.Italic.toString = $estr;
+nx3.elements.ELyricFormat.Italic.__enum__ = nx3.elements.ELyricFormat;
+nx3.elements.ELyricFormat.Format = function(fontName,size,bold,Italic) { var $x = ["Format",2,fontName,size,bold,Italic]; $x.__enum__ = nx3.elements.ELyricFormat; $x.toString = $estr; return $x; }
+nx3.elements.ENoteArticulation = $hxClasses["nx3.elements.ENoteArticulation"] = { __ename__ : true, __constructs__ : ["Staccato","Tenuto","Marcato"] }
+nx3.elements.ENoteArticulation.Staccato = ["Staccato",0];
+nx3.elements.ENoteArticulation.Staccato.toString = $estr;
+nx3.elements.ENoteArticulation.Staccato.__enum__ = nx3.elements.ENoteArticulation;
+nx3.elements.ENoteArticulation.Tenuto = ["Tenuto",1];
+nx3.elements.ENoteArticulation.Tenuto.toString = $estr;
+nx3.elements.ENoteArticulation.Tenuto.__enum__ = nx3.elements.ENoteArticulation;
+nx3.elements.ENoteArticulation.Marcato = ["Marcato",2];
+nx3.elements.ENoteArticulation.Marcato.toString = $estr;
+nx3.elements.ENoteArticulation.Marcato.__enum__ = nx3.elements.ENoteArticulation;
+nx3.elements.ENoteAttributes = $hxClasses["nx3.elements.ENoteAttributes"] = { __ename__ : true, __constructs__ : ["Arpeggio","Clef"] }
+nx3.elements.ENoteAttributes.Arpeggio = function(top,bottomY) { var $x = ["Arpeggio",0,top,bottomY]; $x.__enum__ = nx3.elements.ENoteAttributes; $x.toString = $estr; return $x; }
+nx3.elements.ENoteAttributes.Clef = function(variant) { var $x = ["Clef",1,variant]; $x.__enum__ = nx3.elements.ENoteAttributes; $x.toString = $estr; return $x; }
+nx3.elements.ENoteType = $hxClasses["nx3.elements.ENoteType"] = { __ename__ : true, __constructs__ : ["Note","Pause","BarPause","Tpl","Lyric","Chord","Dynam"] }
+nx3.elements.ENoteType.Note = function(heads,variant,articulations,attributes) { var $x = ["Note",0,heads,variant,articulations,attributes]; $x.__enum__ = nx3.elements.ENoteType; $x.toString = $estr; return $x; }
+nx3.elements.ENoteType.Pause = function(level) { var $x = ["Pause",1,level]; $x.__enum__ = nx3.elements.ENoteType; $x.toString = $estr; return $x; }
+nx3.elements.ENoteType.BarPause = ["BarPause",2];
+nx3.elements.ENoteType.BarPause.toString = $estr;
+nx3.elements.ENoteType.BarPause.__enum__ = nx3.elements.ENoteType;
+nx3.elements.ENoteType.Tpl = ["Tpl",3];
+nx3.elements.ENoteType.Tpl.toString = $estr;
+nx3.elements.ENoteType.Tpl.__enum__ = nx3.elements.ENoteType;
+nx3.elements.ENoteType.Lyric = function(text,offset,continuation,format) { var $x = ["Lyric",4,text,offset,continuation,format]; $x.__enum__ = nx3.elements.ENoteType; $x.toString = $estr; return $x; }
+nx3.elements.ENoteType.Chord = ["Chord",5];
+nx3.elements.ENoteType.Chord.toString = $estr;
+nx3.elements.ENoteType.Chord.__enum__ = nx3.elements.ENoteType;
+nx3.elements.ENoteType.Dynam = ["Dynam",6];
+nx3.elements.ENoteType.Dynam.toString = $estr;
+nx3.elements.ENoteType.Dynam.__enum__ = nx3.elements.ENoteType;
+nx3.elements.ENoteValue = function(value,head) {
+	this.value = value | 0;
+	this.head = head;
+};
+$hxClasses["nx3.elements.ENoteValue"] = nx3.elements.ENoteValue;
+nx3.elements.ENoteValue.__name__ = ["nx3","elements","ENoteValue"];
+nx3.elements.ENoteValue.getFromValue = function(value) {
+	if(value == nx3.elements.ENoteValue.N1 * 3024) return nx3.elements.ENoteValue.Nv1;
+	if(value == nx3.elements.ENoteValue.N1 * 3024 * nx3.elements.ENoteValue.DOT) return nx3.elements.ENoteValue.Nv1dot;
+	if(value == nx3.elements.ENoteValue.N1 * 3024 * nx3.elements.ENoteValue.DOTDOT) return nx3.elements.ENoteValue.Nv1ddot;
+	if(value == nx3.elements.ENoteValue.N1 * 3024 * nx3.elements.ENoteValue.TRI) return nx3.elements.ENoteValue.Nv1tri;
+	if(value == nx3.elements.ENoteValue.N2 * 3024) return nx3.elements.ENoteValue.Nv2;
+	if(value == nx3.elements.ENoteValue.N2 * 3024 * nx3.elements.ENoteValue.DOT) return nx3.elements.ENoteValue.Nv2dot;
+	if(value == nx3.elements.ENoteValue.N2 * 3024 * nx3.elements.ENoteValue.DOTDOT) return nx3.elements.ENoteValue.Nv2ddot;
+	if(value == nx3.elements.ENoteValue.N2 * 3024 * nx3.elements.ENoteValue.TRI) return nx3.elements.ENoteValue.Nv2tri;
+	if(value == 3024) return nx3.elements.ENoteValue.Nv4;
+	if(value == 3024 * nx3.elements.ENoteValue.DOT) return nx3.elements.ENoteValue.Nv4dot;
+	if(value == 3024 * nx3.elements.ENoteValue.DOTDOT) return nx3.elements.ENoteValue.Nv4ddot;
+	if(value == 3024 * nx3.elements.ENoteValue.TRI) return nx3.elements.ENoteValue.Nv4tri;
+	if(value == nx3.elements.ENoteValue.N8 * 3024) return nx3.elements.ENoteValue.Nv8;
+	if(value == nx3.elements.ENoteValue.N8 * 3024 * nx3.elements.ENoteValue.DOT) return nx3.elements.ENoteValue.Nv8dot;
+	if(value == nx3.elements.ENoteValue.N8 * 3024 * nx3.elements.ENoteValue.DOTDOT) return nx3.elements.ENoteValue.Nv8ddot;
+	if(value == nx3.elements.ENoteValue.N8 * 3024 * nx3.elements.ENoteValue.TRI) return nx3.elements.ENoteValue.Nv8tri;
+	if(value == nx3.elements.ENoteValue.N16 * 3024) return nx3.elements.ENoteValue.Nv16;
+	if(value == nx3.elements.ENoteValue.N16 * 3024 * nx3.elements.ENoteValue.DOT) return nx3.elements.ENoteValue.Nv16dot;
+	if(value == nx3.elements.ENoteValue.N16 * 3024 * nx3.elements.ENoteValue.DOTDOT) return nx3.elements.ENoteValue.Nv16ddot;
+	if(value == nx3.elements.ENoteValue.N16 * 3024 * nx3.elements.ENoteValue.TRI) return nx3.elements.ENoteValue.Nv16tri;
+	if(value == nx3.elements.ENoteValue.N32 * 3024) return nx3.elements.ENoteValue.Nv32;
+	if(value == nx3.elements.ENoteValue.N32 * 3024 * nx3.elements.ENoteValue.DOT) return nx3.elements.ENoteValue.Nv32dot;
+	if(value == nx3.elements.ENoteValue.N32 * 3024 * nx3.elements.ENoteValue.DOTDOT) return nx3.elements.ENoteValue.Nv32ddot;
+	if(value == nx3.elements.ENoteValue.N32 * 3024 * nx3.elements.ENoteValue.TRI) return nx3.elements.ENoteValue.Nv32tri;
+	throw "Could not find note value for value " + value;
+	return nx3.elements.ENoteValue.Nv4;
+}
+nx3.elements.ENoteValue.prototype = {
+	head: null
+	,value: null
+	,__class__: nx3.elements.ENoteValue
+}
+nx3.elements.ENoteVariant = $hxClasses["nx3.elements.ENoteVariant"] = { __ename__ : true, __constructs__ : ["Normal","Rythmic","RythmicSingleLevel","HeadsOnly","StavesOnly"] }
+nx3.elements.ENoteVariant.Normal = ["Normal",0];
+nx3.elements.ENoteVariant.Normal.toString = $estr;
+nx3.elements.ENoteVariant.Normal.__enum__ = nx3.elements.ENoteVariant;
+nx3.elements.ENoteVariant.Rythmic = ["Rythmic",1];
+nx3.elements.ENoteVariant.Rythmic.toString = $estr;
+nx3.elements.ENoteVariant.Rythmic.__enum__ = nx3.elements.ENoteVariant;
+nx3.elements.ENoteVariant.RythmicSingleLevel = function(level) { var $x = ["RythmicSingleLevel",2,level]; $x.__enum__ = nx3.elements.ENoteVariant; $x.toString = $estr; return $x; }
+nx3.elements.ENoteVariant.HeadsOnly = ["HeadsOnly",3];
+nx3.elements.ENoteVariant.HeadsOnly.toString = $estr;
+nx3.elements.ENoteVariant.HeadsOnly.__enum__ = nx3.elements.ENoteVariant;
+nx3.elements.ENoteVariant.StavesOnly = ["StavesOnly",4];
+nx3.elements.ENoteVariant.StavesOnly.toString = $estr;
+nx3.elements.ENoteVariant.StavesOnly.__enum__ = nx3.elements.ENoteVariant;
+nx3.elements.EPartType = $hxClasses["nx3.elements.EPartType"] = { __ename__ : true, __constructs__ : ["Normal","Lyrics","Tpl","Tplchain","Dynamics","Chords"] }
+nx3.elements.EPartType.Normal = ["Normal",0];
+nx3.elements.EPartType.Normal.toString = $estr;
+nx3.elements.EPartType.Normal.__enum__ = nx3.elements.EPartType;
+nx3.elements.EPartType.Lyrics = ["Lyrics",1];
+nx3.elements.EPartType.Lyrics.toString = $estr;
+nx3.elements.EPartType.Lyrics.__enum__ = nx3.elements.EPartType;
+nx3.elements.EPartType.Tpl = ["Tpl",2];
+nx3.elements.EPartType.Tpl.toString = $estr;
+nx3.elements.EPartType.Tpl.__enum__ = nx3.elements.EPartType;
+nx3.elements.EPartType.Tplchain = ["Tplchain",3];
+nx3.elements.EPartType.Tplchain.toString = $estr;
+nx3.elements.EPartType.Tplchain.__enum__ = nx3.elements.EPartType;
+nx3.elements.EPartType.Dynamics = ["Dynamics",4];
+nx3.elements.EPartType.Dynamics.toString = $estr;
+nx3.elements.EPartType.Dynamics.__enum__ = nx3.elements.EPartType;
+nx3.elements.EPartType.Chords = ["Chords",5];
+nx3.elements.EPartType.Chords.toString = $estr;
+nx3.elements.EPartType.Chords.__enum__ = nx3.elements.EPartType;
+nx3.elements.EPosition = $hxClasses["nx3.elements.EPosition"] = { __ename__ : true, __constructs__ : ["X","Y","XY","XYW"] }
+nx3.elements.EPosition.X = function(x) { var $x = ["X",0,x]; $x.__enum__ = nx3.elements.EPosition; $x.toString = $estr; return $x; }
+nx3.elements.EPosition.Y = function(y) { var $x = ["Y",1,y]; $x.__enum__ = nx3.elements.EPosition; $x.toString = $estr; return $x; }
+nx3.elements.EPosition.XY = function(x,y) { var $x = ["XY",2,x,y]; $x.__enum__ = nx3.elements.EPosition; $x.toString = $estr; return $x; }
+nx3.elements.EPosition.XYW = function(x,y,w) { var $x = ["XYW",3,x,y,w]; $x.__enum__ = nx3.elements.EPosition; $x.toString = $estr; return $x; }
+nx3.elements.ESign = $hxClasses["nx3.elements.ESign"] = { __ename__ : true, __constructs__ : ["None","Natural","Flat","Sharp","DoubleFlat","DoubleSharp","ParNatural","ParFlat","ParSharp"] }
+nx3.elements.ESign.None = ["None",0];
+nx3.elements.ESign.None.toString = $estr;
+nx3.elements.ESign.None.__enum__ = nx3.elements.ESign;
+nx3.elements.ESign.Natural = ["Natural",1];
+nx3.elements.ESign.Natural.toString = $estr;
+nx3.elements.ESign.Natural.__enum__ = nx3.elements.ESign;
+nx3.elements.ESign.Flat = ["Flat",2];
+nx3.elements.ESign.Flat.toString = $estr;
+nx3.elements.ESign.Flat.__enum__ = nx3.elements.ESign;
+nx3.elements.ESign.Sharp = ["Sharp",3];
+nx3.elements.ESign.Sharp.toString = $estr;
+nx3.elements.ESign.Sharp.__enum__ = nx3.elements.ESign;
+nx3.elements.ESign.DoubleFlat = ["DoubleFlat",4];
+nx3.elements.ESign.DoubleFlat.toString = $estr;
+nx3.elements.ESign.DoubleFlat.__enum__ = nx3.elements.ESign;
+nx3.elements.ESign.DoubleSharp = ["DoubleSharp",5];
+nx3.elements.ESign.DoubleSharp.toString = $estr;
+nx3.elements.ESign.DoubleSharp.__enum__ = nx3.elements.ESign;
+nx3.elements.ESign.ParNatural = ["ParNatural",6];
+nx3.elements.ESign.ParNatural.toString = $estr;
+nx3.elements.ESign.ParNatural.__enum__ = nx3.elements.ESign;
+nx3.elements.ESign.ParFlat = ["ParFlat",7];
+nx3.elements.ESign.ParFlat.toString = $estr;
+nx3.elements.ESign.ParFlat.__enum__ = nx3.elements.ESign;
+nx3.elements.ESign.ParSharp = ["ParSharp",8];
+nx3.elements.ESign.ParSharp.toString = $estr;
+nx3.elements.ESign.ParSharp.__enum__ = nx3.elements.ESign;
+nx3.elements.ETie = $hxClasses["nx3.elements.ETie"] = { __ename__ : true, __constructs__ : ["Tie","Gliss"] }
+nx3.elements.ETie.Tie = function(direction) { var $x = ["Tie",0,direction]; $x.__enum__ = nx3.elements.ETie; $x.toString = $estr; return $x; }
+nx3.elements.ETie.Gliss = function(direction) { var $x = ["Gliss",1,direction]; $x.__enum__ = nx3.elements.ETie; $x.toString = $estr; return $x; }
+nx3.elements.EVoiceType = $hxClasses["nx3.elements.EVoiceType"] = { __ename__ : true, __constructs__ : ["Normal","Barpause"] }
+nx3.elements.EVoiceType.Normal = ["Normal",0];
+nx3.elements.EVoiceType.Normal.toString = $estr;
+nx3.elements.EVoiceType.Normal.__enum__ = nx3.elements.EVoiceType;
+nx3.elements.EVoiceType.Barpause = ["Barpause",1];
+nx3.elements.EVoiceType.Barpause.toString = $estr;
+nx3.elements.EVoiceType.Barpause.__enum__ = nx3.elements.EVoiceType;
+nx3.elements.NHead = function(type,level,sign,tie,tieTo) {
+	if(level == null) level = 0;
+	this.type = type != null?type:nx3.elements.EHeadType.Normal;
+	this.sign = sign != null?sign:nx3.elements.ESign.None;
+	this.tie = tie != null?tie:null;
+	this.tieTo = tieTo != null?tieTo:null;
+	this.level = level;
+};
+$hxClasses["nx3.elements.NHead"] = nx3.elements.NHead;
+nx3.elements.NHead.__name__ = ["nx3","elements","NHead"];
+nx3.elements.NHead.prototype = {
+	tieTo: null
+	,tie: null
+	,sign: null
+	,type: null
+	,level: null
+	,__class__: nx3.elements.NHead
+}
+nx3.elements.NNote = function(type,heads,value,direction) {
+	if(type == null) type = heads != null?nx3.elements.ENoteType.Note(heads):nx3.elements.ENoteType.Note([new nx3.elements.NHead()]);
+	if(value == null) value = nx3.elements.ENoteValue.Nv4;
+	this.type = type;
+	this.value = value;
+	this.direction = direction;
+};
+$hxClasses["nx3.elements.NNote"] = nx3.elements.NNote;
+nx3.elements.NNote.__name__ = ["nx3","elements","NNote"];
+nx3.elements.NNote.prototype = {
+	get_heads: function() {
+		if(this.heads_ != null) return this.heads_;
+		var _g = this;
+		var $e = (_g.type);
+		switch( $e[1] ) {
+		case 0:
+			var attributes = $e[5], articulations = $e[4], variant = $e[3], heads = $e[2];
+			heads.sort(function(i1,i2) {
+				var cmp;
+				cmp = Reflect.compare(i1.level,i2.level);
+				if(cmp != 0) return cmp;
+				return 0;
+			});
+			this.heads_ = heads;
+			return this.heads_;
+		default:
+		}
+		return null;
+	}
+	,heads_: null
+	,heads: null
+	,direction: null
+	,value: null
+	,type: null
+	,__class__: nx3.elements.NNote
+	,__properties__: {get_heads:"get_heads"}
+}
+nx3.elements.NPart = function(voices,type,clef,clefDisplay,key,keyDisplay) {
+	this.voices = voices;
+	if(this.voices.length > 2) throw "NPart can't have more than two voices";
+	this.type = type == null?nx3.elements.EPartType.Normal:type;
+	this.clef = clef;
+	this.clefDisplay = clefDisplay;
+	this.key = key;
+	this.keyDisplay = keyDisplay;
+};
+$hxClasses["nx3.elements.NPart"] = nx3.elements.NPart;
+nx3.elements.NPart.__name__ = ["nx3","elements","NPart"];
+nx3.elements.NPart.prototype = {
+	keyDisplay: null
+	,key: null
+	,clefDisplay: null
+	,clef: null
+	,voices: null
+	,type: null
+	,__class__: nx3.elements.NPart
+}
+nx3.elements.NVoice = function(notes,type,direction) {
+	if(notes == null || notes == []) {
+		this.notes = null;
+		this.type = nx3.elements.EVoiceType.Barpause;
+	} else {
+		this.notes = notes;
+		this.type = type != null?type:nx3.elements.EVoiceType.Normal;
+	}
+	this.direction = direction;
+};
+$hxClasses["nx3.elements.NVoice"] = nx3.elements.NVoice;
+nx3.elements.NVoice.__name__ = ["nx3","elements","NVoice"];
+nx3.elements.NVoice.prototype = {
+	type: null
+	,notes: null
+	,direction: null
+	,__class__: nx3.elements.NVoice
+}
+nx3.elements.tools = {}
+nx3.elements.tools.ENoteTypeTools = function() { }
+$hxClasses["nx3.elements.tools.ENoteTypeTools"] = nx3.elements.tools.ENoteTypeTools;
+nx3.elements.tools.ENoteTypeTools.__name__ = ["nx3","elements","tools","ENoteTypeTools"];
+nx3.elements.tools.ENoteTypeTools.noteSortHeads = function(type) {
+	var $e = (type);
+	switch( $e[1] ) {
+	case 0:
+		var attributes = $e[5], articulations = $e[4], variant = $e[3], heads = $e[2];
+		heads.sort(function(i1,i2) {
+			var cmp;
+			cmp = Reflect.compare(i1.level,i2.level);
+			if(cmp != 0) return cmp;
+			return 0;
+		});
+		break;
+	default:
+		throw "Can not sort heads on other type than ENoteType.Note - this one is a " + Std.string(type);
+	}
+}
+nx3.elements.tools.HeadTool = function() { }
+$hxClasses["nx3.elements.tools.HeadTool"] = nx3.elements.tools.HeadTool;
+nx3.elements.tools.HeadTool.__name__ = ["nx3","elements","tools","HeadTool"];
+nx3.elements.tools.HeadTool.getHeadRect = function(head,value) {
 	var rect = null;
-	switch( (value.type)[1] ) {
+	switch( (value.head)[1] ) {
 	case 2:
-		rect = new nx3.units.NRect(-2,-1,4,2);
+		rect = new flash.geom.Rectangle(-2,-1,4,2);
 		break;
 	case 1:
 	case 0:
-		rect = new nx3.units.NRect(-1.6,-1,3.2,2);
+		rect = new flash.geom.Rectangle(-1.6,-1,3.2,2);
 		break;
 	}
 	rect.offset(0,head.level);
 	return rect;
 }
-nx3.display.tools.HeadTool.getDirection = function(heads) {
+nx3.elements.tools.HeadTool.getDirection = function(heads) {
 	return null;
 }
-nx3.display.tools.HeadsTool = function() { }
-$hxClasses["nx3.display.tools.HeadsTool"] = nx3.display.tools.HeadsTool;
-nx3.display.tools.HeadsTool.__name__ = ["nx3","display","tools","HeadsTool"];
-nx3.display.tools.HeadsTool.topLevel = function(heads) {
+nx3.elements.tools.HeadsTool = function() { }
+$hxClasses["nx3.elements.tools.HeadsTool"] = nx3.elements.tools.HeadsTool;
+nx3.elements.tools.HeadsTool.__name__ = ["nx3","elements","tools","HeadsTool"];
+nx3.elements.tools.HeadsTool.topLevel = function(heads) {
 	return heads[0].level;
 }
-nx3.display.tools.HeadsTool.bottomLevel = function(heads) {
+nx3.elements.tools.HeadsTool.bottomLevel = function(heads) {
 	return heads[heads.length - 1].level;
 }
-nx3.display.tools.HeadsTool.midLevel = function(heads) {
-	var bottom = nx3.display.tools.HeadsTool.bottomLevel(heads);
-	var top = nx3.display.tools.HeadsTool.topLevel(heads);
+nx3.elements.tools.HeadsTool.midLevel = function(heads) {
+	var bottom = nx3.elements.tools.HeadsTool.bottomLevel(heads);
+	var top = nx3.elements.tools.HeadsTool.topLevel(heads);
 	return top + (bottom - top) / 2;
 }
-nx3.display.tools.HeadsTool.getDirection = function(heads) {
-	return nx3.display.tools.HeadsTool.midLevel(heads) > 0?nx3.enums.EDirectionUD.Up:nx3.enums.EDirectionUD.Down;
+nx3.elements.tools.HeadsTool.getDirection = function(heads) {
+	return nx3.elements.tools.HeadsTool.midLevel(heads) > 0?nx3.elements.EDirectionUD.Up:nx3.elements.EDirectionUD.Down;
 }
-nx3.display.tools.HeadsTool.getHeadPositions = function(heads,direction) {
+nx3.elements.tools.HeadsTool.getHeadPositions = function(heads,direction) {
 	if(heads.length < 2) return [0];
 	var len = heads.length;
 	var result = [];
@@ -10374,7 +10730,7 @@ nx3.display.tools.HeadsTool.getHeadPositions = function(heads,direction) {
 		var i = _g++;
 		result.push(0);
 	}
-	if(direction == nx3.enums.EDirectionUD.Down) {
+	if(direction == nx3.elements.EDirectionUD.Down) {
 		var _g1 = 0, _g = len - 1;
 		while(_g1 < _g) {
 			var i = _g1++;
@@ -10400,7 +10756,7 @@ nx3.display.tools.HeadsTool.getHeadPositions = function(heads,direction) {
 	}
 	return result;
 }
-nx3.display.tools.HeadsTool.headsCollide = function(heads1,heads2) {
+nx3.elements.tools.HeadsTool.headsCollide = function(heads1,heads2) {
 	var _g = 0;
 	while(_g < heads1.length) {
 		var head1 = heads1[_g];
@@ -10416,17 +10772,17 @@ nx3.display.tools.HeadsTool.headsCollide = function(heads1,heads2) {
 	}
 	return false;
 }
-nx3.display.tools.SignsTools = function() { }
-$hxClasses["nx3.display.tools.SignsTools"] = nx3.display.tools.SignsTools;
-nx3.display.tools.SignsTools.__name__ = ["nx3","display","tools","SignsTools"];
-nx3.display.tools.SignsTools.adjustPositions = function(signs) {
-	signs = nx3.display.tools.SignsTools.removeNones(signs);
+nx3.elements.tools.SignsTools = function() { }
+$hxClasses["nx3.elements.tools.SignsTools"] = nx3.elements.tools.SignsTools;
+nx3.elements.tools.SignsTools.__name__ = ["nx3","elements","tools","SignsTools"];
+nx3.elements.tools.SignsTools.adjustPositions = function(signs) {
+	signs = nx3.elements.tools.SignsTools.removeNones(signs);
 	if(signs.length < 2) return signs;
-	signs = nx3.display.tools.SignsTools.sortSigns(signs);
-	signs = nx3.display.tools.SignsTools.calcPositions(signs);
+	signs = nx3.elements.tools.SignsTools.sortSigns(signs);
+	signs = nx3.elements.tools.SignsTools.calcPositions(signs);
 	return signs;
 }
-nx3.display.tools.SignsTools.calcPositions = function(signs) {
+nx3.elements.tools.SignsTools.calcPositions = function(signs) {
 	var levels = [-999,-999,-999,-999];
 	var _g = 0;
 	while(_g < signs.length) {
@@ -10434,7 +10790,7 @@ nx3.display.tools.SignsTools.calcPositions = function(signs) {
 		++_g;
 		var cpos = 0;
 		var diff = sign.level - levels[cpos];
-		while(diff < nx3.display.tools.SignsTools.BREAKPOINT) {
+		while(diff < nx3.elements.tools.SignsTools.BREAKPOINT) {
 			cpos++;
 			diff = sign.level - levels[cpos];
 		}
@@ -10443,314 +10799,54 @@ nx3.display.tools.SignsTools.calcPositions = function(signs) {
 	}
 	return signs;
 }
-nx3.display.tools.SignsTools.removeNones = function(signs) {
+nx3.elements.tools.SignsTools.removeNones = function(signs) {
 	var r = [];
 	var _g = 0;
 	while(_g < signs.length) {
 		var sign = signs[_g];
 		++_g;
-		if(sign.sign != nx3.enums.ESign.None) r.push(sign);
+		if(sign.sign != nx3.elements.ESign.None) r.push(sign);
 	}
 	return r;
 }
-nx3.display.tools.SignsTools.sortSigns = function(signs) {
+nx3.elements.tools.SignsTools.sortSigns = function(signs) {
 	signs.sort(function(signA,signB) {
 		if(signA.level <= signB.level) return -1; else return 1;
 	});
 	return signs;
 }
-nx3.display.tools.SignsTools.getPositions = function(signs) {
+nx3.elements.tools.SignsTools.getPositions = function(signs) {
 	return Lambda.array(Lambda.map(signs,function(sign) {
 		return sign.position;
 	}));
 }
-nx3.display.tools.SignsTools.getSignRect = function(sign) {
+nx3.elements.tools.SignsTools.getSignRect = function(sign) {
 	switch( (sign)[1] ) {
 	case 0:
 		return null;
 	case 5:
-		return new nx3.units.NRect(0,-1.5,2.6,3);
+		return new flash.geom.Rectangle(0,-1.5,2.6,3);
 	case 7:
 	case 8:
 	case 6:
-		return new nx3.units.NRect(0,-2,4.4,4);
+		return new flash.geom.Rectangle(0,-2,4.4,4);
 	case 2:
-		return new nx3.units.NRect(0,-3,2.6,5);
+		return new flash.geom.Rectangle(0,-3,2.6,5);
 	default:
-		return new nx3.units.NRect(0,-3,2.6,6);
+		return new flash.geom.Rectangle(0,-3,2.6,6);
 	}
 	throw "This shouldn't happen!";
 	return null;
 }
-nx3.display.tools.SignsTools.adjustSignFontX = function(sign) {
+nx3.elements.tools.SignsTools.adjustSignFontX = function(sign) {
 	switch( (sign)[1] ) {
 	case 2:
+		return 0.3;
+	case 1:
 		return 0.3;
 	default:
 	}
 	return 0;
-}
-nx3.elements = {}
-nx3.elements.Head = function(type,level,sign,tie,tieTo) {
-	if(level == null) level = 0;
-	this.type = type != null?type:nx3.enums.EHeadType.Normal;
-	this.sign = sign != null?sign:nx3.enums.ESign.None;
-	this.tie = tie != null?tie:null;
-	this.tieTo = tieTo != null?tieTo:null;
-	this.level = level;
-};
-$hxClasses["nx3.elements.Head"] = nx3.elements.Head;
-nx3.elements.Head.__name__ = ["nx3","elements","Head"];
-nx3.elements.Head.prototype = {
-	tieTo: null
-	,tie: null
-	,sign: null
-	,type: null
-	,level: null
-	,__class__: nx3.elements.Head
-}
-nx3.elements.Note = function(type,heads,value,direction) {
-	if(type == null) type = heads != null?nx3.enums.ENoteType.Note(heads):nx3.enums.ENoteType.Note([new nx3.elements.Head()]);
-	if(value == null) value = nx3.enums.ENoteValue.Nv4;
-	this.type = type;
-	this.value = value;
-	this.direction = direction;
-	nx3.enums.tools.ENoteTypeTools.noteSortHeads(this.type);
-};
-$hxClasses["nx3.elements.Note"] = nx3.elements.Note;
-nx3.elements.Note.__name__ = ["nx3","elements","Note"];
-nx3.elements.Note.prototype = {
-	get_heads: function() {
-		if(this.heads_ != null) return this.heads_;
-		var _g = this;
-		var $e = (_g.type);
-		switch( $e[1] ) {
-		case 0:
-			var attributes = $e[5], articulations = $e[4], variant = $e[3], heads = $e[2];
-			this.heads_ = heads;
-			return this.heads_;
-		default:
-		}
-		return null;
-	}
-	,heads_: null
-	,heads: null
-	,direction: null
-	,value: null
-	,type: null
-	,__class__: nx3.elements.Note
-	,__properties__: {get_heads:"get_heads"}
-}
-nx3.enums = {}
-nx3.enums.EClef = $hxClasses["nx3.enums.EClef"] = { __ename__ : true, __constructs__ : ["ClefG","ClefF","ClefC"] }
-nx3.enums.EClef.ClefG = ["ClefG",0];
-nx3.enums.EClef.ClefG.toString = $estr;
-nx3.enums.EClef.ClefG.__enum__ = nx3.enums.EClef;
-nx3.enums.EClef.ClefF = ["ClefF",1];
-nx3.enums.EClef.ClefF.toString = $estr;
-nx3.enums.EClef.ClefF.__enum__ = nx3.enums.EClef;
-nx3.enums.EClef.ClefC = ["ClefC",2];
-nx3.enums.EClef.ClefC.toString = $estr;
-nx3.enums.EClef.ClefC.__enum__ = nx3.enums.EClef;
-nx3.enums.EDirectionUAD = $hxClasses["nx3.enums.EDirectionUAD"] = { __ename__ : true, __constructs__ : ["Up","Auto","Down"] }
-nx3.enums.EDirectionUAD.Up = ["Up",0];
-nx3.enums.EDirectionUAD.Up.toString = $estr;
-nx3.enums.EDirectionUAD.Up.__enum__ = nx3.enums.EDirectionUAD;
-nx3.enums.EDirectionUAD.Auto = ["Auto",1];
-nx3.enums.EDirectionUAD.Auto.toString = $estr;
-nx3.enums.EDirectionUAD.Auto.__enum__ = nx3.enums.EDirectionUAD;
-nx3.enums.EDirectionUAD.Down = ["Down",2];
-nx3.enums.EDirectionUAD.Down.toString = $estr;
-nx3.enums.EDirectionUAD.Down.__enum__ = nx3.enums.EDirectionUAD;
-nx3.enums.EDirectionUD = $hxClasses["nx3.enums.EDirectionUD"] = { __ename__ : true, __constructs__ : ["Up","Down"] }
-nx3.enums.EDirectionUD.Up = ["Up",0];
-nx3.enums.EDirectionUD.Up.toString = $estr;
-nx3.enums.EDirectionUD.Up.__enum__ = nx3.enums.EDirectionUD;
-nx3.enums.EDirectionUD.Down = ["Down",1];
-nx3.enums.EDirectionUD.Down.toString = $estr;
-nx3.enums.EDirectionUD.Down.__enum__ = nx3.enums.EDirectionUD;
-nx3.enums.EHeadType = $hxClasses["nx3.enums.EHeadType"] = { __ename__ : true, __constructs__ : ["Normal","Rythmic","Crossed"] }
-nx3.enums.EHeadType.Normal = ["Normal",0];
-nx3.enums.EHeadType.Normal.toString = $estr;
-nx3.enums.EHeadType.Normal.__enum__ = nx3.enums.EHeadType;
-nx3.enums.EHeadType.Rythmic = ["Rythmic",1];
-nx3.enums.EHeadType.Rythmic.toString = $estr;
-nx3.enums.EHeadType.Rythmic.__enum__ = nx3.enums.EHeadType;
-nx3.enums.EHeadType.Crossed = ["Crossed",2];
-nx3.enums.EHeadType.Crossed.toString = $estr;
-nx3.enums.EHeadType.Crossed.__enum__ = nx3.enums.EHeadType;
-nx3.enums.EHeadValuetype = $hxClasses["nx3.enums.EHeadValuetype"] = { __ename__ : true, __constructs__ : ["HVT4","HVT2","HVT1"] }
-nx3.enums.EHeadValuetype.HVT4 = ["HVT4",0];
-nx3.enums.EHeadValuetype.HVT4.toString = $estr;
-nx3.enums.EHeadValuetype.HVT4.__enum__ = nx3.enums.EHeadValuetype;
-nx3.enums.EHeadValuetype.HVT2 = ["HVT2",1];
-nx3.enums.EHeadValuetype.HVT2.toString = $estr;
-nx3.enums.EHeadValuetype.HVT2.__enum__ = nx3.enums.EHeadValuetype;
-nx3.enums.EHeadValuetype.HVT1 = ["HVT1",2];
-nx3.enums.EHeadValuetype.HVT1.toString = $estr;
-nx3.enums.EHeadValuetype.HVT1.__enum__ = nx3.enums.EHeadValuetype;
-nx3.enums.ELyricContinuation = $hxClasses["nx3.enums.ELyricContinuation"] = { __ename__ : true, __constructs__ : ["Hyphen","Melisma"] }
-nx3.enums.ELyricContinuation.Hyphen = ["Hyphen",0];
-nx3.enums.ELyricContinuation.Hyphen.toString = $estr;
-nx3.enums.ELyricContinuation.Hyphen.__enum__ = nx3.enums.ELyricContinuation;
-nx3.enums.ELyricContinuation.Melisma = ["Melisma",1];
-nx3.enums.ELyricContinuation.Melisma.toString = $estr;
-nx3.enums.ELyricContinuation.Melisma.__enum__ = nx3.enums.ELyricContinuation;
-nx3.enums.ELyricFormat = $hxClasses["nx3.enums.ELyricFormat"] = { __ename__ : true, __constructs__ : ["Bold","Italic","Format"] }
-nx3.enums.ELyricFormat.Bold = ["Bold",0];
-nx3.enums.ELyricFormat.Bold.toString = $estr;
-nx3.enums.ELyricFormat.Bold.__enum__ = nx3.enums.ELyricFormat;
-nx3.enums.ELyricFormat.Italic = ["Italic",1];
-nx3.enums.ELyricFormat.Italic.toString = $estr;
-nx3.enums.ELyricFormat.Italic.__enum__ = nx3.enums.ELyricFormat;
-nx3.enums.ELyricFormat.Format = function(fontName,size,bold,Italic) { var $x = ["Format",2,fontName,size,bold,Italic]; $x.__enum__ = nx3.enums.ELyricFormat; $x.toString = $estr; return $x; }
-nx3.enums.ENoteArticulation = $hxClasses["nx3.enums.ENoteArticulation"] = { __ename__ : true, __constructs__ : ["Staccato","Tenuto","Marcato"] }
-nx3.enums.ENoteArticulation.Staccato = ["Staccato",0];
-nx3.enums.ENoteArticulation.Staccato.toString = $estr;
-nx3.enums.ENoteArticulation.Staccato.__enum__ = nx3.enums.ENoteArticulation;
-nx3.enums.ENoteArticulation.Tenuto = ["Tenuto",1];
-nx3.enums.ENoteArticulation.Tenuto.toString = $estr;
-nx3.enums.ENoteArticulation.Tenuto.__enum__ = nx3.enums.ENoteArticulation;
-nx3.enums.ENoteArticulation.Marcato = ["Marcato",2];
-nx3.enums.ENoteArticulation.Marcato.toString = $estr;
-nx3.enums.ENoteArticulation.Marcato.__enum__ = nx3.enums.ENoteArticulation;
-nx3.enums.ENoteAttributes = $hxClasses["nx3.enums.ENoteAttributes"] = { __ename__ : true, __constructs__ : ["Arpeggio","Clef"] }
-nx3.enums.ENoteAttributes.Arpeggio = function(top,bottomY) { var $x = ["Arpeggio",0,top,bottomY]; $x.__enum__ = nx3.enums.ENoteAttributes; $x.toString = $estr; return $x; }
-nx3.enums.ENoteAttributes.Clef = function(variant) { var $x = ["Clef",1,variant]; $x.__enum__ = nx3.enums.ENoteAttributes; $x.toString = $estr; return $x; }
-nx3.enums.ENoteType = $hxClasses["nx3.enums.ENoteType"] = { __ename__ : true, __constructs__ : ["Note","Pause","BarPause","Tpl","Lyric","Chord","Dynam"] }
-nx3.enums.ENoteType.Note = function(heads,variant,articulations,attributes) { var $x = ["Note",0,heads,variant,articulations,attributes]; $x.__enum__ = nx3.enums.ENoteType; $x.toString = $estr; return $x; }
-nx3.enums.ENoteType.Pause = function(level) { var $x = ["Pause",1,level]; $x.__enum__ = nx3.enums.ENoteType; $x.toString = $estr; return $x; }
-nx3.enums.ENoteType.BarPause = ["BarPause",2];
-nx3.enums.ENoteType.BarPause.toString = $estr;
-nx3.enums.ENoteType.BarPause.__enum__ = nx3.enums.ENoteType;
-nx3.enums.ENoteType.Tpl = ["Tpl",3];
-nx3.enums.ENoteType.Tpl.toString = $estr;
-nx3.enums.ENoteType.Tpl.__enum__ = nx3.enums.ENoteType;
-nx3.enums.ENoteType.Lyric = function(text,offset,continuation,format) { var $x = ["Lyric",4,text,offset,continuation,format]; $x.__enum__ = nx3.enums.ENoteType; $x.toString = $estr; return $x; }
-nx3.enums.ENoteType.Chord = ["Chord",5];
-nx3.enums.ENoteType.Chord.toString = $estr;
-nx3.enums.ENoteType.Chord.__enum__ = nx3.enums.ENoteType;
-nx3.enums.ENoteType.Dynam = ["Dynam",6];
-nx3.enums.ENoteType.Dynam.toString = $estr;
-nx3.enums.ENoteType.Dynam.__enum__ = nx3.enums.ENoteType;
-nx3.enums.ENoteValue = function(value,type) {
-	this.value = value | 0;
-	this.type = type;
-};
-$hxClasses["nx3.enums.ENoteValue"] = nx3.enums.ENoteValue;
-nx3.enums.ENoteValue.__name__ = ["nx3","enums","ENoteValue"];
-nx3.enums.ENoteValue.getFromValue = function(value) {
-	if(value == nx3.enums.ENoteValue.N1 * 3024) return nx3.enums.ENoteValue.Nv1;
-	if(value == nx3.enums.ENoteValue.N1 * 3024 * nx3.enums.ENoteValue.DOT) return nx3.enums.ENoteValue.Nv1dot;
-	if(value == nx3.enums.ENoteValue.N1 * 3024 * nx3.enums.ENoteValue.DOTDOT) return nx3.enums.ENoteValue.Nv1ddot;
-	if(value == nx3.enums.ENoteValue.N1 * 3024 * nx3.enums.ENoteValue.TRI) return nx3.enums.ENoteValue.Nv1tri;
-	if(value == nx3.enums.ENoteValue.N2 * 3024) return nx3.enums.ENoteValue.Nv2;
-	if(value == nx3.enums.ENoteValue.N2 * 3024 * nx3.enums.ENoteValue.DOT) return nx3.enums.ENoteValue.Nv2dot;
-	if(value == nx3.enums.ENoteValue.N2 * 3024 * nx3.enums.ENoteValue.DOTDOT) return nx3.enums.ENoteValue.Nv2ddot;
-	if(value == nx3.enums.ENoteValue.N2 * 3024 * nx3.enums.ENoteValue.TRI) return nx3.enums.ENoteValue.Nv2tri;
-	if(value == 3024) return nx3.enums.ENoteValue.Nv4;
-	if(value == 3024 * nx3.enums.ENoteValue.DOT) return nx3.enums.ENoteValue.Nv4dot;
-	if(value == 3024 * nx3.enums.ENoteValue.DOTDOT) return nx3.enums.ENoteValue.Nv4ddot;
-	if(value == 3024 * nx3.enums.ENoteValue.TRI) return nx3.enums.ENoteValue.Nv4tri;
-	if(value == nx3.enums.ENoteValue.N8 * 3024) return nx3.enums.ENoteValue.Nv8;
-	if(value == nx3.enums.ENoteValue.N8 * 3024 * nx3.enums.ENoteValue.DOT) return nx3.enums.ENoteValue.Nv8dot;
-	if(value == nx3.enums.ENoteValue.N8 * 3024 * nx3.enums.ENoteValue.DOTDOT) return nx3.enums.ENoteValue.Nv8ddot;
-	if(value == nx3.enums.ENoteValue.N8 * 3024 * nx3.enums.ENoteValue.TRI) return nx3.enums.ENoteValue.Nv8tri;
-	if(value == nx3.enums.ENoteValue.N16 * 3024) return nx3.enums.ENoteValue.Nv16;
-	if(value == nx3.enums.ENoteValue.N16 * 3024 * nx3.enums.ENoteValue.DOT) return nx3.enums.ENoteValue.Nv16dot;
-	if(value == nx3.enums.ENoteValue.N16 * 3024 * nx3.enums.ENoteValue.DOTDOT) return nx3.enums.ENoteValue.Nv16ddot;
-	if(value == nx3.enums.ENoteValue.N16 * 3024 * nx3.enums.ENoteValue.TRI) return nx3.enums.ENoteValue.Nv16tri;
-	if(value == nx3.enums.ENoteValue.N32 * 3024) return nx3.enums.ENoteValue.Nv32;
-	if(value == nx3.enums.ENoteValue.N32 * 3024 * nx3.enums.ENoteValue.DOT) return nx3.enums.ENoteValue.Nv32dot;
-	if(value == nx3.enums.ENoteValue.N32 * 3024 * nx3.enums.ENoteValue.DOTDOT) return nx3.enums.ENoteValue.Nv32ddot;
-	if(value == nx3.enums.ENoteValue.N32 * 3024 * nx3.enums.ENoteValue.TRI) return nx3.enums.ENoteValue.Nv32tri;
-	throw "Could not find note value for value " + value;
-	return nx3.enums.ENoteValue.Nv4;
-}
-nx3.enums.ENoteValue.prototype = {
-	type: null
-	,value: null
-	,__class__: nx3.enums.ENoteValue
-}
-nx3.enums.ENoteVariant = $hxClasses["nx3.enums.ENoteVariant"] = { __ename__ : true, __constructs__ : ["Normal","Rythmic","RythmicSingleLevel","HeadsOnly","StavesOnly"] }
-nx3.enums.ENoteVariant.Normal = ["Normal",0];
-nx3.enums.ENoteVariant.Normal.toString = $estr;
-nx3.enums.ENoteVariant.Normal.__enum__ = nx3.enums.ENoteVariant;
-nx3.enums.ENoteVariant.Rythmic = ["Rythmic",1];
-nx3.enums.ENoteVariant.Rythmic.toString = $estr;
-nx3.enums.ENoteVariant.Rythmic.__enum__ = nx3.enums.ENoteVariant;
-nx3.enums.ENoteVariant.RythmicSingleLevel = function(level) { var $x = ["RythmicSingleLevel",2,level]; $x.__enum__ = nx3.enums.ENoteVariant; $x.toString = $estr; return $x; }
-nx3.enums.ENoteVariant.HeadsOnly = ["HeadsOnly",3];
-nx3.enums.ENoteVariant.HeadsOnly.toString = $estr;
-nx3.enums.ENoteVariant.HeadsOnly.__enum__ = nx3.enums.ENoteVariant;
-nx3.enums.ENoteVariant.StavesOnly = ["StavesOnly",4];
-nx3.enums.ENoteVariant.StavesOnly.toString = $estr;
-nx3.enums.ENoteVariant.StavesOnly.__enum__ = nx3.enums.ENoteVariant;
-nx3.enums.EPosition = $hxClasses["nx3.enums.EPosition"] = { __ename__ : true, __constructs__ : ["X","Y","XY","XYW"] }
-nx3.enums.EPosition.X = function(x) { var $x = ["X",0,x]; $x.__enum__ = nx3.enums.EPosition; $x.toString = $estr; return $x; }
-nx3.enums.EPosition.Y = function(y) { var $x = ["Y",1,y]; $x.__enum__ = nx3.enums.EPosition; $x.toString = $estr; return $x; }
-nx3.enums.EPosition.XY = function(x,y) { var $x = ["XY",2,x,y]; $x.__enum__ = nx3.enums.EPosition; $x.toString = $estr; return $x; }
-nx3.enums.EPosition.XYW = function(x,y,w) { var $x = ["XYW",3,x,y,w]; $x.__enum__ = nx3.enums.EPosition; $x.toString = $estr; return $x; }
-nx3.enums.ESign = $hxClasses["nx3.enums.ESign"] = { __ename__ : true, __constructs__ : ["None","Natural","Flat","Sharp","DoubleFlat","DoubleSharp","ParNatural","ParFlat","ParSharp"] }
-nx3.enums.ESign.None = ["None",0];
-nx3.enums.ESign.None.toString = $estr;
-nx3.enums.ESign.None.__enum__ = nx3.enums.ESign;
-nx3.enums.ESign.Natural = ["Natural",1];
-nx3.enums.ESign.Natural.toString = $estr;
-nx3.enums.ESign.Natural.__enum__ = nx3.enums.ESign;
-nx3.enums.ESign.Flat = ["Flat",2];
-nx3.enums.ESign.Flat.toString = $estr;
-nx3.enums.ESign.Flat.__enum__ = nx3.enums.ESign;
-nx3.enums.ESign.Sharp = ["Sharp",3];
-nx3.enums.ESign.Sharp.toString = $estr;
-nx3.enums.ESign.Sharp.__enum__ = nx3.enums.ESign;
-nx3.enums.ESign.DoubleFlat = ["DoubleFlat",4];
-nx3.enums.ESign.DoubleFlat.toString = $estr;
-nx3.enums.ESign.DoubleFlat.__enum__ = nx3.enums.ESign;
-nx3.enums.ESign.DoubleSharp = ["DoubleSharp",5];
-nx3.enums.ESign.DoubleSharp.toString = $estr;
-nx3.enums.ESign.DoubleSharp.__enum__ = nx3.enums.ESign;
-nx3.enums.ESign.ParNatural = ["ParNatural",6];
-nx3.enums.ESign.ParNatural.toString = $estr;
-nx3.enums.ESign.ParNatural.__enum__ = nx3.enums.ESign;
-nx3.enums.ESign.ParFlat = ["ParFlat",7];
-nx3.enums.ESign.ParFlat.toString = $estr;
-nx3.enums.ESign.ParFlat.__enum__ = nx3.enums.ESign;
-nx3.enums.ESign.ParSharp = ["ParSharp",8];
-nx3.enums.ESign.ParSharp.toString = $estr;
-nx3.enums.ESign.ParSharp.__enum__ = nx3.enums.ESign;
-nx3.enums.ETie = $hxClasses["nx3.enums.ETie"] = { __ename__ : true, __constructs__ : ["Tie","Gliss"] }
-nx3.enums.ETie.Tie = function(direction) { var $x = ["Tie",0,direction]; $x.__enum__ = nx3.enums.ETie; $x.toString = $estr; return $x; }
-nx3.enums.ETie.Gliss = function(direction) { var $x = ["Gliss",1,direction]; $x.__enum__ = nx3.enums.ETie; $x.toString = $estr; return $x; }
-nx3.enums.EVoiceType = $hxClasses["nx3.enums.EVoiceType"] = { __ename__ : true, __constructs__ : ["Normal","Barpause"] }
-nx3.enums.EVoiceType.Normal = ["Normal",0];
-nx3.enums.EVoiceType.Normal.toString = $estr;
-nx3.enums.EVoiceType.Normal.__enum__ = nx3.enums.EVoiceType;
-nx3.enums.EVoiceType.Barpause = ["Barpause",1];
-nx3.enums.EVoiceType.Barpause.toString = $estr;
-nx3.enums.EVoiceType.Barpause.__enum__ = nx3.enums.EVoiceType;
-nx3.enums.tools = {}
-nx3.enums.tools.EDirectionTools = function() { }
-$hxClasses["nx3.enums.tools.EDirectionTools"] = nx3.enums.tools.EDirectionTools;
-nx3.enums.tools.EDirectionTools.__name__ = ["nx3","enums","tools","EDirectionTools"];
-nx3.enums.tools.ENoteTypeTools = function() { }
-$hxClasses["nx3.enums.tools.ENoteTypeTools"] = nx3.enums.tools.ENoteTypeTools;
-nx3.enums.tools.ENoteTypeTools.__name__ = ["nx3","enums","tools","ENoteTypeTools"];
-nx3.enums.tools.ENoteTypeTools.noteSortHeads = function(type) {
-	var $e = (type);
-	switch( $e[1] ) {
-	case 0:
-		var attributes = $e[5], articulations = $e[4], variant = $e[3], heads = $e[2];
-		heads.sort(function(i1,i2) {
-			var cmp;
-			cmp = Reflect.compare(i1.level,i2.level);
-			if(cmp != 0) return cmp;
-			return 0;
-		});
-		break;
-	default:
-		throw "Can not sort heads on other type than ENoteType.Note - this one is a " + Std.string(type);
-	}
 }
 nx3.io = {}
 nx3.io.HeadXML = function() { }
@@ -10766,7 +10862,7 @@ nx3.io.HeadXML.toXml = function(head) {
 	default:
 	}
 	xml.set(nx3.io.HeadXML.XHEAD_LEVEL,Std.string(head.level));
-	if(head.sign != nx3.enums.ESign.None) xml.set(nx3.io.HeadXML.XHEAD_SIGN,Std.string(head.sign));
+	if(head.sign != nx3.elements.ESign.None) xml.set(nx3.io.HeadXML.XHEAD_SIGN,Std.string(head.sign));
 	if(head.tie != null) {
 		var $e = (head.tie);
 		switch( $e[1] ) {
@@ -10798,12 +10894,12 @@ nx3.io.HeadXML.toXml = function(head) {
 nx3.io.HeadXML.fromXmlStr = function(xmlStr) {
 	var xml = Xml.parse(xmlStr).firstElement();
 	var typeStr = xml.get(nx3.io.HeadXML.XHEAD_TYPE);
-	var type = cx.EnumTools.createFromString(nx3.enums.EHeadType,typeStr);
+	var type = cx.EnumTools.createFromString(nx3.elements.EHeadType,typeStr);
 	var level = Std.parseInt(xml.get(nx3.io.HeadXML.XHEAD_LEVEL));
-	var sign = cx.EnumTools.createFromString(nx3.enums.ESign,xml.get(nx3.io.HeadXML.XHEAD_SIGN));
-	var tie = cx.EnumTools.createFromString(nx3.enums.ETie,xml.get(nx3.io.HeadXML.XHEAD_TIE));
-	var tieTo = cx.EnumTools.createFromString(nx3.enums.ETie,xml.get(nx3.io.HeadXML.XHEAD_TIETO));
-	return new nx3.elements.Head(type,nx3.units._Level.Level_Impl_.inRange(level),sign,tie,tieTo);
+	var sign = cx.EnumTools.createFromString(nx3.elements.ESign,xml.get(nx3.io.HeadXML.XHEAD_SIGN));
+	var tie = cx.EnumTools.createFromString(nx3.elements.ETie,xml.get(nx3.io.HeadXML.XHEAD_TIE));
+	var tieTo = cx.EnumTools.createFromString(nx3.elements.ETie,xml.get(nx3.io.HeadXML.XHEAD_TIETO));
+	return new nx3.elements.NHead(type,nx3.units._Level.Level_Impl_.inRange(level),sign,tie,tieTo);
 }
 nx3.io.HeadXML.test = function(item) {
 	var str = nx3.io.HeadXML.toXml(item).toString();
@@ -10885,7 +10981,7 @@ nx3.io.NoteXML.fromXmlStr = function(xmlStr) {
 			var head = nx3.io.HeadXML.fromXmlStr(h.toString());
 			heads.push(head);
 		}
-		var variant = cx.EnumTools.createFromString(nx3.enums.ENoteVariant,xml.get("variant"));
+		var variant = cx.EnumTools.createFromString(nx3.elements.ENoteVariant,xml.get("variant"));
 		var articulations = [];
 		var articulationsStr = xml.get("articulations");
 		if(articulationsStr != null) {
@@ -10894,7 +10990,7 @@ nx3.io.NoteXML.fromXmlStr = function(xmlStr) {
 			while(_g < articulationStrings.length) {
 				var articulationStr = articulationStrings[_g];
 				++_g;
-				articulations.push(cx.EnumTools.createFromString(nx3.enums.ENoteArticulation,articulationStr));
+				articulations.push(cx.EnumTools.createFromString(nx3.elements.ENoteArticulation,articulationStr));
 			}
 		}
 		if(articulations.length == 0) articulations = null;
@@ -10906,36 +11002,83 @@ nx3.io.NoteXML.fromXmlStr = function(xmlStr) {
 			while(_g < attributesStrings.length) {
 				var attributeStr = attributesStrings[_g];
 				++_g;
-				attributes.push(cx.EnumTools.createFromString(nx3.enums.ENoteAttributes,attributeStr));
+				attributes.push(cx.EnumTools.createFromString(nx3.elements.ENoteAttributes,attributeStr));
 			}
 		}
 		if(attributes.length == 0) attributes = null;
-		type = nx3.enums.ENoteType.Note(heads,variant,articulations,attributes);
+		type = nx3.elements.ENoteType.Note(heads,variant,articulations,attributes);
 		break;
 	case "pause":
-		var level = nx3.units._Level.Level_Impl_.inRange(Std.parseInt(xml.get("level")));
-		type = nx3.enums.ENoteType.Pause(level);
+		var pauseLevelStr = xml.get("level");
+		var levelInt = pauseLevelStr == null?0:Std.parseInt(pauseLevelStr);
+		type = nx3.elements.ENoteType.Pause(nx3.units._Level.Level_Impl_.inRange(0));
 		break;
 	case "lyric":
 		var text = xml.get("text");
 		var offsetStr = xml.get("offset");
-		var offset = cx.EnumTools.createFromString(nx3.enums.EPosition,offsetStr);
+		var offset = cx.EnumTools.createFromString(nx3.elements.EPosition,offsetStr);
 		var continuationStr = xml.get("continuation");
-		var continuation = cx.EnumTools.createFromString(nx3.enums.ELyricContinuation,continuationStr);
+		var continuation = cx.EnumTools.createFromString(nx3.elements.ELyricContinuation,continuationStr);
 		var formatStr = xml.get("format");
-		var format = cx.EnumTools.createFromString(nx3.enums.ELyricFormat,formatStr);
-		type = nx3.enums.ENoteType.Lyric(text,offset,continuation,format);
+		var format = cx.EnumTools.createFromString(nx3.elements.ELyricFormat,formatStr);
+		type = nx3.elements.ENoteType.Lyric(text,offset,continuation,format);
 		break;
 	}
 	var val = Std.parseInt(xml.get("value"));
-	var value = nx3.enums.ENoteValue.getFromValue(val);
-	var direction = cx.EnumTools.createFromString(nx3.enums.EDirectionUD,xml.get("direction"));
-	return new nx3.elements.Note(type,null,value,direction);
+	var value = nx3.elements.ENoteValue.getFromValue(val);
+	var direction = cx.EnumTools.createFromString(nx3.elements.EDirectionUD,xml.get("direction"));
+	return new nx3.elements.NNote(type,null,value,direction);
 }
 nx3.io.NoteXML.test = function(item) {
 	var str = nx3.io.NoteXML.toXml(item).toString();
 	var item2 = nx3.io.NoteXML.fromXmlStr(str);
 	var str2 = nx3.io.NoteXML.toXml(item2).toString();
+	console.log(str);
+	console.log(str2);
+	return str == str2;
+}
+nx3.io.VoiceXML = function() { }
+$hxClasses["nx3.io.VoiceXML"] = nx3.io.VoiceXML;
+nx3.io.VoiceXML.__name__ = ["nx3","io","VoiceXML"];
+nx3.io.VoiceXML.toXml = function(voice) {
+	var xml = Xml.createElement("voice");
+	switch( (voice.type)[1] ) {
+	case 1:
+		xml.set("type",Std.string(voice.type));
+		break;
+	default:
+	}
+	if(voice.direction != null) xml.set("direction",Std.string(voice.direction));
+	if(voice.notes != null) {
+		var _g = 0, _g1 = voice.notes;
+		while(_g < _g1.length) {
+			var note = _g1[_g];
+			++_g;
+			var noteXml = nx3.io.NoteXML.toXml(note);
+			xml.addChild(noteXml);
+		}
+	}
+	return xml;
+}
+nx3.io.VoiceXML.fromXmlStr = function(xmlStr) {
+	var xml = Xml.parse(xmlStr).firstElement();
+	var typeStr = xml.get("type");
+	var type = cx.EnumTools.createFromString(nx3.elements.EVoiceType,typeStr);
+	var direction = null;
+	direction = cx.EnumTools.createFromString(nx3.elements.EDirectionUD,xml.get("direction"));
+	var notes = [];
+	var $it0 = xml.elements();
+	while( $it0.hasNext() ) {
+		var n = $it0.next();
+		var note = nx3.io.NoteXML.fromXmlStr(n.toString());
+		notes.push(note);
+	}
+	return new nx3.elements.NVoice(notes,type,direction);
+}
+nx3.io.VoiceXML.test = function(item) {
+	var str = nx3.io.VoiceXML.toXml(item).toString();
+	var item2 = nx3.io.VoiceXML.fromXmlStr(str);
+	var str2 = nx3.io.VoiceXML.toXml(item2).toString();
 	console.log(str);
 	console.log(str2);
 	return str == str2;
@@ -10973,8 +11116,8 @@ nx3.render.FontRenderer.prototype = {
 			if(xmlStr == null) continue;
 			var shape = nx3.render.svg.ShapeTools.getShape(xmlStr,this.scaling);
 			if(shape == null) return;
-			var r = signRect.toRectangle();
-			var shapeX = signsX + (r.x + nx3.display.tools.SignsTools.adjustSignFontX(sign)) * this.scaling.halfNoteWidth + this.scaling.svgX;
+			var r = signRect;
+			var shapeX = signsX + (r.x + nx3.elements.tools.SignsTools.adjustSignFontX(sign)) * this.scaling.halfNoteWidth + this.scaling.svgX;
 			var shapeY = y + (r.y + 2) * this.scaling.halfSpace + this.scaling.svgY;
 			shape.set_x(shapeX);
 			shape.set_y(shapeY);
@@ -10997,11 +11140,11 @@ nx3.render.FontRenderer.prototype = {
 	,heads: function(x,y,dnote) {
 		var _g = 0, _g1 = dnote.get_headRects();
 		while(_g < _g1.length) {
-			var rect = _g1[_g];
+			var r = _g1[_g];
 			++_g;
 			var xmlStr = null;
 			var _g2 = dnote.get_value();
-			switch( (_g2.type)[1] ) {
+			switch( (_g2.head)[1] ) {
 			case 2:
 				xmlStr = nx3.render.svg.Elements.noteWhole;
 				break;
@@ -11013,7 +11156,6 @@ nx3.render.FontRenderer.prototype = {
 			}
 			var shape = nx3.render.svg.ShapeTools.getShape(xmlStr,this.scaling);
 			if(shape == null) return;
-			var r = rect.toRectangle();
 			var shapeX = x + r.x * this.scaling.halfNoteWidth + this.scaling.svgX;
 			var shapeY = y + r.y * this.scaling.halfSpace + this.scaling.svgY;
 			shape.set_x(shapeX);
@@ -11022,6 +11164,7 @@ nx3.render.FontRenderer.prototype = {
 		}
 	}
 	,stave: function(x,y,dnote) {
+		if(dnote.get_value().head == nx3.elements.EHeadValuetype.HVT1) return;
 		this.target.get_graphics().lineStyle(this.scaling.linesWidth,0);
 		var topY = y + dnote.get_headTop().level * this.scaling.halfSpace;
 		var bottomY = y + dnote.get_headBottom().level * this.scaling.halfSpace;
@@ -11030,12 +11173,12 @@ nx3.render.FontRenderer.prototype = {
 		var _g = dnote.get_direction();
 		switch( (_g)[1] ) {
 		case 0:
-			staveX += (dnote.get_headsRect().x + dnote.get_headsRect().width) * this.scaling.halfNoteWidth;
+			staveX = x + (dnote.get_xAdjust() + dnote.get_stemX()) * this.scaling.halfNoteWidth;
 			this.target.get_graphics().moveTo(staveX,bottomY);
 			this.target.get_graphics().lineTo(staveX,topY - staveLength);
 			break;
 		case 1:
-			staveX += dnote.get_headsRect().x * this.scaling.halfNoteWidth;
+			staveX = x + (dnote.get_xAdjust() + dnote.get_stemX()) * this.scaling.halfNoteWidth;
 			this.target.get_graphics().moveTo(staveX,topY);
 			this.target.get_graphics().lineTo(staveX,bottomY + staveLength);
 			break;
@@ -11076,7 +11219,7 @@ nx3.render.FrameRenderer.prototype = {
 	signs: function(x,y,dcomplex) {
 		if(dcomplex.get_signsFrame() != null) {
 			this.target.get_graphics().lineStyle(1,16711680);
-			var r = dcomplex.get_signsFrame().toRectangle();
+			var r = dcomplex.get_signsFrame();
 			var signsX = x + r.x * this.scaling.halfNoteWidth;
 			var r2 = new flash.geom.Rectangle(signsX,y + r.y * this.scaling.halfSpace,r.width * this.scaling.halfNoteWidth,r.height * this.scaling.halfSpace);
 			r2.inflate(2,2);
@@ -11089,7 +11232,7 @@ nx3.render.FrameRenderer.prototype = {
 			while(_g < _g1.length) {
 				var signRect = _g1[_g];
 				++_g;
-				var r = signRect.toRectangle();
+				var r = signRect;
 				var r2 = new flash.geom.Rectangle(signsX + r.x * this.scaling.halfNoteWidth,y + r.y * this.scaling.halfSpace,r.width * this.scaling.halfNoteWidth,r.height * this.scaling.halfSpace);
 				this.target.get_graphics().drawRect(r2.x,r2.y,r2.width,r2.height);
 			}
@@ -11100,32 +11243,13 @@ nx3.render.FrameRenderer.prototype = {
 		this.target.get_graphics().lineStyle(1,11184895);
 		var _g = 0, _g1 = dnote.get_headRects();
 		while(_g < _g1.length) {
-			var rect = _g1[_g];
+			var r = _g1[_g];
 			++_g;
-			var r = rect.toRectangle();
 			var rx = headsX + r.x * this.scaling.halfNoteWidth;
 			this.target.get_graphics().drawRect(rx,y + r.y * this.scaling.halfSpace,r.width * this.scaling.halfNoteWidth,r.height * this.scaling.halfSpace);
 		}
 	}
 	,stave: function(x,y,dnote) {
-		this.target.get_graphics().lineStyle(this.scaling.linesWidth,0);
-		var topY = y + dnote.get_headTop().level * this.scaling.halfSpace;
-		var bottomY = y + dnote.get_headBottom().level * this.scaling.halfSpace;
-		var staveLength = 6.8 * this.scaling.halfSpace;
-		var staveX = x;
-		var _g = dnote.get_direction();
-		switch( (_g)[1] ) {
-		case 0:
-			staveX += (dnote.get_headsRect().x + dnote.get_headsRect().width) * this.scaling.halfNoteWidth;
-			this.target.get_graphics().moveTo(staveX,bottomY);
-			this.target.get_graphics().lineTo(staveX,topY - staveLength);
-			break;
-		case 1:
-			staveX += dnote.get_headsRect().x * this.scaling.halfNoteWidth;
-			this.target.get_graphics().moveTo(staveX,topY);
-			this.target.get_graphics().lineTo(staveX,bottomY + staveLength);
-			break;
-		}
 	}
 	,notelines: function(x,y,width) {
 		this.target.get_graphics().lineStyle(this.scaling.linesWidth,11184810);
@@ -11146,7 +11270,7 @@ nx3.render.FrameRenderer.prototype = {
 		}
 		this.signs(x,y,dcomplex);
 		this.target.get_graphics().lineStyle(1,255);
-		var r = dcomplex.get_headsRect().toRectangle();
+		var r = dcomplex.get_headsRect();
 		var r2 = new flash.geom.Rectangle(x + r.x * this.scaling.halfNoteWidth,y + r.y * this.scaling.halfSpace,r.width * this.scaling.halfNoteWidth,r.height * this.scaling.halfSpace);
 		r2.inflate(2,2);
 		this.target.get_graphics().drawRect(r2.x,r2.y,r2.width,r2.height);
@@ -11155,7 +11279,7 @@ nx3.render.FrameRenderer.prototype = {
 		this.heads(x,y,dnote);
 		this.stave(x,y,dnote);
 		this.target.get_graphics().lineStyle(1,16755370);
-		var r = dnote.get_headsRect().toRectangle();
+		var r = dnote.get_headsRect();
 		var r2 = new flash.geom.Rectangle(x + r.x * this.scaling.halfNoteWidth,y + r.y * this.scaling.halfSpace,r.width * this.scaling.halfNoteWidth,r.height * this.scaling.halfSpace);
 		r2.inflate(2,2);
 		this.target.get_graphics().drawRect(r2.x,r2.y,r2.width,r2.height);
@@ -11276,9 +11400,6 @@ nx3.render.tools.RenderTools.spriteToPng = function(sprite,filename,extraHeight)
 	if(extraHeight == null) extraHeight = 100;
 }
 nx3.units = {}
-nx3.units.Constants = function() { }
-$hxClasses["nx3.units.Constants"] = nx3.units.Constants;
-nx3.units.Constants.__name__ = ["nx3","units","Constants"];
 nx3.units._Level = {}
 nx3.units._Level.Level_Impl_ = function() { }
 $hxClasses["nx3.units._Level.Level_Impl_"] = nx3.units._Level.Level_Impl_;
@@ -11322,241 +11443,45 @@ nx3.units._Level.Level_Impl_.ltInt = function(l,r) {
 nx3.units._Level.Level_Impl_.inRange = function(value) {
 	return Math.min(Math.max(value,nx3.units._Level.Level_Impl_.MIN_LEVEL),nx3.units._Level.Level_Impl_.MAX_LEVEL) | 0;
 }
-nx3.units.NRect = function(inX,inY,inWidth,inHeight) {
-	if(inHeight == null) inHeight = 0;
-	if(inWidth == null) inWidth = 0;
-	if(inY == null) inY = 0;
-	if(inX == null) inX = 0;
-	this.x = inX;
-	this.y = inY;
-	this.width = inWidth;
-	this.height = inHeight;
-};
-$hxClasses["nx3.units.NRect"] = nx3.units.NRect;
-nx3.units.NRect.__name__ = ["nx3","units","NRect"];
-nx3.units.NRect.prototype = {
-	toRectangle: function() {
-		return new flash.geom.Rectangle(this.x,this.y,this.width,this.height);
-	}
-	,set_top: function(t) {
-		this.height = nx3.units._NY.NY_Impl_.sub(this.height,nx3.units._NY.NY_Impl_.sub(t,this.y));
-		this.y = t;
-		return t;
-	}
-	,get_top: function() {
-		return this.y;
-	}
-	,set_right: function(r) {
-		this.width = nx3.units._NX.NX_Impl_.sub(r,this.x);
-		return r;
-	}
-	,get_right: function() {
-		return nx3.units._NX.NX_Impl_.add(this.x,this.width);
-	}
-	,set_left: function(l) {
-		this.width = nx3.units._NX.NX_Impl_.sub(this.width,nx3.units._NX.NX_Impl_.sub(l,this.x));
-		this.x = l;
-		return l;
-	}
-	,get_left: function() {
-		return this.x;
-	}
-	,set_bottom: function(b) {
-		this.height = nx3.units._NY.NY_Impl_.sub(b,this.y);
-		return b;
-	}
-	,get_bottom: function() {
-		return nx3.units._NY.NY_Impl_.add(this.y,this.height);
-	}
-	,union: function(toUnion) {
-		var x0 = nx3.units._NX.NX_Impl_.gt(this.x,toUnion.x)?toUnion.x:this.x;
-		var x1 = nx3.units._NX.NX_Impl_.lt(this.get_right(),toUnion.get_right())?toUnion.get_right():this.get_right();
-		var y0 = nx3.units._NY.NY_Impl_.gt(this.y,toUnion.y)?toUnion.y:this.y;
-		var y1 = nx3.units._NY.NY_Impl_.lt(this.get_bottom(),toUnion.get_bottom())?toUnion.get_bottom():this.get_bottom();
-		return new nx3.units.NRect(x0,y0,nx3.units._NX.NX_Impl_.sub(x1,x0),nx3.units._NY.NY_Impl_.sub(y1,y0));
-	}
-	,offset: function(dx,dy) {
-		this.x = nx3.units._NX.NX_Impl_.add(this.x,dx);
-		this.y = nx3.units._NY.NY_Impl_.add(this.y,dy);
-	}
-	,intersects: function(toIntersect) {
-		var x0 = nx3.units._NX.NX_Impl_.lt(this.x,toIntersect.x)?toIntersect.x:this.x;
-		var x1 = nx3.units._NX.NX_Impl_.gt(this.get_right(),toIntersect.get_right())?toIntersect.get_right():this.get_right();
-		if(nx3.units._NX.NX_Impl_.lt_like(x1,x0)) return false;
-		var y0 = nx3.units._NY.NY_Impl_.lt(this.y,toIntersect.y)?toIntersect.y:this.y;
-		var y1 = nx3.units._NY.NY_Impl_.gt(this.get_bottom(),toIntersect.get_bottom())?toIntersect.get_bottom():this.get_bottom();
-		return nx3.units._NY.NY_Impl_.gt(y1,y0);
-	}
-	,intersection: function(toIntersect) {
-		var x0 = nx3.units._NX.NX_Impl_.lt(this.x,toIntersect.x)?toIntersect.x:this.x;
-		var x1 = nx3.units._NX.NX_Impl_.gt(this.get_right(),toIntersect.get_right())?toIntersect.get_right():this.get_right();
-		if(nx3.units._NX.NX_Impl_.lt_like(x1,x0)) return new nx3.units.NRect();
-		var y0 = nx3.units._NY.NY_Impl_.lt(this.y,toIntersect.y)?toIntersect.y:this.y;
-		var y1 = nx3.units._NY.NY_Impl_.gt(this.get_bottom(),toIntersect.get_bottom())?toIntersect.get_bottom():this.get_bottom();
-		if(nx3.units._NY.NY_Impl_.lt_like(y1,y0)) return new nx3.units.NRect();
-		return new nx3.units.NRect(x0,y0,nx3.units._NX.NX_Impl_.sub(x1,x0),nx3.units._NY.NY_Impl_.sub(y1,y0));
-	}
-	,inflate: function(dx,dy) {
-		this.x = nx3.units._NX.NX_Impl_.sub(this.x,dx);
-		this.width = nx3.units._NX.NX_Impl_.add(this.width,nx3.units._NX.NX_Impl_.mulInt(dx,2));
-		this.y = nx3.units._NY.NY_Impl_.sub(this.y,dy);
-		this.height = nx3.units._NY.NY_Impl_.add(this.height,nx3.units._NY.NY_Impl_.mulInt(dy,2));
-	}
-	,equals: function(toCompare) {
-		return this.x == toCompare.x && this.y == toCompare.y && this.width == toCompare.width && this.height == toCompare.height;
-	}
-	,contains: function(inX,inY) {
-		return nx3.units._NX.NX_Impl_.gt_like(inX,this.x) && nx3.units._NY.NY_Impl_.gt_like(inY,this.y) && nx3.units._NX.NX_Impl_.lt(inX,this.get_right()) && nx3.units._NY.NY_Impl_.lt(inY,this.get_bottom());
-	}
-	,clone: function() {
-		return new nx3.units.NRect(this.x,this.y,this.width,this.height);
-	}
-	,height: null
-	,width: null
-	,y: null
-	,x: null
-	,__class__: nx3.units.NRect
-	,__properties__: {set_bottom:"set_bottom",get_bottom:"get_bottom",set_top:"set_top",get_top:"get_top",set_left:"set_left",get_left:"get_left",set_right:"set_right",get_right:"get_right"}
+nx3.xamples.Examples = function() { }
+$hxClasses["nx3.xamples.Examples"] = nx3.xamples.Examples;
+nx3.xamples.Examples.__name__ = ["nx3","xamples","Examples"];
+nx3.xamples.Examples.basic1 = function(target) {
+	if(target == null) target = new flash.display.Sprite();
+	var note = new nx3.elements.NNote(nx3.elements.ENoteType.Note([new nx3.elements.NHead(null,nx3.units._Level.Level_Impl_.inRange(0)),new nx3.elements.NHead(null,nx3.units._Level.Level_Impl_.inRange(1)),new nx3.elements.NHead(null,nx3.units._Level.Level_Impl_.inRange(-1))]));
+	var dnote = new nx3.elements.DNote(note,nx3.elements.EDirectionUD.Up);
+	var dnote2 = new nx3.elements.DNote(note,nx3.elements.EDirectionUD.Down);
+	var render = new nx3.render.FrameRenderer(target,nx3.render.scaling.Scaling.NORMAL);
+	render.notelines(0,100,700);
+	render.note(100,100,dnote);
+	render.note(200,100,dnote2);
+	var render1 = new nx3.render.FrameRenderer(target,nx3.render.scaling.Scaling.SMALL);
+	render1.notelines(0,200,700);
+	render1.note(100,200,dnote);
+	render1.note(200,200,dnote2);
+	var render2 = new nx3.render.FrameRenderer(target,nx3.render.scaling.Scaling.MID);
+	render2.notelines(0,300,700);
+	render2.note(100,300,dnote);
+	render2.note(200,300,dnote2);
+	return target;
 }
-nx3.units._NX = {}
-nx3.units._NX.NX_Impl_ = function() { }
-$hxClasses["nx3.units._NX.NX_Impl_"] = nx3.units._NX.NX_Impl_;
-nx3.units._NX.NX_Impl_.__name__ = ["nx3","units","_NX","NX_Impl_"];
-nx3.units._NX.NX_Impl_._new = function(value) {
-	return value;
-}
-nx3.units._NX.NX_Impl_.fromFloat = function(value) {
-	return value;
-}
-nx3.units._NX.NX_Impl_.toFloat = function(this1) {
-	return this1;
-}
-nx3.units._NX.NX_Impl_.fromX = function(value) {
-	return value / 1;
-}
-nx3.units._NX.NX_Impl_.toX = function(this1) {
-	return this1;
-}
-nx3.units._NX.NX_Impl_.sw = function(x1) {
-	return -x1;
-}
-nx3.units._NX.NX_Impl_.add = function(x1,x2) {
-	return x1 + x2;
-}
-nx3.units._NX.NX_Impl_.sub = function(x1,x2) {
-	return x1 - x2;
-}
-nx3.units._NX.NX_Impl_.mul = function(x1,x2) {
-	return x1 * x2;
-}
-nx3.units._NX.NX_Impl_.mulFloat = function(x1,x2) {
-	return x1 * x2;
-}
-nx3.units._NX.NX_Impl_.mulInt = function(x1,x2) {
-	return x1 * x2;
-}
-nx3.units._NX.NX_Impl_.div = function(x1,x2) {
-	return x1 / x2;
-}
-nx3.units._NX.NX_Impl_.divFloat = function(x1,x2) {
-	return x1 / x2;
-}
-nx3.units._NX.NX_Impl_.divInt = function(x1,x2) {
-	return x1 / x2;
-}
-nx3.units._NX.NX_Impl_.gt_like = function(x1,x2) {
-	return x1 >= x2;
-}
-nx3.units._NX.NX_Impl_.lt_like = function(x1,x2) {
-	return x1 <= x2;
-}
-nx3.units._NX.NX_Impl_.lt = function(x1,x2) {
-	return x1 < x2;
-}
-nx3.units._NX.NX_Impl_.ltFloat = function(x1,x2) {
-	return x1 < x2;
-}
-nx3.units._NX.NX_Impl_.ltInt = function(x1,x2) {
-	return x1 < x2;
-}
-nx3.units._NX.NX_Impl_.gt = function(x1,x2) {
-	return x1 > x2;
-}
-nx3.units._NX.NX_Impl_.gtFloat = function(x1,x2) {
-	return x1 > x2;
-}
-nx3.units._NX.NX_Impl_.gtInt = function(x1,x2) {
-	return x1 > x2;
-}
-nx3.units._NY = {}
-nx3.units._NY.NY_Impl_ = function() { }
-$hxClasses["nx3.units._NY.NY_Impl_"] = nx3.units._NY.NY_Impl_;
-nx3.units._NY.NY_Impl_.__name__ = ["nx3","units","_NY","NY_Impl_"];
-nx3.units._NY.NY_Impl_._new = function(value) {
-	return value;
-}
-nx3.units._NY.NY_Impl_.fromFloat = function(value) {
-	return value;
-}
-nx3.units._NY.NY_Impl_.fromInt = function(value) {
-	return value;
-}
-nx3.units._NY.NY_Impl_.toFloat = function(this1) {
-	return this1;
-}
-nx3.units._NY.NY_Impl_.fromX = function(value) {
-	return value / 1;
-}
-nx3.units._NY.NY_Impl_.toY = function(this1) {
-	return this1;
-}
-nx3.units._NY.NY_Impl_.add = function(x1,x2) {
-	return x1 + x2;
-}
-nx3.units._NY.NY_Impl_.sub = function(x1,x2) {
-	return x1 - x2;
-}
-nx3.units._NY.NY_Impl_.mul = function(x1,x2) {
-	return x1 * x2;
-}
-nx3.units._NY.NY_Impl_.mulFloat = function(x1,x2) {
-	return x1 * x2;
-}
-nx3.units._NY.NY_Impl_.mulInt = function(x1,x2) {
-	return x1 * x2;
-}
-nx3.units._NY.NY_Impl_.div = function(x1,x2) {
-	return x1 / x2;
-}
-nx3.units._NY.NY_Impl_.divFloat = function(x1,x2) {
-	return x1 / x2;
-}
-nx3.units._NY.NY_Impl_.divInt = function(x1,x2) {
-	return x1 / x2;
-}
-nx3.units._NY.NY_Impl_.gt_like = function(x1,x2) {
-	return x1 >= x2;
-}
-nx3.units._NY.NY_Impl_.lt_like = function(x1,x2) {
-	return x1 <= x2;
-}
-nx3.units._NY.NY_Impl_.lt = function(x1,x2) {
-	return x1 < x2;
-}
-nx3.units._NY.NY_Impl_.ltFloat = function(x1,x2) {
-	return x1 < x2;
-}
-nx3.units._NY.NY_Impl_.ltInt = function(x1,x2) {
-	return x1 < x2;
-}
-nx3.units._NY.NY_Impl_.gt = function(x1,x2) {
-	return x1 > x2;
-}
-nx3.units._NY.NY_Impl_.gtFloat = function(x1,x2) {
-	return x1 > x2;
-}
-nx3.units._NY.NY_Impl_.gtInt = function(x1,x2) {
-	return x1 > x2;
+nx3.xamples.Examples.basic2 = function(target) {
+	if(target == null) target = new flash.display.Sprite();
+	var note1 = new nx3.elements.NNote(null,[new nx3.elements.NHead(null,nx3.units._Level.Level_Impl_.inRange(-4),nx3.elements.ESign.Flat),new nx3.elements.NHead(null,nx3.units._Level.Level_Impl_.inRange(0),nx3.elements.ESign.Flat),new nx3.elements.NHead(null,nx3.units._Level.Level_Impl_.inRange(2),nx3.elements.ESign.Flat)],nx3.elements.ENoteValue.Nv4,nx3.elements.EDirectionUD.Up);
+	var note2 = new nx3.elements.NNote(null,[new nx3.elements.NHead(null,nx3.units._Level.Level_Impl_.inRange(-2),nx3.elements.ESign.Flat)],nx3.elements.ENoteValue.Nv2,nx3.elements.EDirectionUD.Down);
+	var render = new nx3.render.MultiRenderer(target,nx3.render.scaling.Scaling.MID,[nx3.render.FrameRenderer,nx3.render.FontRenderer]);
+	var dnote1 = new nx3.elements.DNote(note1);
+	var dnote2 = new nx3.elements.DNote(note2);
+	var dcomplex = new nx3.elements.DComplex([dnote1,dnote2]);
+	render.notelines(0,100,700);
+	render.complex(200,100,dcomplex);
+	var render1 = new nx3.render.MultiRenderer(target,nx3.render.scaling.Scaling.PRINT1,[nx3.render.FrameRenderer,nx3.render.FontRenderer]);
+	var dnote11 = new nx3.elements.DNote(note1);
+	var dnote21 = new nx3.elements.DNote(note2);
+	var dcomplex1 = new nx3.elements.DComplex([dnote11,dnote21]);
+	render1.notelines(0,300,700);
+	render1.complex(200,300,dcomplex1);
+	return target;
 }
 var openfl = {}
 openfl.display = {}
@@ -12089,39 +12014,61 @@ haxe.xml.Parser.escapes = (function($this) {
 }(this));
 js.Browser.window = typeof window != "undefined" ? window : null;
 js.Browser.document = typeof window != "undefined" ? window.document : null;
-nx3.display.tools.SignsTools.BREAKPOINT = 5;
-nx3.enums.ENoteValue.DOT = 1.5;
-nx3.enums.ENoteValue.DOTDOT = 1.75;
-nx3.enums.ENoteValue.TRI = 2 / 3;
-nx3.enums.ENoteValue.N1 = 4;
-nx3.enums.ENoteValue.N2 = 2;
-nx3.enums.ENoteValue.N8 = .5;
-nx3.enums.ENoteValue.N16 = .25;
-nx3.enums.ENoteValue.N32 = .125;
-nx3.enums.ENoteValue.Nv1 = new nx3.enums.ENoteValue(nx3.enums.ENoteValue.N1 * 3024,nx3.enums.EHeadValuetype.HVT1);
-nx3.enums.ENoteValue.Nv1dot = new nx3.enums.ENoteValue(nx3.enums.ENoteValue.N1 * 3024 * nx3.enums.ENoteValue.DOT,nx3.enums.EHeadValuetype.HVT1);
-nx3.enums.ENoteValue.Nv1ddot = new nx3.enums.ENoteValue(nx3.enums.ENoteValue.N1 * 3024 * nx3.enums.ENoteValue.DOTDOT,nx3.enums.EHeadValuetype.HVT1);
-nx3.enums.ENoteValue.Nv1tri = new nx3.enums.ENoteValue(nx3.enums.ENoteValue.N1 * 3024 * nx3.enums.ENoteValue.TRI,nx3.enums.EHeadValuetype.HVT1);
-nx3.enums.ENoteValue.Nv2 = new nx3.enums.ENoteValue(nx3.enums.ENoteValue.N2 * 3024,nx3.enums.EHeadValuetype.HVT2);
-nx3.enums.ENoteValue.Nv2dot = new nx3.enums.ENoteValue(nx3.enums.ENoteValue.N2 * 3024 * nx3.enums.ENoteValue.DOT,nx3.enums.EHeadValuetype.HVT2);
-nx3.enums.ENoteValue.Nv2ddot = new nx3.enums.ENoteValue(nx3.enums.ENoteValue.N2 * 3024 * nx3.enums.ENoteValue.DOTDOT,nx3.enums.EHeadValuetype.HVT2);
-nx3.enums.ENoteValue.Nv2tri = new nx3.enums.ENoteValue(nx3.enums.ENoteValue.N2 * 3024 * nx3.enums.ENoteValue.TRI,nx3.enums.EHeadValuetype.HVT2);
-nx3.enums.ENoteValue.Nv4 = new nx3.enums.ENoteValue(3024,nx3.enums.EHeadValuetype.HVT4);
-nx3.enums.ENoteValue.Nv4dot = new nx3.enums.ENoteValue(3024 * nx3.enums.ENoteValue.DOT,nx3.enums.EHeadValuetype.HVT4);
-nx3.enums.ENoteValue.Nv4ddot = new nx3.enums.ENoteValue(3024 * nx3.enums.ENoteValue.DOTDOT,nx3.enums.EHeadValuetype.HVT4);
-nx3.enums.ENoteValue.Nv4tri = new nx3.enums.ENoteValue(3024 * nx3.enums.ENoteValue.TRI,nx3.enums.EHeadValuetype.HVT4);
-nx3.enums.ENoteValue.Nv8 = new nx3.enums.ENoteValue(nx3.enums.ENoteValue.N8 * 3024,nx3.enums.EHeadValuetype.HVT4);
-nx3.enums.ENoteValue.Nv8dot = new nx3.enums.ENoteValue(nx3.enums.ENoteValue.N8 * 3024 * nx3.enums.ENoteValue.DOT,nx3.enums.EHeadValuetype.HVT4);
-nx3.enums.ENoteValue.Nv8ddot = new nx3.enums.ENoteValue(nx3.enums.ENoteValue.N8 * 3024 * nx3.enums.ENoteValue.DOTDOT,nx3.enums.EHeadValuetype.HVT4);
-nx3.enums.ENoteValue.Nv8tri = new nx3.enums.ENoteValue(nx3.enums.ENoteValue.N8 * 3024 * nx3.enums.ENoteValue.TRI,nx3.enums.EHeadValuetype.HVT4);
-nx3.enums.ENoteValue.Nv16 = new nx3.enums.ENoteValue(nx3.enums.ENoteValue.N16 * 3024,nx3.enums.EHeadValuetype.HVT4);
-nx3.enums.ENoteValue.Nv16dot = new nx3.enums.ENoteValue(nx3.enums.ENoteValue.N16 * 3024 * nx3.enums.ENoteValue.DOT,nx3.enums.EHeadValuetype.HVT4);
-nx3.enums.ENoteValue.Nv16ddot = new nx3.enums.ENoteValue(nx3.enums.ENoteValue.N16 * 3024 * nx3.enums.ENoteValue.DOTDOT,nx3.enums.EHeadValuetype.HVT4);
-nx3.enums.ENoteValue.Nv16tri = new nx3.enums.ENoteValue(nx3.enums.ENoteValue.N16 * 3024 * nx3.enums.ENoteValue.TRI,nx3.enums.EHeadValuetype.HVT4);
-nx3.enums.ENoteValue.Nv32 = new nx3.enums.ENoteValue(nx3.enums.ENoteValue.N32 * 3024,nx3.enums.EHeadValuetype.HVT4);
-nx3.enums.ENoteValue.Nv32dot = new nx3.enums.ENoteValue(nx3.enums.ENoteValue.N32 * 3024 * nx3.enums.ENoteValue.DOT,nx3.enums.EHeadValuetype.HVT4);
-nx3.enums.ENoteValue.Nv32ddot = new nx3.enums.ENoteValue(nx3.enums.ENoteValue.N32 * 3024 * nx3.enums.ENoteValue.DOTDOT,nx3.enums.EHeadValuetype.HVT4);
-nx3.enums.ENoteValue.Nv32tri = new nx3.enums.ENoteValue(nx3.enums.ENoteValue.N32 * 3024 * nx3.enums.ENoteValue.TRI,nx3.enums.EHeadValuetype.HVT4);
+nx3.Constants.BASE_NOTE_VALUE = 3024;
+nx3.Constants.STAVE_LENGTH = 6.8;
+nx3.Constants.SIGN_TO_NOTE_DISTANCE = 0.8;
+nx3.Constants.COMPLEX_COLLISION_OVERLAP_XTRA = 0.6;
+nx3.Constants.SIGN_NORMAL_WIDTH = 2.6;
+nx3.Constants.SIGN_PARENTHESIS_WIDTH = 4.4;
+nx3.Constants.HEAD_ADJUST_X = 0;
+nx3.Constants.COMPLEX_COLLISION_ADJUST_X = 3.0;
+nx3.Constants.NOTE_STEM_X_NORMAL = 1.6;
+nx3.elements.EKey.Sharp6 = new nx3.elements.EKey(6);
+nx3.elements.EKey.Sharp5 = new nx3.elements.EKey(5);
+nx3.elements.EKey.Sharp4 = new nx3.elements.EKey(4);
+nx3.elements.EKey.Sharp3 = new nx3.elements.EKey(3);
+nx3.elements.EKey.Sharp2 = new nx3.elements.EKey(2);
+nx3.elements.EKey.Sharp1 = new nx3.elements.EKey(1);
+nx3.elements.EKey.Natural = new nx3.elements.EKey(0);
+nx3.elements.EKey.Flat1 = new nx3.elements.EKey(-1);
+nx3.elements.EKey.Flat2 = new nx3.elements.EKey(-2);
+nx3.elements.EKey.Flat3 = new nx3.elements.EKey(-3);
+nx3.elements.EKey.Flat4 = new nx3.elements.EKey(-4);
+nx3.elements.EKey.Flat5 = new nx3.elements.EKey(-5);
+nx3.elements.EKey.Flat6 = new nx3.elements.EKey(-6);
+nx3.elements.ENoteValue.DOT = 1.5;
+nx3.elements.ENoteValue.DOTDOT = 1.75;
+nx3.elements.ENoteValue.TRI = 2 / 3;
+nx3.elements.ENoteValue.N1 = 4;
+nx3.elements.ENoteValue.N2 = 2;
+nx3.elements.ENoteValue.N8 = .5;
+nx3.elements.ENoteValue.N16 = .25;
+nx3.elements.ENoteValue.N32 = .125;
+nx3.elements.ENoteValue.Nv1 = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N1 * 3024,nx3.elements.EHeadValuetype.HVT1);
+nx3.elements.ENoteValue.Nv1dot = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N1 * 3024 * nx3.elements.ENoteValue.DOT,nx3.elements.EHeadValuetype.HVT1);
+nx3.elements.ENoteValue.Nv1ddot = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N1 * 3024 * nx3.elements.ENoteValue.DOTDOT,nx3.elements.EHeadValuetype.HVT1);
+nx3.elements.ENoteValue.Nv1tri = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N1 * 3024 * nx3.elements.ENoteValue.TRI,nx3.elements.EHeadValuetype.HVT1);
+nx3.elements.ENoteValue.Nv2 = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N2 * 3024,nx3.elements.EHeadValuetype.HVT2);
+nx3.elements.ENoteValue.Nv2dot = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N2 * 3024 * nx3.elements.ENoteValue.DOT,nx3.elements.EHeadValuetype.HVT2);
+nx3.elements.ENoteValue.Nv2ddot = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N2 * 3024 * nx3.elements.ENoteValue.DOTDOT,nx3.elements.EHeadValuetype.HVT2);
+nx3.elements.ENoteValue.Nv2tri = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N2 * 3024 * nx3.elements.ENoteValue.TRI,nx3.elements.EHeadValuetype.HVT2);
+nx3.elements.ENoteValue.Nv4 = new nx3.elements.ENoteValue(3024,nx3.elements.EHeadValuetype.HVT4);
+nx3.elements.ENoteValue.Nv4dot = new nx3.elements.ENoteValue(3024 * nx3.elements.ENoteValue.DOT,nx3.elements.EHeadValuetype.HVT4);
+nx3.elements.ENoteValue.Nv4ddot = new nx3.elements.ENoteValue(3024 * nx3.elements.ENoteValue.DOTDOT,nx3.elements.EHeadValuetype.HVT4);
+nx3.elements.ENoteValue.Nv4tri = new nx3.elements.ENoteValue(3024 * nx3.elements.ENoteValue.TRI,nx3.elements.EHeadValuetype.HVT4);
+nx3.elements.ENoteValue.Nv8 = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N8 * 3024,nx3.elements.EHeadValuetype.HVT4);
+nx3.elements.ENoteValue.Nv8dot = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N8 * 3024 * nx3.elements.ENoteValue.DOT,nx3.elements.EHeadValuetype.HVT4);
+nx3.elements.ENoteValue.Nv8ddot = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N8 * 3024 * nx3.elements.ENoteValue.DOTDOT,nx3.elements.EHeadValuetype.HVT4);
+nx3.elements.ENoteValue.Nv8tri = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N8 * 3024 * nx3.elements.ENoteValue.TRI,nx3.elements.EHeadValuetype.HVT4);
+nx3.elements.ENoteValue.Nv16 = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N16 * 3024,nx3.elements.EHeadValuetype.HVT4);
+nx3.elements.ENoteValue.Nv16dot = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N16 * 3024 * nx3.elements.ENoteValue.DOT,nx3.elements.EHeadValuetype.HVT4);
+nx3.elements.ENoteValue.Nv16ddot = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N16 * 3024 * nx3.elements.ENoteValue.DOTDOT,nx3.elements.EHeadValuetype.HVT4);
+nx3.elements.ENoteValue.Nv16tri = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N16 * 3024 * nx3.elements.ENoteValue.TRI,nx3.elements.EHeadValuetype.HVT4);
+nx3.elements.ENoteValue.Nv32 = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N32 * 3024,nx3.elements.EHeadValuetype.HVT4);
+nx3.elements.ENoteValue.Nv32dot = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N32 * 3024 * nx3.elements.ENoteValue.DOT,nx3.elements.EHeadValuetype.HVT4);
+nx3.elements.ENoteValue.Nv32ddot = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N32 * 3024 * nx3.elements.ENoteValue.DOTDOT,nx3.elements.EHeadValuetype.HVT4);
+nx3.elements.ENoteValue.Nv32tri = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N32 * 3024 * nx3.elements.ENoteValue.TRI,nx3.elements.EHeadValuetype.HVT4);
+nx3.elements.tools.SignsTools.BREAKPOINT = 5;
 nx3.io.HeadXML.XHEAD = "head";
 nx3.io.HeadXML.XHEAD_TYPE = "type";
 nx3.io.HeadXML.XHEAD_LEVEL = "level";
@@ -12146,9 +12093,15 @@ nx3.io.NoteXML.XNOTE_TYPE_NOTE_ATTRIBUTES = "attributes";
 nx3.io.NoteXML.XOFFSET = "offset";
 nx3.io.NoteXML.XLYRIC_CONTINUATION = "continuation";
 nx3.io.NoteXML.XLYRIC_FORMAT = "format";
+nx3.io.VoiceXML.XVOICE = "voice";
+nx3.io.VoiceXML.XVOICE_TYPE = "type";
+nx3.io.VoiceXML.XVOICE_BARPAUSE = "barpause";
+nx3.io.VoiceXML.XVOICE_DIRECTION = "direction";
 nx3.render.scaling.Scaling.MID = { linesWidth : 0.8, space : 12.0, halfSpace : 6.0, noteWidth : 10, halfNoteWidth : 5, quarterNoteWidth : 2.5, signPosWidth : 14.0, svgScale : .27, svgX : 0, svgY : -55.0, fontScaling : 6.0};
 nx3.render.scaling.Scaling.NORMAL = { linesWidth : .5, space : 8.0, halfSpace : 4.0, noteWidth : 7.0, halfNoteWidth : 3.5, quarterNoteWidth : 1.75, signPosWidth : 9.5, svgScale : .175, svgX : 0, svgY : -36.0, fontScaling : 4.0};
 nx3.render.scaling.Scaling.SMALL = { linesWidth : .5, space : 6.0, halfSpace : 3.0, noteWidth : 5.0, halfNoteWidth : 2.5, quarterNoteWidth : 1.25, signPosWidth : 7.0, svgScale : .14, svgX : 0, svgY : -28.5, fontScaling : 3.0};
+nx3.render.scaling.Scaling.BIG = { linesWidth : 1.5, space : 16.0, halfSpace : 8.0, noteWidth : 14.0, halfNoteWidth : 7.0, quarterNoteWidth : 5.5, signPosWidth : 19.0, svgScale : .36, svgX : -0.0, svgY : -74.0, fontScaling : 8.0};
+nx3.render.scaling.Scaling.PRINT1 = { linesWidth : 3, space : 32.0, halfSpace : 16.0, noteWidth : 28.0, halfNoteWidth : 14.0, quarterNoteWidth : 11.0, signPosWidth : 38.0, svgScale : .72, svgX : -0.0, svgY : -148.0, fontScaling : 16.0};
 nx3.render.svg.Elements.clefG = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none\"\r\n\t\t\td=\"m 95.72971,266.7949 c -5.57504,2.79274 -12.48498,4.1891 -20.72511,4.1891 -9.69981,0 -18.99938,-1.66998 -27.91049,-5.00757 -8.90876,-3.33996 -16.75807,-7.86163 -23.54558,-13.56975 -6.78751,-5.70339 -12.24248,-12.38094 -16.36254,-20.03029 -4.12007,-7.64934 -6.1801,-15.78458 -6.1801,-24.40572 0,-29.26234 20.72746,-61.31506 62.18472,-96.1605 -1.3349,-5.34251 -2.33313,-10.74399 -2.99941,-16.209153 -0.66627,-5.460449 -1.00058,-11.107236 -1.00058,-16.938007 0,-8.010226 0.66392,-15.871864 1.99646,-23.582532 1.3302,-7.710668 3.23955,-14.935434 5.72336,-21.674325 2.48617,-6.738864 5.54208,-12.869193 9.17715,-18.393316 3.63272,-5.5265031 7.814,-10.1708424 12.53677,-13.9306366 16.47555,22.8253826 24.71097,44.6247216 24.71097,65.3862176 0,13.480109 -3.18069,26.321 -9.54442,38.522682 -6.36138,12.20404 -16.32959,24.07079 -29.90225,35.60967 l 7.99763,38.42834 c 4.36256,-0.35616 6.78751,-0.53307 7.2725,-0.53307 6.05767,0 11.72453,1.09209 16.99586,3.27863 5.27368,2.18418 9.88109,5.18919 13.82693,9.01269 3.94349,3.82349 7.07003,8.34517 9.37727,13.56502 2.30488,5.21986 3.4585,10.86193 3.46085,16.93329 -0.002,4.36836 -0.78869,8.68011 -2.36374,12.92581 -1.57504,4.25042 -3.814,8.28856 -6.72159,12.10969 -2.90994,3.82586 -6.36373,7.34272 -10.36137,10.55766 -3.99764,3.21965 -8.42141,5.98172 -13.26896,8.28856 0,-0.24294 0.18129,0.45523 0.54385,2.09218 0.36492,1.63932 0.8193,3.79048 1.36315,6.46291 0.5462,2.67008 1.18187,5.64443 1.90935,8.92306 0.72749,3.27626 1.36316,6.43224 1.90936,9.46556 0.5462,3.03568 1.02884,5.73878 1.45497,8.10222 0.42378,2.37052 0.63567,3.97681 0.63567,4.82595 0,5.70576 -1.21248,10.92561 -3.63508,15.65957 -2.42495,4.73396 -5.69746,8.80041 -9.81988,12.19933 -4.12006,3.39656 -8.90875,6.03833 -14.36136,7.9206 -5.45497,1.88226 -11.21364,2.82339 -17.27602,2.82339 -4.60506,0 -8.90641,-0.72885 -12.90875,-2.18654 -4,-1.45769 -7.515,-3.52157 -10.54502,-6.18929 -3.02765,-2.67244 -5.422,-5.91568 -7.18068,-9.73918 -1.75632,-3.82113 -2.63449,-8.03853 -2.63449,-12.64984 0,-3.27862 0.54621,-6.37563 1.63626,-9.2863 1.09005,-2.91066 2.60623,-5.39912 4.54384,-7.463 1.93996,-2.06389 4.3037,-3.7032 7.09122,-4.91323 2.78987,-1.21474 5.81989,-1.82329 9.09004,-1.82329 2.90994,0 5.63625,0.66988 8.18127,2.00492 2.54502,1.33503 4.72748,3.06634 6.54502,5.18919 1.81754,2.12521 3.27251,4.5547 4.36491,7.2861 1.09005,2.72905 1.63626,5.49111 1.63626,8.28384 0,6.31431 -2.33314,11.4752 -7.00176,15.48267 -4.66627,4.00512 -10.51205,6.37328 -17.54441,7.09976 5.57504,2.79509 11.329,4.19146 17.2666,4.1891 4.8452,0.002 9.57268,-0.87745 14.17773,-2.64177 4.6027,-1.75961 8.62859,-4.12777 12.08474,-7.10212 3.45379,-2.97436 6.24131,-6.43932 8.3602,-10.38547 2.11889,-3.94614 3.18069,-8.16354 3.18069,-12.65692 0,-1.70299 -0.18365,-3.58526 -0.54385,-5.64914 L 95.72971,266.7949 z M 95.18821,27.488123 c -1.21483,-0.243068 -2.30724,-0.365597 -3.27486,-0.365597 -3.75986,0 -7.24661,1.912917 -10.46026,5.738777 -3.21365,3.823478 -6.00352,8.80275 -8.36726,14.933079 -2.36374,6.132684 -4.21188,13.022518 -5.54914,20.671856 -1.33254,7.649365 -2.00117,15.298698 -2.00117,22.948042 0,3.158334 0.12478,6.194011 0.36492,9.10704 0.24485,2.91538 0.67333,5.70811 1.2831,8.37819 24.73216,-21.976242 37.09942,-41.768292 37.09942,-59.373819 0,-8.378205 -3.03237,-15.723276 -9.09475,-22.037568 z m 3.814,231.850857 c 5.94467,-4.37072 10.46026,-9.16837 13.55619,-14.39058 3.09123,-5.21986 4.63802,-10.86429 4.63802,-16.93801 0,-3.76216 -0.63802,-7.4347 -1.91171,-11.01996 -1.27134,-3.57818 -3.08887,-6.76718 -5.45497,-9.56227 -2.36609,-2.78801 -5.18657,-5.03588 -8.46143,-6.7318 -3.27486,-1.69828 -6.85108,-2.54506 -10.72865,-2.54506 -0.24249,0 -0.72749,0.0307 -1.45497,0.0873 -0.72513,0.0613 -1.75633,0.15097 -3.08887,0.2689 l 12.90639,60.83151 z M 81.56374,199.26225 c -3.75749,0.48354 -7.2725,1.42468 -10.545,2.82104 -3.27251,1.39637 -6.08828,3.12767 -8.45202,5.19155 -2.36374,2.06389 -4.24249,4.43205 -5.63625,7.10212 -1.39376,2.67244 -2.09064,5.58546 -2.09064,8.7438 0,9.34762 4.96527,17.11962 14.88874,23.31127 -8.24013,-1.33503 -14.84636,-4.52167 -19.81634,-9.56227 -4.96997,-5.03823 -7.45378,-11.38084 -7.45378,-19.03255 0,-4.49101 0.93937,-8.83106 2.81812,-13.02016 1.87875,-4.18909 4.39317,-7.95598 7.54325,-11.30065 3.15479,-3.34703 6.85108,-6.23647 11.09121,-8.66595 4.24249,-2.43421 8.72748,-4.13721 13.45261,-5.10664 l -7.63507,-36.42579 c -17.08768,12.86684 -30.02468,25.49546 -38.81101,37.88112 -8.78633,12.38567 -13.1795,24.64868 -13.1795,36.79139 0,6.67755 1.48322,12.99421 4.45438,18.94292 2.97115,5.95106 6.9735,11.14026 12.00469,15.5723 5.03119,4.4344 10.85107,7.92531 17.45966,10.47274 6.60623,2.55214 13.60563,3.82821 20.9982,3.82821 4.24249,0 8.18127,-0.39627 11.81634,-1.18408 3.63743,-0.79017 7.03001,-2.03558 10.1801,-3.73386 L 81.56374,199.26225 z\" />\r\n\t\t</g></svg>";
 nx3.render.svg.Elements.clefC = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none\"\r\n\t\t\td=\"M 90,276 C 86,276 81,275 77,274 73,273 70,271 67,268 64,266 61,263 60,260 58,256 57,253 57,249 57,247 57,245 58,243 59,241 60,239 61,238 63,236 64,235 66,234 68,233 70,232 72,232 74,232 76,233 77,233 79,234 81,236 82,237 84,238 85,240 86,242 87,244 87,246 87,248 87,250 86,252 85,253 84,255 82,256 80,258 79,259 77,260 76,261 75,262 74,262 74,263 74,267 79,269 88,269 92,269 96,268 98,267 101,266 103,264 105,261 107,258 108,255 109,250 110,245 110,239 110,232 110,228 110,224 109,220 108,216 107,212 105,210 104,207 102,204 100,203 98,201 96,200 93,200 84,200 76,207 67,222 66,217 65,213 64,209 63,205 62,201 60,199 59,196 57,193 55,192 53,190 52,189 49,189 48,189 47,189 46,190 L 46,275 39,275 39,93 46,93 46,179 C 46,179 47,179 47,179 48,180 48,180 49,180 51,180 53,179 55,177 57,175 59,173 60,170 62,167 63,163 64,159 65,155 66,151 67,147 77,160 86,166 92,166 94,166 97,165 99,164 101,162 103,160 104,157 106,155 107,151 108,148 109,144 109,140 109,135 109,128 109,122 108,117 107,113 106,109 104,107 102,104 99,102 96,101 93,100 89,100 84,100 75,100 71,102 71,105 71,106 73,107 75,108 80,110 83,112 85,114 86,116 87,118 87,121 87,123 87,124 86,126 85,128 84,130 83,131 81,133 80,134 78,135 76,136 74,137 72,137 68,137 64,135 61,132 58,129 56,125 56,120 56,114 58,108 62,102 66,98 70,95 74,94 79,93 83,92 88,92 95,92 101,93 106,95 112,96 116,99 120,102 124,105 127,110 129,114 131,119 132,125 132,131 132,136 131,142 129,147 128,152 125,157 122,161 119,165 116,168 112,170 108,173 103,174 98,174 89,174 81,172 76,169 L 76,169 C 74,169 72,170 71,173 70,175 69,178 69,182 69,184 69,186 69,188 70,191 70,193 71,194 72,196 72,197 73,198 74,199 75,200 76,200 79,197 82,194 86,193 89,191 93,190 97,190 102,190 107,191 111,194 116,196 120,200 123,204 126,209 129,214 130,219 132,225 133,231 133,237 133,250 129,259 122,266 114,273 104,276 90,276 Z M 27,93 L 27,275 4,275 4,93 27,93 Z\"/>\r\n\t\t</g></svg>";
 nx3.render.svg.Elements.clefF = "<svg><g><path style=\"fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:none\"\r\n\t\t\td=\"M 8,240 C 21,236 32,230 39,224 45,218 51,211 57,204 62,197 67,190 70,183 74,176 77,168 79,161 81,153 82,146 82,139 82,133 81,127 80,122 78,118 76,113 73,110 70,106 66,103 62,101 58,99 53,98 48,98 44,98 41,99 37,100 33,101 30,103 27,106 24,108 22,111 20,114 18,117 17,120 17,123 17,125 17,126 18,126 18,126 18,126 19,125 20,125 20,124 22,123 23,123 24,122 26,122 27,121 29,121 31,121 33,121 35,121 36,122 38,123 40,124 41,126 42,127 43,129 44,131 45,133 45,135 45,137 45,143 43,147 40,151 36,155 32,157 26,157 23,157 20,156 18,155 16,154 14,152 12,149 10,147 9,144 8,141 7,138 7,134 7,131 7,126 8,121 11,116 13,111 16,107 21,104 25,101 29,98 35,96 40,94 46,93 52,93 62,93 71,95 78,98 85,101 91,105 95,111 99,116 102,122 104,128 105,134 106,140 106,147 106,150 106,154 105,157 105,161 104,164 102,168 101,172 99,176 97,180 94,185 91,190 88,195 84,202 78,209 71,215 64,221 57,226 50,230 43,235 36,238 29,240 23,243 18,244 14,244 10,244 8,243 8,240 Z M 121,116 C 121,113 122,111 124,110 125,108 127,107 130,107 133,107 135,108 136,110 138,111 139,113 139,116 139,119 138,121 136,122 135,124 133,125 130,125 127,125 125,124 124,122 122,121 121,119 121,116 Z M 121,162 C 121,159 122,157 124,156 125,154 127,153 130,153 133,153 135,154 136,156 138,157 139,159 139,162 139,165 138,167 136,168 135,170 133,171 130,171 127,171 125,170 124,168 122,167 121,165 121,162 Z\"/>\r\n\t\t</g></svg>";
@@ -12192,18 +12145,8 @@ nx3.render.svg.Elements.tpl5 = "\r\n<svg ><g visibility=\"visible\" id=\"page1\"
 nx3.render.svg.Elements.tpl6x = "\r\n<svg ><g visibility=\"visible\" id=\"page1\"><desc>Slide</desc><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:none\"><rect x=\"0\" y=\"464\" width=\"503\" height=\"1205\"/></g><g/></g></g><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:#000000\"><path d=\"M 124,150 L 111,151 C 110,146 108,143 106,141 103,138 99,136 94,136 90,136 86,137 83,139 80,142 77,145 74,150 72,155 71,162 71,172 74,168 78,165 82,162 86,160 91,159 96,159 104,159 111,162 117,168 123,174 126,182 126,192 126,198 125,204 122,209 119,215 115,219 110,222 105,225 100,226 94,226 83,226 75,222 68,215 61,207 58,195 58,178 58,158 62,144 69,135 75,128 84,124 95,124 103,124 110,126 115,131 120,136 123,142 124,150 Z M 71,191 C 71,195 72,199 74,203 76,206 78,209 82,211 85,213 89,214 93,214 99,214 103,212 107,208 111,204 113,199 113,192 113,186 111,180 107,177 104,173 99,171 92,171 86,171 81,173 77,177 73,180 71,185 71,191 Z\"/></g><g style=\"stroke:none;fill:none\"><rect x=\"58\" y=\"124\" width=\"69\" height=\"104\"/></g><g/></g></g></g></svg>\t\r\n\t";
 nx3.render.svg.Elements.tpl6 = "\r\n<svg ><g style=\"stroke:none;fill:#000000\"><path d=\"M 124,150 L 111,151 C 110,146 108,143 106,141 103,138 99,136 94,136 90,136 86,137 83,139 80,142 77,145 74,150 72,155 71,162 71,172 74,168 78,165 82,162 86,160 91,159 96,159 104,159 111,162 117,168 123,174 126,182 126,192 126,198 125,204 122,209 119,215 115,219 110,222 105,225 100,226 94,226 83,226 75,222 68,215 61,207 58,195 58,178 58,158 62,144 69,135 75,128 84,124 95,124 103,124 110,126 115,131 120,136 123,142 124,150 Z M 71,191 C 71,195 72,199 74,203 76,206 78,209 82,211 85,213 89,214 93,214 99,214 103,212 107,208 111,204 113,199 113,192 113,186 111,180 107,177 104,173 99,171 92,171 86,171 81,173 77,177 73,180 71,185 71,191 Z\"/></g></svg>\t\r\n\t";
 nx3.render.svg.Elements.tpl7 = "\r\n<svg ><g visibility=\"visible\" id=\"page1\"><desc>Slide</desc><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:none\"><rect x=\"0\" y=\"464\" width=\"503\" height=\"1205\"/></g><g/></g></g><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:#000000\"><path d=\"M 61,138 L 61,125 126,125 126,136 C 120,142 114,152 108,163 102,174 97,186 94,197 91,206 90,215 89,225 L 76,225 C 76,217 78,208 81,196 83,185 87,175 93,164 98,154 104,145 110,138 L 61,138 Z\"/></g><g style=\"stroke:none;fill:none\"><rect x=\"61\" y=\"125\" width=\"67\" height=\"101\"/></g><g/></g></g></g></svg>\t\r\n\t";
-nx3.units.Constants.BASE_NOTE_VALUE = 3024;
-nx3.units.Constants.STAVE_LENGTH = 6.8;
-nx3.units.Constants.SIGN_TO_NOTE_DISTANCE = 0.8;
-nx3.units.Constants.COMPLEX_COLLISION_OVERLAP_XTRA = 0.6;
-nx3.units.Constants.SIGN_NORMAL_WIDTH = 2.6;
-nx3.units.Constants.SIGN_PARENTHESIS_WIDTH = 4.4;
-nx3.units.Constants.HEAD_ADJUST_X = 0;
-nx3.units.Constants.COMPLEX_COLLISION_ADJUST_X = 3.0;
 nx3.units._Level.Level_Impl_.MAX_LEVEL = 15;
 nx3.units._Level.Level_Impl_.MIN_LEVEL = -15;
-nx3.units._NX.NX_Impl_.XUNIT = 1;
-nx3.units._NY.NY_Impl_.YUNIT = 1;
 openfl.display.Tilesheet.TILE_SCALE = 1;
 openfl.display.Tilesheet.TILE_ROTATION = 2;
 openfl.display.Tilesheet.TILE_RGB = 4;

@@ -78,13 +78,13 @@ class FontRenderer implements IRenderer
 		{
 			case EDirectionUD.Up:
 				//staveX += dnote.headsRect.x.toFloat() * this.scaling.halfNoteWidth + 2 * this.scaling.halfNoteWidth;
-				staveX = x + (dnote.xAdjust.toFloat() + dnote.stemX.toFloat()) *scaling.halfNoteWidth;
+				staveX = x + (dnote.xAdjust + dnote.stemX) *scaling.halfNoteWidth;
 				target.graphics.moveTo(staveX, bottomY);
 				target.graphics.lineTo(staveX, topY - staveLength);
 				
 			case EDirectionUD.Down:
 				//staveX += dnote.headsRect.x.toFloat() * this.scaling.halfNoteWidth;
-				staveX = x  +  (dnote.xAdjust.toFloat() + dnote.stemX.toFloat()) *scaling.halfNoteWidth;
+				staveX = x  +  (dnote.xAdjust + dnote.stemX) *scaling.halfNoteWidth;
 				target.graphics.moveTo(staveX, topY);
 				target.graphics.lineTo(staveX, bottomY + staveLength);
 		}
@@ -92,7 +92,7 @@ class FontRenderer implements IRenderer
 	
 	public function heads(x:Float, y:Float, dnote:DNote):Void 
 	{
-		for (rect in dnote.headRects)
+		for (r in dnote.headRects)
 		{
 			var xmlStr:String = null;
 			switch (dnote.value.head)
@@ -105,7 +105,7 @@ class FontRenderer implements IRenderer
 			var shape:Shape = ShapeTools.getShape(xmlStr, this.scaling);
 			if (shape == null) return;
 			
-			var r:Rectangle = rect.toRectangle();
+			
 			var shapeX =x + r.x * scaling.halfNoteWidth + this.scaling.svgX ;
 			var shapeY = y + (r.y * scaling.halfSpace) + this.scaling.svgY ;
 			shape.x = shapeX;
@@ -134,7 +134,7 @@ class FontRenderer implements IRenderer
 	public function signs(x:Float, y:Float, dcomplex:DComplex):Void 
 	{
 		if (dcomplex.signRects == null) return;
-		var signsX = x + dcomplex.signsFrame.x.toFloat() * scaling.halfNoteWidth;
+		var signsX = x + dcomplex.signsFrame.x * scaling.halfNoteWidth;
 		
 		for (i in 0...dcomplex.signRects.length)
 		{		
@@ -145,7 +145,7 @@ class FontRenderer implements IRenderer
 			if (xmlStr == null) continue;
 			var shape:Shape = ShapeTools.getShape(xmlStr, this.scaling);			
 			if (shape == null) return;
-			var r:Rectangle = signRect.toRectangle();
+			var r:Rectangle = signRect;
 			var shapeX = signsX + ((r.x  + SignsTools.adjustSignFontX(sign))* scaling.halfNoteWidth) + this.scaling.svgX ;
 			var shapeY = y + ((r.y + 2) * scaling.halfSpace) + this.scaling.svgY ;
 			shape.x = shapeX;

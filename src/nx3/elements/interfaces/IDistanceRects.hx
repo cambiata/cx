@@ -1,5 +1,5 @@
 package nx3.elements.interfaces;
-import nx3.units.NRect;
+import flash.geom.Rectangle;
 
 /**
  * ...
@@ -7,7 +7,7 @@ import nx3.units.NRect;
  */
 interface IDistanceRects
 {
-	var rectsFront(get, null): Array<NRect>;
-	var rectCenter(get, null): NRect;
-	var rectsBack(get, null): Array<NRect>;
+	var rectsFront(get, null): Array<Rectangle>;
+	var rectCenter(get, null): Rectangle;
+	var rectsBack(get, null): Array<Rectangle>;
 }

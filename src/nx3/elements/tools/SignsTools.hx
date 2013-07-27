@@ -1,9 +1,9 @@
 package nx3.elements.tools;
+import flash.geom.Rectangle;
 import nx3.elements.TSigns;
 import nx3.elements.TSign;
 import nx3.elements.ESign;
 import nx3.Constants;
-import nx3.units.NRect;
 
 /**
  * ...
@@ -62,20 +62,20 @@ class SignsTools
 	
 	//------------------------------------------------------------------------------------------------------------------------------
 	
-	static public function getSignRect(sign:ESign):NRect
+	static public function getSignRect(sign:ESign):Rectangle
 	{
 		switch (sign)
 		{
 			case ESign.None:
 				return null;
 			case ESign.DoubleSharp:
-				return new NRect( 0, -1.5, Constants.SIGN_NORMAL_WIDTH, 3);
+				return new Rectangle( 0, -1.5, Constants.SIGN_NORMAL_WIDTH, 3);
 			case ESign.ParFlat, ESign.ParSharp, ESign.ParNatural:
-				return new NRect( 0, -2, Constants.SIGN_PARENTHESIS_WIDTH, 4);
+				return new Rectangle( 0, -2, Constants.SIGN_PARENTHESIS_WIDTH, 4);
 			case ESign.Flat:
-				return new NRect(0, -3, Constants.SIGN_NORMAL_WIDTH, 5);
+				return new Rectangle(0, -3, Constants.SIGN_NORMAL_WIDTH, 5);
 			default:	
-				return new NRect( 0, -3,Constants.SIGN_NORMAL_WIDTH, 6);
+				return new Rectangle( 0, -3,Constants.SIGN_NORMAL_WIDTH, 6);
 		}
 		throw "This shouldn't happen!";
 		return null;

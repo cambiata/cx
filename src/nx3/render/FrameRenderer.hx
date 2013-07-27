@@ -48,7 +48,7 @@ class FrameRenderer implements IRenderer implements ISpriteRenderer
 		
 		// Frame
 		this.target.graphics.lineStyle(1, 0xFFAAAA);	
-		var r:Rectangle = dnote.headsRect.toRectangle();
+		var r:Rectangle = dnote.headsRect;
 		var r2:Rectangle = new Rectangle(x + r.x * scaling.halfNoteWidth , y + r.y * scaling.halfSpace, r.width * scaling.halfNoteWidth, r.height * scaling.halfSpace);
 		r2.inflate(2, 2);		
 		this.target.graphics.drawRect(r2.x, r2.y, r2.width, r2.height);		
@@ -72,7 +72,7 @@ class FrameRenderer implements IRenderer implements ISpriteRenderer
 		this.signs(x, y, dcomplex);
 		// Heads frame
 		this.target.graphics.lineStyle(1, 0x0000FF);	
-		var r:Rectangle = dcomplex.headsRect.toRectangle();
+		var r:Rectangle = dcomplex.headsRect;
 		var r2:Rectangle = new Rectangle(x + r.x * scaling.halfNoteWidth , y + r.y * scaling.halfSpace, r.width * scaling.halfNoteWidth, r.height * scaling.halfSpace);
 		r2.inflate(2, 2);
 		this.target.graphics.drawRect(r2.x, r2.y, r2.width, r2.height);		
@@ -123,9 +123,8 @@ class FrameRenderer implements IRenderer implements ISpriteRenderer
 		var headsX = x; // + dnote.xAdjust.toFloat() * scaling.halfNoteWidth;
 		this.target.graphics.lineStyle(1, 0xAAAAFF);	
 		//this.target.graphics.beginFill(0xFF00000);
-		for (rect in dnote.headRects)
+		for (r in dnote.headRects)
 		{
-			var r:Rectangle = rect.toRectangle();
 			var rx = headsX + r.x  * scaling.halfNoteWidth;
 			this.target.graphics.drawRect(rx , y + r.y * scaling.halfSpace, r.width * scaling.halfNoteWidth, r.height * scaling.halfSpace);
 		}		
@@ -143,7 +142,7 @@ class FrameRenderer implements IRenderer implements ISpriteRenderer
 		{
 			this.target.graphics.lineStyle(1, 0xFF0000);
 			
-			var r:Rectangle = dcomplex.signsFrame.toRectangle();
+			var r:Rectangle = dcomplex.signsFrame;
 			var signsX = x + r.x * scaling.halfNoteWidth;
 			var r2:Rectangle = new Rectangle(signsX , y + r.y * scaling.halfSpace, r.width * scaling.halfNoteWidth, r.height * scaling.halfSpace);
 			r2.inflate(2, 2);
@@ -153,10 +152,10 @@ class FrameRenderer implements IRenderer implements ISpriteRenderer
 		if (dcomplex.signRects != null)
 		{
 			this.target.graphics.lineStyle(1, 0x000000);	
-			var signsX = x + dcomplex.signsFrame.x.toFloat() * scaling.halfNoteWidth;
+			var signsX = x + dcomplex.signsFrame.x * scaling.halfNoteWidth;
 			for (signRect in dcomplex.signRects)
 			{		
-				var r:Rectangle = signRect.toRectangle();
+				var r:Rectangle = signRect;
 				var r2:Rectangle = new Rectangle(signsX + r.x * scaling.halfNoteWidth , y + r.y * scaling.halfSpace, r.width * scaling.halfNoteWidth, r.height * scaling.halfSpace);
 				this.target.graphics.drawRect(r2.x, r2.y, r2.width, r2.height);					
 			}

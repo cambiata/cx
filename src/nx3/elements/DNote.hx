@@ -6,7 +6,6 @@ import nme.geom.Rectangle;
 import flash.geom.Rectangle;
 #end
 
-import nx3.units.NRect;
 
 /**
  * ...
