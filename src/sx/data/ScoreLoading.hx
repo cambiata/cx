@@ -48,7 +48,7 @@ class ScoreLoading
 
 	function getPageLoader(pageNr:Int):ImageLoader
 	{
-		var url:String = HOST + 'media/renderscorescreen?ProductId=${this.productId}&UserId=${this.userId}&PageId=' + pageNr;
+		var url:String = HOST + 'media/renderscorescreen?ProductId=${this.productId}&UserId=${this.userId}&PageId=$pageNr&ext=.png';
 		var imageLoader = new ImageLoaderExt(url, pageNr);
 		imageLoader.loaded.addOnce(onImageLoaded).forType(LoaderEventType.Complete);
 		return imageLoader;		
