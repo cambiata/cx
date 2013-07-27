@@ -6,9 +6,9 @@
 -lib svg
 -cp src
 -cp ../../src/
--cp F:\HaxeToolkit\haxe/lib\openfl/1,0,4/
+-cp F:\HaxeToolkit\haxe\lib\openfl/1,0,5/
 -D tools=1
--D openfl_ver=1.0.4
+-D openfl_ver=1.0.6
 -D openfl
 -D web
 -dce std

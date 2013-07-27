@@ -1,4 +1,5 @@
 package nx3.render.scaling;
+import flash.geom.Rectangle;
 
 /**
  * ...
@@ -91,6 +92,13 @@ class Scaling
 			svgY:					-148.0,
 			fontScaling:			16.0,
 		
+	}
+	
+	//--------------------------------------------------------------------------------------------------------
+	
+	static public function scaleRect(scaling:TScaling, rect:Rectangle):Rectangle
+	{
+		return new Rectangle(rect.x * scaling.halfNoteWidth, rect.y * scaling.halfSpace, rect.width * scaling.halfNoteWidth, rect.height * scaling.halfSpace);
 	}
 	
 }

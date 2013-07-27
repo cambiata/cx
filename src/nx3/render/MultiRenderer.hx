@@ -2,6 +2,7 @@ package nx3.render;
 
 
 import flash.display.Sprite;
+import nx3.elements.interfaces.IDistanceRects;
 
 
 import nx3.elements.DComplex;
@@ -68,5 +69,6 @@ class MultiRenderer implements IRenderer
 	{
 		for (r in this.renderers) r.signs(x, y, dcomplex);
 	}
+	
 	
 }

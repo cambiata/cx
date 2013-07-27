@@ -4,6 +4,7 @@ import flash.display.Sprite;
 import flash.geom.Rectangle;
 import nx3.elements.DComplex;
 import nx3.elements.DNote;
+import nx3.elements.interfaces.IDistanceRects;
 import nx3.elements.tools.SignsTools;
 import nx3.elements.EDirectionUD;
 import nx3.elements.EHeadValuetype;
@@ -92,27 +93,22 @@ class FontRenderer implements IRenderer
 	
 	public function heads(x:Float, y:Float, dnote:DNote):Void 
 	{
-		for (r in dnote.headRects)
+		var xmlStr:String = null;
+		switch (dnote.value.head)
 		{
-			var xmlStr:String = null;
-			switch (dnote.value.head)
-			{
-				case EHeadValuetype.HVT1: xmlStr = Elements.noteWhole;
-				case EHeadValuetype.HVT2: xmlStr = Elements.noteWhite;
-				default: xmlStr = Elements.noteBlack;
-			}
+			case EHeadValuetype.HVT1: xmlStr = Elements.noteWhole;
+			case EHeadValuetype.HVT2: xmlStr = Elements.noteWhite;
+			default: xmlStr = Elements.noteBlack;
+		}
+		
+		for (rect in dnote.headRects)
+		{
 			
 			var shape:Shape = ShapeTools.getShape(xmlStr, this.scaling);
-			if (shape == null) return;
-			
-			
-			var shapeX =x + r.x * scaling.halfNoteWidth + this.scaling.svgX ;
-			var shapeY = y + (r.y * scaling.halfSpace) + this.scaling.svgY ;
-			shape.x = shapeX;
-			shape.y = shapeY;
-			this.target.addChild(shape);			
+			drawShape(shape, x, y, rect);
 		}			
 	}
+	
 	
 	public function note(x:Float, y:Float, dnote:DNote):Void 
 	{
@@ -144,14 +140,26 @@ class FontRenderer implements IRenderer
 			var xmlStr:String = ShapeTools.getElementStr(signStr);			
 			if (xmlStr == null) continue;
 			var shape:Shape = ShapeTools.getShape(xmlStr, this.scaling);			
-			if (shape == null) return;
 			var r:Rectangle = signRect;
-			var shapeX = signsX + ((r.x  + SignsTools.adjustSignFontX(sign))* scaling.halfNoteWidth) + this.scaling.svgX ;
-			var shapeY = y + ((r.y + 2) * scaling.halfSpace) + this.scaling.svgY ;
-			shape.x = shapeX;
-			shape.y = shapeY;
-			this.target.addChild(shape);					
+			
+			var sx = signsX + SignsTools.adjustSignFontX(sign) * scaling.halfNoteWidth;
+			var sy = y + 2 * scaling.halfSpace;
+			drawShape(shape, sx, sy, r);
+			
 		}					
 	}
+
+	//------------------------------------------------------------------------------------------------------------------------
+	
+	function drawShape(shape:Shape, x:Float, y:Float, rect:Rectangle)
+	{
+		if (shape == null) return;
+		shape.x = x + rect.x * scaling.halfNoteWidth + scaling.svgX;
+		shape.y = y + rect.y * scaling.halfSpace + scaling.svgY;
+		this.target.addChild(shape);
+	}
+	
+	
+	
 	
 }

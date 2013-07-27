@@ -1,6 +1,7 @@
 package nx3.render;
 import nx3.elements.DComplex;
 import nx3.elements.DNote;
+import nx3.elements.interfaces.IDistanceRects;
 import nx3.render.scaling.TScaling;
 import nx3.elements.EDirectionUD;
 import nx3.Constants;
@@ -20,7 +21,7 @@ import flash.display.Sprite;
  * ...
  * @author 
  */
- 
+ using nx3.render.scaling.Scaling;
 class FrameRenderer implements IRenderer implements ISpriteRenderer
 {
 	var scaling:TScaling;
@@ -32,7 +33,6 @@ class FrameRenderer implements IRenderer implements ISpriteRenderer
 		this.scaling = scaling;
 	}
 	
-	
 	public function new(target:Sprite,  scaling:TScaling) 
 	{
 		this.initTargetSprite(target, scaling);
@@ -40,18 +40,11 @@ class FrameRenderer implements IRenderer implements ISpriteRenderer
 	
 	public function note(x:Float, y:Float, dnote:DNote)
 	{		
-		//trace(dnote.xAdjust);
-		//trace(dnote.headsRect.toRectangle()); 
 		this.heads(x, y, dnote);
 		this.stave(x, y, dnote);
 		
-		
 		// Frame
-		this.target.graphics.lineStyle(1, 0xFFAAAA);	
-		var r:Rectangle = dnote.headsRect;
-		var r2:Rectangle = new Rectangle(x + r.x * scaling.halfNoteWidth , y + r.y * scaling.halfSpace, r.width * scaling.halfNoteWidth, r.height * scaling.halfSpace);
-		r2.inflate(2, 2);		
-		this.target.graphics.drawRect(r2.x, r2.y, r2.width, r2.height);		
+		drawRect(dnote.headsRect, x, y, 0xFFAAAA, 2);
 
 		// Center spot
 		this.target.graphics.lineStyle(1, 0xAAAAAA);			
@@ -70,16 +63,9 @@ class FrameRenderer implements IRenderer implements ISpriteRenderer
 		}
 		
 		this.signs(x, y, dcomplex);
-		// Heads frame
-		this.target.graphics.lineStyle(1, 0x0000FF);	
-		var r:Rectangle = dcomplex.headsRect;
-		var r2:Rectangle = new Rectangle(x + r.x * scaling.halfNoteWidth , y + r.y * scaling.halfSpace, r.width * scaling.halfNoteWidth, r.height * scaling.halfSpace);
-		r2.inflate(2, 2);
-		this.target.graphics.drawRect(r2.x, r2.y, r2.width, r2.height);		
-		
-		// each sign...		
-		//trace (dcomplex.signRects);		
 
+		// ComplexFrame
+		drawRect(dcomplex.headsRect, x, y, 0xFF0000, 2);
 	}
 	
 	public function notelines(x:Float, y:Float, width:Float)
@@ -119,47 +105,56 @@ class FrameRenderer implements IRenderer implements ISpriteRenderer
 	
 	public function heads(x:Float, y:Float, dnote:DNote)
 	{
-			
-		var headsX = x; // + dnote.xAdjust.toFloat() * scaling.halfNoteWidth;
-		this.target.graphics.lineStyle(1, 0xAAAAFF);	
-		//this.target.graphics.beginFill(0xFF00000);
-		for (r in dnote.headRects)
+		for (rect in dnote.headRects)
 		{
-			var rx = headsX + r.x  * scaling.halfNoteWidth;
-			this.target.graphics.drawRect(rx , y + r.y * scaling.halfSpace, r.width * scaling.halfNoteWidth, r.height * scaling.halfSpace);
+			drawRect(rect, x, y, 0x0000FF);
 		}		
-		//this.target.graphics.endFill();
-		
+	}
+	
+	public function signs(x:Float, y:Float, dcomplex:DComplex):Void 
+	{
+		// signsFrame
+		if (dcomplex.signsFrame != null)
+		{
+			drawRect(dcomplex.signsFrame, x, y, 0xFF0000, 2);
+		}
+
+		// each sign
+		var signsX = x + dcomplex.signsFrame.x * scaling.halfNoteWidth;
+		if (dcomplex.signRects != null)
+		{
+			for (signRect in dcomplex.signRects)
+			{		
+				drawRect(signRect, signsX, y,0x000000);
+			}
+		}				
 	}
 	
 	/* INTERFACE nx3.render.IRenderer */
 	
-	public function signs(x:Float, y:Float, dcomplex:DComplex):Void 
+	public function rects(x:Float, y:Float, rects:Array<IDistanceRects>) 
 	{
-		
-		// signsFrame
-		if (dcomplex.signsFrame != null)
+		for (item in rects)
 		{
-			this.target.graphics.lineStyle(1, 0xFF0000);
 			
-			var r:Rectangle = dcomplex.signsFrame;
-			var signsX = x + r.x * scaling.halfNoteWidth;
-			var r2:Rectangle = new Rectangle(signsX , y + r.y * scaling.halfSpace, r.width * scaling.halfNoteWidth, r.height * scaling.halfSpace);
-			r2.inflate(2, 2);
-			this.target.graphics.drawRect(r2.x, r2.y, r2.width, r2.height);				
+			
 		}
-		
-		if (dcomplex.signRects != null)
-		{
-			this.target.graphics.lineStyle(1, 0x000000);	
-			var signsX = x + dcomplex.signsFrame.x * scaling.halfNoteWidth;
-			for (signRect in dcomplex.signRects)
-			{		
-				var r:Rectangle = signRect;
-				var r2:Rectangle = new Rectangle(signsX + r.x * scaling.halfNoteWidth , y + r.y * scaling.halfSpace, r.width * scaling.halfNoteWidth, r.height * scaling.halfSpace);
-				this.target.graphics.drawRect(r2.x, r2.y, r2.width, r2.height);					
-			}
-		}		
-		
+	}
+	
+	//--------------------------------------------------------------------------------------------------------
+	
+	/*
+	function drawRect(rect:Rectangle)
+	{
+		this.target.graphics.drawRect(rect.x, rect.y, rect.width, rect.height);
+	}
+	*/
+	function drawRect(rect:Rectangle, x:Float, y:Float, lineColor:UInt=0x000000, inflate:Int=0)
+	{
+		this.target.graphics.lineStyle(1, lineColor);
+		var r:Rectangle = scaling.scaleRect(rect);
+		r.offset(x, y);
+		if (inflate != 0) r.inflate(inflate, inflate);
+		this.target.graphics.drawRect(r.x, r.y, r.width, r.height);
 	}
 }
