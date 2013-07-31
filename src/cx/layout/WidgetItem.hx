@@ -15,6 +15,8 @@ class WidgetItem implements ILayoutItem
 	public var target:Widget;
 	public var horizontal:Horizontal;
 	public var vertical:Vertical;
+	
+
 
 	public function new(target:Widget, horizontal:Horizontal=null, vertical:Vertical=null) 
 	{
@@ -75,7 +77,19 @@ class WidgetItem implements ILayoutItem
 				this.target.y = topMargin;
 				this.target.h = stageHeight - topMargin - bottomMargin;				
 		}			
+
+		this.afterResize(target.x, target.y, target.w, target.h);
 		
 	}
+	
+	/* INTERFACE cx.layout.ILayoutItem */
+	
+	dynamic public function afterResize(x:Float, y:Float, width:Float, height:Float) 
+	{
+		
+	}
+	
+	/* INTERFACE cx.layout.ILayoutItem */
+	
 	
 }

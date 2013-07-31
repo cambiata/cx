@@ -56,10 +56,4 @@ class MvcMain extends Sprite
 		#end
 	}
 	
-	public static function main() 
-	{
-		// static entry point
-		Lib.current.addChild(new Main());
-	}
-	
 }

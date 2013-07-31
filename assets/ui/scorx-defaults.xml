@@ -75,22 +75,21 @@
 	</Options>		
 	
 	
-	<!--
+	
 	<Scroll>
 		<Default 
-			skin:Paint-color  = "0xEEEEEE"
-
+			skin:Paint-color  = "0xdddddd"
 			vBar-slider-skin:Paint-color="0xAAAAAA"
 			vBar-skin:Paint-color="0xFFFFFF"
 			vBar-skin:Paint-alpha="0.5"			
 			vBar-visible = "false"
 			vBar-w       = "3"
-			vBar-right   = "0"		
+			vBar-right   = "2"		
 			on-scrollStart = "$this.vBar.visible = true;"
 			on-scrollStop  = "$this.vBar.visible = false;"			
 		/>
 	</Scroll>
-	-->
+	
 </Defaults>
 
 

@@ -11,24 +11,40 @@ import mloader.StringLoader;
  * ...
  * @author 
  */
-class ScoreLoading
+
+ enum ScoreLoadingType 
+ {
+	 screen;
+	 print;
+	 thumb;	 
+ }
+ 
+class ScoreLoader
 {
 
 	static var HOST = "http://scorxdev.azurewebsites.net/";
 	var productId:Int;
-	var userId:Int;
-	
+	var userId:Int;	
 	var nrOfPages:Int;
+	var typeString:String;
 	
-	public function new(productId:Int, userId:Int=0) 
+	public function new(productId:Int=0, userId:Int=0) 
 	{
 		this.productId = productId;
 		this.userId = userId;
-		loadPages();
+		//loadPages();
 	}
 	
-	function loadPages()
+	public function setParameters(productId:Int = 0, userId:Int = 0)
 	{
+		this.productId = productId;
+		this.userId = userId;
+	}
+	
+	public function loadPages(type:ScoreLoadingType=null)
+	{
+		if (type == null) type = ScoreLoadingType.screen;
+		typeString = Std.string(type);
 		loadFirstPageAndCount();		
 	}
 	
@@ -37,18 +53,18 @@ class ScoreLoading
 		var queue:LoaderQueue = new LoaderQueue();
 		queue.maxLoading = 2;
 		queue.ignoreFailures = false;
-		queue.loaded.addOnce(queueFirstPageComplete).forType(LoaderEventType.Complete);
+		//queue.loaded.addOnce(queueFirstPageComplete).forType(LoaderEventType.Complete);
+		//queue.loaded.addOnce(function(e) { trace(e); } ).forType(LoaderEventType.Fail);
+		
 		
 		queue.add (getCountLoader());
 		queue.add(getPageLoader(0));
 		queue.load();
 	}	
-	
-
 
 	function getPageLoader(pageNr:Int):ImageLoader
 	{
-		var url:String = HOST + 'media/renderscorescreen?ProductId=${this.productId}&UserId=${this.userId}&PageId=$pageNr&ext=.png';
+		var url:String = HOST + 'media/$typeString/$productId/$pageNr/$userId?ext=.png';		
 		var imageLoader = new ImageLoaderExt(url, pageNr);
 		imageLoader.loaded.addOnce(onImageLoaded).forType(LoaderEventType.Complete);
 		return imageLoader;		
@@ -56,19 +72,24 @@ class ScoreLoading
 	
 	function getCountLoader():StringLoader
 	{
-		var url:String  = HOST + 'media/screencount/$productId';
+		var url:String  = HOST + 'media/$typeString/count/$productId?ext=.txt';		
 		var countLoader:StringLoader = new StringLoader(url);
-		countLoader.loaded.addOnce(onCountComplete).forType(LoaderEventType.Complete);	
+		countLoader.loaded.addOnce(onCountComplete) .forType(LoaderEventType.Complete);	
 		return countLoader;
 	}
 	
-	
 	function onCountComplete(event:LoaderEvent<String>) 
 	{
-		var nrOfPages = Std.parseInt(event.target.content);
+		var nrOfPages:Int = 1;
+		try 
+		{
+			nrOfPages = Std.parseInt(event.target.content);			
+		} catch (e:Dynamic) trace(e);
+		
 		this.nrOfPages = nrOfPages;
-		this.onPageLoaded(0, this.nrOfPages, null);
-		if (nrOfPages > 1) loadOtherPages(nrOfPages);
+		
+		this.onPageLoaded(0, this.nrOfPages, null, this.typeString);
+		if (this.nrOfPages > 1) loadOtherPages(this.nrOfPages);
 	}	
 	
 	function onImageLoaded(event:LoaderEvent<Dynamic>) 
@@ -77,7 +98,7 @@ class ScoreLoading
 		var loader:ImageLoaderExt = cast(event.target, ImageLoaderExt);
 		var bitmapData:BitmapData = loader.content; // cast(event.target.content, BitmapData);
 		var pageNr:Int = loader.idx;		
-		this.onPageLoaded(pageNr+1, this.nrOfPages, bitmapData);
+		this.onPageLoaded(pageNr+1, this.nrOfPages, bitmapData, this.typeString);
 	}	
 	
 	function loadOtherPages(nrOfPages:Int)
@@ -108,7 +129,7 @@ class ScoreLoading
 	
 	//-----------------------------------------------------------------------------------------
 	
-	dynamic public function onPageLoaded(pageNr:Int, nrOfPages:Int, data:BitmapData)
+	dynamic public function onPageLoaded(pageNr:Int, nrOfPages:Int, data:BitmapData, type:String)
 	{
 		trace('onPageLoaded $pageNr / $nrOfPages ');
 	}

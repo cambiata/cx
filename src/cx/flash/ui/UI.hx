@@ -11,9 +11,6 @@ import flash.text.TextFormat;
  */
 class UI
 {
-
-	
-	
 	
 	static public function createButton(txt: String, onClick: Void -> Void, x:Float=0, y:Float=0, color:Int=0xFFCC00,  width:Float=0, height:Float=0, margin:Float=4, format:TextFormat=null, round:Bool=false): Sprite 
 	{		

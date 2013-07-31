@@ -20,9 +20,14 @@ class ConfigTools
 {
 
 	#if (neko || cpp)
-	static public function loadConfig(configObject:Dynamic, ?filename:String='default.conf', ?delimiter:String='=', ?arrayDelimiter:String=','):Void  {
+	static public function loadConfig(configObject:Dynamic, ?filename:String='default.conf', ?delimiter:String='=', ?arrayDelimiter:String=',', throwIfNoConfigFile:Bool=false):Void  {
 		if (!FileSystem.exists(filename)) {
-			throw "Config file " + filename + " doesn't exist";
+			var msg = "Config file " + filename + " doesn't exist";
+			if (throwIfNoConfigFile) 
+				throw  msg			
+			else 
+				trace(msg);
+			return;
 		}
 		var file = File.read(filename, false);		
 		try {

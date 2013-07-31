@@ -2,6 +2,7 @@ package cx.flash.ui;
 import cx.TimerTools;
 import flash.display.Graphics;
 import flash.display.Sprite;
+import flash.events.Event;
 import flash.geom.Point;
 import haxe.Timer;
 
@@ -93,20 +94,25 @@ class UIProgress extends Sprite
 	public function spin(ms:Int=20)
 	{
 		this.spinStop();
-		this.show();
-		this.spinTimer = TimerTools.timer(function() {
-			v += 0.03;
-			if (v > 1) 
-			{
-				var c = this.frontColor;
-				this.frontColor = this.backColor;
-				this.backColor = c;
-				this.drawBack();
-				v = 0;
-			}
-			this.value = v;
-		}, ms);
+		this.show();		
+		this.addEventListener(Event.ENTER_FRAME, onEnterFrame, false, 0, true);
 	}
+	
+	private function onEnterFrame(e:Event) 
+	{
+		v += 0.015;
+		if (v > 1) 
+		{
+			var c = this.frontColor;
+			this.frontColor = this.backColor;
+			this.backColor = c;
+			this.drawBack();
+			v = 0;
+		}
+		this.value = v;
+	}
+	
+	
 	
 	public function hide()
 	{		

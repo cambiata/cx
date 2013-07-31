@@ -13,6 +13,8 @@ class SpriteItem implements ILayoutItem
 	public var horizontal:Horizontal;
 	public var vertical:Vertical;
 
+
+	
 	public function new(/*manager:LayoutManager, */target:Sprite, horizontal:Horizontal=null, vertical:Vertical=null) 
 	{
 		//this.manager = manager; 
@@ -72,6 +74,17 @@ class SpriteItem implements ILayoutItem
 				this.target.height = stageHeight - topMargin - bottomMargin;
 		}	
 		
+		this.afterResize(target.x, target.y, target.width, target.height);
+		
 	}
+	
+	/* INTERFACE cx.layout.ILayoutItem */
+	
+	dynamic public function afterResize(x:Float, y:Float, width:Float, height:Float) 
+	{
+		
+	}
+	
+
 	
 }

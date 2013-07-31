@@ -1,5 +1,6 @@
 package cx.flash.layout;
 import flash.display.DisplayObject;
+import flash.geom.Point;
 import motion.Actuate;
 import ru.stablex.ui.widgets.Widget;
 //import ru.stablex.ui.widgets.Widget;
@@ -75,6 +76,8 @@ class DocumentLayout
 		var holderY = Math.max(0, holder.y);
 		holder.x = holderX;
 		holder.y = holderY;
+		
+		return new Point(childWidth, childHeight);
 	}	
 	
 	static public  function pagesArrangeWidths(holder:Widget, holderWidth:Float, childWidth:Float = 210, childHeight:Float = 297) 
