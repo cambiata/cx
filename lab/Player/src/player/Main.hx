@@ -1,6 +1,6 @@
 package player;
 
-import player.Config;
+import Config;
 
 import pgr.gconsole.GameConsole;
 import scorx.controller.Confload;
