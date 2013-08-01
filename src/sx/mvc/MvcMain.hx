@@ -29,7 +29,7 @@ class MvcMain extends Sprite
 		init();
 	}
 
-	function init()
+	function init():Void
 	{
 		throw "Should be  overridden";
 	}
@@ -38,7 +38,7 @@ class MvcMain extends Sprite
 	public function new() 
 	{
 		super();	
-		trace("Hello");
+		trace("new MvcMain()");
 		Lib.current.stage.align = flash.display.StageAlign.TOP_LEFT;
 		Lib.current.stage.scaleMode = flash.display.StageScaleMode.NO_SCALE;
 

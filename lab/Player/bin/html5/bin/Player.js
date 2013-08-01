@@ -17745,6 +17745,7 @@ sx.data.ScoreLoader.prototype = {
 		var queue = new mloader.LoaderQueue();
 		queue.maxLoading = 2;
 		queue.ignoreFailures = false;
+		queue.add(this.getCountLoader());
 		queue.add(this.getPageLoader(0));
 		queue.load();
 	}

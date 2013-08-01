@@ -10,7 +10,7 @@ class Config
 	public static var PUBLISHER_ID:String = "";
 	
 	public static var AIR_RUNTIME_DOWNLOAD_URL = "http://get.adobe.com/air/";
-	public static var APPLICATION_URL = "http://localhost:7819/dummies/ScorxPrintApp";
+	public static var APPLICATION_URL = "http://dev.korakademin.se/app/AirApplication.air";
 	
 	public static var AIR_SWF_URL:String = "http://airdownload.adobe.com/air/browserapi/air.swf";
 	public static  var airversion:String = "1.0";

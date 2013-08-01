@@ -15,43 +15,67 @@ import flash.utils.Timer;
  * ...
  * @author 
  */
+
+ 
+ enum AIRStatus 
+ {
+	installed;
+	available;
+	unavailable;
+	updateApp(installedVersion:String, newVersion:String);
+	installApp(newVersion:String);
+ }
+ 
+ 
 class AIRTools
 {
 	var airAppUrl:String;
-	var minAirVersion:String;
+	
+	var currentAppVersion:String;
+	var installedAppVersion:String;
+	
+	
+	
 	var airAppId:String;
 	var publisherId:String;
 	var airSWF:Dynamic;
 	
 	var status:String;	
-	var version:String;
+	//var version:String;
 	var prevStatus:String;
-	var prevVersion:String;	
+	var prevAppVersion:String;	
 	
 	
 	var timer:Timer;
 	
-	static public var AIR_INSTALLED = 'installed';
-	static public var AIR_AVAILABLE = 'available';
-	static public var AIR_UNAVAILABLE = 'unavailable';	
+	static public var STATUS_INSTALLED = 'installed';
+	static public var STATUS_AVAILABLE = 'available';
+	static public var STATUS_UNAVAILABLE = 'unavailable';	
+	static public var STATUS_UPDATE = 'update';
+	static public var STATUS_INSTALL_APP = 'installapp';
+	
+	//public static var AIR_SWF_URL:String = "http://airdownload.adobe.com/air/browserapi/air.swf";	
 	public static var BROWSERAPI_URL = "http://airdownload.adobe.com/air/browserapi/air.swf";
-	public static var APP_INSTALLATION_SUCCESS = 'INSTALLATIONSUCCESS';
+	public static var APP_INSTALLATION_SUCCESS:String = "APPINSTALLATIONSUCCESS";
+	static public var AIR_INSTALLATION_SUCCESS:String = "AIRINSTALLATIONSUCCESS";
+	static public var APP_INSTALLATION_NEW_VERISON:String = "APPINSTALLATIONNEWVERISON";
+
+	static public inline var CHECK_INTERVAL:Int= 3000;
 	
-	
-	
-	public var statusCallback: String -> String -> Void = null;
+	//public var statusCallback: String -> String -> Void = null;
+	public var statusCallback: AIRStatus -> Void = null;
 	public var errorCallback:String->Void = null;
 	
-	public function new(airAppId:String, publisherId:String, airAppUrl:String, minAirVersion:String) 
+	public function new(airAppId:String, publisherId:String, airAppUrl:String, currentAppVersion:String) 
 	{
 		this.airAppUrl = airAppUrl;
-		this.minAirVersion = minAirVersion;
+		this.currentAppVersion = currentAppVersion;
 		this.airAppId = airAppId;
 		this.publisherId = publisherId;
 		
 		loadAirSwf();
 		
-		timer = new Timer(2000);		
+		timer = new Timer(CHECK_INTERVAL);		
 		timer.addEventListener(TimerEvent.TIMER, checkStatusMain);		
 		timer.start();
 	}
@@ -91,13 +115,12 @@ class AIRTools
 		if (this.airSWF == null) return;
 		this.status = this.airSWF.getStatus();		
 		//trace(this.status);
-		if (this.status == AIRTools.AIR_INSTALLED) 
+		if (this.status == AIRTools.STATUS_INSTALLED) 
 		{
 			try 
 			{
-				this.airSWF.getApplicationVersion(this.airAppId, this.publisherId, function (version:String) {
-					//trace(version);
-					this.version = version;
+				this.airSWF.getApplicationVersion(this.airAppId, this.publisherId, function (installedAppVersion:String) {
+					this.installedAppVersion = installedAppVersion;
 				});
 			}
 			catch (e:Dynamic)
@@ -132,8 +155,15 @@ class AIRTools
 	public function installApplication(parameters:Array<String>=null)
 	{
 		parameters = [APP_INSTALLATION_SUCCESS];		
-		this.airSWF.installApplication(this.airAppUrl, this.minAirVersion, parameters);					
+		this.airSWF.installApplication(this.airAppUrl, this.currentAppVersion, parameters);					
 	}
+	
+	public function installAirRuntime(parameters:Array<String> = null)
+	{
+		parameters = [AIR_INSTALLATION_SUCCESS];	
+		this.airSWF.installApplication(this.airAppUrl, this.currentAppVersion, parameters);			
+	}
+	
 	
 	private function errorMsg(msg:String)
 	{
@@ -154,18 +184,43 @@ class AIRTools
 	
 	private function statusCB()
 	{
-		//trace([this.status, this.version]);
 		
-
+		var currentStatus:AIRStatus = EnumTools.createFromString(AIRStatus, this.status);
+		
+		if (this.status == STATUS_INSTALLED)
+		{
+			if (this.installedAppVersion == null)
+			{
+				//trace('Application  is not installed');
+				this.status = STATUS_INSTALL_APP;
+				currentStatus = AIRStatus.installApp(this.currentAppVersion);
+			}
+			else if (this.installedAppVersion < this.currentAppVersion)
+			{
+				//trace('Time to update to version $currentAppVersion!');
+				this.status = STATUS_UPDATE;
+				currentStatus = AIRStatus.updateApp(this.installedAppVersion, this.currentAppVersion);
+			}
+			else if (this.installedAppVersion == this.currentAppVersion)
+			{
+				//trace('Latest version installed');
+			}
+		}
+		
+		//trace([this.status, this.installedAppVersion, currentStatus]);
+		
+		
+		
 		if (this.statusCallback != null) {
-			if (this.status != this.prevStatus || this.version != this.prevVersion)
+			if (this.status != this.prevStatus || this.installedAppVersion != this.prevAppVersion)
 			{
 				//trace('CALL');
-				this.statusCallback(this.status, this.version);
+				//this.statusCallback(this.status, this.installedAppVersion);
+				this.statusCallback(currentStatus);
 			}
 		}
 		this.prevStatus = this.status;
-		this.prevVersion = this.version;
+		this.prevAppVersion = this.installedAppVersion;
 	}
 	
 	//----------------------------------------------------------------------------------------------------------------------------------

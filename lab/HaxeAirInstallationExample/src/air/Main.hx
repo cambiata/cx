@@ -51,8 +51,7 @@ class Main
 		
 		TimerTools.delay(function() {
 			NativeApplication.nativeApplication.activeWindow.maxSize = new Point(800, 600);
-			NativeApplication.nativeApplication.activeWindow.alwaysInFront = true;
-		
+			NativeApplication.nativeApplication.activeWindow.alwaysInFront = true;		
 		}, 500);
 		
 		
@@ -87,7 +86,6 @@ class Main
 			if (main != null)
 			main.invokeArguments(e.arguments);
 		});				
-
 	}
 	
 	var textField:TextField;	

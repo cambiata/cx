@@ -1,25 +1,26 @@
 package player;
 
+import player.Config;
+
 import pgr.gconsole.GameConsole;
-import player.controller.Conf;
-import player.controller.Load;
-import player.controller.Load.LoadCommand;
-import player.controller.LoadPages;
-import player.controller.LoadPages.LoadPagesCommand;
-import player.controller.Play;
-import player.controller.Play.PlayCommand;
-import player.controller.Stop;
-import player.controller.Stop.StopCommand;
-import player.model.ConfigModel;
-import player.model.ProductModel;
-import player.model.TimerModel;
-import player.view.Buttons.ButtonsView;
-import player.view.Buttons.ButtonsMediator;
-import player.view.Pages.PagesView;
-import player.view.Pages.PagesMediator;
+import scorx.controller.Confload;
+import scorx.controller.Load;
+import scorx.controller.Load.LoadCommand;
+import scorx.controller.LoadPages;
+import scorx.controller.LoadPages.LoadPagesCommand;
+import scorx.controller.Play;
+import scorx.controller.Play.PlayCommand;
+import scorx.controller.Stop;
+import scorx.controller.Stop.StopCommand;
+import scorx.model.Configuration;
+import scorx.model.TimerModel;
+import scorx.model.Debug;
+import scorx.view.Buttons.ButtonsView;
+import scorx.view.Buttons.ButtonsMediator;
+import scorx.view.Pages.PagesView;
+import scorx.view.Pages.PagesMediator;
 import sx.data.ScoreLoader;
 
-import player.Config;
 
 import ru.stablex.ui.UIBuilder;
 import ru.stablex.ui.widgets.Scroll;
@@ -55,9 +56,10 @@ import flash.text.TextFormat;
 class AppMediator extends AppBaseMediator
 {
 
-	@inject public var configuration:Conf;
-	@inject public var config:ConfigModel;
-	@inject public var product:ProductModel;
+	@inject public var debug:Debug;
+	@inject public var confload:Confload;
+	@inject public var config:Configuration;
+	@inject public var loadPages:LoadPages;
 	
 	var buttonsView:ButtonsView;	
 	var pagesView:PagesView;
@@ -65,31 +67,60 @@ class AppMediator extends AppBaseMediator
 	
 	override function register() 	
 	{
-		// kickof configuration
-		this.configuration.dispatch();
+		debug.log(config.host);
+		debug.log(config.productId);
+		debug.log(config.userId);
 		
-		trace(config.HOST);
-		trace(product.productId);
-		trace(product.userId);
+		// autoload pages after configuration model update
+		mediate(this.config.updated.add(function() 
+		{
+			this.reload();
+		}));		
 		
 		this.buttonsView = new ButtonsView();
-		this.pagesView = new PagesView();
-		
 		this.view.addChild(this.buttonsView);
+		this.pagesView = new PagesView();
 		this.view.addChild(this.pagesView);
 		
 		this.layoutManager = new LayoutManager();
-		this.layoutManager.add(new WidgetItem(this.buttonsView, Horizontal.CENTER, Vertical.BOTTOM));
-		var pagesItem:WidgetItem = new WidgetItem(this.pagesView, Horizontal.STRETCH_MARGIN(0, 100), Vertical.STRETCH_MARGIN(0, 40));
+		this.layoutManager.add(new WidgetItem(this.buttonsView, Horizontal.RIGHT, Vertical.TOP));
+		var pagesItem:WidgetItem = new WidgetItem(this.pagesView, Horizontal.STRETCH_MARGIN(0, 60), Vertical.STRETCH);
 		this.layoutManager.add(pagesItem);
 		pagesItem.afterResize = function (x, y, width, height) 
 		{
 			this.pagesView.afterResize(x, y, width, height);	
-		}
-		
+		}		
 		this.layoutManager.resize();
+		
+		// kickof configuration
+		this.confload.dispatch();
+		
+		//---------------------------------------------------------------------------------------------------		
+		this.setupDebug();
 
 	}
+	
+	function setupDebug() 
+	{
+		GameConsole.init(0.33, "DOWN");
+		GameConsole.registerVariable(config, 'host', 'host');
+		GameConsole.registerVariable(config, 'productId', 'productId');
+		GameConsole.registerVariable(config, 'userId', 'userId');
+		GameConsole.registerFunction(config, 'setValues', 'setValues', true);
+		GameConsole.registerFunction(this, 'reload', 'reload', true);
+	}
+	
+	public function reload()
+	{
+		var loadParameters:LoadParameters = new LoadParameters();
+		loadParameters.host = config.host;
+		loadParameters.productId = config.productId;
+		loadParameters.userId = config.userId;
+		loadParameters.type = ScoreLoadingType.screen;
+		loadPages.dispatch(loadParameters);				
+	}
+		
+	
 }
 
 //----------------------------------------------------------------
@@ -100,10 +131,7 @@ class AppMediator extends AppBaseMediator
 class AppContext extends AppBaseContext
 {
 	override function config() 
-	{
-		GameConsole.init(0.33, "DOWN");
-		GameConsole.log("Log this message");
-		
+	{			
 		UIBuilder.init("../../assets/ui/scorx-defaults.xml");
 		UIBuilder.regSkins("../../assets/ui/scorx-skins.xml");				
 	}
@@ -111,12 +139,12 @@ class AppContext extends AppBaseContext
 	override function init() 	
 	{
 		injector.mapSingleton(TimerModel);
-		injector.mapSingleton(ConfigModel);
-		injector.mapSingleton(ProductModel);
+		injector.mapSingleton(Configuration);
+		injector.mapSingleton(Debug);
 		
 		injector.mapSingleton(ScoreLoader);
 		
-		commandMap.mapSignalClass(Conf, ConfCommand);
+		commandMap.mapSignalClass(Confload, ConfloadCommand);
 		commandMap.mapSignalClass(Load, LoadCommand);
 		commandMap.mapSignalClass(LoadPages, LoadPagesCommand);
 		

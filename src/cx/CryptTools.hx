@@ -1,11 +1,8 @@
 package cx;
 
-<<<<<<< HEAD
-import haxe.Int32;
-//import tea.TEA;
-=======
+
 import tea.TEA;
->>>>>>> dba6e4e1cf2b02c28bf72ed1733c9ae45be1b933
+
 
 /**
  * ...
@@ -41,8 +38,6 @@ class CryptTools
 }
 
 
-import haxe.Int32;
-using haxe.Int32;
 
 class TEA
 {
