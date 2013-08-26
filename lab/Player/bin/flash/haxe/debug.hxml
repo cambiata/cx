@@ -5,6 +5,7 @@
 -lib msignal
 -lib mloader
 -lib stablexui
+-lib tjson
 -cp src
 -cp ../../src
 -D tools=1
@@ -15,7 +16,7 @@
 -dce std
 -swf-version 11
 -swf bin/flash/bin/Player.swf
--swf-header 800:480:60:EEEEEE
+-swf-header 600:480:60:EEEEEE
 -cp bin/flash/haxe
 #--remap nme:flash
 --no-inline

@@ -6,17 +6,18 @@
     <movie input="" />
     <movie path="bin\PrintInstaller.swf" />
     <movie fps="30" />
-    <movie width="800" />
-    <movie height="600" />
+    <movie width="300" />
+    <movie height="140" />
     <movie version="11" />
     <movie minorVersion="0" />
     <movie platform="Flash Player" />
-    <movie background="#FFFFFF" />
+    <movie background="#DDDDDD" />
   </output>
   <!-- Other classes to be compiled into your SWF -->
   <classpaths>
     <class path="src" />
     <class path="..\..\src" />
+    <class path="..\..\assets" />
   </classpaths>
   <!-- Build options -->
   <build>

@@ -44,11 +44,11 @@ class SpriteItem implements ILayoutItem
 			case Horizontal.NONE:
 				
 			case Horizontal.LEFT_MARGIN(margin):
-				this.target.width = margin;
+				this.target.x = margin;
 			case Horizontal.RIGHT_MARGIN(margin):
 				this.target.x = stageWidth - targetWidth - margin;
 			case Horizontal.STRETCH_MARGIN(leftMargin, rightMargin):
-				this.target.x = leftMargin + leftMargin;
+				this.target.x = leftMargin;
 				this.target.width = stageWidth - leftMargin - rightMargin;								
 		}		
 		
@@ -75,7 +75,6 @@ class SpriteItem implements ILayoutItem
 		}	
 		
 		this.afterResize(target.x, target.y, target.width, target.height);
-		
 	}
 	
 	/* INTERFACE cx.layout.ILayoutItem */

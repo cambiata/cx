@@ -47,11 +47,11 @@ class WidgetItem implements ILayoutItem
 			case Horizontal.NONE:
 				
 			case Horizontal.LEFT_MARGIN(margin):
-				this.target.w = margin;
+				this.target.x = margin;
 			case Horizontal.RIGHT_MARGIN(margin):
 				this.target.x = stageWidth - targetWidth - margin;
 			case Horizontal.STRETCH_MARGIN(leftMargin, rightMargin):
-				this.target.x = leftMargin + leftMargin;
+				this.target.x = leftMargin;
 				this.target.w = stageWidth - leftMargin - rightMargin;					
 				
 		}		

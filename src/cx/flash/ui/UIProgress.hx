@@ -90,7 +90,6 @@ class UIProgress extends Sprite
 	}
 	
 	var v:Float = 0;
-	var spinTimer:Timer;
 	public function spin(ms:Int=20)
 	{
 		this.spinStop();
@@ -130,10 +129,7 @@ class UIProgress extends Sprite
 	
 	public function spinStop()
 	 {
-		 if (this.spinTimer != null) 
-		 {
-			 this.spinTimer.stop();
-		 }
+		this.removeEventListener(Event.ENTER_FRAME, onEnterFrame);		 
 	 }
 	
 	

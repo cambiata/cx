@@ -59,7 +59,7 @@ class AirTools
 	
 	function airErrorChange(msg:String) 
 	{
-		debug.log(msg);
+		Debug.log(msg);
 	}	
 	
 	public function installAirRuntime()

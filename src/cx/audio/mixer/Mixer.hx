@@ -1,6 +1,6 @@
 package cx.audio.mixer;
 
-import de.polygonal.core.sound.MP3Sound;
+//import de.polygonal.core.sound.MP3Sound;
 import flash.events.SampleDataEvent;
 import flash.events.TimerEvent;
 import flash.media.Sound;
@@ -36,6 +36,7 @@ class Mixer {
 	private var outputChannel:SoundChannel;
 	private var volumeTransform:SoundTransform;
 	private var playCallback:Float->Float->Float->Void;
+	public var isPlaying(default, null):Bool;
 	
 	public function new(sounds:Array<Sound>=null, playCallback:Float->Float->Float->Void=null) {
 		bufferSize = 4096;
@@ -49,6 +50,7 @@ class Mixer {
 		stopTimer.addEventListener(TimerEvent.TIMER, stopTimerHandler);
 		volumeTransform = new SoundTransform();
 		this.playCallback = playCallback;
+		this.isPlaying = false;
 		if (sounds != null) this.setSounds(sounds);
 	}
 	
@@ -96,15 +98,17 @@ class Mixer {
 		this.posStop = Math.max(this.posStart, posStop);
 		this.bufferPos = Std.int((this.sounds[0].length / 100) * this.bufferSize * posStart);
 		this.outputChannel = this.outputSnd.play();
+		this.isPlaying = true;
 	}	
 	
 	private var stopTimer:Timer;
 	private function stopTimerHandler(event:Event) {
 		stopTimer.stop();	
 		this.outputChannel.stop();
+		this.isPlaying = false;
 	} 
 	
-	private function stopPlayback() {
+	public  function stopPlayback() {
 		stopTimer.start();
 	}
 	

@@ -12,7 +12,6 @@ import Config;
  import msignal.Signal.Signal0;
 import mmvc.impl.Command;
 import scorx.model.Configuration;
-import scorx.model.Debug;
 
 /**
  * ...
@@ -31,12 +30,11 @@ class Confload extends Signal0
 class ConfloadCommand extends Command
 {
 	@inject public var confload:Confload;
-	@inject public var debug:Debug;	
 	@inject public var config:Configuration;
 	
 	override public function execute():Void
 	{
-		debug.log('ConfigCommand execute');		
+		Debug.log('ConfigCommand execute');		
 		
 		#if (flash || html5) 
 		ConfigTools.loadFlashVars(Config); 
@@ -50,9 +48,13 @@ class ConfloadCommand extends Command
 			trace('CONIFG AIR');
 		#end
 		
+		trace(Config.productId);
+		trace(Config.userId);
+		trace(Config.host);
+		trace(Config.playbackLevel);
+		trace(Config.playbackChannelIds);		
 		
-		
-		this.config.setValues(Config.productId, Config.userId, Config.host);
+		this.config.setValues(Config.productId, Config.userId, Config.host, Config.playbackLevel, Config.playbackChannelIds);
 		this.confload.completed.dispatch();
 	}
 }

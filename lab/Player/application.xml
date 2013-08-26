@@ -9,12 +9,12 @@
 	<app main="player.Main" file="Player" path="bin" />
 	
 	<window background="#eeeeee" fps="60" />
-	<window width="800" height="480" unless="mobile" />
-	<window orientation="landscape" vsync="false" antialiasing="0" if="cpp" />
+	<window width="600" height="480" unless="mobile" />
+	<window orientation="landscape" vsync="false" antialiasing="0" if="cpp" />  
 	
 	<!-- classpath, haxe libs -->
 	<source path="src" />
-	<source path="../../src" />
+	<source path="../../src" /> 
 
 	<haxelib name="openfl" />
 	<haxelib name="actuate" />
@@ -22,6 +22,7 @@
 	<haxelib name="msignal" />	
 	<haxelib name="mloader" />	
 	<haxelib name="stablexui" />	
+	<haxelib name="tjson" />	
 	
 	<!-- assets -->
 	<icon path="assets/openfl.svg" />

@@ -6,14 +6,22 @@ import msignal.Signal.Signal0;
 import msignal.Signal.Signal1;
 import msignal.Signal.Signal2;
 import mmvc.impl.Command;
-import scorx.model.Debug;
+import scorx.model.PlaybackEngine;
 import sx.data.ScoreLoader;
+import sx.data.ScoreLoadingType;
 
 /**
  * ...
  * @author 
  */
 
+ enum LoadPagesStatus
+ {
+	 started(nrOfPages:Int);
+	 progress(pageInfo:LoadedPageInfo);
+	 completed(nrOfPages:Int);
+ }
+ 
  class LoadParameters
  {
 	 public function new() {}
@@ -34,16 +42,19 @@ import sx.data.ScoreLoader;
 {	
 	public var started:Signal1<Int>;
 	public var progress:Signal1<LoadedPageInfo>;
-	public var completed:Signal0;
+	public var completed:Signal1<Int>;
 	public var failed:Signal1<Dynamic>;
+	public var status:Signal1<LoadPagesStatus>;
 
 	public function new() 
 	{
 		super(LoadParameters);
 		started = new Signal1<Int>();
-		completed = new Signal0();
+		completed = new Signal1<Int>();
 		progress = new Signal1<LoadedPageInfo>();
 		failed = new Signal1<Dynamic>(Dynamic);
+		
+		status = new Signal1<LoadPagesStatus>();
 	}
 }
 
@@ -54,32 +65,45 @@ class LoadPagesCommand extends Command
 	@inject public var debug:Debug;	
 	@inject public var loader:ScoreLoader;
 	
-	public function new() super();	
+	
+	public function new() super();
 	
 	override public function execute():Void
 	{				
-		this.loader.setParameters(loadParameters.productId, loadParameters.userId);
-		this.loader.loadPages();
+		
+		Debug.log(['LoadPagesCommand...', loadParameters.productId, loadParameters.userId, loadParameters.host]);
+		
+		this.loader.setParameters(loadParameters.productId, loadParameters.userId, loadParameters.host);
+		
+		
+		
 		this.loader.onPageLoaded = function(pageNr:Int, nrOfPages:Int, data:BitmapData, type:String)
 		{			
+			Debug.log('loader.onPageLoaded');
+			
 			trace([pageNr, nrOfPages]);
 			if (pageNr == 0) 
 			{
-				debug.log('start...');
-				loadPages.started.dispatch(nrOfPages);
+				this.loadPages.status.dispatch(LoadPagesStatus.started(nrOfPages));
+				Debug.log('loader.started...');
 			}
 			else if (pageNr == nrOfPages)
 			 {
-				 loadPages.progress.dispatch( { pageNr:pageNr, nrOfPages:nrOfPages, data:data } );				 
-				 debug.log('complete...');
-				 loadPages.completed.dispatch();				 
+				 this.loadPages.status.dispatch(LoadPagesStatus.progress( { pageNr:pageNr, nrOfPages:nrOfPages, data:data } ));
+				 this.loadPages.status.dispatch(LoadPagesStatus.completed(nrOfPages));
+				 Debug.log('loader.completed...');
 			 }
 			 else
 			 {
-				 debug.log('progress...');
-				loadPages.progress.dispatch( { pageNr:pageNr, nrOfPages:nrOfPages, data:data } );				 
+				this.loadPages.status.dispatch(LoadPagesStatus.progress( { pageNr:pageNr, nrOfPages:nrOfPages, data:data } ));				
+				 Debug.log('loader.progress...');
 			 }
 		}
+	
+		this.loader.loadPages(loadParameters.type);
+		
 		
 	}
+	
+	
 }

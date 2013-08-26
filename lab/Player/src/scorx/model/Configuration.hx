@@ -1,5 +1,8 @@
 package scorx.model;
+import cx.EnumTools;
 import msignal.Signal.Signal0;
+import scorx.model.AccessLevelPlay;
+import scorx.model.utils.ChannelUtils;
 
 /**
  * ...
@@ -16,11 +19,30 @@ class Configuration
 	public var productId(default, null):Int = 0;
 	public var userId(default, null):Int = 0;	
 	
-	public function setValues(productId:Null<Int> = null, userId:Null<Int> = null, host:Null<String> = null)
+	
+	public var playbackLevel(default, null):AccessLevelPlay;
+	public var playbackChannels(default, null): Array<PlaybackChannel>;
+	
+	public function setValues(productId:Null<Int> = null, userId:Null<Int> = null, host:Null<String> = null, playbackLevel:Null<String>=null, playbackChannelIds:Null<String>=null)
 	{
+		
 		if (productId != null) this.productId = productId;
 		if (userId != null) this.userId = userId;
-		if (host != null) this.host = host;
+		if (host != null) this.host = host;		
+		
+		this.playbackLevel  = (playbackLevel == null) ? AccessLevelPlay.NoPlayback : EnumTools.createFromString(AccessLevelPlay, playbackLevel);
+		
+		if (this.playbackLevel == AccessLevelPlay.FullPlayback)
+		{
+			this.playbackChannels = [];
+			if (playbackChannelIds != null)	
+			{
+				var channelIds:Array<String> = Std.string(playbackChannelIds).split(",");
+				trace(channelIds);
+				for (channelId in channelIds) this.playbackChannels.push(ChannelUtils.getChannel(channelId));					
+			}
+		}
+		
 		
 		this.updated.dispatch();
 	}

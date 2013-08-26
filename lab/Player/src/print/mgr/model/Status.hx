@@ -1,4 +1,5 @@
 package print.mgr.model;
+import pgr.gconsole.GameConsole;
 
 /**
  * ...
@@ -6,6 +7,8 @@ package print.mgr.model;
  */
 class Status
 {
+	
+	
 	public var updated:msignal.Signal.Signal1<MgrStatus>;
 	
 	public function new()
@@ -14,9 +17,10 @@ class Status
 	}
 	
 	public var status(default, null):MgrStatus;
-	
+		
 	public function setStatus(status:MgrStatus):Void
 	{
+		GameConsole.log(status);
 		this.status = status;
 		this.updated.dispatch(this.status);
 	}

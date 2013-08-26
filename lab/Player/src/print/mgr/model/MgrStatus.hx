@@ -9,9 +9,10 @@ enum MgrStatus
 	Startup;
 	Installed;
 	PrintLoad(productId:Int, userId:Int, host:String, type:String);
-	PrintStart;
-	PrintAbort;
+	PrintSelect;
+	PrintProcess(pageNr:Int, nrOfPages:Int, action:String);	
 	PrintDone;	
+	PrintAborted;
 	
 	Default;
 }

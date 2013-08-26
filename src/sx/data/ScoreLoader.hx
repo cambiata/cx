@@ -4,39 +4,36 @@ import mloader.ImageLoader;
 import mloader.Loader.Loader;
 import mloader.Loader.LoaderEvent;
 import mloader.Loader.LoaderEventType;
+import mloader.Loader.LoaderErrorType;
 import mloader.LoaderQueue;
 import mloader.StringLoader;
+import mloader.JsonLoader;
 
 /**
  * ...
  * @author 
  */
 
- enum ScoreLoadingType 
- {
-	 screen;
-	 print;
-	 thumb;	 
- }
+
  
 class ScoreLoader
 {
 
 	static var HOST = "http://scorxdev.azurewebsites.net/";
+	var host:String;
 	var productId:Int;
 	var userId:Int;	
 	var nrOfPages:Int;
 	var typeString:String;
 	
-	public function new(productId:Int=0, userId:Int=0) 
+	public function new(productId:Int=0, userId:Int = 0, host:String = null) 
 	{
-		this.productId = productId;
-		this.userId = userId;
-		//loadPages();
+		this.setParameters(productId, userId, host);
 	}
 	
-	public function setParameters(productId:Int = 0, userId:Int = 0)
+	public function setParameters(productId:Int = 0, userId:Int = 0, host:String=null)
 	{
+		this.host = (host != null) ? host : HOST;
 		this.productId = productId;
 		this.userId = userId;
 	}
@@ -50,13 +47,11 @@ class ScoreLoader
 	
 	function loadFirstPageAndCount() 
 	{
+		Debug.log('loadFirstPageAndCount');
 		var queue:LoaderQueue = new LoaderQueue();
 		queue.maxLoading = 2;
 		queue.ignoreFailures = false;
-		//queue.loaded.addOnce(queueFirstPageComplete).forType(LoaderEventType.Complete);
-		//queue.loaded.addOnce(function(e) { trace(e); } ).forType(LoaderEventType.Fail);
-		
-		
+		queue.add(getInfoLoader());
 		queue.add (getCountLoader());
 		queue.add(getPageLoader(0));
 		queue.load();
@@ -64,27 +59,67 @@ class ScoreLoader
 
 	function getPageLoader(pageNr:Int):ImageLoader
 	{
-		var url:String = HOST + 'media/$typeString/$productId/$pageNr/$userId?ext=.png';		
+		var url:String = this.host + 'media/$typeString/$productId/$pageNr/$userId?ext=.png';		
+		Debug.log('getPageLoader: ' + url);
 		var imageLoader = new ImageLoaderExt(url, pageNr);
-		imageLoader.loaded.addOnce(onImageLoaded).forType(LoaderEventType.Complete);
+		imageLoader.loaded.addOnce(onImageLoaded).forType(LoaderEventType.Complete);		
 		return imageLoader;		
 	}
 	
 	function getCountLoader():StringLoader
 	{
-		var url:String  = HOST + 'media/$typeString/count/$productId?ext=.txt';		
+		var url:String  =  this.host + 'media/$typeString/count/$productId?ext=.txt';	
+		Debug.log('getCountLoader: ' + url);
 		var countLoader:StringLoader = new StringLoader(url);
-		countLoader.loaded.addOnce(onCountComplete) .forType(LoaderEventType.Complete);	
+		countLoader.loaded.addOnce(onCountComplete).forType(LoaderEventType.Complete);	
 		return countLoader;
+	}
+	
+	function getInfoLoader():JsonLoader<Dynamic>
+	{
+		var url:String  =  this.host + 'media/info/$productId/$userId?ext=.json';	
+		Debug.log('getInfoLoader: ' + url);
+		var infoLoader:JsonLoader<Dynamic> = new JsonLoader<Dynamic>(url);
+		infoLoader.loaded.addOnce(onInfoComplete).forType(LoaderEventType.Complete);	
+		return infoLoader;
+	}
+	
+	//-------------------------------------------------------------------------------------------------------------
+	
+	function onInfoComplete(event:LoaderEvent<Dynamic>) 
+	{
+		switch (event.type)
+		{
+			case Complete: 
+				Debug.log('Info loaded successfully');				
+			case Fail(e): 		    
+				Debug.log("Info Loader failed: " + e);
+				return;	
+			default:
+		}		
+		
+		Debug.log('onInfoComplete SUCCESS');
+		Debug.log(event.target.content);
 	}
 	
 	function onCountComplete(event:LoaderEvent<String>) 
 	{
+	
+		Debug.log('onCountComplete');
 		var nrOfPages:Int = 1;
 		try 
 		{
 			nrOfPages = Std.parseInt(event.target.content);			
+			
+			if (nrOfPages  == 0) 
+			{
+				Debug.log('onCountComplete nrOfPages IS 0!!!');
+				nrOfPages = 1;
+			}
+			
 		} catch (e:Dynamic) trace(e);
+		
+		
 		
 		this.nrOfPages = nrOfPages;
 		
@@ -94,6 +129,15 @@ class ScoreLoader
 	
 	function onImageLoaded(event:LoaderEvent<Dynamic>) 
 	{
+		switch (event.type)
+		{
+			case Complete: Debug.log('Image loaded successfully');
+			case Fail(e): 		    
+				Debug.log("Image Loader failed: " + e);
+				return;	
+			default:
+		}
+		
 		var content = event.target.content;
 		var loader:ImageLoaderExt = cast(event.target, ImageLoaderExt);
 		var bitmapData:BitmapData = loader.content; // cast(event.target.content, BitmapData);
@@ -103,6 +147,7 @@ class ScoreLoader
 	
 	function loadOtherPages(nrOfPages:Int)
 	{
+		Debug.log('loadOtherPages');
 		if (nrOfPages < 2 ) throw "This shouldn't happen!";
 		
 		var queue:LoaderQueue = new LoaderQueue();

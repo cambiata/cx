@@ -11,6 +11,8 @@ import print.inst.view.Installed.InstalledMediator;
 import print.inst.view.Installed.InstalledView;
 import print.inst.view.Startup.StartupMediator;
 import print.inst.view.Startup.StartupView;
+import print.inst.view.Update.UpdateView;
+import print.inst.view.Update.UpdateMediator;
 import ru.stablex.ui.transitions.Fade;
 import ru.stablex.ui.transitions.Scale;
 import ru.stablex.ui.transitions.Slide;
@@ -22,7 +24,7 @@ import ru.stablex.ui.widgets.ViewStack;
 import scorx.controller.Confload;
 import scorx.model.AirTools;
 import scorx.model.Configuration;
-import scorx.model.Debug;
+
 import sx.mvc.app.AppView;
 import sx.mvc.app.base.AppBaseContext;
 import sx.mvc.app.base.AppBaseMediator;
@@ -51,30 +53,33 @@ import print.inst.view.Install.InstallMediator;
 	var availableView:AvailableView;
 	var txtConfig:Text;
 	var txtStatus:Text;
+	var label:Text;
 	var button:Button;
 	var installView:InstallView;
+	var updateView:UpdateView;
 	
 	override function register() 	
 	{
 		setupUI();
-
 		
 		this.mediate(this.airTools.update.add(function(status:AIRStatus)  {
-			debug.log('AppMediator STATUS ' + Std.string(status));			
+			Debug.log('AppMediator STATUS ' + Std.string(status));			
 			txtStatus.text = Std.string(status);
 
 			switch(status)
 			{
 				case AIRStatus.installApp(newVersion):
 					this.viewstack.showIdx(3);
+					//this.label.text = 'Install Scorx Print Manager';
 				case AIRStatus.updateApp(installedVersion, newVersion):
-					//this.viewstack.showIdx(3);
-					
+					this.viewstack.showIdx(4);
+					//this.label.text = 'Update Scorx Print Manager';
 				case AIRStatus.available:
 					this.viewstack.showIdx(2);
-				
+					//this.label.text = 'Install AIR Runtime';
 				case AIRStatus.installed:
 					this.viewstack.showIdx(1);
+					//this.label.text = '';
 					
 				default:
 			}	 
@@ -107,32 +112,46 @@ import print.inst.view.Install.InstallMediator;
 	
 	function setupUI()
 	{
-	
 		
-		txtStatus = UIBuilder.create(Text);
-		txtStatus.text = 'STATUS?';
-		txtStatus.x = 200;
-		this.view.addChild(txtStatus);		
-		
-		txtConfig = UIBuilder.create(Text);
-		txtConfig.text = 'STATUS?';
-		txtConfig.x = 200;
-		txtConfig.y = 20;
-		this.view.addChild(txtConfig);		
-		
-		button = UIBuilder.create(Button);
-		button.text = 'Print Starter';
-		this.view.addChild(button);
-
-		
-		//------------------------------------------------------------------------------
-
 		this.viewstack = UIBuilder.create(ViewStack);
 		this.viewstack.wrap = true;
 		//this.viewstack.trans = new Scale();
 		this.viewstack.x = 0;
-		this.viewstack.y = 50;
-		this.view.addChild(viewstack);				
+		this.viewstack.y = 0;
+		this.view.addChild(viewstack);			
+		
+		/*
+		 label = UIBuilder.create(Text);
+		label.format = Constants.TEXT_FORMAT_HEADER2;
+		label.text = '';
+		label.align = 'right';
+		 label.w = 290;
+		 label.x = Constants.INSTALLER_VIEW_W - 300;
+		 label.y = 4;
+		 this.view.addChild(label);			
+		*/
+		
+		txtStatus = UIBuilder.create(Text);
+		txtStatus.text = 'status...';
+		txtStatus.x = 10;
+		txtStatus.y = 106;
+		this.view.addChild(txtStatus);		
+		
+		txtConfig = UIBuilder.create(Text);
+		txtConfig.text = 'STATUS?';
+		txtConfig.x = 10;
+		txtConfig.y = 120;
+		this.view.addChild(txtConfig);		
+		
+		/*
+		button = UIBuilder.create(Button);
+		button.text = 'Print Starter';
+		this.view.addChild(button);
+		*/
+		
+		//------------------------------------------------------------------------------
+
+			
 		
 		// 0
 		this.startupView = new StartupView();		
@@ -150,15 +169,21 @@ import print.inst.view.Install.InstallMediator;
 		installView = new InstallView();
 		this.viewstack.addChild(this.installView);
 		
+		//4
+		updateView = new UpdateView();
+		this.viewstack.addChild(this.updateView);		
+		
 		this.viewstack.refresh();
 		this.viewstack.showIdx(0);		
 		
 
 		//---------------------------------------------------------------------------
 		
+		/*
 		button.onPress = function(e) {
 			this.viewstack.next();
-		}		
+		}
+		*/
 		
 	}
 	
@@ -190,9 +215,14 @@ import print.inst.view.Install.InstallMediator;
 
 
 		mediatorMap.mapView(InstallView, InstallMediator);		
+
+
+		mediatorMap.mapView(UpdateView, UpdateMediator);		
 		
 		
 		mediatorMap.mapView(sx.mvc.app.AppView, AppMediator);
+		
+		
 	}
 }
  

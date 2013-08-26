@@ -11,5 +11,44 @@
 
     <buttonPlay:Paint color="0xFF0000" corners="[8]" />
     
+    
+    <redUp:Paint
+        color = "0xFF0000"
+        corners = "[3]"
+    />
+    <redDown:Paint
+        color = "0x330000"
+        corners = "[3]"
+    />
+    <redHovered:Paint
+        color = "0xFF3333"
+        corners = "[3]"
+    />
+    <redPressed:Paint
+        color = "0x990000"
+        corners = "[3]"
+    />
+
+    <rgbOne:Paint
+        color = "0x00FF00"
+        corners = "[3]"
+    />
+    <rgbTwo:Paint
+        color = "0x0000FF"
+        corners = "[3]"
+    />
+    <rgbThree:Paint
+        color = "0xFF0000"
+        corners = "[3]"
+    />   
+    
+    <progress:Paint
+        color  = "0x005069"        
+        corners = "[15]"
+    />
+    <progressBar:Paint color="0x1eb6ff" corners="[15]" alpha="1" />    
+    
+    
+    
 </Skins>    
     

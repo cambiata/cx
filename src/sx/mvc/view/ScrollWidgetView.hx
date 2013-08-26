@@ -13,6 +13,7 @@ import ru.stablex.ui.widgets.Button;
 import ru.stablex.ui.widgets.Bmp;
 import ru.stablex.ui.UIBuilder;
 import flash.events.Event;
+import sx.mvc.view.enums.ScrollWidgetZoom;
 
 /**
  * ...
@@ -23,22 +24,25 @@ class ScrollWidgetView extends Scroll
 	public var widget(default, null): Widget;
 	
 	var pageSize:Point;
-	var zoom:SxScrollZoom;	
+	var zoom:ScrollWidgetZoom;		
 	
 	public function new() 
 	{	
 		super();
-		
-		this.zoom = SxScrollZoom.ZoomFullHeight;
-
 		this.w = 500;
 		this.h = 500;
+		
+		this.zoom = ScrollWidgetZoom.ZoomFullHeight;
 		
 		this.widget = UIBuilder.create(Widget);
 		
 		this.addChild(this.widget);
 		createChildren();
+		addSkin();
 		this.refresh();
+
+
+		
 		this.addEventListener(Event.ADDED, function(e)  { sx.mvc.app.AppView.REGISTER.dispatch(this); } );
 		
 	}
@@ -55,19 +59,22 @@ class ScrollWidgetView extends Scroll
 		
 	}
 	
-	public function skinMe()
+	public function addSkin()
 	{
-		/*
+		
 		var skin = new ru.stablex.ui.skins.Paint();
 		skin.color = 0x00FF00;		
-		skin.apply(this);
-		*/
+		//skin.apply(this);
+		this.skin = skin;
+		this.applySkin();
 		
 		var sliderSkin = new  ru.stablex.ui.skins.Paint();
 		sliderSkin.color = 0xFF0000;
 		sliderSkin.apply(this.vBar.slider);
 		sliderSkin.apply(this.hBar.slider);
 
+		
+		
 		var barSkin = new  ru.stablex.ui.skins.Paint();
 		barSkin.color = 0x0000FF;
 		barSkin.apply(this.vBar);		
@@ -113,6 +120,9 @@ class ScrollWidgetView extends Scroll
 		if (width == 0) width = this.w;
 		if (height == 0) height = this.h;
 		
+		this.w = width;
+		this.h = height;
+		
 		var size:Point = this.getZoomSize(this.zoom, width, height);			
 		this.pageSize = DocumentLayout.arrange(widget, width, size.x, size.y);	
 		this.refresh();			
@@ -138,7 +148,7 @@ class ScrollWidgetView extends Scroll
 		return bmp;
 	}
 
-	public function setZoom(zoom:SxScrollZoom)
+	public function setZoom(zoom:ScrollWidgetZoom)
 	{
 		this.zoom = zoom;
 		this.resize_();
@@ -175,29 +185,29 @@ class ScrollWidgetView extends Scroll
 	}
 	
 	
-	private function getZoomSize(zoom: SxScrollZoom, width:Float, height:Float):Point
+	private function getZoomSize(zoom: ScrollWidgetZoom, width:Float, height:Float):Point
 	{
 		var w:Float = 1;
 		var h:Float = 1;
-		if (this.zoom == null) this.zoom = SxScrollZoom.Zoom40;
+		if (this.zoom == null) this.zoom = ScrollWidgetZoom.Zoom40;
 		switch(this.zoom)
 		{
-			case SxScrollZoom.ZoomFullHeight:
+			case ScrollWidgetZoom.ZoomFullHeight:
 				h = Math.max(297, Math.min(891, height-20));
 				w = (210 / 297) * h;
-			case SxScrollZoom.ZoomFullWidth:
+			case ScrollWidgetZoom.ZoomFullWidth:
 				w = Math.max(210, Math.min(630, width-20));
 				h = (297 / 210) * w;	
-			case SxScrollZoom.Zoom40:
+			case ScrollWidgetZoom.Zoom40:
 				w = 630 * 0.4;
 				h = 891 * 0.4;
-			case SxScrollZoom.Zoom60:
+			case ScrollWidgetZoom.Zoom60:
 				w = 630 * 0.6;
 				h = 891 * 0.6;
-			case SxScrollZoom.Zoom80:
+			case ScrollWidgetZoom.Zoom80:
 				w = 630 * 0.8;
 				h = 891 * 0.8;
-			case SxScrollZoom.Zoom100:
+			case ScrollWidgetZoom.Zoom100:
 				w = 630 ;
 				h = 891;					
 			//default:
@@ -206,6 +216,7 @@ class ScrollWidgetView extends Scroll
 	}
 }
 
+/*
  enum SxScrollZoom 
  {
 	 ZoomFullWidth;
@@ -215,3 +226,4 @@ class ScrollWidgetView extends Scroll
 	 Zoom80;	 
 	 Zoom100;	 
  }
+*/

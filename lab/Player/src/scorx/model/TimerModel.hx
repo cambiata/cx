@@ -9,7 +9,6 @@ import msignal.Signal;
 
 class TimerModel 
 {	
-	@inject public var debug:Debug;
 	
 	private var timer:Timer;
 	public var update:Signal1<Int>;
@@ -24,7 +23,7 @@ class TimerModel
 	private function onUpdate() 
 	{
 		this.position++;
-		debug.log('onUpdate ' + this.position);
+		Debug.log('onUpdate ' + this.position);
 		this.update.dispatch(position);
 	}
 	

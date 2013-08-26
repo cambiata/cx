@@ -7,11 +7,11 @@
     <movie path="bin\ScorxPrintManager.swf" />
     <movie fps="30" />
     <movie width="800" />
-    <movie height="600" />
+    <movie height="500" />
     <movie version="3" />
     <movie minorVersion="7" />
     <movie platform="AIR" />
-    <movie background="#FFFFFF" />
+    <movie background="#003C4F" />
   </output>
   <!-- Other classes to be compiled into your SWF -->
   <classpaths>

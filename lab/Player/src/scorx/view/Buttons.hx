@@ -6,8 +6,7 @@ import scorx.controller.LoadPages;
 import scorx.controller.Play;
 import scorx.controller.Stop;
 import scorx.model.Configuration;
-import scorx.model.Debug;
-import sx.data.ScoreLoader.ScoreLoadingType;
+import sx.data.ScoreLoadingType;
 import sx.mvc.view.VBoxView;
 
 
@@ -100,15 +99,15 @@ class ButtonsMediator extends mmvc.impl.Mediator<ButtonsView>
 		});
 
 		// mediate signals from controllers		
-		mediate(loadPages.completed.addOnce(function() {
-			debug.log('ButtonsMediator is notified : loadPages.completed!');
+		mediate(loadPages.completed.addOnce(function(nrOfPages:Int) {
+			Debug.log('ButtonsMediator is notified : loadPages.completed! - $nrOfPages pages');
 		}));		
 		
 		mediate(this.config.updated.add(function() {
-			debug.log('ButtonsMediator is notified : configModel.updated!');			
-			debug.log(config.host);
-			debug.log(config.productId);
-			debug.log(config.userId);
+			Debug.log('ButtonsMediator is notified : configModel.updated!');			
+			Debug.log(config.host);
+			Debug.log(config.productId);
+			Debug.log(config.userId);
 			this.view.txtInfo.text = config.productId + ':' + config.userId;
 		}));
 		

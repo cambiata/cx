@@ -15,6 +15,24 @@
 			format-size      = "14"
 			format-color     = "0x000000"
 		/>
+		
+		<Header
+			label-selectable = "false"
+			format-font	 = "'Arial'"
+			format-size      = "20"			
+			format-color     = "0xFF0000"
+		/>
+		
+		<Title
+		    filters="[new flash.filters.DropShadowFilter()]"
+		    label-selectable="false"
+		    mouseEnabled="false"
+		    format-size="30"
+		    format-color="0xffffff"
+		    format-bold="true"
+		/>		
+		
+		
 	</Text>
 	
 	<InputText>
@@ -71,6 +89,15 @@
 			box-padding          	= "5"
 			box-childPadding     	= "5"
 			box-w			= "300"
+			
+			
+			list-skin:Paint-color = "0x000000"
+			list-skin:Paint-alpha = "0.7"
+			list-widthPt="100"
+			list-heightPt="100"
+
+			alignList="false"			
+			
 		/>
 	</Options>		
 	
@@ -89,6 +116,47 @@
 			on-scrollStop  = "$this.vBar.visible = false;"			
 		/>
 	</Scroll>
+		
+	<Toggle>
+		<Default
+			w = "20"
+			h = "20"
+			format-size = "14"
+			format-color = "0xFFFFFF"		    
+			label-embedFonts = "true"
+			skinName = "'button'"
+			skinHoveredName = "'redHovered'"
+			skinPressedName = "'redPressed'"
+
+			states-up-skinName = "'rgbThree'"
+			states-up-text = "'Released state'"
+
+			states-down-skinName = "'rgbOne'"
+			states-down-text = "'Pressed state'"
+		/>
+	</Toggle>	
+	
+    <Checkbox>
+        <Default
+            
+            format-size = "14"
+            format-color = "0xFFFFFF"
+
+	    skin:Paint-color  = "0xdddddd"
+
+        />
+    </Checkbox>	
+	
+    <Progress>
+        <Default
+            h = "20"
+            w = "100"
+            skinName     = "'progress'"
+            bar-skinName = "'progressBar'"
+        />
+    </Progress>    
+    
+    
 	
 </Defaults>
 

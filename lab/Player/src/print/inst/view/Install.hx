@@ -1,10 +1,13 @@
 package print.inst.view;
 
+import ru.stablex.ui.skins.Paint;
 import ru.stablex.ui.UIBuilder;
 import ru.stablex.ui.widgets.Button;
+import ru.stablex.ui.widgets.Text;
 import scorx.model.AirTools;
 import sx.mvc.view.HBoxView;
 import sx.mvc.view.VBoxView;
+import sx.mvc.view.WidgetView;
 
 /**
  * ...
@@ -13,15 +16,31 @@ import sx.mvc.view.VBoxView;
 class InstallView extends VBoxView 
  {
 
-	public var btn:Button;	
+	 public var btn:Button;	
 	
+	public var label:Text;
 	override public function createChildren() 
 	 {
-		this.btn = UIBuilder.create(Button);
-		this.btn.text = "InstallView";
-		this.btn.w = 140;
+		 
+		btn = UIBuilder.create(Button);
+		btn.text = "Click here to install Scorx Print Manager";
+		this.btn.w = Constants.BUTTON_LARGE_W;
+		this.btn.h = Constants.BUTTON_LARGE_H;
+		this.btn.format = Constants.TEXT_FORMAT_BUTTON_LARGE; 
 		this.addChild(this.btn);
+		
+		this.w = Constants.INSTALLER_VIEW_W;
+		this.h = Constants.INSTALLER_VIEW_H;
+		
 	}
+	
+	override public function addSkin()
+	{
+		var skin = new Paint();
+		skin.color = Constants.INSTALLER_VIEW_COLOR;
+		skin.apply(this);				
+	}	
+	
 }
 
 class InstallMediator extends mmvc.impl.Mediator<InstallView>

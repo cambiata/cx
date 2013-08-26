@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <application xmlns="http://ns.adobe.com/air/application/3.7">
   <id>print.mgr.ScorxPrintManager</id>
-  <versionNumber>0.105</versionNumber>
+  <versionNumber>0.301</versionNumber>
   <filename>ScorxPrintManager</filename>
   <name>ScorxPrintManager</name>
   <initialWindow>
@@ -16,7 +16,7 @@
     <x>200</x>
     <y>200</y>
     <width>800</width>
-    <height>600</height>
+    <height>500</height>
   </initialWindow>
   <!-- 
 	More options:
