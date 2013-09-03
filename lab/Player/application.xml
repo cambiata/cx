@@ -22,7 +22,6 @@
 	<haxelib name="msignal" />	
 	<haxelib name="mloader" />	
 	<haxelib name="stablexui" />	
-	<haxelib name="tjson" />	
 	
 	<!-- assets -->
 	<icon path="assets/openfl.svg" />

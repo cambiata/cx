@@ -5,13 +5,11 @@
 -lib msignal
 -lib mloader
 -lib stablexui
--lib tjson
 -cp src
 -cp ../../src
 -D tools=1
--D openfl_ver=1.0.9
+-D openfl_ver=1.0.10
 -D openfl
--D fdb
 -D web
 -dce std
 -swf-version 11

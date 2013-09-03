@@ -16,10 +16,10 @@ class Config
 	
 	//----------------------------------------------------------------------------------------------------------------------
 	
-	public static var MANAGER_APPLICATION_ID:String = "print.mgr.ScorxPrintManager";
+	public static var MANAGER_APPLICATION_ID:String = "print.mgr.PrintMgr";
 	public static var MANAGER_PUBLISHER_ID:String = "";		
-	public static var MANAGER_APPLICATION_URL = "http://dev.korakademin.se/app/ScorxPrintManager.air";	
-	public static var MANAGER_APPLICATION_VERSION:String = "0.303";	
+	public static var MANAGER_APPLICATION_URL = "http://dev.korakademin.se/app/PrintMgr.air";	
+	public static var MANAGER_APPLICATION_VERSION:String = "0.304";	
 	
 	//	
 	static public inline var INVOKER_MESSAGE_PRINTJOB:String = "invokerMessagePrintjob";
