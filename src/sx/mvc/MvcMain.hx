@@ -43,6 +43,8 @@ class MvcMain extends Sprite
 		Lib.current.stage.scaleMode = flash.display.StageScaleMode.NO_SCALE;
 
 		addEventListener(Event.ADDED_TO_STAGE, added);
+		
+		
 	}
 
 	function added(e) 

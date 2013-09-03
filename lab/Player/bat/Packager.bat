@@ -1,10 +1,10 @@
 @echo off
 if not exist %CERT_FILE% goto certificate
-
+echo a
 :: AIR output
 if not exist %AIR_PATH% md %AIR_PATH%
 set OUTPUT=%AIR_PATH%\%AIR_NAME%%AIR_TARGET%.air
-
+echo %OUTPUT%
 :: Package
 echo.
 echo Packaging %AIR_NAME%%AIR_TARGET%.air using certificate %CERT_FILE%...

@@ -21,17 +21,19 @@ class AppBaseContext extends Context
 	
 	override public function startup()
 	{
-		trace('AppContext startup');
+		Debug.log('AppContext startup');				
 		config();
 		init();
 		//mediatorMap.mapView(AppView, AppMediator);
 	}
 	
-	function config() 
+	public function config() 
 	{
+
 	}
 	
-	function init()
+	public function init()
 	{
+
 	}
 }

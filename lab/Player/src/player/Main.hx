@@ -1,53 +1,75 @@
 package player;
 
+
+#if js 
+import js.Browser;
+import js.JQuery;
+#end
+
+import sx.mvc.MvcMain;
+import sx.mvc.app.AppView;
+import sx.mvc.app.base.AppBaseMediator;
+import sx.mvc.app.base.AppBaseContext;
+import flash.Lib;
+import flash.display.Sprite;
+import flash.events.Event;
+import flash.text.TextFormat;
+import ru.stablex.ui.UIBuilder;
+
+import cx.layout.Horizontal;
+import cx.layout.LayoutManager;
+import cx.layout.WidgetItem;
+import cx.layout.Vertical;
+
+import scorx.controller.Confload;
+import scorx.model.Configuration;
+import player.view.ConfigurationView.ConfigurationViewView;
+import player.view.ConfigurationView.ConfigurationViewMediator;
+import scorx.view.Pages.PagesView;
+import scorx.view.Pages.PagesMediator;
+import player.controller.Setzoom;
+import scorx.controller.LoadPages;
+import scorx.controller.LoadPages.LoadPagesCommand;
+
+import scorx.view.Buttons.ButtonsView;
+import scorx.view.Buttons.ButtonsMediator;
+import player.view.Zoom.ZoomView;
+import player.view.Zoom.ZoomMediator;
+import flash.display.StageDisplayState;
+
+/*
 import Config;
 import flash.text.TextField;
 import flash.text.TextFieldAutoSize;
-import player.controller.Setzoom;
 import scorx.controller.LoadChannels.LoadChannelsController;
 import scorx.controller.LoadChannels.LoadChannelsStatus;
 import scorx.data.ChannelsLoader;
 import scorx.model.PlaybackEngine;
 
 import pgr.gconsole.GameConsole;
-import scorx.controller.Confload;
+
 import scorx.controller.Load;
 import scorx.controller.Load.LoadCommand;
-import scorx.controller.LoadPages;
-import scorx.controller.LoadPages.LoadPagesCommand;
 import scorx.controller.LoadChannels.LoadChannelsController;
 import scorx.controller.LoadChannels.LoadChannelsCommand;
 import scorx.controller.Play;
 import scorx.controller.Play.PlayCommand;
 import scorx.controller.Stop;
 import scorx.controller.Stop.StopCommand;
-import scorx.model.Configuration;
 import scorx.model.TimerModel;
-import scorx.view.Buttons.ButtonsView;
-import scorx.view.Buttons.ButtonsMediator;
-import scorx.view.Pages.PagesView;
-import scorx.view.Pages.PagesMediator;
 import sx.data.ScoreLoader;
 import sx.data.ScoreLoadingType;
 
 import player.view.Smallthumbs.SmallthumbsView;
 import player.view.Smallthumbs.SmallthumbsMediator;
-import player.view.Zoom.ZoomView;
-import player.view.Zoom.ZoomMediator;
 import player.view.ConfigurationView.ConfigurationViewView;
 import player.view.ConfigurationView.ConfigurationViewMediator;
 import player.view.PlaybackMixer.PlaybackMixerView;
 import player.view.PlaybackMixer.PlaybackMixerMediator;
 
 
-import ru.stablex.ui.UIBuilder;
-import ru.stablex.ui.widgets.Scroll;
-import ru.stablex.ui.widgets.Button;
 
-import sx.mvc.MvcMain;
-import sx.mvc.app.AppView;
-import sx.mvc.app.base.AppBaseMediator;
-import sx.mvc.app.base.AppBaseContext;
+
 
 import cx.ConfigTools;
 import cx.layout.Horizontal;
@@ -55,11 +77,7 @@ import cx.layout.LayoutManager;
 import cx.layout.WidgetItem;
 import cx.layout.Vertical;
 
-import flash.Lib;
-import flash.events.Event;
-import flash.display.Sprite;
-import flash.text.TextFormat;
-
+*/
  
 /**
  * ...
@@ -70,7 +88,7 @@ import flash.text.TextFormat;
 // AppView
 // Create application user interface here
 //
-
+/*
 class AppMediator extends AppBaseMediator
 {
 
@@ -178,13 +196,10 @@ class AppMediator extends AppBaseMediator
 			
 		});
 		
-		
-		//loadChannelsController.dispatch(loadParameters);
-		
 	}
-		
-	
 }
+
+
 
 //----------------------------------------------------------------
 // AppContext
@@ -203,7 +218,6 @@ class AppContext extends AppBaseContext
 	{
 		injector.mapSingleton(TimerModel);
 		injector.mapSingleton(Configuration);
-		injector.mapSingleton(Debug);		
 		injector.mapSingleton(ScoreLoader);		
 		injector.mapSingleton(ChannelsLoader);		
 		injector.mapSingleton(Setzoom);
@@ -225,13 +239,113 @@ class AppContext extends AppBaseContext
 		mediatorMap.mapView(ZoomView, ZoomMediator);		
 		mediatorMap.mapView(ConfigurationViewView, ConfigurationViewMediator);
 		mediatorMap.mapView(PlaybackMixerView, PlaybackMixerMediator);
-		
-		
 		//---------------------------------------------------------------------------
 		mediatorMap.mapView(sx.mvc.app.AppView, AppMediator);
 	}
 
 }
+*/
+
+
+
+class AppMediator extends AppBaseMediator
+{
+	
+	@inject public var confload:Confload;
+	@inject public var config:Configuration;	
+	@inject public var loadPages:LoadPages;	
+	
+	var layoutManager:LayoutManager;	
+	var viewConfigurationViewView:ConfigurationViewView;	
+	var pagesView:PagesView;	
+	var zoomView:ZoomView;	
+	
+	
+	override function register() 	
+	{
+		Debug.log('register');
+		
+		// autoload pages after configuration model update
+		mediate(this.config.updated.add(function() 
+		{
+			Debug.log('Config loaded!');
+			//this.reload();
+		}));			
+		
+		
+		// Create views
+		this.pagesView = new PagesView();
+		this.view.addChild(this.pagesView);				
+		this.viewConfigurationViewView = new ConfigurationViewView();
+		this.view.addChild(viewConfigurationViewView);			
+		zoomView = new ZoomView();
+		this.view.addChild(zoomView);		
+		
+		// Layout views
+		this.layoutManager = new LayoutManager();
+		//this.layoutManager.add(new WidgetItem(this.buttonsView, Horizontal.RIGHT, Vertical.TOP));
+		//this.layoutManager.add(new WidgetItem(this.smallthumbsView, Horizontal.LEFT, Vertical.STRETCH_MARGIN(0, 30)));
+		//this.layoutManager.add(new WidgetItem(this.zoomView, Horizontal.RIGHT, Vertical.TOP));
+		
+		this.layoutManager.add(new WidgetItem(this.viewConfigurationViewView, Horizontal.LEFT_MARGIN(20), Vertical.BOTTOM_MARGIN(20)));
+		this.layoutManager.add(new WidgetItem(this.zoomView, Horizontal.RIGHT, Vertical.TOP));		
+		//this.layoutManager.add(new WidgetItem(this.viewPlaybackMixerView, Horizontal.RIGHT_MARGIN(4), Vertical.BOTTOM_MARGIN(4)));
+		
+		var pagesItem:WidgetItem = new WidgetItem(this.pagesView, Horizontal.STRETCH_MARGIN(40, 60), Vertical.STRETCH);
+		this.layoutManager.add(pagesItem);
+		pagesItem.afterResize = function (x, y, width, height) 
+		{
+			Debug.log('AppMediator - register - pagesItem.afterResize $width $height');
+			//this.pagesView.afterResize(x, y, width, height);	
+		}		
+		
+		this.layoutManager.resize();		
+		
+		#if js
+		Lib.current.stage.addEventListener(Event.RESIZE, function(e = null) {
+			Debug.log('After resize');
+			Debug.log(Lib.current.stage.displayState);
+			Debug.log(Browser.window.innerWidth);
+			Debug.log(Lib.current.stage.width);
+			Debug.log(Lib.current.stage.stageWidth);						
+			
+			this.layoutManager.resize(Lib.current.stage.stageWidth, Lib.current.stage.stageHeight);
+
+		});
+		#end
+		
+		
+		
+		// kickof configuration
+		this.confload.dispatch();				
+	}
+}
+
+class AppContext extends AppBaseContext
+{
+	override function config() 
+	{			
+		Debug.log('config');
+		UIBuilder.init("../../assets/ui/scorx-defaults.xml");
+		UIBuilder.regSkins("../../assets/ui/scorx-skins.xml");				
+	}
+	
+	override function init() 	
+	{
+		Debug.log('init');		
+		injector.mapSingleton(Configuration);		
+		injector.mapSingleton(Setzoom);		
+
+		commandMap.mapSignalClass(Confload, ConfloadCommand);				
+		commandMap.mapSignalClass(LoadPages, LoadPagesCommand);		
+		
+		mediatorMap.mapView(ZoomView, ZoomMediator);				
+		mediatorMap.mapView(PagesView, PagesMediator);					
+		mediatorMap.mapView(ConfigurationViewView, ConfigurationViewMediator);			
+		mediatorMap.mapView(sx.mvc.app.AppView, AppMediator);
+	}
+}
+
 
 
 //----------------------------------------------------------------
@@ -243,21 +357,7 @@ class Main extends MvcMain
 {
 	static public function main() 	
 	{
-		Lib.current.addChild(new Main());
-		
-		/*
-		var s:Sprite = new Sprite();
-		s.graphics.beginFill(0xFF0000);
-		s.graphics.drawCircle(100, 100, 20);
-		Lib.current.addChild(s);		
-		ConfigTools.loadFlashVars(Config);
-		var t:TextField = new TextField();
-		t.x = 50;
-		t.y = 50;
-		t.autoSize = TextFieldAutoSize.LEFT;
-		t.text = Config.userId + ":" + Config.productId + ":" + Config.host + ":" + Config.playbackLevel + ":" + Config.playbackChannelIds;
-		Lib.current.addChild(t);
-		*/
+		Lib.current.addChild(new Main());		
 	}
 	
 	override function init()

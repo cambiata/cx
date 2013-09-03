@@ -894,7 +894,7 @@ flash.display.DisplayObjectContainer.prototype = $extend(flash.display.Interacti
 		return inValue;
 	}
 	,set_visible: function(inVal) {
-		this.set_nmeCombinedVisible(inVal);
+		this.set_nmeCombinedVisible(this.parent != null?this.parent.nmeCombinedVisible && inVal:inVal);
 		return flash.display.InteractiveObject.prototype.set_visible.call(this,inVal);
 	}
 	,get_numChildren: function() {
@@ -1054,7 +1054,11 @@ flash.display.DisplayObjectContainer.prototype = $extend(flash.display.Interacti
 		if(this.nmeChildren[c2] == null) throw "Null element at index " + c2 + " length " + this.nmeChildren.length;
 		var gfx1 = this.nmeChildren[c1].nmeGetGraphics();
 		var gfx2 = this.nmeChildren[c2].nmeGetGraphics();
-		if(gfx1 != null && gfx2 != null) flash.Lib.nmeSwapSurface(this.nmeChildren[c1].nmeScrollRect == null?gfx1.nmeSurface:this.nmeChildren[c1].nmeGetSrWindow(),this.nmeChildren[c2].nmeScrollRect == null?gfx2.nmeSurface:this.nmeChildren[c2].nmeGetSrWindow());
+		if(gfx1 != null && gfx2 != null) {
+			var surface1 = this.nmeChildren[c1].nmeScrollRect == null?gfx1.nmeSurface:this.nmeChildren[c1].nmeGetSrWindow();
+			var surface2 = this.nmeChildren[c2].nmeScrollRect == null?gfx2.nmeSurface:this.nmeChildren[c2].nmeGetSrWindow();
+			if(surface1 != null && surface2 != null) flash.Lib.nmeSwapSurface(surface1,surface2);
+		}
 	}
 	,nmeRender: function(inMask,clipRect) {
 		if(!this.nmeVisible) return;
@@ -1287,7 +1291,7 @@ var sx = {}
 sx.mvc = {}
 sx.mvc.MvcMain = function() {
 	flash.display.Sprite.call(this);
-	console.log("Hello");
+	console.log("new MvcMain()");
 	flash.Lib.get_current().get_stage().align = flash.display.StageAlign.TOP_LEFT;
 	flash.Lib.get_current().get_stage().scaleMode = flash.display.StageScaleMode.NO_SCALE;
 	this.addEventListener(flash.events.Event.ADDED_TO_STAGE,$bind(this,this.added));
@@ -1343,6 +1347,73 @@ DocumentClass.prototype = $extend(player.Main.prototype,{
 	}
 	,__class__: DocumentClass
 });
+var Config = function() { }
+$hxClasses["Config"] = Config;
+Config.__name__ = ["Config"];
+flash.text = {}
+flash.text.TextFormat = function(in_font,in_size,in_color,in_bold,in_italic,in_underline,in_url,in_target,in_align,in_leftMargin,in_rightMargin,in_indent,in_leading) {
+	this.font = in_font;
+	this.size = in_size;
+	this.color = in_color;
+	this.bold = in_bold;
+	this.italic = in_italic;
+	this.underline = in_underline;
+	this.url = in_url;
+	this.target = in_target;
+	this.align = in_align;
+	this.leftMargin = in_leftMargin;
+	this.rightMargin = in_rightMargin;
+	this.indent = in_indent;
+	this.leading = in_leading;
+};
+$hxClasses["flash.text.TextFormat"] = flash.text.TextFormat;
+flash.text.TextFormat.__name__ = ["flash","text","TextFormat"];
+flash.text.TextFormat.prototype = {
+	clone: function() {
+		var newFormat = new flash.text.TextFormat(this.font,this.size,this.color,this.bold,this.italic,this.underline,this.url,this.target);
+		newFormat.align = this.align;
+		newFormat.leftMargin = this.leftMargin;
+		newFormat.rightMargin = this.rightMargin;
+		newFormat.indent = this.indent;
+		newFormat.leading = this.leading;
+		newFormat.blockIndent = this.blockIndent;
+		newFormat.bullet = this.bullet;
+		newFormat.display = this.display;
+		newFormat.kerning = this.kerning;
+		newFormat.letterSpacing = this.letterSpacing;
+		newFormat.tabStops = this.tabStops;
+		return newFormat;
+	}
+	,url: null
+	,underline: null
+	,target: null
+	,tabStops: null
+	,size: null
+	,rightMargin: null
+	,letterSpacing: null
+	,leftMargin: null
+	,leading: null
+	,kerning: null
+	,italic: null
+	,indent: null
+	,font: null
+	,display: null
+	,color: null
+	,bullet: null
+	,bold: null
+	,blockIndent: null
+	,align: null
+	,__class__: flash.text.TextFormat
+}
+var Constants = function() { }
+$hxClasses["Constants"] = Constants;
+Constants.__name__ = ["Constants"];
+var Debug = function() { }
+$hxClasses["Debug"] = Debug;
+Debug.__name__ = ["Debug"];
+Debug.log = function(value) {
+	console.log(value);
+}
 var EReg = function(r,opt) {
 	opt = opt.split("u").join("");
 	this.r = new RegExp(r,opt);
@@ -1565,7 +1636,7 @@ NMEPreloader.prototype = $extend(flash.display.Sprite.prototype,{
 	,onInit: function() {
 	}
 	,getWidth: function() {
-		var width = 800;
+		var width = 600;
 		if(width > 0) return width; else return flash.Lib.get_current().get_stage().get_stageWidth();
 	}
 	,getHeight: function() {
@@ -1665,7 +1736,10 @@ var StringBuf = function() {
 $hxClasses["StringBuf"] = StringBuf;
 StringBuf.__name__ = ["StringBuf"];
 StringBuf.prototype = {
-	b: null
+	addSub: function(s,pos,len) {
+		this.b += len == null?HxOverrides.substr(s,pos,null):HxOverrides.substr(s,pos,len);
+	}
+	,b: null
 	,__class__: StringBuf
 }
 var StringTools = function() { }
@@ -1679,6 +1753,11 @@ StringTools.urlDecode = function(s) {
 }
 StringTools.startsWith = function(s,start) {
 	return s.length >= start.length && HxOverrides.substr(s,0,start.length) == start;
+}
+StringTools.endsWith = function(s,end) {
+	var elen = end.length;
+	var slen = s.length;
+	return slen >= elen && HxOverrides.substr(s,slen - elen,elen) == end;
 }
 StringTools.isSpace = function(s,pos) {
 	var c = HxOverrides.cca(s,pos);
@@ -1909,6 +1988,23 @@ cx.ConfigTools.initField = function(configObject,field,valueString,arrayDelimite
 			cx.ConfigTools.setFieldValue(configObject,field,values1);
 		}
 	}
+}
+cx.EnumTools = function() { }
+$hxClasses["cx.EnumTools"] = cx.EnumTools;
+cx.EnumTools.__name__ = ["cx","EnumTools"];
+cx.EnumTools.createFromString = function(e,str) {
+	try {
+		var type = str;
+		var params = [];
+		if(cx.StrTools.has(str,"(")) {
+			var parIdx = str.indexOf("(");
+			type = HxOverrides.substr(str,0,parIdx);
+			params = StringTools.replace(StringTools.replace(HxOverrides.substr(str,parIdx,null),"(",""),")","").split(",");
+		}
+		return Type.createEnum(e,type,params);
+	} catch( e1 ) {
+	}
+	return null;
 }
 cx.ReflectTools = function() { }
 $hxClasses["cx.ReflectTools"] = cx.ReflectTools;
@@ -2173,6 +2269,34 @@ cx.TimerTools.timer = function(func,milliSeconds) {
 	timer.run = func;
 	return timer;
 }
+cx.WebTools = function() { }
+$hxClasses["cx.WebTools"] = cx.WebTools;
+cx.WebTools.__name__ = ["cx","WebTools"];
+cx.WebTools.stripBaseDirAndIndexFile = function(uri,baseDir,indexFile) {
+	return StringTools.replace(StringTools.replace(StringTools.replace(uri,baseDir,""),indexFile,""),"//","");
+}
+cx.WebTools.domainparts = function(hostname) {
+	var parts = hostname.split(".");
+	if(parts.length == 1) parts.push("");
+	if(parts.length == 2) parts.unshift("");
+	if(parts[0] == "dev") parts[0] = "";
+	return { topdomain : parts[2], maindomain : parts[1], subdomain : parts[0], subMain : parts[0] > ""?parts[0] + "." + parts[1]:parts[1], mainTop : parts[2] > ""?parts[1] + "." + parts[2]:parts[1]};
+}
+cx.WebTools.slashToUnderscores = function(str) {
+	return StringTools.replace(str,"/","_");
+}
+cx.WebTools.underscoreToSlash = function(str) {
+	return StringTools.replace(str,"_","/");
+}
+cx.WebTools.addSlash = function(str) {
+	if(!StringTools.endsWith(str,"/")) str += "/";
+	return str;
+}
+cx.WebTools.addHttpPrefix = function(host) {
+	console.log(StringTools.startsWith(host,cx.WebTools.HTTP_PREFIX));
+	if(!StringTools.startsWith(host,cx.WebTools.HTTP_PREFIX)) return cx.WebTools.HTTP_PREFIX + host;
+	return host;
+}
 cx.flash = {}
 cx.flash.graphic = {}
 cx.flash.graphic.GraphicTools = function() { }
@@ -2356,7 +2480,7 @@ cx.flash.ui.UIProgress.__name__ = ["cx","flash","ui","UIProgress"];
 cx.flash.ui.UIProgress.__super__ = flash.display.Sprite;
 cx.flash.ui.UIProgress.prototype = $extend(flash.display.Sprite.prototype,{
 	spinStop: function() {
-		if(this.spinTimer != null) this.spinTimer.stop();
+		this.removeEventListener(flash.events.Event.ENTER_FRAME,$bind(this,this.onEnterFrame));
 	}
 	,show: function(val) {
 		if(val == null) val = 0;
@@ -2386,7 +2510,6 @@ cx.flash.ui.UIProgress.prototype = $extend(flash.display.Sprite.prototype,{
 		this.show();
 		this.addEventListener(flash.events.Event.ENTER_FRAME,$bind(this,this.onEnterFrame),false,0,true);
 	}
-	,spinTimer: null
 	,v: null
 	,set_value: function(val) {
 		this.frontSprite.get_graphics().clear();
@@ -2537,7 +2660,7 @@ cx.layout.WidgetItem.prototype = {
 			break;
 		case 5:
 			var margin = $e[2];
-			this.target.set_w(margin);
+			this.target.set_x(margin);
 			break;
 		case 6:
 			var margin = $e[2];
@@ -2545,7 +2668,7 @@ cx.layout.WidgetItem.prototype = {
 			break;
 		case 7:
 			var rightMargin = $e[3], leftMargin = $e[2];
-			this.target.set_x(leftMargin + leftMargin);
+			this.target.set_x(leftMargin);
 			this.target.set_w(stageWidth - leftMargin - rightMargin);
 			break;
 		}
@@ -2643,7 +2766,7 @@ flash.Lib.getTimer = function() {
 	return (haxe.Timer.stamp() - flash.Lib.starttime) * 1000 | 0;
 }
 flash.Lib.getURL = function(request,target) {
-	document.open(request.url);
+	window.open(request.url);
 }
 flash.Lib.nmeAppendSurface = function(surface,before,after) {
 	if(flash.Lib.mMe.__scr != null) {
@@ -3053,20 +3176,17 @@ flash.Lib.Run = function(tgt,width,height) {
 			if(attr.name == "data-" + "framerate") flash.Lib.nmeGetStage().set_frameRate(Std.parseFloat(attr.value));
 		}
 	}
-	if(Reflect.hasField(tgt,"on" + flash.Lib.HTML_TOUCH_EVENT_TYPES[0])) {
-		var _g = 0, _g1 = flash.Lib.HTML_TOUCH_EVENT_TYPES;
-		while(_g < _g1.length) {
-			var type = _g1[_g];
-			++_g;
-			tgt.addEventListener(type,($_=flash.Lib.nmeGetStage(),$bind($_,$_.nmeQueueStageEvent)),true);
-		}
-	} else {
-		var _g = 0, _g1 = flash.Lib.HTML_TOUCH_ALT_EVENT_TYPES;
-		while(_g < _g1.length) {
-			var type = _g1[_g];
-			++_g;
-			tgt.addEventListener(type,($_=flash.Lib.nmeGetStage(),$bind($_,$_.nmeQueueStageEvent)),true);
-		}
+	var _g = 0, _g1 = flash.Lib.HTML_TOUCH_EVENT_TYPES;
+	while(_g < _g1.length) {
+		var type = _g1[_g];
+		++_g;
+		tgt.addEventListener(type,($_=flash.Lib.nmeGetStage(),$bind($_,$_.nmeQueueStageEvent)),true);
+	}
+	var _g = 0, _g1 = flash.Lib.HTML_TOUCH_ALT_EVENT_TYPES;
+	while(_g < _g1.length) {
+		var type = _g1[_g];
+		++_g;
+		tgt.addEventListener(type,($_=flash.Lib.nmeGetStage(),$bind($_,$_.nmeQueueStageEvent)),true);
 	}
 	var _g = 0, _g1 = flash.Lib.HTML_DIV_EVENT_TYPES;
 	while(_g < _g1.length) {
@@ -3093,16 +3213,6 @@ flash.Lib.Run = function(tgt,width,height) {
 	flash.Lib.get_current().get_graphics().drawRect(0,0,width,height);
 	flash.Lib.nmeSetSurfaceId(flash.Lib.get_current().get_graphics().nmeSurface,"Root MovieClip");
 	flash.Lib.nmeGetStage().nmeUpdateNextWake();
-	try {
-		var winParameters = js.Browser.window.winParameters();
-		var _g = 0, _g1 = Reflect.fields(winParameters);
-		while(_g < _g1.length) {
-			var prop = _g1[_g];
-			++_g;
-			flash.Lib.get_current().loaderInfo.parameters[prop] = Reflect.field(winParameters,prop);
-		}
-	} catch( e ) {
-	}
 	return flash.Lib.mMe;
 }
 flash.Lib.setUserScalable = function(isScalable) {
@@ -3113,6 +3223,9 @@ flash.Lib.setUserScalable = function(isScalable) {
 }
 flash.Lib.trace = function(arg) {
 	if(window.console != null) window.console.log(arg);
+}
+flash.Lib.addCallback = function(functionName,closure) {
+	flash.Lib.mMe.__scr[functionName] = closure;
 }
 flash.Lib.get_current = function() {
 	if(flash.Lib.mMainClassRoot == null) {
@@ -4402,7 +4515,7 @@ flash.display.Graphics.prototype = {
 		}
 		ctx.restore();
 		this.nmeChanged = false;
-		this.nextDrawIndex = len;
+		this.nextDrawIndex = len > 0?len - 1:0;
 		this.mDrawList = [];
 		return true;
 	}
@@ -5778,7 +5891,8 @@ flash.display.Stage.prototype = $extend(flash.display.DisplayObjectContainer.pro
 		return this.nmeBackgroundColour;
 	}
 	,nmeOnTouch: function(event,touch,type,touchInfo,isPrimaryTouchPoint) {
-		var point = new flash.geom.Point(touch.pageX - flash.Lib.mMe.__scr.offsetLeft + window.pageXOffset,touch.pageY - flash.Lib.mMe.__scr.offsetTop + window.pageYOffset);
+		var rect = flash.Lib.mMe.__scr.getBoundingClientRect();
+		var point = new flash.geom.Point(touch.pageX - rect.left,touch.pageY - rect.top);
 		var obj = this.nmeGetObjectUnderPoint(point);
 		this._mouseX = point.x;
 		this._mouseY = point.y;
@@ -5827,7 +5941,8 @@ flash.display.Stage.prototype = $extend(flash.display.DisplayObjectContainer.pro
 		this.nmeBroadcast(event);
 	}
 	,nmeOnMouse: function(event,type) {
-		var point = new flash.geom.Point(event.clientX - flash.Lib.mMe.__scr.offsetLeft + window.pageXOffset,event.clientY - flash.Lib.mMe.__scr.offsetTop + window.pageYOffset);
+		var rect = flash.Lib.mMe.__scr.getBoundingClientRect();
+		var point = new flash.geom.Point(event.clientX - rect.left,event.clientY - rect.top);
 		if(this.nmeDragObject != null) this.nmeDrag(point);
 		var obj = this.nmeGetObjectUnderPoint(point);
 		this._mouseX = point.x;
@@ -5994,11 +6109,13 @@ flash.display.Stage.prototype = $extend(flash.display.DisplayObjectContainer.pro
 			break;
 		case "touchmove":
 			var evt1 = evt;
+			evt1.preventDefault();
 			var touchInfo = this.nmeTouchInfo[evt1.changedTouches[0].identifier];
 			this.nmeOnTouch(evt1,evt1.changedTouches[0],"touchMove",touchInfo,true);
 			break;
 		case "touchend":
 			var evt1 = evt;
+			evt1.preventDefault();
 			var touchInfo = this.nmeTouchInfo[evt1.changedTouches[0].identifier];
 			this.nmeOnTouch(evt1,evt1.changedTouches[0],"touchEnd",touchInfo,true);
 			this.nmeTouchInfo[evt1.changedTouches[0].identifier] = null;
@@ -7266,6 +7383,12 @@ flash.media.SoundLoaderContext.prototype = {
 flash.media.SoundTransform = function(vol,panning) {
 	if(panning == null) panning = 0;
 	if(vol == null) vol = 1;
+	this.volume = vol;
+	this.pan = panning;
+	this.leftToLeft = 0;
+	this.leftToRight = 0;
+	this.rightToLeft = 0;
+	this.rightToRight = 0;
 };
 $hxClasses["flash.media.SoundTransform"] = flash.media.SoundTransform;
 flash.media.SoundTransform.__name__ = ["flash","media","SoundTransform"];
@@ -7554,7 +7677,6 @@ flash.system.SecurityDomain.__name__ = ["flash","system","SecurityDomain"];
 flash.system.SecurityDomain.prototype = {
 	__class__: flash.system.SecurityDomain
 }
-flash.text = {}
 flash.text.Font = function() {
 	this.nmeMetrics = [];
 	this.nmeFontScale = 9.0;
@@ -8323,60 +8445,6 @@ flash.text.TextFieldType.__name__ = ["flash","text","TextFieldType"];
 flash.text.TextFieldType.prototype = {
 	__class__: flash.text.TextFieldType
 }
-flash.text.TextFormat = function(in_font,in_size,in_color,in_bold,in_italic,in_underline,in_url,in_target,in_align,in_leftMargin,in_rightMargin,in_indent,in_leading) {
-	this.font = in_font;
-	this.size = in_size;
-	this.color = in_color;
-	this.bold = in_bold;
-	this.italic = in_italic;
-	this.underline = in_underline;
-	this.url = in_url;
-	this.target = in_target;
-	this.align = in_align;
-	this.leftMargin = in_leftMargin;
-	this.rightMargin = in_rightMargin;
-	this.indent = in_indent;
-	this.leading = in_leading;
-};
-$hxClasses["flash.text.TextFormat"] = flash.text.TextFormat;
-flash.text.TextFormat.__name__ = ["flash","text","TextFormat"];
-flash.text.TextFormat.prototype = {
-	clone: function() {
-		var newFormat = new flash.text.TextFormat(this.font,this.size,this.color,this.bold,this.italic,this.underline,this.url,this.target);
-		newFormat.align = this.align;
-		newFormat.leftMargin = this.leftMargin;
-		newFormat.rightMargin = this.rightMargin;
-		newFormat.indent = this.indent;
-		newFormat.leading = this.leading;
-		newFormat.blockIndent = this.blockIndent;
-		newFormat.bullet = this.bullet;
-		newFormat.display = this.display;
-		newFormat.kerning = this.kerning;
-		newFormat.letterSpacing = this.letterSpacing;
-		newFormat.tabStops = this.tabStops;
-		return newFormat;
-	}
-	,url: null
-	,underline: null
-	,target: null
-	,tabStops: null
-	,size: null
-	,rightMargin: null
-	,letterSpacing: null
-	,leftMargin: null
-	,leading: null
-	,kerning: null
-	,italic: null
-	,indent: null
-	,font: null
-	,display: null
-	,color: null
-	,bullet: null
-	,bold: null
-	,blockIndent: null
-	,align: null
-	,__class__: flash.text.TextFormat
-}
 flash.text.TextFormatAlign = $hxClasses["flash.text.TextFormatAlign"] = { __ename__ : true, __constructs__ : ["LEFT","RIGHT","JUSTIFY","CENTER"] }
 flash.text.TextFormatAlign.LEFT = ["LEFT",0];
 flash.text.TextFormatAlign.LEFT.toString = $estr;
@@ -8912,11 +8980,200 @@ haxe.Json = function() {
 };
 $hxClasses["haxe.Json"] = haxe.Json;
 haxe.Json.__name__ = ["haxe","Json"];
+haxe.Json.parse = function(text) {
+	return new haxe.Json().doParse(text);
+}
 haxe.Json.stringify = function(value,replacer) {
 	return new haxe.Json().toString(value,replacer);
 }
 haxe.Json.prototype = {
-	quote: function(s) {
+	parseNumber: function(c) {
+		var start = this.pos - 1;
+		var minus = c == 45, digit = !minus, zero = c == 48;
+		var point = false, e = false, pm = false, end = false;
+		while(true) {
+			c = this.str.charCodeAt(this.pos++);
+			switch(c) {
+			case 48:
+				if(zero && !point) this.invalidNumber(start);
+				if(minus) {
+					minus = false;
+					zero = true;
+				}
+				digit = true;
+				break;
+			case 49:case 50:case 51:case 52:case 53:case 54:case 55:case 56:case 57:
+				if(zero && !point) this.invalidNumber(start);
+				if(minus) minus = false;
+				digit = true;
+				zero = false;
+				break;
+			case 46:
+				if(minus || point) this.invalidNumber(start);
+				digit = false;
+				point = true;
+				break;
+			case 101:case 69:
+				if(minus || zero || e) this.invalidNumber(start);
+				digit = false;
+				e = true;
+				break;
+			case 43:case 45:
+				if(!e || pm) this.invalidNumber(start);
+				digit = false;
+				pm = true;
+				break;
+			default:
+				if(!digit) this.invalidNumber(start);
+				this.pos--;
+				end = true;
+			}
+			if(end) break;
+		}
+		var f = Std.parseFloat(HxOverrides.substr(this.str,start,this.pos - start));
+		var i = f | 0;
+		return i == f?i:f;
+	}
+	,invalidNumber: function(start) {
+		throw "Invalid number at position " + start + ": " + HxOverrides.substr(this.str,start,this.pos - start);
+	}
+	,parseString: function() {
+		var start = this.pos;
+		var buf = new StringBuf();
+		while(true) {
+			var c = this.str.charCodeAt(this.pos++);
+			if(c == 34) break;
+			if(c == 92) {
+				buf.addSub(this.str,start,this.pos - start - 1);
+				c = this.str.charCodeAt(this.pos++);
+				switch(c) {
+				case 114:
+					buf.b += "\r";
+					break;
+				case 110:
+					buf.b += "\n";
+					break;
+				case 116:
+					buf.b += "\t";
+					break;
+				case 98:
+					buf.b += "";
+					break;
+				case 102:
+					buf.b += "";
+					break;
+				case 47:case 92:case 34:
+					buf.b += String.fromCharCode(c);
+					break;
+				case 117:
+					var uc = Std.parseInt("0x" + HxOverrides.substr(this.str,this.pos,4));
+					this.pos += 4;
+					buf.b += String.fromCharCode(uc);
+					break;
+				default:
+					throw "Invalid escape sequence \\" + String.fromCharCode(c) + " at position " + (this.pos - 1);
+				}
+				start = this.pos;
+			} else if(c != c) throw "Unclosed string";
+		}
+		buf.addSub(this.str,start,this.pos - start - 1);
+		return buf.b;
+	}
+	,parseRec: function() {
+		while(true) {
+			var c = this.str.charCodeAt(this.pos++);
+			switch(c) {
+			case 32:case 13:case 10:case 9:
+				break;
+			case 123:
+				var obj = { }, field = null, comma = null;
+				while(true) {
+					var c1 = this.str.charCodeAt(this.pos++);
+					switch(c1) {
+					case 32:case 13:case 10:case 9:
+						break;
+					case 125:
+						if(field != null || comma == false) this.invalidChar();
+						return obj;
+					case 58:
+						if(field == null) this.invalidChar();
+						obj[field] = this.parseRec();
+						field = null;
+						comma = true;
+						break;
+					case 44:
+						if(comma) comma = false; else this.invalidChar();
+						break;
+					case 34:
+						if(comma) this.invalidChar();
+						field = this.parseString();
+						break;
+					default:
+						this.invalidChar();
+					}
+				}
+				break;
+			case 91:
+				var arr = [], comma = null;
+				while(true) {
+					var c1 = this.str.charCodeAt(this.pos++);
+					switch(c1) {
+					case 32:case 13:case 10:case 9:
+						break;
+					case 93:
+						if(comma == false) this.invalidChar();
+						return arr;
+					case 44:
+						if(comma) comma = false; else this.invalidChar();
+						break;
+					default:
+						if(comma) this.invalidChar();
+						this.pos--;
+						arr.push(this.parseRec());
+						comma = true;
+					}
+				}
+				break;
+			case 116:
+				var save = this.pos;
+				if(this.str.charCodeAt(this.pos++) != 114 || this.str.charCodeAt(this.pos++) != 117 || this.str.charCodeAt(this.pos++) != 101) {
+					this.pos = save;
+					this.invalidChar();
+				}
+				return true;
+			case 102:
+				var save = this.pos;
+				if(this.str.charCodeAt(this.pos++) != 97 || this.str.charCodeAt(this.pos++) != 108 || this.str.charCodeAt(this.pos++) != 115 || this.str.charCodeAt(this.pos++) != 101) {
+					this.pos = save;
+					this.invalidChar();
+				}
+				return false;
+			case 110:
+				var save = this.pos;
+				if(this.str.charCodeAt(this.pos++) != 117 || this.str.charCodeAt(this.pos++) != 108 || this.str.charCodeAt(this.pos++) != 108) {
+					this.pos = save;
+					this.invalidChar();
+				}
+				return null;
+			case 34:
+				return this.parseString();
+			case 48:case 49:case 50:case 51:case 52:case 53:case 54:case 55:case 56:case 57:case 45:
+				return this.parseNumber(c);
+			default:
+				this.invalidChar();
+			}
+		}
+	}
+	,invalidChar: function() {
+		this.pos--;
+		throw "Invalid char " + this.str.charCodeAt(this.pos) + " at position " + this.pos;
+	}
+	,doParse: function(str) {
+		this.str = str;
+		this.pos = 0;
+		return this.parseRec();
+	}
+	,quote: function(s) {
 		this.buf.b += "\"";
 		var i = 0;
 		while(true) {
@@ -9037,6 +9294,8 @@ haxe.Json.prototype = {
 		return this.buf.b;
 	}
 	,replacer: null
+	,pos: null
+	,str: null
 	,buf: null
 	,__class__: haxe.Json
 }
@@ -11042,6 +11301,44 @@ mloader.ImageLoader.prototype = $extend(mloader.LoaderBase.prototype,{
 	,loader: null
 	,__class__: mloader.ImageLoader
 });
+mloader.JsonLoader = function(url,http) {
+	mloader.HttpLoader.call(this,url,http);
+};
+$hxClasses["mloader.JsonLoader"] = mloader.JsonLoader;
+mloader.JsonLoader.__name__ = ["mloader","JsonLoader"];
+mloader.JsonLoader.__super__ = mloader.HttpLoader;
+mloader.JsonLoader.prototype = $extend(mloader.HttpLoader.prototype,{
+	httpData: function(data) {
+		var raw = null;
+		try {
+			raw = haxe.Json.parse(data);
+		} catch( e ) {
+			this.loaderFail(mloader.LoaderErrorType.Format(Std.string(e)));
+			return;
+		}
+		if(this.parseData == null) {
+			this.content = raw;
+			this.loaderComplete();
+			return;
+		}
+		try {
+			this.content = this.parseData(raw);
+			this.loaderComplete();
+		} catch( $e0 ) {
+			if( js.Boot.__instanceof($e0,mloader.LoaderErrorType) ) {
+				var loaderError = $e0;
+				this.loaderFail(loaderError);
+				return;
+			} else {
+			var e = $e0;
+			this.loaderFail(mloader.LoaderErrorType.Data(Std.string(e),data));
+			return;
+			}
+		}
+	}
+	,parseData: null
+	,__class__: mloader.JsonLoader
+});
 mloader.LoaderEventType = $hxClasses["mloader.LoaderEventType"] = { __ename__ : true, __constructs__ : ["Start","Cancel","Progress","Complete","Fail"] }
 mloader.LoaderEventType.Start = ["Start",0];
 mloader.LoaderEventType.Start.toString = $estr;
@@ -12039,6 +12336,7 @@ motion.actuators.SimpleActuator.stage_onEnterFrame = function(event) {
 	var currentTime = flash.Lib.getTimer() / 1000;
 	var actuator;
 	var j = 0;
+	var cleanup = false;
 	var _g1 = 0, _g = motion.actuators.SimpleActuator.actuatorsLength;
 	while(_g1 < _g) {
 		var i = _g1++;
@@ -12068,7 +12366,7 @@ motion.actuators.SimpleActuator.prototype = $extend(motion.actuators.GenericActu
 				while(_g1 < _g) {
 					var i1 = _g1++;
 					details = this.propertyDetails[i1];
-					if(details.isField) details.target[details.propertyName] = details.start + details.change * easing; else Reflect.setProperty(details.target,details.propertyName,details.start + details.change * easing);
+					this.setField(details,details.start + details.change * easing);
 				}
 			} else {
 				if(!this._reverse) easing = this._ease.calculate(tweenPosition); else easing = this._ease.calculate(1 - tweenPosition);
@@ -12084,7 +12382,7 @@ motion.actuators.SimpleActuator.prototype = $extend(motion.actuators.GenericActu
 					} else endValue = details.start + details.change * easing;
 					if(!this._snapping) {
 						if(details.isField) details.target[details.propertyName] = endValue; else Reflect.setProperty(details.target,details.propertyName,endValue);
-					} else if(details.isField) details.target[details.propertyName] = Math.round(endValue); else Reflect.setProperty(details.target,details.propertyName,Math.round(endValue));
+					} else this.setField(details,Math.round(endValue));
 				}
 			}
 			if(tweenPosition == 1) {
@@ -12124,6 +12422,9 @@ motion.actuators.SimpleActuator.prototype = $extend(motion.actuators.GenericActu
 				}
 			}
 		}
+	}
+	,setField: function(details,value) {
+		if(details.isField) details.target[details.propertyName] = value; else Reflect.setProperty(details.target,details.propertyName,value);
 	}
 	,resume: function() {
 		if(this.paused) {
@@ -13822,7 +14123,7 @@ msignal.SlotList.prototype = {
 		var subClone = wholeClone;
 		var current = this.tail;
 		while(current.nonEmpty) {
-			if(priority >= current.head.priority) {
+			if(priority > current.head.priority) {
 				subClone.tail = current.prepend(slot);
 				return wholeClone;
 			}
@@ -13923,14 +14224,6 @@ openfl.Assets.getFont = function(id) {
 	if(nme.AssetData.type.exists(id) && nme.AssetData.type.get(id) == openfl.AssetType.FONT) return js.Boot.__cast(Type.createInstance(nme.AssetData.className.get(id),[]) , flash.text.Font); else console.log("[openfl.Assets] There is no Font asset with an ID of \"" + id + "\"");
 	return null;
 }
-openfl.Assets.getMovieClip = function(id) {
-	openfl.Assets.initialize();
-	var libraryName = HxOverrides.substr(id,0,id.indexOf(":"));
-	var symbolName = HxOverrides.substr(id,id.indexOf(":") + 1,null);
-	if(nme.AssetData.library.exists(libraryName)) {
-	} else console.log("[openfl.Assets] There is no asset library named \"" + libraryName + "\"");
-	return null;
-}
 openfl.Assets.getSound = function(id) {
 	openfl.Assets.initialize();
 	if(nme.AssetData.type.exists(id)) {
@@ -13945,11 +14238,13 @@ openfl.Assets.getText = function(id) {
 	if(bytes == null) return null; else return bytes.readUTFBytes(bytes.length);
 }
 openfl.Assets.resolveClass = function(name) {
-	name = StringTools.replace(name,"native.","browser.");
+	name = StringTools.replace(name,"native.","flash.");
+	name = StringTools.replace(name,"browser.","flash.");
 	return Type.resolveClass(name);
 }
 openfl.Assets.resolveEnum = function(name) {
-	name = StringTools.replace(name,"native.","browser.");
+	name = StringTools.replace(name,"native.","flash.");
+	name = StringTools.replace(name,"browser.","flash.");
 	return Type.resolveEnum(name);
 }
 openfl.Assets.get_id = function() {
@@ -13993,11 +14288,14 @@ openfl.AssetType.SOUND.__enum__ = openfl.AssetType;
 openfl.AssetType.TEXT = ["TEXT",5];
 openfl.AssetType.TEXT.toString = $estr;
 openfl.AssetType.TEXT.__enum__ = openfl.AssetType;
-openfl.LibraryType = $hxClasses["openfl.LibraryType"] = { __ename__ : true, __constructs__ : ["SWF","XFL"] }
+openfl.LibraryType = $hxClasses["openfl.LibraryType"] = { __ename__ : true, __constructs__ : ["SWF","SWF_LITE","XFL"] }
 openfl.LibraryType.SWF = ["SWF",0];
 openfl.LibraryType.SWF.toString = $estr;
 openfl.LibraryType.SWF.__enum__ = openfl.LibraryType;
-openfl.LibraryType.XFL = ["XFL",1];
+openfl.LibraryType.SWF_LITE = ["SWF_LITE",1];
+openfl.LibraryType.SWF_LITE.toString = $estr;
+openfl.LibraryType.SWF_LITE.__enum__ = openfl.LibraryType;
+openfl.LibraryType.XFL = ["XFL",2];
 openfl.LibraryType.XFL.toString = $estr;
 openfl.LibraryType.XFL.__enum__ = openfl.LibraryType;
 openfl.display = {}
@@ -14670,9 +14968,6 @@ pgr.gconsole.GameConsole.toFront = function() {
 pgr.gconsole.GameConsole.checkInstance = function() {
 	if(pgr.gconsole.GConsole.instance == null) pgr.gconsole.GameConsole.init();
 }
-player.Config = function() { }
-$hxClasses["player.Config"] = player.Config;
-player.Config.__name__ = ["player","Config"];
 sx.mvc.app = {}
 sx.mvc.app.base = {}
 sx.mvc.app.base.AppBaseMediator = function() {
@@ -14698,29 +14993,42 @@ player.AppMediator.__super__ = sx.mvc.app.base.AppBaseMediator;
 player.AppMediator.prototype = $extend(sx.mvc.app.base.AppBaseMediator.prototype,{
 	register: function() {
 		var _g = this;
-		this.configuration.dispatch();
-		console.log(this.config.HOST);
-		console.log(this.product.productId);
-		console.log(this.product.userId);
-		this.buttonsView = new player.view.ButtonsView();
-		this.pagesView = new player.view.PagesView();
-		this.view.addChild(this.buttonsView);
+		Debug.log("register");
+		this.mediate(this.config.updated.add(function() {
+			Debug.log("Config loaded!");
+		}));
+		this.pagesView = new scorx.view.PagesView();
 		this.view.addChild(this.pagesView);
+		this.viewConfigurationViewView = new player.view.ConfigurationViewView();
+		this.view.addChild(this.viewConfigurationViewView);
+		this.zoomView = new player.view.ZoomView();
+		this.view.addChild(this.zoomView);
 		this.layoutManager = new cx.layout.LayoutManager();
-		this.layoutManager.add(new cx.layout.WidgetItem(this.buttonsView,cx.layout.Horizontal.CENTER,cx.layout.Vertical.BOTTOM));
-		var pagesItem = new cx.layout.WidgetItem(this.pagesView,cx.layout.Horizontal.STRETCH_MARGIN(0,100),cx.layout.Vertical.STRETCH_MARGIN(0,40));
+		this.layoutManager.add(new cx.layout.WidgetItem(this.viewConfigurationViewView,cx.layout.Horizontal.LEFT_MARGIN(20),cx.layout.Vertical.BOTTOM_MARGIN(20)));
+		this.layoutManager.add(new cx.layout.WidgetItem(this.zoomView,cx.layout.Horizontal.RIGHT,cx.layout.Vertical.TOP));
+		var pagesItem = new cx.layout.WidgetItem(this.pagesView,cx.layout.Horizontal.STRETCH_MARGIN(40,60),cx.layout.Vertical.STRETCH);
 		this.layoutManager.add(pagesItem);
 		pagesItem.afterResize = function(x,y,width,height) {
-			_g.pagesView.afterResize(x,y,width,height);
+			Debug.log("AppMediator - register - pagesItem.afterResize " + width + " " + height);
 		};
 		this.layoutManager.resize();
+		flash.Lib.get_current().get_stage().addEventListener(flash.events.Event.RESIZE,function(e) {
+			Debug.log("After resize");
+			Debug.log(flash.Lib.get_current().get_stage().displayState);
+			Debug.log(js.Browser.window.innerWidth);
+			Debug.log(flash.Lib.get_current().get_stage().get_width());
+			Debug.log(flash.Lib.get_current().get_stage().get_stageWidth());
+			_g.layoutManager.resize(flash.Lib.get_current().get_stage().get_stageWidth(),flash.Lib.get_current().get_stage().get_stageHeight());
+		});
+		this.confload.dispatch();
 	}
-	,layoutManager: null
+	,zoomView: null
 	,pagesView: null
-	,buttonsView: null
-	,product: null
+	,viewConfigurationViewView: null
+	,layoutManager: null
+	,loadPages: null
 	,config: null
-	,configuration: null
+	,confload: null
 	,__class__: player.AppMediator
 });
 sx.mvc.app.base.AppBaseContext = function() {
@@ -14737,7 +15045,7 @@ sx.mvc.app.base.AppBaseContext.prototype = $extend(mmvc.impl.Context.prototype,{
 	,config: function() {
 	}
 	,startup: function() {
-		console.log("AppContext startup");
+		Debug.log("AppContext startup");
 		this.config();
 		this.init();
 	}
@@ -14752,22 +15060,18 @@ player.AppContext.__name__ = ["player","AppContext"];
 player.AppContext.__super__ = sx.mvc.app.base.AppBaseContext;
 player.AppContext.prototype = $extend(sx.mvc.app.base.AppBaseContext.prototype,{
 	init: function() {
-		this.get_injector().mapSingleton(player.model.TimerModel);
-		this.get_injector().mapSingleton(player.model.ConfigModel);
-		this.get_injector().mapSingleton(player.model.ProductModel);
-		this.get_injector().mapSingleton(sx.data.ScoreLoader);
-		this.get_commandMap().mapSignalClass(player.controller.Conf,player.controller.ConfCommand);
-		this.get_commandMap().mapSignalClass(player.controller.Load,player.controller.LoadCommand);
-		this.get_commandMap().mapSignalClass(player.controller.LoadPages,player.controller.LoadPagesCommand);
-		this.get_commandMap().mapSignalClass(player.controller.Play,player.controller.PlayCommand);
-		this.get_commandMap().mapSignalClass(player.controller.Stop,player.controller.StopCommand);
-		this.get_mediatorMap().mapView(player.view.ButtonsView,player.view.ButtonsMediator);
-		this.get_mediatorMap().mapView(player.view.PagesView,player.view.PagesMediator);
+		Debug.log("init");
+		this.get_injector().mapSingleton(scorx.model.Configuration);
+		this.get_injector().mapSingleton(player.controller.Setzoom);
+		this.get_commandMap().mapSignalClass(scorx.controller.Confload,scorx.controller.ConfloadCommand);
+		this.get_commandMap().mapSignalClass(scorx.controller.LoadPages,scorx.controller.LoadPagesCommand);
+		this.get_mediatorMap().mapView(player.view.ZoomView,player.view.ZoomMediator);
+		this.get_mediatorMap().mapView(scorx.view.PagesView,scorx.view.PagesMediator);
+		this.get_mediatorMap().mapView(player.view.ConfigurationViewView,player.view.ConfigurationViewMediator);
 		this.get_mediatorMap().mapView(sx.mvc.app.AppView,player.AppMediator);
 	}
 	,config: function() {
-		pgr.gconsole.GameConsole.init(0.33,"DOWN");
-		pgr.gconsole.GameConsole.log("Log this message");
+		Debug.log("config");
 		(function() {
 			flash.Lib.get_current().get_stage().removeEventListener(flash.events.Event.ENTER_FRAME,ru.stablex.ui.UIBuilder.skinQueue);
 			flash.Lib.get_current().get_stage().addEventListener(flash.events.Event.ENTER_FRAME,ru.stablex.ui.UIBuilder.skinQueue);
@@ -14777,6 +15081,22 @@ player.AppContext.prototype = $extend(sx.mvc.app.base.AppBaseContext.prototype,{
 				__ui__widget1.format.color = 0;
 				__ui__widget1.format.font = "Arial";
 				__ui__widget1.format.size = 14;
+				__ui__widget1.label.selectable = false;
+			});
+			ru.stablex.ui.UIBuilder.defaults.get("Text").set("Header",function(__ui__widget0) {
+				var __ui__widget1 = js.Boot.__cast(__ui__widget0 , ru.stablex.ui.widgets.Text);
+				__ui__widget1.format.color = 16711680;
+				__ui__widget1.format.font = "Arial";
+				__ui__widget1.format.size = 20;
+				__ui__widget1.label.selectable = false;
+			});
+			ru.stablex.ui.UIBuilder.defaults.get("Text").set("Title",function(__ui__widget0) {
+				var __ui__widget1 = js.Boot.__cast(__ui__widget0 , ru.stablex.ui.widgets.Text);
+				__ui__widget1.format.bold = true;
+				__ui__widget1.format.color = 16777215;
+				__ui__widget1.format.size = 30;
+				__ui__widget1.mouseEnabled = false;
+				__ui__widget1.set_filters([new flash.filters.DropShadowFilter()]);
 				__ui__widget1.label.selectable = false;
 			});
 			if(!ru.stablex.ui.UIBuilder.defaults.exists("InputText")) ru.stablex.ui.UIBuilder.defaults.set("InputText",new haxe.ds.StringMap());
@@ -14809,15 +15129,18 @@ player.AppContext.prototype = $extend(sx.mvc.app.base.AppBaseContext.prototype,{
 			if(!ru.stablex.ui.UIBuilder.defaults.exists("Options")) ru.stablex.ui.UIBuilder.defaults.set("Options",new haxe.ds.StringMap());
 			ru.stablex.ui.UIBuilder.defaults.get("Options").set("Default",function(__ui__widget0) {
 				var __ui__widget1 = js.Boot.__cast(__ui__widget0 , ru.stablex.ui.widgets.Options);
+				__ui__widget1.list.set_widthPt(100);
 				__ui__widget1.set_padding(12);
 				__ui__widget1.format.color = 16777215;
 				__ui__widget1.format.font = "Arial";
+				__ui__widget1.alignList = false;
 				__ui__widget1.format.size = 14;
 				__ui__widget1.box.set_padding(5);
 				__ui__widget1.box.childPadding = 5;
 				__ui__widget1.set_h(32);
 				__ui__widget1.set_w(300);
 				__ui__widget1.align = "left";
+				__ui__widget1.list.set_heightPt(100);
 				__ui__widget1.box.set_w(300);
 				if(!js.Boot.__instanceof(__ui__widget1.skin,ru.stablex.ui.skins.Paint)) {
 					__ui__widget1.skin = new ru.stablex.ui.skins.Paint();
@@ -14839,9 +15162,20 @@ player.AppContext.prototype = $extend(sx.mvc.app.base.AppBaseContext.prototype,{
 					}
 				}
 				(js.Boot.__cast(__ui__widget1.box.skin , ru.stablex.ui.skins.Paint)).color = 16777215;
+				if(!js.Boot.__instanceof(__ui__widget1.list.skin,ru.stablex.ui.skins.Paint)) {
+					__ui__widget1.list.skin = new ru.stablex.ui.skins.Paint();
+					if(js.Boot.__instanceof(__ui__widget1.list.skin,ru.stablex.ui.widgets.Widget)) {
+						var __tmp__ = js.Boot.__cast(__ui__widget1.list.skin , ru.stablex.ui.widgets.Widget);
+						ru.stablex.ui.UIBuilder.applyDefaults(__tmp__);
+						__tmp__._onInitialize();
+						__tmp__._onCreate();
+					}
+				}
+				(js.Boot.__cast(__ui__widget1.list.skin , ru.stablex.ui.skins.Paint)).color = 0;
 				(js.Boot.__cast(__ui__widget1.skin , ru.stablex.ui.skins.Paint)).corners = [8];
 				(js.Boot.__cast(__ui__widget1.box.skin , ru.stablex.ui.skins.Paint)).corners = [8];
 				(js.Boot.__cast(__ui__widget1.box.skin , ru.stablex.ui.skins.Paint)).alpha = 0.9;
+				(js.Boot.__cast(__ui__widget1.list.skin , ru.stablex.ui.skins.Paint)).alpha = 0.7;
 			});
 			if(!ru.stablex.ui.UIBuilder.defaults.exists("Scroll")) ru.stablex.ui.UIBuilder.defaults.set("Scroll",new haxe.ds.StringMap());
 			ru.stablex.ui.UIBuilder.defaults.get("Scroll").set("Default",function(__ui__widget0) {
@@ -14887,6 +15221,46 @@ player.AppContext.prototype = $extend(sx.mvc.app.base.AppBaseContext.prototype,{
 				(js.Boot.__cast(__ui__widget11.vBar.skin , ru.stablex.ui.skins.Paint)).alpha = 0.5;
 				(js.Boot.__cast(__ui__widget11.vBar.skin , ru.stablex.ui.skins.Paint)).color = 16777215;
 			});
+			if(!ru.stablex.ui.UIBuilder.defaults.exists("Toggle")) ru.stablex.ui.UIBuilder.defaults.set("Toggle",new haxe.ds.StringMap());
+			ru.stablex.ui.UIBuilder.defaults.get("Toggle").set("Default",function(__ui__widget0) {
+				var __ui__widget1 = js.Boot.__cast(__ui__widget0 , ru.stablex.ui.widgets.Toggle);
+				__ui__widget1.set_skinHoveredName("redHovered");
+				__ui__widget1.states.resolve("down").set_skinName("rgbOne");
+				__ui__widget1.format.color = 16777215;
+				__ui__widget1.set_skinPressedName("redPressed");
+				__ui__widget1.format.size = 14;
+				__ui__widget1.label.embedFonts = true;
+				__ui__widget1.states.resolve("up").set_skinName("rgbThree");
+				__ui__widget1.set_h(20);
+				__ui__widget1.set_w(20);
+				__ui__widget1.states.resolve("up").text = "Released state";
+				__ui__widget1.set_skinName("button");
+				__ui__widget1.states.resolve("down").text = "Pressed state";
+			});
+			if(!ru.stablex.ui.UIBuilder.defaults.exists("Checkbox")) ru.stablex.ui.UIBuilder.defaults.set("Checkbox",new haxe.ds.StringMap());
+			ru.stablex.ui.UIBuilder.defaults.get("Checkbox").set("Default",function(__ui__widget0) {
+				var __ui__widget1 = js.Boot.__cast(__ui__widget0 , ru.stablex.ui.widgets.Checkbox);
+				__ui__widget1.format.color = 16777215;
+				__ui__widget1.format.size = 14;
+				if(!js.Boot.__instanceof(__ui__widget1.skin,ru.stablex.ui.skins.Paint)) {
+					__ui__widget1.skin = new ru.stablex.ui.skins.Paint();
+					if(js.Boot.__instanceof(__ui__widget1.skin,ru.stablex.ui.widgets.Widget)) {
+						var __tmp__ = js.Boot.__cast(__ui__widget1.skin , ru.stablex.ui.widgets.Widget);
+						ru.stablex.ui.UIBuilder.applyDefaults(__tmp__);
+						__tmp__._onInitialize();
+						__tmp__._onCreate();
+					}
+				}
+				(js.Boot.__cast(__ui__widget1.skin , ru.stablex.ui.skins.Paint)).color = 14540253;
+			});
+			if(!ru.stablex.ui.UIBuilder.defaults.exists("Progress")) ru.stablex.ui.UIBuilder.defaults.set("Progress",new haxe.ds.StringMap());
+			ru.stablex.ui.UIBuilder.defaults.get("Progress").set("Default",function(__ui__widget0) {
+				var __ui__widget1 = js.Boot.__cast(__ui__widget0 , ru.stablex.ui.widgets.Progress);
+				__ui__widget1.bar.set_skinName("progressBar");
+				__ui__widget1.set_h(20);
+				__ui__widget1.set_w(100);
+				__ui__widget1.set_skinName("progress");
+			});
 		})();
 		(function() {
 			ru.stablex.ui.UIBuilder.skins.set("button",function() {
@@ -14931,216 +15305,84 @@ player.AppContext.prototype = $extend(sx.mvc.app.base.AppBaseContext.prototype,{
 				skin.corners = [8];
 				return skin;
 			});
+			ru.stablex.ui.UIBuilder.skins.set("redUp",function() {
+				var skin = new ru.stablex.ui.skins.Paint();
+				skin.color = 16711680;
+				skin.corners = [3];
+				return skin;
+			});
+			ru.stablex.ui.UIBuilder.skins.set("redDown",function() {
+				var skin = new ru.stablex.ui.skins.Paint();
+				skin.color = 3342336;
+				skin.corners = [3];
+				return skin;
+			});
+			ru.stablex.ui.UIBuilder.skins.set("redHovered",function() {
+				var skin = new ru.stablex.ui.skins.Paint();
+				skin.color = 16724787;
+				skin.corners = [3];
+				return skin;
+			});
+			ru.stablex.ui.UIBuilder.skins.set("redPressed",function() {
+				var skin = new ru.stablex.ui.skins.Paint();
+				skin.color = 10027008;
+				skin.corners = [3];
+				return skin;
+			});
+			ru.stablex.ui.UIBuilder.skins.set("rgbOne",function() {
+				var skin = new ru.stablex.ui.skins.Paint();
+				skin.color = 65280;
+				skin.corners = [3];
+				return skin;
+			});
+			ru.stablex.ui.UIBuilder.skins.set("rgbTwo",function() {
+				var skin = new ru.stablex.ui.skins.Paint();
+				skin.color = 255;
+				skin.corners = [3];
+				return skin;
+			});
+			ru.stablex.ui.UIBuilder.skins.set("rgbThree",function() {
+				var skin = new ru.stablex.ui.skins.Paint();
+				skin.color = 16711680;
+				skin.corners = [3];
+				return skin;
+			});
+			ru.stablex.ui.UIBuilder.skins.set("progress",function() {
+				var skin = new ru.stablex.ui.skins.Paint();
+				skin.color = 20585;
+				skin.corners = [15];
+				return skin;
+			});
+			ru.stablex.ui.UIBuilder.skins.set("progressBar",function() {
+				var skin = new ru.stablex.ui.skins.Paint();
+				skin.color = 2012927;
+				skin.corners = [15];
+				skin.alpha = 1;
+				return skin;
+			});
 		})();
 	}
 	,__class__: player.AppContext
 });
 player.controller = {}
-player.controller.Conf = function() {
-	msignal.Signal0.call(this);
+player.controller.SetzoomStatus = function(zoom) {
+	this.zoom = zoom;
 };
-$hxClasses["player.controller.Conf"] = player.controller.Conf;
-player.controller.Conf.__name__ = ["player","controller","Conf"];
-player.controller.Conf.__super__ = msignal.Signal0;
-player.controller.Conf.prototype = $extend(msignal.Signal0.prototype,{
-	__class__: player.controller.Conf
-});
-player.controller.ConfCommand = function() {
-	mmvc.impl.Command.call(this);
-};
-$hxClasses["player.controller.ConfCommand"] = player.controller.ConfCommand;
-player.controller.ConfCommand.__name__ = ["player","controller","ConfCommand"];
-player.controller.ConfCommand.__super__ = mmvc.impl.Command;
-player.controller.ConfCommand.prototype = $extend(mmvc.impl.Command.prototype,{
-	execute: function() {
-		console.log("ConfigCommand execute");
-		cx.ConfigTools.loadFlashVars(player.Config);
-		this.config.HOST = player.Config.host;
-		this.product.productId = player.Config.productId;
-		this.product.userId = player.Config.userId;
-	}
-	,product: null
-	,config: null
-	,__class__: player.controller.ConfCommand
-});
-player.controller.Load = function() {
-	msignal.Signal1.call(this,String);
-	this.completed = new msignal.Signal0();
-	this.failed = new msignal.Signal1(Dynamic);
-};
-$hxClasses["player.controller.Load"] = player.controller.Load;
-player.controller.Load.__name__ = ["player","controller","Load"];
-player.controller.Load.__super__ = msignal.Signal1;
-player.controller.Load.prototype = $extend(msignal.Signal1.prototype,{
-	failed: null
-	,completed: null
-	,__class__: player.controller.Load
-});
-player.controller.LoadCommand = function() {
-	mmvc.impl.Command.call(this);
-};
-$hxClasses["player.controller.LoadCommand"] = player.controller.LoadCommand;
-player.controller.LoadCommand.__name__ = ["player","controller","LoadCommand"];
-player.controller.LoadCommand.__super__ = mmvc.impl.Command;
-player.controller.LoadCommand.prototype = $extend(mmvc.impl.Command.prototype,{
-	execute: function() {
-		var _g = this;
-		console.log("Execute() " + this.url + " - wait 2000 ms...");
-		cx.TimerTools.delay(function() {
-			console.log("Complete()!");
-			_g.load.completed.dispatch();
-		},2000);
-	}
-	,url: null
-	,load: null
-	,__class__: player.controller.LoadCommand
-});
-player.controller.LoadPages = function() {
-	msignal.Signal1.call(this,String);
-	this.started = new msignal.Signal1();
-	this.completed = new msignal.Signal0();
-	this.progress = new msignal.Signal1();
-	this.failed = new msignal.Signal1(Dynamic);
-};
-$hxClasses["player.controller.LoadPages"] = player.controller.LoadPages;
-player.controller.LoadPages.__name__ = ["player","controller","LoadPages"];
-player.controller.LoadPages.__super__ = msignal.Signal1;
-player.controller.LoadPages.prototype = $extend(msignal.Signal1.prototype,{
-	failed: null
-	,completed: null
-	,progress: null
-	,started: null
-	,__class__: player.controller.LoadPages
-});
-player.controller.LoadPagesCommand = function() {
-	mmvc.impl.Command.call(this);
-};
-$hxClasses["player.controller.LoadPagesCommand"] = player.controller.LoadPagesCommand;
-player.controller.LoadPagesCommand.__name__ = ["player","controller","LoadPagesCommand"];
-player.controller.LoadPagesCommand.__super__ = mmvc.impl.Command;
-player.controller.LoadPagesCommand.prototype = $extend(mmvc.impl.Command.prototype,{
-	execute: function() {
-		var _g = this;
-		this.loader.setParameters(this.product.productId,this.product.userId);
-		this.loader.loadPages();
-		this.loader.onPageLoaded = function(pageNr,nrOfPages,data,type) {
-			console.log([pageNr,nrOfPages]);
-			if(pageNr == 0) {
-				console.log("start...");
-				_g.loadPages.started.dispatch(nrOfPages);
-			} else if(pageNr == nrOfPages) {
-				_g.loadPages.progress.dispatch({ pageNr : pageNr, nrOfPages : nrOfPages, data : data});
-				console.log("complete...");
-				_g.loadPages.completed.dispatch();
-			} else {
-				console.log("progress...");
-				_g.loadPages.progress.dispatch({ pageNr : pageNr, nrOfPages : nrOfPages, data : data});
-			}
-		};
-	}
-	,product: null
-	,loader: null
-	,url: null
-	,loadPages: null
-	,__class__: player.controller.LoadPagesCommand
-});
-player.controller.Play = function() {
-	msignal.Signal1.call(this,Int);
-};
-$hxClasses["player.controller.Play"] = player.controller.Play;
-player.controller.Play.__name__ = ["player","controller","Play"];
-player.controller.Play.__super__ = msignal.Signal1;
-player.controller.Play.prototype = $extend(msignal.Signal1.prototype,{
-	__class__: player.controller.Play
-});
-player.controller.PlayCommand = function() {
-	mmvc.impl.Command.call(this);
-};
-$hxClasses["player.controller.PlayCommand"] = player.controller.PlayCommand;
-player.controller.PlayCommand.__name__ = ["player","controller","PlayCommand"];
-player.controller.PlayCommand.__super__ = mmvc.impl.Command;
-player.controller.PlayCommand.prototype = $extend(mmvc.impl.Command.prototype,{
-	execute: function() {
-		console.log("PlayCommand execute");
-		console.log(this.position);
-		this.model.start(this.position);
-	}
-	,position: null
-	,play: null
-	,model: null
-	,__class__: player.controller.PlayCommand
-});
-player.controller.Stop = function() {
-	msignal.Signal0.call(this);
-};
-$hxClasses["player.controller.Stop"] = player.controller.Stop;
-player.controller.Stop.__name__ = ["player","controller","Stop"];
-player.controller.Stop.__super__ = msignal.Signal0;
-player.controller.Stop.prototype = $extend(msignal.Signal0.prototype,{
-	__class__: player.controller.Stop
-});
-player.controller.StopCommand = function() {
-	mmvc.impl.Command.call(this);
-};
-$hxClasses["player.controller.StopCommand"] = player.controller.StopCommand;
-player.controller.StopCommand.__name__ = ["player","controller","StopCommand"];
-player.controller.StopCommand.__super__ = mmvc.impl.Command;
-player.controller.StopCommand.prototype = $extend(mmvc.impl.Command.prototype,{
-	execute: function() {
-		console.log("StopCommand execute");
-		this.model.stop();
-	}
-	,model: null
-	,__class__: player.controller.StopCommand
-});
-player.model = {}
-player.model.ConfigModel = function() {
-	this.HOST = "http://scorxdev.azurewebsites.net/";
-};
-$hxClasses["player.model.ConfigModel"] = player.model.ConfigModel;
-player.model.ConfigModel.__name__ = ["player","model","ConfigModel"];
-player.model.ConfigModel.prototype = {
-	HOST: null
-	,__class__: player.model.ConfigModel
+$hxClasses["player.controller.SetzoomStatus"] = player.controller.SetzoomStatus;
+player.controller.SetzoomStatus.__name__ = ["player","controller","SetzoomStatus"];
+player.controller.SetzoomStatus.prototype = {
+	zoom: null
+	,__class__: player.controller.SetzoomStatus
 }
-player.model.ProductModel = function() {
-	this.userId = 0;
-	this.productId = 0;
+player.controller.Setzoom = function() {
+	msignal.Signal1.call(this,sx.mvc.view.enums.ScrollWidgetZoom);
 };
-$hxClasses["player.model.ProductModel"] = player.model.ProductModel;
-player.model.ProductModel.__name__ = ["player","model","ProductModel"];
-player.model.ProductModel.prototype = {
-	userId: null
-	,productId: null
-	,__class__: player.model.ProductModel
-}
-player.model.TimerModel = function() {
-	this.position = 0;
-	this.update = new msignal.Signal1();
-};
-$hxClasses["player.model.TimerModel"] = player.model.TimerModel;
-player.model.TimerModel.__name__ = ["player","model","TimerModel"];
-player.model.TimerModel.prototype = {
-	stop: function() {
-		if(this.timer != null) this.timer.stop();
-	}
-	,start: function(position) {
-		if(position == null) position = 0;
-		this.stop();
-		this.position = position;
-		this.timer = new haxe.Timer(1000);
-		this.timer.run = $bind(this,this.onUpdate);
-	}
-	,onUpdate: function() {
-		this.position++;
-		console.log("onUpdate " + this.position);
-		this.update.dispatch(this.position);
-	}
-	,position: null
-	,update: null
-	,timer: null
-	,__class__: player.model.TimerModel
-}
+$hxClasses["player.controller.Setzoom"] = player.controller.Setzoom;
+player.controller.Setzoom.__name__ = ["player","controller","Setzoom"];
+player.controller.Setzoom.__super__ = msignal.Signal1;
+player.controller.Setzoom.prototype = $extend(msignal.Signal1.prototype,{
+	__class__: player.controller.Setzoom
+});
 var ru = {}
 ru.stablex = {}
 ru.stablex.TweenSprite = function() {
@@ -16111,444 +16353,201 @@ ru.stablex.ui.widgets.Box.prototype = $extend(ru.stablex.ui.widgets.Widget.proto
 	,__class__: ru.stablex.ui.widgets.Box
 	,__properties__: $extend(ru.stablex.ui.widgets.Widget.prototype.__properties__,{set_padding:"set_padding",set_autoSize:"set_autoSize"})
 });
-ru.stablex.ui.widgets.HBox = function() {
+ru.stablex.ui.widgets.VBox = function() {
 	ru.stablex.ui.widgets.Box.call(this);
-	this.vertical = false;
 };
-$hxClasses["ru.stablex.ui.widgets.HBox"] = ru.stablex.ui.widgets.HBox;
-ru.stablex.ui.widgets.HBox.__name__ = ["ru","stablex","ui","widgets","HBox"];
-ru.stablex.ui.widgets.HBox.__super__ = ru.stablex.ui.widgets.Box;
-ru.stablex.ui.widgets.HBox.prototype = $extend(ru.stablex.ui.widgets.Box.prototype,{
-	__class__: ru.stablex.ui.widgets.HBox
+$hxClasses["ru.stablex.ui.widgets.VBox"] = ru.stablex.ui.widgets.VBox;
+ru.stablex.ui.widgets.VBox.__name__ = ["ru","stablex","ui","widgets","VBox"];
+ru.stablex.ui.widgets.VBox.__super__ = ru.stablex.ui.widgets.Box;
+ru.stablex.ui.widgets.VBox.prototype = $extend(ru.stablex.ui.widgets.Box.prototype,{
+	__class__: ru.stablex.ui.widgets.VBox
 });
 sx.mvc.view = {}
-sx.mvc.view.HBoxView = function() {
+sx.mvc.view.VBoxView = function() {
 	var _g = this;
-	ru.stablex.ui.widgets.HBox.call(this);
+	ru.stablex.ui.widgets.VBox.call(this);
 	this.childPadding = 8;
 	this.set_padding(8);
 	this.createChildren();
+	this.addSkin();
 	this.refresh();
 	this.addEventListener(flash.events.Event.ADDED,function(e) {
 		sx.mvc.app.AppView.REGISTER.dispatch(_g);
 	});
 };
-$hxClasses["sx.mvc.view.HBoxView"] = sx.mvc.view.HBoxView;
-sx.mvc.view.HBoxView.__name__ = ["sx","mvc","view","HBoxView"];
-sx.mvc.view.HBoxView.__super__ = ru.stablex.ui.widgets.HBox;
-sx.mvc.view.HBoxView.prototype = $extend(ru.stablex.ui.widgets.HBox.prototype,{
-	createChildren: function() {
-	}
-	,__class__: sx.mvc.view.HBoxView
-});
-player.view = {}
-player.view.ButtonsView = function() {
-	sx.mvc.view.HBoxView.call(this);
-};
-$hxClasses["player.view.ButtonsView"] = player.view.ButtonsView;
-player.view.ButtonsView.__name__ = ["player","view","ButtonsView"];
-player.view.ButtonsView.__super__ = sx.mvc.view.HBoxView;
-player.view.ButtonsView.prototype = $extend(sx.mvc.view.HBoxView.prototype,{
-	createChildren: function() {
-		this.set_w(100);
-		this.set_h(40);
-		this.btnStart = ru.stablex.ui.UIBuilder.create(ru.stablex.ui.widgets.Button);
-		this.btnStart.set_text("Start");
-		this.addChild(this.btnStart);
-		this.btnStop = ru.stablex.ui.UIBuilder.create(ru.stablex.ui.widgets.Button);
-		this.btnStop.set_text("Stop");
-		this.addChild(this.btnStop);
-		this.btnLoad = ru.stablex.ui.UIBuilder.create(ru.stablex.ui.widgets.Button);
-		this.btnLoad.set_text("Load");
-		this.addChild(this.btnLoad);
-	}
-	,btnLoad: null
-	,btnStop: null
-	,btnStart: null
-	,__class__: player.view.ButtonsView
-});
-player.view.ButtonsMediator = function() {
-	mmvc.impl.Mediator.call(this);
-};
-$hxClasses["player.view.ButtonsMediator"] = player.view.ButtonsMediator;
-player.view.ButtonsMediator.__name__ = ["player","view","ButtonsMediator"];
-player.view.ButtonsMediator.__super__ = mmvc.impl.Mediator;
-player.view.ButtonsMediator.prototype = $extend(mmvc.impl.Mediator.prototype,{
-	onRegister: function() {
-		var _g = this;
-		this.view.btnStart.addEventListener(flash.events.MouseEvent.MOUSE_DOWN,function(e) {
-			_g.play.dispatch(222);
-		});
-		this.view.btnStop.addEventListener(flash.events.MouseEvent.MOUSE_DOWN,function(e) {
-			_g.stop.dispatch();
-		});
-		this.view.btnLoad.addEventListener(flash.events.MouseEvent.MOUSE_DOWN,function(e) {
-			_g.loadPages.dispatch("http://test.com");
-		});
-		this.mediate(this.loadPages.completed.addOnce(function() {
-			console.log("TestMediator is notified :loadSomething.completed!");
-		}));
-	}
-	,loadPages: null
-	,stop: null
-	,play: null
-	,__class__: player.view.ButtonsMediator
-});
-ru.stablex.ui.widgets.Scroll = function() {
-	this._processingDrag = false;
-	this.wheelScrollSpeed = 10;
-	this.dragScroll = true;
-	this.hScrollKey = "alt";
-	this.wheelScroll = true;
-	this.hScroll = true;
-	this.vScroll = true;
-	ru.stablex.ui.widgets.Widget.call(this);
-	this.set_overflow(false);
-	this.set_vBar(ru.stablex.ui.UIBuilder.create(ru.stablex.ui.widgets.Slider,{ vertical : true, right : 0, top : 0, heightPt : 100, w : 10, slider : { widthPt : 100}}));
-	this.set_hBar(ru.stablex.ui.UIBuilder.create(ru.stablex.ui.widgets.Slider,{ vertical : false, bottom : 0, left : 0, widthPt : 100, h : 10, slider : { heightPt : 100}}));
-	this.addUniqueListener(flash.events.MouseEvent.MOUSE_WHEEL,$bind(this,this._beforeScroll));
-	this.addUniqueListener(flash.events.MouseEvent.MOUSE_DOWN,$bind(this,this._beforeScroll));
-};
-$hxClasses["ru.stablex.ui.widgets.Scroll"] = ru.stablex.ui.widgets.Scroll;
-ru.stablex.ui.widgets.Scroll.__name__ = ["ru","stablex","ui","widgets","Scroll"];
-ru.stablex.ui.widgets.Scroll.__super__ = ru.stablex.ui.widgets.Widget;
-ru.stablex.ui.widgets.Scroll.prototype = $extend(ru.stablex.ui.widgets.Widget.prototype,{
-	_wheelScroll: function(e) {
-		if(this.hScroll && (e.altKey && this.hScrollKey == "alt" || e.shiftKey && this.hScrollKey == "shift" || e.ctrlKey && this.hScrollKey == "ctrl")) {
-			this.tweenStop();
-			var _g = this;
-			_g.set_scrollX(_g.get_scrollX() + e.delta * this.wheelScrollSpeed);
-		} else if(this.vScroll) {
-			this.tweenStop();
-			var _g = this;
-			_g.set_scrollY(_g.get_scrollY() + e.delta * this.wheelScrollSpeed);
-		}
-	}
-	,_dragScroll: function(e) {
-		var _g = this;
-		if(this._processingDrag) return;
-		this._processingDrag = true;
-		var dx = this.get_mouseX() - this.get_scrollX();
-		var dy = this.get_mouseY() - this.get_scrollY();
-		var lastX = this.get_mouseX();
-		var lastY = this.get_mouseY();
-		var lastDx = 0;
-		var lastDy = 0;
-		var startX = this.get_mouseX();
-		var startY = this.get_mouseY();
-		var scrolled = false;
-		var vScroll = this.vScroll && this.get_box().get_h() > this.get_h();
-		var hScroll = this.hScroll && this.get_box().get_w() > this.get_w();
-		this.tweenStop(["scrollX","scrollY"],false,true);
-		var blocker = new flash.display.Sprite();
-		blocker.get_graphics().beginFill(0,0);
-		blocker.get_graphics().drawRect(0,0,this.get_w(),this.get_h());
-		blocker.get_graphics().endFill();
-		var fn = function(e1) {
-			if(scrolled) {
-				if(hScroll) _g.set_scrollX(_g.get_mouseX() - dx);
-				if(vScroll) _g.set_scrollY(_g.get_mouseY() - dy);
-			} else if(hScroll && !scrolled && Math.abs(_g.get_mouseX() - startX) >= 5 || vScroll && !scrolled && Math.abs(_g.get_mouseY() - startY) >= 5) {
-				_g.addChild(blocker);
-				scrolled = true;
-				_g.get_box().mouseEnabled = false;
-				_g.get_box().mouseChildren = false;
-				_g.dispatchEvent(new ru.stablex.ui.events.WidgetEvent("widgetScrollStart"));
-			}
-			lastDx = _g.get_mouseX() - lastX;
-			lastDy = _g.get_mouseY() - lastY;
-			lastX = _g.get_mouseX();
-			lastY = _g.get_mouseY();
-		};
-		this.addUniqueListener(flash.events.Event.ENTER_FRAME,fn);
-		var fnStop = null;
-		fnStop = function(e1) {
-			_g._processingDrag = false;
-			_g.removeEventListener(flash.events.Event.ENTER_FRAME,fn);
-			flash.Lib.get_current().get_stage().removeEventListener(flash.events.MouseEvent.MOUSE_UP,fnStop);
-			if(scrolled) {
-				var finish = function() {
-					_g.dispatchEvent(new ru.stablex.ui.events.WidgetEvent("widgetScrollStop"));
-				};
-				if(vScroll && hScroll) _g.tween(2,{ scrollX : _g.get_scrollX() + lastDx * 20, scrollY : _g.get_scrollY() + lastDy * 20},"Expo.easeOut").onComplete(finish); else if(vScroll) _g.tween(2,{ scrollY : _g.get_scrollY() + lastDy * 20},"Expo.easeOut").onComplete(finish); else _g.tween(2,{ scrollX : _g.get_scrollX() + lastDx * 20},"Expo.easeOut").onComplete(finish);
-				if(blocker.parent == _g) _g.removeChild(blocker);
-				_g.get_box().mouseEnabled = true;
-				_g.get_box().mouseChildren = true;
-			}
-		};
-		flash.Lib.get_current().get_stage().removeEventListener(flash.events.MouseEvent.MOUSE_UP,fnStop);
-		flash.Lib.get_current().get_stage().addEventListener(flash.events.MouseEvent.MOUSE_UP,fnStop);
-	}
-	,_startScroll: function(e) {
-		this.removeEventListener("scrollBefore",$bind(this,this._startScroll));
-		if(e.canceled) return;
-		if(e.srcEvent.type == flash.events.MouseEvent.MOUSE_DOWN && this.dragScroll) this._dragScroll(js.Boot.__instanceof(e.srcEvent,flash.events.MouseEvent)?e.srcEvent:null); else if(e.srcEvent.type == flash.events.MouseEvent.MOUSE_WHEEL && this.wheelScroll) this._wheelScroll(js.Boot.__instanceof(e.srcEvent,flash.events.MouseEvent)?e.srcEvent:null);
-	}
-	,_beforeScroll: function(e) {
-		if(e.target == this.vBar || e.target == this.hBar || this.vBar != null && e.target == this.vBar.slider || this.hBar != null && e.target == this.hBar.slider) return;
-		this.addUniqueListener("scrollBefore",$bind(this,this._startScroll));
-		var e1 = new ru.stablex.ui.events.ScrollEvent("scrollBefore",e);
-		this.dispatchEvent(e1);
-	}
-	,_onHBarChange: function(e) {
-		if(Math.abs(this.get_scrollX() + this.hBar.get_value()) >= 1) {
-			this.tweenStop();
-			this.set_scrollX(-this.hBar.get_value());
-		}
-	}
-	,_onVBarChange: function(e) {
-		if(Math.abs(this.get_scrollY() - this.vBar.get_value()) >= 1) {
-			this.tweenStop();
-			this.set_scrollY(this.vBar.get_value());
-		}
-	}
-	,refresh: function() {
-		this.get_box().refresh();
-		ru.stablex.ui.widgets.Widget.prototype.refresh.call(this);
-		if(this.vBar != null) {
-			this.addChildAt(this.vBar,1);
-			this.vBar.min = this.get_h() - this.get_box().get_h() < 0?this.get_h() - this.get_box().get_h():0;
-			this.vBar.max = 0;
-			var k = this.vBar.get_h() / this.get_box().get_h();
-			if(k > 1) k = 1;
-			this.vBar.slider.set_h(this.get_h() * k);
-			this.vBar.refresh();
-			this.vBar.addUniqueListener("widgetChange",$bind(this,this._onVBarChange));
-		}
-		if(this.hBar != null) {
-			this.addChildAt(this.hBar,1);
-			this.hBar.max = -(this.get_w() - this.get_box().get_w() < 0?this.get_w() - this.get_box().get_w():0);
-			this.hBar.min = 0;
-			var k = this.hBar.get_w() / this.get_box().get_w();
-			if(k > 1) k = 1;
-			this.hBar.slider.set_w(this.hBar.get_w() * k);
-			this.hBar.refresh();
-			this.hBar.addUniqueListener("widgetChange",$bind(this,this._onHBarChange));
-		}
-	}
-	,set_hBar: function(bar) {
-		if(bar == null && this.hBar != null) this.hBar.free();
-		return this.hBar = bar;
-	}
-	,set_vBar: function(bar) {
-		if(bar == null && this.vBar != null) this.vBar.free();
-		return this.vBar = bar;
-	}
-	,get_scrollY: function() {
-		return this.get_box().get_top();
-	}
-	,set_scrollY: function(y) {
-		if(this.get_box()._height > this._height) {
-			if(y > 0) y = 0;
-			if(y + this.get_box()._height < this._height) y = this._height - this.get_box()._height;
-			this.get_box().set_top(y);
-			if(this.vBar != null && Math.abs(this.vBar.get_value() - y) >= 1) this.vBar.set_value(y);
-		}
-		return y;
-	}
-	,get_scrollX: function() {
-		return this.get_box().get_left();
-	}
-	,set_scrollX: function(x) {
-		if(this.get_box()._width > this._width) {
-			if(x > 0) x = 0;
-			if(x + this.get_box()._width < this._width) x = this._width - this.get_box()._width;
-			this.get_box().set_left(x);
-			if(this.hBar != null && Math.abs(this.hBar.get_value() + x) >= 1) this.hBar.set_value(-x);
-		}
-		return x;
-	}
-	,get_box: function() {
-		if(this.nmeChildren.length == 0) {
-			console.log("Scroll widget must have at least one child.");
-			throw "Scroll widget must have at least one child.";
-			return null;
-		} else {
-			var child = this.getChildAt(0);
-			if(!js.Boot.__instanceof(child,ru.stablex.ui.widgets.Widget)) {
-				console.log("Instance of Widget must be the first child for Scroll widget");
-				throw "Instance of Widget must be the first child for Scroll widget";
-			}
-			return js.Boot.__cast(child , ru.stablex.ui.widgets.Widget);
-		}
-	}
-	,_processingDrag: null
-	,hBar: null
-	,vBar: null
-	,wheelScrollSpeed: null
-	,dragScroll: null
-	,hScrollKey: null
-	,wheelScroll: null
-	,hScroll: null
-	,vScroll: null
-	,__class__: ru.stablex.ui.widgets.Scroll
-	,__properties__: $extend(ru.stablex.ui.widgets.Widget.prototype.__properties__,{get_box:"get_box",set_scrollX:"set_scrollX",get_scrollX:"get_scrollX",set_scrollY:"set_scrollY",get_scrollY:"get_scrollY",set_vBar:"set_vBar",set_hBar:"set_hBar"})
-});
-sx.mvc.view.ScrollWidgetView = function() {
-	var _g = this;
-	ru.stablex.ui.widgets.Scroll.call(this);
-	this.zoom = sx.mvc.view.SxScrollZoom.ZoomFullHeight;
-	this.set_w(500);
-	this.set_h(500);
-	this.widget = ru.stablex.ui.UIBuilder.create(ru.stablex.ui.widgets.Widget);
-	this.addChild(this.widget);
-	this.createChildren();
-	this.refresh();
-	this.addEventListener(flash.events.Event.ADDED,function(e) {
-		sx.mvc.app.AppView.REGISTER.dispatch(_g);
-	});
-};
-$hxClasses["sx.mvc.view.ScrollWidgetView"] = sx.mvc.view.ScrollWidgetView;
-sx.mvc.view.ScrollWidgetView.__name__ = ["sx","mvc","view","ScrollWidgetView"];
-sx.mvc.view.ScrollWidgetView.__super__ = ru.stablex.ui.widgets.Scroll;
-sx.mvc.view.ScrollWidgetView.prototype = $extend(ru.stablex.ui.widgets.Scroll.prototype,{
-	getZoomSize: function(zoom,width,height) {
-		var w = 1;
-		var h = 1;
-		if(this.zoom == null) this.zoom = sx.mvc.view.SxScrollZoom.Zoom40;
-		var _g = this;
-		switch( (_g.zoom)[1] ) {
-		case 1:
-			h = Math.max(297,Math.min(891,height - 20));
-			w = 210 / 297 * h;
-			break;
-		case 0:
-			w = Math.max(210,Math.min(630,width - 20));
-			h = 297 / 210 * w;
-			break;
-		case 2:
-			w = 252.;
-			h = 891 * 0.4;
-			break;
-		case 3:
-			w = 378.;
-			h = 534.6;
-			break;
-		case 4:
-			w = 504.;
-			h = 891 * 0.8;
-			break;
-		case 5:
-			w = 630;
-			h = 891;
-			break;
-		}
-		return new flash.geom.Point(w,h);
-	}
-	,addPage: function(pageNr,nrOfPages,data) {
-		var size = this.getZoomSize(this.zoom,this.get_w(),this.get_h());
-		var bmp = js.Boot.__cast(this.widget.getChildAt(pageNr - 1) , ru.stablex.ui.widgets.Bmp);
-		if(data != null) bmp._src = null;
-		bmp._bitmapData = data;
-		bmp.set_w(size.x);
-		bmp.set_h(size.y);
-		var child = this.widget.getChildAt(pageNr - 1);
-		child.set_width(size.x);
-		child.set_height(size.y);
-		bmp.removeChildAt(0);
-		bmp.removeChildAt(0);
-	}
-	,clearPages: function() {
-		while(this.widget.nmeChildren.length > 0) this.widget.removeChildAt(0);
-	}
-	,initPages: function(nrOfPages) {
-		this.clearPages();
-		var _g = 0;
-		while(_g < nrOfPages) {
-			var i = _g++;
-			this.widget.addChild(this.getTest());
-		}
-		this.resize_(0,0,this.get_w(),this.get_h());
-		this.widget.refresh();
-	}
-	,setZoom: function(zoom) {
-		this.zoom = zoom;
-		this.resize_();
-	}
-	,getTest: function() {
-		var bmp = ru.stablex.ui.UIBuilder.create(ru.stablex.ui.widgets.Bmp);
-		var size = this.getZoomSize(this.zoom,this.get_w(),this.get_h());
-		var s = new flash.display.Sprite();
-		bmp.addChild(s);
-		s.get_graphics().beginFill(14540253);
-		s.get_graphics().drawRect(0,0,size.x,size.y);
-		var child = bmp;
-		bmp.set_w(s.set_width(child.set_width(size.x)));
-		bmp.set_h(s.set_height(child.set_height(size.y)));
-		var progress = new cx.flash.ui.UIProgress(10,10,50,50,15658734,13421772,0,6);
-		progress.spin();
-		bmp.addChild(progress);
-		return bmp;
-	}
-	,resize_: function(x,y,width,height) {
-		if(height == null) height = 0;
-		if(width == null) width = 0;
-		if(y == null) y = 0;
-		if(x == null) x = 0;
-		if(width == 0) width = this.get_w();
-		if(height == 0) height = this.get_h();
-		var size = this.getZoomSize(this.zoom,width,height);
-		this.pageSize = cx.flash.layout.DocumentLayout.arrange(this.widget,width,size.x,size.y);
-		this.refresh();
-	}
-	,afterResize: function(x,y,width,height) {
-		var _g = this;
-		cx.TimerTools.timeout(function() {
-			_g.resize_(x,y,width,height);
-		},200);
-	}
-	,skinMe: function() {
-		var sliderSkin = new ru.stablex.ui.skins.Paint();
-		sliderSkin.color = 16711680;
-		sliderSkin.apply(this.vBar.slider);
-		sliderSkin.apply(this.hBar.slider);
-		var barSkin = new ru.stablex.ui.skins.Paint();
-		barSkin.color = 255;
-		barSkin.apply(this.vBar);
-		barSkin.apply(this.hBar);
-		this.vBar.set_visible(true);
-		this.vBar.set_h(0);
-		this.vBar.set_w(10);
-		this.hBar.set_visible(true);
-		this.hBar.set_h(10);
-		this.hBar.set_w(0);
-		this.refresh();
+$hxClasses["sx.mvc.view.VBoxView"] = sx.mvc.view.VBoxView;
+sx.mvc.view.VBoxView.__name__ = ["sx","mvc","view","VBoxView"];
+sx.mvc.view.VBoxView.__super__ = ru.stablex.ui.widgets.VBox;
+sx.mvc.view.VBoxView.prototype = $extend(ru.stablex.ui.widgets.VBox.prototype,{
+	addSkin: function() {
 	}
 	,createChildren: function() {
+		var label = ru.stablex.ui.UIBuilder.create(ru.stablex.ui.widgets.Text);
+		label.set_text("This is VBoxView - createChildren() should be overridden!");
+		label.set_w(400);
+		this.addChild(label);
 	}
-	,onInitialize: function() {
-		ru.stablex.ui.widgets.Scroll.prototype.onInitialize.call(this);
-		console.log("on init");
-	}
-	,zoom: null
-	,pageSize: null
-	,widget: null
-	,__class__: sx.mvc.view.ScrollWidgetView
+	,__class__: sx.mvc.view.VBoxView
 });
-player.view.PagesView = function() {
-	sx.mvc.view.ScrollWidgetView.call(this);
+player.view = {}
+player.view.ConfigurationViewView = function() {
+	sx.mvc.view.VBoxView.call(this);
 };
-$hxClasses["player.view.PagesView"] = player.view.PagesView;
-player.view.PagesView.__name__ = ["player","view","PagesView"];
-player.view.PagesView.__super__ = sx.mvc.view.ScrollWidgetView;
-player.view.PagesView.prototype = $extend(sx.mvc.view.ScrollWidgetView.prototype,{
-	createChildren: function() {
+$hxClasses["player.view.ConfigurationViewView"] = player.view.ConfigurationViewView;
+player.view.ConfigurationViewView.__name__ = ["player","view","ConfigurationViewView"];
+player.view.ConfigurationViewView.__super__ = sx.mvc.view.VBoxView;
+player.view.ConfigurationViewView.prototype = $extend(sx.mvc.view.VBoxView.prototype,{
+	addSkin: function() {
+		var skin = new ru.stablex.ui.skins.Paint();
+		skin.color = 16777215;
+		skin.alpha = 0.4;
+		skin.border = 1;
+		skin.borderColor = 16711680;
+		skin.apply(this);
 	}
-	,btnStart: null
-	,__class__: player.view.PagesView
+	,createChildren: function() {
+		this.childPadding = 0;
+		this.align = "top,left";
+		this.labelTitle = ru.stablex.ui.UIBuilder.create(ru.stablex.ui.widgets.Text);
+		this.labelTitle.set_text("CONFIGURATION:");
+		this.addChild(this.labelTitle);
+		this.labelUserId = ru.stablex.ui.UIBuilder.create(ru.stablex.ui.widgets.Text);
+		this.labelUserId.set_text("UserId:");
+		this.addChild(this.labelUserId);
+		this.labelProductId = ru.stablex.ui.UIBuilder.create(ru.stablex.ui.widgets.Text);
+		this.labelProductId.set_text("ProductId:");
+		this.addChild(this.labelProductId);
+		this.labelHost = ru.stablex.ui.UIBuilder.create(ru.stablex.ui.widgets.Text);
+		this.labelHost.set_text("Host:");
+		this.addChild(this.labelHost);
+		this.labelPlaybackLevel = ru.stablex.ui.UIBuilder.create(ru.stablex.ui.widgets.Text);
+		this.labelPlaybackLevel.set_text("PlaybackLevel:");
+		this.addChild(this.labelPlaybackLevel);
+		this.labelPlaybackChannelIds = ru.stablex.ui.UIBuilder.create(ru.stablex.ui.widgets.Text);
+		this.labelPlaybackChannelIds.set_text("Channel ids:");
+		this.addChild(this.labelPlaybackChannelIds);
+		this.labelPlaybackChannelLabels = ru.stablex.ui.UIBuilder.create(ru.stablex.ui.widgets.Text);
+		this.labelPlaybackChannelLabels.set_text("Channel labels:");
+		this.addChild(this.labelPlaybackChannelLabels);
+		this.set_w(360);
+		this.set_h(160);
+	}
+	,btn: null
+	,labelPlaybackChannelLabels: null
+	,labelPlaybackChannelIds: null
+	,labelPlaybackLevel: null
+	,labelHost: null
+	,labelProductId: null
+	,labelUserId: null
+	,labelTitle: null
+	,label: null
+	,__class__: player.view.ConfigurationViewView
 });
-player.view.PagesMediator = function() {
+player.view.ConfigurationViewMediator = function() {
 	mmvc.impl.Mediator.call(this);
 };
-$hxClasses["player.view.PagesMediator"] = player.view.PagesMediator;
-player.view.PagesMediator.__name__ = ["player","view","PagesMediator"];
-player.view.PagesMediator.__super__ = mmvc.impl.Mediator;
-player.view.PagesMediator.prototype = $extend(mmvc.impl.Mediator.prototype,{
+$hxClasses["player.view.ConfigurationViewMediator"] = player.view.ConfigurationViewMediator;
+player.view.ConfigurationViewMediator.__name__ = ["player","view","ConfigurationViewMediator"];
+player.view.ConfigurationViewMediator.__super__ = mmvc.impl.Mediator;
+player.view.ConfigurationViewMediator.prototype = $extend(mmvc.impl.Mediator.prototype,{
 	onRegister: function() {
-		console.log("PagesMediator registered");
+		var _g = this;
+		console.log("ConfigurationViewMediator registered");
+		this.mediate(this.config.updated.add(function() {
+			_g.view.labelUserId.set_text("UserId: " + _g.config.userId);
+			_g.view.labelProductId.set_text("ProductId: " + _g.config.productId);
+			_g.view.labelHost.set_text("Host: " + _g.config.host);
+			_g.view.labelPlaybackLevel.set_text("PlaybackLevel: " + Std.string(_g.config.playbackLevel));
+			_g.view.labelPlaybackChannelIds.set_text("Channel ids: ");
+			_g.view.labelPlaybackChannelLabels.set_text("Channel labels: ");
+			if(_g.config.playbackChannels != null) {
+				var _g1 = 0, _g2 = _g.config.playbackChannels;
+				while(_g1 < _g2.length) {
+					var channel = _g2[_g1];
+					++_g1;
+					var _g3 = _g.view.labelPlaybackChannelIds;
+					_g3.set_text(_g3.get_text() + channel.channelId);
+					var _g3 = _g.view.labelPlaybackChannelLabels;
+					_g3.set_text(_g3.get_text() + channel.channelLabel);
+				}
+			}
+		}));
 	}
-	,loadPages: null
-	,__class__: player.view.PagesMediator
+	,config: null
+	,__class__: player.view.ConfigurationViewMediator
+});
+player.view.ZoomView = function() {
+	sx.mvc.view.VBoxView.call(this);
+};
+$hxClasses["player.view.ZoomView"] = player.view.ZoomView;
+player.view.ZoomView.__name__ = ["player","view","ZoomView"];
+player.view.ZoomView.__super__ = sx.mvc.view.VBoxView;
+player.view.ZoomView.prototype = $extend(sx.mvc.view.VBoxView.prototype,{
+	createButton: function(text) {
+		var btn = ru.stablex.ui.UIBuilder.create(ru.stablex.ui.widgets.Button);
+		btn.set_w(Constants.PLAYER_VIEW_ZOOMBUTTONS_W - 8);
+		btn.set_h(40);
+		btn.set_text(text);
+		var skin = new ru.stablex.ui.skins.Paint();
+		skin.color = 16777215;
+		skin.corners = [8,8];
+		skin.border = 2;
+		skin.borderColor = 13421772;
+		btn.skin = skin;
+		var skin1 = new ru.stablex.ui.skins.Paint();
+		skin1.color = 16777215;
+		skin1.corners = [8,8];
+		skin1.border = 2;
+		skin1.borderColor = 8947848;
+		btn.skinHovered = skin1;
+		btn.refresh();
+		return btn;
+	}
+	,createChildren: function() {
+		this.align = "top,center";
+		this.btnScreenFull = this.createButton("Full");
+		this.addChild(this.btnScreenFull);
+		this.btnZ40 = this.createButton("40%");
+		this.addChild(this.btnZ40);
+		this.btnFull = this.createButton("Page");
+		this.addChild(this.btnFull);
+		this.set_w(Constants.PLAYER_VIEW_ZOOMBUTTONS_W);
+	}
+	,btnFull: null
+	,btnZ40: null
+	,btnScreenFull: null
+	,__class__: player.view.ZoomView
+});
+player.view.ZoomMediator = function() {
+	this.firstFullscreen = true;
+	mmvc.impl.Mediator.call(this);
+};
+$hxClasses["player.view.ZoomMediator"] = player.view.ZoomMediator;
+player.view.ZoomMediator.__name__ = ["player","view","ZoomMediator"];
+player.view.ZoomMediator.__super__ = mmvc.impl.Mediator;
+player.view.ZoomMediator.prototype = $extend(mmvc.impl.Mediator.prototype,{
+	onRegister: function() {
+		var _g = this;
+		console.log("ZoomMediator registered");
+		this.view.btnZ40.onPress = function(e) {
+			_g.setzoom.dispatch(sx.mvc.view.enums.ScrollWidgetZoom.Zoom40);
+		};
+		this.view.btnFull.onPress = function(e) {
+			_g.setzoom.dispatch(sx.mvc.view.enums.ScrollWidgetZoom.ZoomFullHeight);
+		};
+		this.view.btnScreenFull.onPress = function(e) {
+			Debug.log(flash.Lib.get_current().get_stage().displayState);
+			var size = __jsFullscreen();
+			Debug.log(size);
+			cx.TimerTools.delay(function() {
+				Debug.log("resize");
+				flash.Lib.get_current().get_stage().dispatchEvent(new flash.events.Event(flash.events.Event.RESIZE));
+			},300);
+		};
+	}
+	,firstFullscreen: null
+	,setzoom: null
+	,__class__: player.view.ZoomMediator
 });
 ru.stablex.Assets = function() { }
 $hxClasses["ru.stablex.Assets"] = ru.stablex.Assets;
@@ -17180,6 +17179,116 @@ ru.stablex.ui.widgets.Button.prototype = $extend(ru.stablex.ui.widgets.Text.prot
 	,__class__: ru.stablex.ui.widgets.Button
 	,__properties__: $extend(ru.stablex.ui.widgets.Text.prototype.__properties__,{set_ico:"set_ico",get_ico:"get_ico",set_icoHovered:"set_icoHovered",get_icoHovered:"get_icoHovered",set_icoPressed:"set_icoPressed",get_icoPressed:"get_icoPressed",set_icoBeforeLabel:"set_icoBeforeLabel",set_skinHoveredName:"set_skinHoveredName",set_skinPressedName:"set_skinPressedName"})
 });
+ru.stablex.ui.widgets.StateButton = function() {
+	this._currentIdx = 0;
+	ru.stablex.ui.widgets.Button.call(this);
+	this.states = new ru.stablex.DynamicList(ru.stablex.ui.misc.BtnState);
+	this.addEventListener(flash.events.MouseEvent.CLICK,$bind(this,this.nextState));
+};
+$hxClasses["ru.stablex.ui.widgets.StateButton"] = ru.stablex.ui.widgets.StateButton;
+ru.stablex.ui.widgets.StateButton.__name__ = ["ru","stablex","ui","widgets","StateButton"];
+ru.stablex.ui.widgets.StateButton.__super__ = ru.stablex.ui.widgets.Button;
+ru.stablex.ui.widgets.StateButton.prototype = $extend(ru.stablex.ui.widgets.Button.prototype,{
+	onInitialize: function() {
+		this.updateState();
+		ru.stablex.ui.widgets.Button.prototype.onInitialize.call(this);
+	}
+	,updateState: function() {
+		if(this.order != null && this.order.length > 0) {
+			var state = this.states.resolve(this.get_state());
+			this.label.set_text(state.text == null?this.get_text() == null?this.get_state():this.get_text():state.text);
+			if(state.skin != null) this.skin = state.skin;
+			if(state._ico != null) this.set_ico(state._ico);
+			if(this.created) this.refresh();
+		}
+	}
+	,set: function(state) {
+		if(this.order == null || this.order.length == 0) return;
+		var _g1 = 0, _g = this.order.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(this.order[i] == state) {
+				this.set__currentIdx(i);
+				break;
+			}
+		}
+		if(this.created) this.updateState();
+	}
+	,nextState: function(e) {
+		if(this.order == null || this.order.length == 0) return;
+		if(this.order.length <= this._currentIdx + 1) this.set__currentIdx(0); else {
+			var _g = this, _g1 = _g._currentIdx;
+			_g.set__currentIdx(_g1 + 1);
+			_g1;
+		}
+		this.updateState();
+	}
+	,set_state: function(s) {
+		this.set(s);
+		return s;
+	}
+	,get_state: function() {
+		if(this.order == null || this.order.length == 0) return null;
+		return this.order[this._currentIdx];
+	}
+	,set__currentIdx: function(idx) {
+		if(idx != this._currentIdx) {
+			this._currentIdx = idx;
+			if(this.created) this.dispatchEvent(new ru.stablex.ui.events.WidgetEvent("widgetChange"));
+		}
+		return idx;
+	}
+	,_currentIdx: null
+	,order: null
+	,states: null
+	,__class__: ru.stablex.ui.widgets.StateButton
+	,__properties__: $extend(ru.stablex.ui.widgets.Button.prototype.__properties__,{set_state:"set_state",get_state:"get_state",set__currentIdx:"set__currentIdx"})
+});
+ru.stablex.ui.widgets.Toggle = function() {
+	this.selected = false;
+	this.highlightOnSelect = false;
+	ru.stablex.ui.widgets.StateButton.call(this);
+	this.order = ["up","down"];
+};
+$hxClasses["ru.stablex.ui.widgets.Toggle"] = ru.stablex.ui.widgets.Toggle;
+ru.stablex.ui.widgets.Toggle.__name__ = ["ru","stablex","ui","widgets","Toggle"];
+ru.stablex.ui.widgets.Toggle.__super__ = ru.stablex.ui.widgets.StateButton;
+ru.stablex.ui.widgets.Toggle.prototype = $extend(ru.stablex.ui.widgets.StateButton.prototype,{
+	refresh: function() {
+		if(this.highlightOnSelect && this.get_state() == "down") this.highlight(); else if(this.highlightOnSelect) this.unhighlight();
+		ru.stablex.ui.widgets.StateButton.prototype.refresh.call(this);
+	}
+	,toggle: function() {
+		this.nextState();
+	}
+	,down: function() {
+		this.set("down");
+	}
+	,up: function() {
+		this.set("up");
+	}
+	,set_selected: function(s) {
+		if(s) this.down(); else this.up();
+		return s;
+	}
+	,get_selected: function() {
+		return this.get_state() == "down";
+	}
+	,selected: null
+	,highlightOnSelect: null
+	,__class__: ru.stablex.ui.widgets.Toggle
+	,__properties__: $extend(ru.stablex.ui.widgets.StateButton.prototype.__properties__,{set_selected:"set_selected",get_selected:"get_selected"})
+});
+ru.stablex.ui.widgets.Checkbox = function() {
+	ru.stablex.ui.widgets.Toggle.call(this);
+	this.mouseChildren = true;
+};
+$hxClasses["ru.stablex.ui.widgets.Checkbox"] = ru.stablex.ui.widgets.Checkbox;
+ru.stablex.ui.widgets.Checkbox.__name__ = ["ru","stablex","ui","widgets","Checkbox"];
+ru.stablex.ui.widgets.Checkbox.__super__ = ru.stablex.ui.widgets.Toggle;
+ru.stablex.ui.widgets.Checkbox.prototype = $extend(ru.stablex.ui.widgets.Toggle.prototype,{
+	__class__: ru.stablex.ui.widgets.Checkbox
+});
 ru.stablex.ui.widgets.Floating = function() {
 	this.renderTo = null;
 	this.shown = false;
@@ -17254,6 +17363,16 @@ ru.stablex.ui.widgets.Floating.prototype = $extend(ru.stablex.ui.widgets.Box.pro
 	,shown: null
 	,__class__: ru.stablex.ui.widgets.Floating
 });
+ru.stablex.ui.widgets.HBox = function() {
+	ru.stablex.ui.widgets.Box.call(this);
+	this.vertical = false;
+};
+$hxClasses["ru.stablex.ui.widgets.HBox"] = ru.stablex.ui.widgets.HBox;
+ru.stablex.ui.widgets.HBox.__name__ = ["ru","stablex","ui","widgets","HBox"];
+ru.stablex.ui.widgets.HBox.__super__ = ru.stablex.ui.widgets.Box;
+ru.stablex.ui.widgets.HBox.prototype = $extend(ru.stablex.ui.widgets.Box.prototype,{
+	__class__: ru.stablex.ui.widgets.HBox
+});
 ru.stablex.ui.widgets.InputText = function() {
 	var _g = this;
 	ru.stablex.ui.widgets.Text.call(this);
@@ -17286,7 +17405,7 @@ ru.stablex.ui.widgets.InputText.prototype = $extend(ru.stablex.ui.widgets.Text.p
 });
 ru.stablex.ui.widgets.Options = function() {
 	this._selectedIdx = 0;
-	this._rebuildList = true;
+	this.rebuildList = true;
 	this.alignList = true;
 	this.optionDefaults = "Default";
 	ru.stablex.ui.widgets.Button.call(this);
@@ -17310,10 +17429,7 @@ ru.stablex.ui.widgets.Options.prototype = $extend(ru.stablex.ui.widgets.Button.p
 		var obj = e.currentTarget;
 		if(obj != null) {
 			var idx = Std.parseInt(obj.name);
-			if(this.options != null && this.options.length > idx) {
-				this.set__selectedIdx(idx);
-				this.set_text(this.options[idx][0]);
-			}
+			if(this.options != null && this.options.length > idx) this.set__selectedIdx(idx);
 		}
 	}
 	,_buildList: function() {
@@ -17329,9 +17445,9 @@ ru.stablex.ui.widgets.Options.prototype = $extend(ru.stablex.ui.widgets.Button.p
 	}
 	,toggleList: function(e) {
 		if(this.list.shown) this.list.hide(); else {
-			if(this._rebuildList) {
+			if(this.rebuildList) {
 				this._buildList();
-				this._rebuildList = false;
+				this.rebuildList = false;
 			}
 			if(this.alignList) {
 				var rect = this.getRect(flash.Lib.get_current());
@@ -17370,20 +17486,22 @@ ru.stablex.ui.widgets.Options.prototype = $extend(ru.stablex.ui.widgets.Button.p
 			var i = _g1++;
 			if(o[i].length != 2 || !js.Boot.__instanceof(o[i][0],String)) ru.stablex.Err.trigger("Wrong options list format. Should be [[String,Dynamic], [String,Dynamic], ...] instead of " + Std.string(o));
 		}
+		this.rebuildList = true;
 		this.set__selectedIdx(0);
 		this.set_text(o[this._selectedIdx][0]);
 		return this.options = o;
 	}
 	,set__selectedIdx: function(idx) {
 		if(idx != this._selectedIdx) {
-			this._rebuildList = true;
+			this.rebuildList = true;
 			this._selectedIdx = idx;
+			this.set_text(this.options[idx][0]);
 			this.dispatchEvent(new ru.stablex.ui.events.WidgetEvent("widgetChange"));
 		}
 		return idx;
 	}
 	,_selectedIdx: null
-	,_rebuildList: null
+	,rebuildList: null
 	,alignList: null
 	,optionDefaults: null
 	,box: null
@@ -17391,6 +17509,260 @@ ru.stablex.ui.widgets.Options.prototype = $extend(ru.stablex.ui.widgets.Button.p
 	,options: null
 	,__class__: ru.stablex.ui.widgets.Options
 	,__properties__: $extend(ru.stablex.ui.widgets.Button.prototype.__properties__,{set_options:"set_options",set_value:"set_value",get_value:"get_value",set__selectedIdx:"set__selectedIdx"})
+});
+ru.stablex.ui.widgets.Progress = function() {
+	this.interactive = false;
+	this._value = 0;
+	this.value = 0;
+	this.max = 100;
+	ru.stablex.ui.widgets.Widget.call(this);
+	this.bar = this.addChild(ru.stablex.ui.UIBuilder.create(ru.stablex.ui.widgets.Widget));
+	this.bar.set_heightPt(100);
+};
+$hxClasses["ru.stablex.ui.widgets.Progress"] = ru.stablex.ui.widgets.Progress;
+ru.stablex.ui.widgets.Progress.__name__ = ["ru","stablex","ui","widgets","Progress"];
+ru.stablex.ui.widgets.Progress.__super__ = ru.stablex.ui.widgets.Widget;
+ru.stablex.ui.widgets.Progress.prototype = $extend(ru.stablex.ui.widgets.Widget.prototype,{
+	_slide: function(e) {
+		var _g = this;
+		var dx = this.get_mouseX();
+		var fn = function(e1) {
+			var newValue = Math.min(_g.get_mouseX() / _g._width * _g.max,_g.max);
+			if(newValue != _g.get_value()) {
+				if(newValue < 0) newValue = 0; else if(newValue > _g.max) newValue = _g.max;
+				_g.set_value(newValue);
+			}
+		};
+		var fnRelease = null;
+		fnRelease = function(e1) {
+			_g.removeEventListener(flash.events.Event.ENTER_FRAME,fn);
+			flash.Lib.get_current().get_stage().removeEventListener(flash.events.MouseEvent.MOUSE_UP,fnRelease);
+		};
+		this.addEventListener(flash.events.Event.ENTER_FRAME,fn);
+		flash.Lib.get_current().get_stage().addEventListener(flash.events.MouseEvent.MOUSE_UP,fnRelease);
+	}
+	,set_interactive: function(interactive) {
+		if(interactive) this.addUniqueListener(flash.events.MouseEvent.MOUSE_DOWN,$bind(this,this._slide)); else this.removeEventListener(flash.events.MouseEvent.MOUSE_DOWN,$bind(this,this._slide));
+		return this.interactive = interactive;
+	}
+	,_setBarWidth: function(value,max) {
+		if(!this.smoothChange) this.bar.set_widthPt(100 * (max <= 0 || value <= 0?0:value / max)); else this.bar.tween(0.1,{ widthPt : 100 * (max <= 0 || value <= 0?0:value / max)},"Quad.easeIn");
+	}
+	,get_value: function() {
+		return this._value;
+	}
+	,set_value: function(v) {
+		this._setBarWidth(v,this.max);
+		this._value = v;
+		if(this.created) this.dispatchEvent(new ru.stablex.ui.events.WidgetEvent("widgetChange"));
+		return v;
+	}
+	,set_max: function(m) {
+		if(this.created) this._setBarWidth(this.get_value(),m);
+		return this.max = m;
+	}
+	,onCreate: function() {
+		ru.stablex.ui.widgets.Widget.prototype.onCreate.call(this);
+		this._setBarWidth(this.get_value(),this.max);
+	}
+	,smoothChange: null
+	,interactive: null
+	,bar: null
+	,_value: null
+	,value: null
+	,max: null
+	,__class__: ru.stablex.ui.widgets.Progress
+	,__properties__: $extend(ru.stablex.ui.widgets.Widget.prototype.__properties__,{set_max:"set_max",set_value:"set_value",get_value:"get_value",set_interactive:"set_interactive"})
+});
+ru.stablex.ui.widgets.Scroll = function() {
+	this._processingDrag = false;
+	this.wheelScrollSpeed = 10;
+	this.dragScroll = true;
+	this.hScrollKey = "alt";
+	this.wheelScroll = true;
+	this.hScroll = true;
+	this.vScroll = true;
+	ru.stablex.ui.widgets.Widget.call(this);
+	this.set_overflow(false);
+	this.set_vBar(ru.stablex.ui.UIBuilder.create(ru.stablex.ui.widgets.Slider,{ vertical : true, right : 0, top : 0, heightPt : 100, w : 10, slider : { widthPt : 100}}));
+	this.set_hBar(ru.stablex.ui.UIBuilder.create(ru.stablex.ui.widgets.Slider,{ vertical : false, bottom : 0, left : 0, widthPt : 100, h : 10, slider : { heightPt : 100}}));
+	this.addUniqueListener(flash.events.MouseEvent.MOUSE_WHEEL,$bind(this,this._beforeScroll));
+	this.addUniqueListener(flash.events.MouseEvent.MOUSE_DOWN,$bind(this,this._beforeScroll));
+};
+$hxClasses["ru.stablex.ui.widgets.Scroll"] = ru.stablex.ui.widgets.Scroll;
+ru.stablex.ui.widgets.Scroll.__name__ = ["ru","stablex","ui","widgets","Scroll"];
+ru.stablex.ui.widgets.Scroll.__super__ = ru.stablex.ui.widgets.Widget;
+ru.stablex.ui.widgets.Scroll.prototype = $extend(ru.stablex.ui.widgets.Widget.prototype,{
+	_wheelScroll: function(e) {
+		if(this.hScroll && (e.altKey && this.hScrollKey == "alt" || e.shiftKey && this.hScrollKey == "shift" || e.ctrlKey && this.hScrollKey == "ctrl")) {
+			this.tweenStop();
+			var _g = this;
+			_g.set_scrollX(_g.get_scrollX() + e.delta * this.wheelScrollSpeed);
+		} else if(this.vScroll) {
+			this.tweenStop();
+			var _g = this;
+			_g.set_scrollY(_g.get_scrollY() + e.delta * this.wheelScrollSpeed);
+		}
+	}
+	,_dragScroll: function(e) {
+		var _g = this;
+		if(this._processingDrag) return;
+		this._processingDrag = true;
+		var dx = this.get_mouseX() - this.get_scrollX();
+		var dy = this.get_mouseY() - this.get_scrollY();
+		var lastX = this.get_mouseX();
+		var lastY = this.get_mouseY();
+		var lastDx = 0;
+		var lastDy = 0;
+		var startX = this.get_mouseX();
+		var startY = this.get_mouseY();
+		var scrolled = false;
+		var vScroll = this.vScroll && this.get_box().get_h() > this.get_h();
+		var hScroll = this.hScroll && this.get_box().get_w() > this.get_w();
+		this.tweenStop(["scrollX","scrollY"],false,true);
+		var blocker = new flash.display.Sprite();
+		blocker.get_graphics().beginFill(0,0);
+		blocker.get_graphics().drawRect(0,0,this.get_w(),this.get_h());
+		blocker.get_graphics().endFill();
+		var fn = function(e1) {
+			if(scrolled) {
+				if(hScroll) _g.set_scrollX(_g.get_mouseX() - dx);
+				if(vScroll) _g.set_scrollY(_g.get_mouseY() - dy);
+			} else if(hScroll && !scrolled && Math.abs(_g.get_mouseX() - startX) >= 5 || vScroll && !scrolled && Math.abs(_g.get_mouseY() - startY) >= 5) {
+				_g.addChild(blocker);
+				scrolled = true;
+				_g.get_box().mouseEnabled = false;
+				_g.get_box().mouseChildren = false;
+				_g.dispatchEvent(new ru.stablex.ui.events.WidgetEvent("widgetScrollStart"));
+			}
+			lastDx = _g.get_mouseX() - lastX;
+			lastDy = _g.get_mouseY() - lastY;
+			lastX = _g.get_mouseX();
+			lastY = _g.get_mouseY();
+		};
+		this.addUniqueListener(flash.events.Event.ENTER_FRAME,fn);
+		var fnStop = null;
+		fnStop = function(e1) {
+			_g._processingDrag = false;
+			_g.removeEventListener(flash.events.Event.ENTER_FRAME,fn);
+			flash.Lib.get_current().get_stage().removeEventListener(flash.events.MouseEvent.MOUSE_UP,fnStop);
+			if(scrolled) {
+				var finish = function() {
+					_g.dispatchEvent(new ru.stablex.ui.events.WidgetEvent("widgetScrollStop"));
+				};
+				if(vScroll && hScroll) _g.tween(2,{ scrollX : _g.get_scrollX() + lastDx * 20, scrollY : _g.get_scrollY() + lastDy * 20},"Expo.easeOut").onComplete(finish); else if(vScroll) _g.tween(2,{ scrollY : _g.get_scrollY() + lastDy * 20},"Expo.easeOut").onComplete(finish); else _g.tween(2,{ scrollX : _g.get_scrollX() + lastDx * 20},"Expo.easeOut").onComplete(finish);
+				if(blocker.parent == _g) _g.removeChild(blocker);
+				_g.get_box().mouseEnabled = true;
+				_g.get_box().mouseChildren = true;
+			}
+		};
+		flash.Lib.get_current().get_stage().removeEventListener(flash.events.MouseEvent.MOUSE_UP,fnStop);
+		flash.Lib.get_current().get_stage().addEventListener(flash.events.MouseEvent.MOUSE_UP,fnStop);
+	}
+	,_startScroll: function(e) {
+		this.removeEventListener("scrollBefore",$bind(this,this._startScroll));
+		if(e.canceled) return;
+		if(e.srcEvent.type == flash.events.MouseEvent.MOUSE_DOWN && this.dragScroll) this._dragScroll(js.Boot.__instanceof(e.srcEvent,flash.events.MouseEvent)?e.srcEvent:null); else if(e.srcEvent.type == flash.events.MouseEvent.MOUSE_WHEEL && this.wheelScroll) this._wheelScroll(js.Boot.__instanceof(e.srcEvent,flash.events.MouseEvent)?e.srcEvent:null);
+	}
+	,_beforeScroll: function(e) {
+		if(e.target == this.vBar || e.target == this.hBar || this.vBar != null && e.target == this.vBar.slider || this.hBar != null && e.target == this.hBar.slider) return;
+		this.addUniqueListener("scrollBefore",$bind(this,this._startScroll));
+		var e1 = new ru.stablex.ui.events.ScrollEvent("scrollBefore",e);
+		this.dispatchEvent(e1);
+	}
+	,_onHBarChange: function(e) {
+		if(Math.abs(this.get_scrollX() + this.hBar.get_value()) >= 1) {
+			this.tweenStop();
+			this.set_scrollX(-this.hBar.get_value());
+		}
+	}
+	,_onVBarChange: function(e) {
+		if(Math.abs(this.get_scrollY() - this.vBar.get_value()) >= 1) {
+			this.tweenStop();
+			this.set_scrollY(this.vBar.get_value());
+		}
+	}
+	,refresh: function() {
+		this.get_box().refresh();
+		ru.stablex.ui.widgets.Widget.prototype.refresh.call(this);
+		if(this.vBar != null) {
+			this.addChildAt(this.vBar,1);
+			this.vBar.min = this.get_h() - this.get_box().get_h() < 0?this.get_h() - this.get_box().get_h():0;
+			this.vBar.max = 0;
+			var k = this.vBar.get_h() / this.get_box().get_h();
+			if(k > 1) k = 1;
+			this.vBar.slider.set_h(this.get_h() * k);
+			this.vBar.refresh();
+			this.vBar.addUniqueListener("widgetChange",$bind(this,this._onVBarChange));
+		}
+		if(this.hBar != null) {
+			this.addChildAt(this.hBar,1);
+			this.hBar.max = -(this.get_w() - this.get_box().get_w() < 0?this.get_w() - this.get_box().get_w():0);
+			this.hBar.min = 0;
+			var k = this.hBar.get_w() / this.get_box().get_w();
+			if(k > 1) k = 1;
+			this.hBar.slider.set_w(this.hBar.get_w() * k);
+			this.hBar.refresh();
+			this.hBar.addUniqueListener("widgetChange",$bind(this,this._onHBarChange));
+		}
+	}
+	,set_hBar: function(bar) {
+		if(bar == null && this.hBar != null) this.hBar.free();
+		return this.hBar = bar;
+	}
+	,set_vBar: function(bar) {
+		if(bar == null && this.vBar != null) this.vBar.free();
+		return this.vBar = bar;
+	}
+	,get_scrollY: function() {
+		return this.get_box().get_top();
+	}
+	,set_scrollY: function(y) {
+		if(this.get_box()._height > this._height) {
+			if(y > 0) y = 0;
+			if(y + this.get_box()._height < this._height) y = this._height - this.get_box()._height;
+			this.get_box().set_top(y);
+			if(this.vBar != null && Math.abs(this.vBar.get_value() - y) >= 1) this.vBar.set_value(y);
+		}
+		return y;
+	}
+	,get_scrollX: function() {
+		return this.get_box().get_left();
+	}
+	,set_scrollX: function(x) {
+		if(this.get_box()._width > this._width) {
+			if(x > 0) x = 0;
+			if(x + this.get_box()._width < this._width) x = this._width - this.get_box()._width;
+			this.get_box().set_left(x);
+			if(this.hBar != null && Math.abs(this.hBar.get_value() + x) >= 1) this.hBar.set_value(-x);
+		}
+		return x;
+	}
+	,get_box: function() {
+		if(this.nmeChildren.length == 0) {
+			console.log("Scroll widget must have at least one child.");
+			throw "Scroll widget must have at least one child.";
+			return null;
+		} else {
+			var child = this.getChildAt(0);
+			if(!js.Boot.__instanceof(child,ru.stablex.ui.widgets.Widget)) {
+				console.log("Instance of Widget must be the first child for Scroll widget");
+				throw "Instance of Widget must be the first child for Scroll widget";
+			}
+			return js.Boot.__cast(child , ru.stablex.ui.widgets.Widget);
+		}
+	}
+	,_processingDrag: null
+	,hBar: null
+	,vBar: null
+	,wheelScrollSpeed: null
+	,dragScroll: null
+	,hScrollKey: null
+	,wheelScroll: null
+	,hScroll: null
+	,vScroll: null
+	,__class__: ru.stablex.ui.widgets.Scroll
+	,__properties__: $extend(ru.stablex.ui.widgets.Widget.prototype.__properties__,{get_box:"get_box",set_scrollX:"set_scrollX",get_scrollX:"get_scrollX",set_scrollY:"set_scrollY",get_scrollY:"get_scrollY",set_vBar:"set_vBar",set_hBar:"set_hBar"})
 });
 ru.stablex.ui.widgets.Slider = function() {
 	this.vertical = false;
@@ -17489,71 +17861,6 @@ ru.stablex.ui.widgets.Slider.prototype = $extend(ru.stablex.ui.widgets.Widget.pr
 	,__class__: ru.stablex.ui.widgets.Slider
 	,__properties__: $extend(ru.stablex.ui.widgets.Widget.prototype.__properties__,{set_value:"set_value",get_value:"get_value"})
 });
-ru.stablex.ui.widgets.StateButton = function() {
-	this._currentIdx = 0;
-	ru.stablex.ui.widgets.Button.call(this);
-	this.states = new ru.stablex.DynamicList(ru.stablex.ui.misc.BtnState);
-	this.addEventListener(flash.events.MouseEvent.CLICK,$bind(this,this.nextState));
-};
-$hxClasses["ru.stablex.ui.widgets.StateButton"] = ru.stablex.ui.widgets.StateButton;
-ru.stablex.ui.widgets.StateButton.__name__ = ["ru","stablex","ui","widgets","StateButton"];
-ru.stablex.ui.widgets.StateButton.__super__ = ru.stablex.ui.widgets.Button;
-ru.stablex.ui.widgets.StateButton.prototype = $extend(ru.stablex.ui.widgets.Button.prototype,{
-	onInitialize: function() {
-		this.updateState();
-		ru.stablex.ui.widgets.Button.prototype.onInitialize.call(this);
-	}
-	,updateState: function() {
-		if(this.order != null && this.order.length > 0) {
-			var state = this.states.resolve(this.get_state());
-			this.label.set_text(state.text == null?this.get_text() == null?this.get_state():this.get_text():state.text);
-			if(state.skin != null) this.skin = state.skin;
-			if(state._ico != null) this.set_ico(state._ico);
-			if(this.created) this.refresh();
-		}
-	}
-	,set: function(state) {
-		if(this.order == null || this.order.length == 0) return;
-		var _g1 = 0, _g = this.order.length;
-		while(_g1 < _g) {
-			var i = _g1++;
-			if(this.order[i] == state) {
-				this.set__currentIdx(i);
-				break;
-			}
-		}
-		if(this.created) this.updateState();
-	}
-	,nextState: function(e) {
-		if(this.order == null || this.order.length == 0) return;
-		if(this.order.length <= this._currentIdx + 1) this.set__currentIdx(0); else {
-			var _g = this, _g1 = _g._currentIdx;
-			_g.set__currentIdx(_g1 + 1);
-			_g1;
-		}
-		this.updateState();
-	}
-	,set_state: function(s) {
-		this.set(s);
-		return s;
-	}
-	,get_state: function() {
-		if(this.order == null || this.order.length == 0) return null;
-		return this.order[this._currentIdx];
-	}
-	,set__currentIdx: function(idx) {
-		if(idx != this._currentIdx) {
-			this._currentIdx = idx;
-			if(this.created) this.dispatchEvent(new ru.stablex.ui.events.WidgetEvent("widgetChange"));
-		}
-		return idx;
-	}
-	,_currentIdx: null
-	,order: null
-	,states: null
-	,__class__: ru.stablex.ui.widgets.StateButton
-	,__properties__: $extend(ru.stablex.ui.widgets.Button.prototype.__properties__,{set_state:"set_state",get_state:"get_state",set__currentIdx:"set__currentIdx"})
-});
 ru.stablex.ui.widgets.Tip = function() {
 	ru.stablex.ui.widgets.Floating.call(this);
 	this.label = ru.stablex.ui.UIBuilder.create(ru.stablex.ui.widgets.Text);
@@ -17625,41 +17932,594 @@ ru.stablex.ui.widgets.Tip.prototype = $extend(ru.stablex.ui.widgets.Floating.pro
 	,__class__: ru.stablex.ui.widgets.Tip
 	,__properties__: $extend(ru.stablex.ui.widgets.Floating.prototype.__properties__,{set_text:"set_text",get_text:"get_text"})
 });
-ru.stablex.ui.widgets.Toggle = function() {
-	this.selected = false;
-	this.highlightOnSelect = false;
-	ru.stablex.ui.widgets.StateButton.call(this);
-	this.order = ["up","down"];
+var scorx = {}
+scorx.controller = {}
+scorx.controller.Confload = function() {
+	msignal.Signal0.call(this);
+	this.completed = new msignal.Signal0();
 };
-$hxClasses["ru.stablex.ui.widgets.Toggle"] = ru.stablex.ui.widgets.Toggle;
-ru.stablex.ui.widgets.Toggle.__name__ = ["ru","stablex","ui","widgets","Toggle"];
-ru.stablex.ui.widgets.Toggle.__super__ = ru.stablex.ui.widgets.StateButton;
-ru.stablex.ui.widgets.Toggle.prototype = $extend(ru.stablex.ui.widgets.StateButton.prototype,{
-	refresh: function() {
-		if(this.highlightOnSelect && this.get_state() == "down") this.highlight(); else if(this.highlightOnSelect) this.unhighlight();
-		ru.stablex.ui.widgets.StateButton.prototype.refresh.call(this);
-	}
-	,toggle: function() {
-		this.nextState();
-	}
-	,down: function() {
-		this.set("down");
-	}
-	,up: function() {
-		this.set("up");
-	}
-	,set_selected: function(s) {
-		if(s) this.down(); else this.up();
-		return s;
-	}
-	,get_selected: function() {
-		return this.get_state() == "down";
-	}
-	,selected: null
-	,highlightOnSelect: null
-	,__class__: ru.stablex.ui.widgets.Toggle
-	,__properties__: $extend(ru.stablex.ui.widgets.StateButton.prototype.__properties__,{set_selected:"set_selected",get_selected:"get_selected"})
+$hxClasses["scorx.controller.Confload"] = scorx.controller.Confload;
+scorx.controller.Confload.__name__ = ["scorx","controller","Confload"];
+scorx.controller.Confload.__super__ = msignal.Signal0;
+scorx.controller.Confload.prototype = $extend(msignal.Signal0.prototype,{
+	completed: null
+	,__class__: scorx.controller.Confload
 });
+scorx.controller.ConfloadCommand = function() {
+	mmvc.impl.Command.call(this);
+};
+$hxClasses["scorx.controller.ConfloadCommand"] = scorx.controller.ConfloadCommand;
+scorx.controller.ConfloadCommand.__name__ = ["scorx","controller","ConfloadCommand"];
+scorx.controller.ConfloadCommand.__super__ = mmvc.impl.Command;
+scorx.controller.ConfloadCommand.prototype = $extend(mmvc.impl.Command.prototype,{
+	execute: function() {
+		Debug.log("ConfigCommand execute");
+		cx.ConfigTools.loadFlashVars(Config);
+		console.log(Config.productId);
+		console.log(Config.userId);
+		console.log(Config.host);
+		console.log(Config.playbackLevel);
+		console.log(Config.playbackChannelIds);
+		this.config.setValues(Config.productId,Config.userId,Config.host,Config.playbackLevel,Config.playbackChannelIds);
+		this.confload.completed.dispatch();
+	}
+	,config: null
+	,confload: null
+	,__class__: scorx.controller.ConfloadCommand
+});
+scorx.controller.Load = function() {
+	msignal.Signal1.call(this,String);
+	this.completed = new msignal.Signal0();
+	this.failed = new msignal.Signal1(Dynamic);
+};
+$hxClasses["scorx.controller.Load"] = scorx.controller.Load;
+scorx.controller.Load.__name__ = ["scorx","controller","Load"];
+scorx.controller.Load.__super__ = msignal.Signal1;
+scorx.controller.Load.prototype = $extend(msignal.Signal1.prototype,{
+	failed: null
+	,completed: null
+	,__class__: scorx.controller.Load
+});
+scorx.controller.LoadCommand = function() {
+	mmvc.impl.Command.call(this);
+};
+$hxClasses["scorx.controller.LoadCommand"] = scorx.controller.LoadCommand;
+scorx.controller.LoadCommand.__name__ = ["scorx","controller","LoadCommand"];
+scorx.controller.LoadCommand.__super__ = mmvc.impl.Command;
+scorx.controller.LoadCommand.prototype = $extend(mmvc.impl.Command.prototype,{
+	execute: function() {
+		var _g = this;
+		console.log("Execute() " + this.url + " - wait 2000 ms...");
+		cx.TimerTools.delay(function() {
+			console.log("Complete()!");
+			_g.load.completed.dispatch();
+		},2000);
+	}
+	,url: null
+	,load: null
+	,__class__: scorx.controller.LoadCommand
+});
+scorx.controller.LoadPagesStatus = $hxClasses["scorx.controller.LoadPagesStatus"] = { __ename__ : true, __constructs__ : ["started","progress","completed"] }
+scorx.controller.LoadPagesStatus.started = function(nrOfPages) { var $x = ["started",0,nrOfPages]; $x.__enum__ = scorx.controller.LoadPagesStatus; $x.toString = $estr; return $x; }
+scorx.controller.LoadPagesStatus.progress = function(pageInfo) { var $x = ["progress",1,pageInfo]; $x.__enum__ = scorx.controller.LoadPagesStatus; $x.toString = $estr; return $x; }
+scorx.controller.LoadPagesStatus.completed = function(nrOfPages) { var $x = ["completed",2,nrOfPages]; $x.__enum__ = scorx.controller.LoadPagesStatus; $x.toString = $estr; return $x; }
+scorx.controller.LoadParameters = function() {
+};
+$hxClasses["scorx.controller.LoadParameters"] = scorx.controller.LoadParameters;
+scorx.controller.LoadParameters.__name__ = ["scorx","controller","LoadParameters"];
+scorx.controller.LoadParameters.prototype = {
+	type: null
+	,userId: null
+	,productId: null
+	,host: null
+	,__class__: scorx.controller.LoadParameters
+}
+scorx.controller.LoadPages = function() {
+	msignal.Signal1.call(this,scorx.controller.LoadParameters);
+	this.started = new msignal.Signal1();
+	this.completed = new msignal.Signal1();
+	this.progress = new msignal.Signal1();
+	this.failed = new msignal.Signal1(Dynamic);
+	this.status = new msignal.Signal1();
+};
+$hxClasses["scorx.controller.LoadPages"] = scorx.controller.LoadPages;
+scorx.controller.LoadPages.__name__ = ["scorx","controller","LoadPages"];
+scorx.controller.LoadPages.__super__ = msignal.Signal1;
+scorx.controller.LoadPages.prototype = $extend(msignal.Signal1.prototype,{
+	status: null
+	,failed: null
+	,completed: null
+	,progress: null
+	,started: null
+	,__class__: scorx.controller.LoadPages
+});
+scorx.controller.LoadPagesCommand = function() {
+	mmvc.impl.Command.call(this);
+};
+$hxClasses["scorx.controller.LoadPagesCommand"] = scorx.controller.LoadPagesCommand;
+scorx.controller.LoadPagesCommand.__name__ = ["scorx","controller","LoadPagesCommand"];
+scorx.controller.LoadPagesCommand.__super__ = mmvc.impl.Command;
+scorx.controller.LoadPagesCommand.prototype = $extend(mmvc.impl.Command.prototype,{
+	execute: function() {
+		var _g = this;
+		Debug.log(["LoadPagesCommand...",this.loadParameters.productId,this.loadParameters.userId,this.loadParameters.host]);
+		this.loader.setParameters(this.loadParameters.productId,this.loadParameters.userId,this.loadParameters.host);
+		this.loader.onPageLoaded = function(pageNr,nrOfPages,data,type) {
+			Debug.log("loader.onPageLoaded");
+			console.log([pageNr,nrOfPages]);
+			if(pageNr == 0) {
+				_g.loadPages.status.dispatch(scorx.controller.LoadPagesStatus.started(nrOfPages));
+				Debug.log("loader.started...");
+			} else if(pageNr == nrOfPages) {
+				_g.loadPages.status.dispatch(scorx.controller.LoadPagesStatus.progress({ pageNr : pageNr, nrOfPages : nrOfPages, data : data}));
+				_g.loadPages.status.dispatch(scorx.controller.LoadPagesStatus.completed(nrOfPages));
+				Debug.log("loader.completed...");
+			} else {
+				_g.loadPages.status.dispatch(scorx.controller.LoadPagesStatus.progress({ pageNr : pageNr, nrOfPages : nrOfPages, data : data}));
+				Debug.log("loader.progress...");
+			}
+		};
+		this.loader.loadPages(this.loadParameters.type);
+	}
+	,loader: null
+	,debug: null
+	,loadParameters: null
+	,loadPages: null
+	,__class__: scorx.controller.LoadPagesCommand
+});
+scorx.controller.Play = function() {
+	msignal.Signal1.call(this,Int);
+};
+$hxClasses["scorx.controller.Play"] = scorx.controller.Play;
+scorx.controller.Play.__name__ = ["scorx","controller","Play"];
+scorx.controller.Play.__super__ = msignal.Signal1;
+scorx.controller.Play.prototype = $extend(msignal.Signal1.prototype,{
+	__class__: scorx.controller.Play
+});
+scorx.controller.PlayCommand = function() {
+	mmvc.impl.Command.call(this);
+};
+$hxClasses["scorx.controller.PlayCommand"] = scorx.controller.PlayCommand;
+scorx.controller.PlayCommand.__name__ = ["scorx","controller","PlayCommand"];
+scorx.controller.PlayCommand.__super__ = mmvc.impl.Command;
+scorx.controller.PlayCommand.prototype = $extend(mmvc.impl.Command.prototype,{
+	execute: function() {
+		Debug.log("PlayCommand execute");
+		Debug.log(this.position);
+		this.model.start(this.position);
+	}
+	,position: null
+	,play: null
+	,model: null
+	,__class__: scorx.controller.PlayCommand
+});
+scorx.controller.Stop = function() {
+	msignal.Signal0.call(this);
+};
+$hxClasses["scorx.controller.Stop"] = scorx.controller.Stop;
+scorx.controller.Stop.__name__ = ["scorx","controller","Stop"];
+scorx.controller.Stop.__super__ = msignal.Signal0;
+scorx.controller.Stop.prototype = $extend(msignal.Signal0.prototype,{
+	__class__: scorx.controller.Stop
+});
+scorx.controller.StopCommand = function() {
+	mmvc.impl.Command.call(this);
+};
+$hxClasses["scorx.controller.StopCommand"] = scorx.controller.StopCommand;
+scorx.controller.StopCommand.__name__ = ["scorx","controller","StopCommand"];
+scorx.controller.StopCommand.__super__ = mmvc.impl.Command;
+scorx.controller.StopCommand.prototype = $extend(mmvc.impl.Command.prototype,{
+	execute: function() {
+		this.model.stop();
+	}
+	,model: null
+	,__class__: scorx.controller.StopCommand
+});
+scorx.model = {}
+scorx.model.AccessLevelPlay = $hxClasses["scorx.model.AccessLevelPlay"] = { __ename__ : true, __constructs__ : ["NoPlayback","SamplePlayback","FullPlayback"] }
+scorx.model.AccessLevelPlay.NoPlayback = ["NoPlayback",0];
+scorx.model.AccessLevelPlay.NoPlayback.toString = $estr;
+scorx.model.AccessLevelPlay.NoPlayback.__enum__ = scorx.model.AccessLevelPlay;
+scorx.model.AccessLevelPlay.SamplePlayback = ["SamplePlayback",1];
+scorx.model.AccessLevelPlay.SamplePlayback.toString = $estr;
+scorx.model.AccessLevelPlay.SamplePlayback.__enum__ = scorx.model.AccessLevelPlay;
+scorx.model.AccessLevelPlay.FullPlayback = ["FullPlayback",2];
+scorx.model.AccessLevelPlay.FullPlayback.toString = $estr;
+scorx.model.AccessLevelPlay.FullPlayback.__enum__ = scorx.model.AccessLevelPlay;
+scorx.model.Configuration = function() {
+	this.userId = 0;
+	this.productId = 0;
+	this.host = "http://scorxdev.azurewebsites.net/";
+	this.updated = new msignal.Signal0();
+};
+$hxClasses["scorx.model.Configuration"] = scorx.model.Configuration;
+scorx.model.Configuration.__name__ = ["scorx","model","Configuration"];
+scorx.model.Configuration.prototype = {
+	updated: null
+	,setValues: function(productId,userId,host,playbackLevel,playbackChannelIds) {
+		if(productId != null) this.productId = productId;
+		if(userId != null) this.userId = userId;
+		if(host != null) this.host = cx.WebTools.addSlash(cx.WebTools.addHttpPrefix(host));
+		this.playbackLevel = playbackLevel == null?scorx.model.AccessLevelPlay.NoPlayback:cx.EnumTools.createFromString(scorx.model.AccessLevelPlay,playbackLevel);
+		if(this.playbackLevel == scorx.model.AccessLevelPlay.FullPlayback) {
+			this.playbackChannels = [];
+			if(playbackChannelIds != null) {
+				var channelIds = Std.string(playbackChannelIds).split(",");
+				console.log(channelIds);
+				var _g = 0;
+				while(_g < channelIds.length) {
+					var channelId = channelIds[_g];
+					++_g;
+					this.playbackChannels.push(scorx.model.utils.ChannelUtils.getChannel(channelId));
+				}
+			}
+		}
+		this.updated.dispatch();
+	}
+	,playbackChannels: null
+	,playbackLevel: null
+	,userId: null
+	,productId: null
+	,host: null
+	,__class__: scorx.model.Configuration
+}
+scorx.model.PlaybackChannel = function(channelId,channelLabel) {
+	this.channelId = channelId;
+	this.channelLabel = channelLabel;
+};
+$hxClasses["scorx.model.PlaybackChannel"] = scorx.model.PlaybackChannel;
+scorx.model.PlaybackChannel.__name__ = ["scorx","model","PlaybackChannel"];
+scorx.model.PlaybackChannel.prototype = {
+	channelLabel: null
+	,channelId: null
+	,__class__: scorx.model.PlaybackChannel
+}
+scorx.model.TimerModel = function() {
+	this.position = 0;
+	this.update = new msignal.Signal1();
+};
+$hxClasses["scorx.model.TimerModel"] = scorx.model.TimerModel;
+scorx.model.TimerModel.__name__ = ["scorx","model","TimerModel"];
+scorx.model.TimerModel.prototype = {
+	stop: function() {
+		if(this.timer != null) this.timer.stop();
+	}
+	,start: function(position) {
+		if(position == null) position = 0;
+		this.stop();
+		this.position = position;
+		this.timer = new haxe.Timer(1000);
+		this.timer.run = $bind(this,this.onUpdate);
+	}
+	,onUpdate: function() {
+		this.position++;
+		Debug.log("onUpdate " + this.position);
+		this.update.dispatch(this.position);
+	}
+	,position: null
+	,update: null
+	,timer: null
+	,__class__: scorx.model.TimerModel
+}
+scorx.model.utils = {}
+scorx.model.utils.ChannelUtils = function() { }
+$hxClasses["scorx.model.utils.ChannelUtils"] = scorx.model.utils.ChannelUtils;
+scorx.model.utils.ChannelUtils.__name__ = ["scorx","model","utils","ChannelUtils"];
+scorx.model.utils.ChannelUtils.getChannel = function(channelId) {
+	channelId = StringTools.trim(channelId);
+	return new scorx.model.PlaybackChannel(channelId,scorx.model.utils.ChannelUtils.getChannelLabel(channelId));
+}
+scorx.model.utils.ChannelUtils.getChannelLabel = function(channelId) {
+	switch(channelId) {
+	case "090":
+		return "Lead";
+	case "100":
+		return "Sopran";
+	case "101":
+		return "Sopran 1";
+	case "102":
+		return "Sopran 2";
+	case "110":
+		return "Alt";
+	case "111":
+		return "Alt 1";
+	case "112":
+		return "Alt 2";
+	case "120":
+		return "Tenor";
+	case "121":
+		return "Tenor 1";
+	case "122":
+		return "Tenor 2";
+	case "130":
+		return "Bas";
+	case "131":
+		return "Bas 1";
+	case "132":
+		return "Bas 2";
+	case "200":
+		return "Komp";
+	default:
+		return "Unknown (" + channelId + ")";
+	}
+	return "Unknown (" + channelId + ")";
+}
+scorx.view = {}
+scorx.view.ButtonsView = function() {
+	sx.mvc.view.VBoxView.call(this);
+};
+$hxClasses["scorx.view.ButtonsView"] = scorx.view.ButtonsView;
+scorx.view.ButtonsView.__name__ = ["scorx","view","ButtonsView"];
+scorx.view.ButtonsView.__super__ = sx.mvc.view.VBoxView;
+scorx.view.ButtonsView.prototype = $extend(sx.mvc.view.VBoxView.prototype,{
+	createChildren: function() {
+		this.align = "top,right";
+		this.set_w(56);
+		this.set_h(200);
+		this.btnStart = ru.stablex.ui.UIBuilder.create(ru.stablex.ui.widgets.Button);
+		this.btnStart.set_text("P");
+		this.btnStart.set_w(40);
+		this.btnStop = ru.stablex.ui.UIBuilder.create(ru.stablex.ui.widgets.Button);
+		this.btnStop.set_text("S");
+		this.btnStop.set_w(40);
+		this.btnLoad = ru.stablex.ui.UIBuilder.create(ru.stablex.ui.widgets.Button);
+		this.btnLoad.set_text("L");
+		this.btnLoad.set_w(40);
+		this.txtInfo = ru.stablex.ui.UIBuilder.create(ru.stablex.ui.widgets.Text);
+		this.txtInfo.set_text("info");
+		this.txtInfo.set_w(32);
+		this.btnStart.set_w(40);
+		this.addChild(this.txtInfo);
+	}
+	,txtInfo: null
+	,btnLoad: null
+	,btnStop: null
+	,btnStart: null
+	,__class__: scorx.view.ButtonsView
+});
+scorx.view.ButtonsMediator = function() {
+	mmvc.impl.Mediator.call(this);
+};
+$hxClasses["scorx.view.ButtonsMediator"] = scorx.view.ButtonsMediator;
+scorx.view.ButtonsMediator.__name__ = ["scorx","view","ButtonsMediator"];
+scorx.view.ButtonsMediator.__super__ = mmvc.impl.Mediator;
+scorx.view.ButtonsMediator.prototype = $extend(mmvc.impl.Mediator.prototype,{
+	onRegister: function() {
+		var _g = this;
+		this.view.btnStart.addEventListener(flash.events.MouseEvent.MOUSE_DOWN,function(e) {
+			_g.play.dispatch(222);
+		});
+		this.view.btnStop.addEventListener(flash.events.MouseEvent.MOUSE_DOWN,function(e) {
+			_g.stop.dispatch();
+		});
+		this.view.btnLoad.addEventListener(flash.events.MouseEvent.MOUSE_DOWN,function(e) {
+			var loadParameters = new scorx.controller.LoadParameters();
+			loadParameters.host = _g.config.host;
+			loadParameters.productId = _g.config.productId;
+			loadParameters.userId = _g.config.userId;
+			loadParameters.type = sx.data.ScoreLoadingType.screen;
+			_g.loadPages.dispatch(loadParameters);
+		});
+		this.mediate(this.loadPages.completed.addOnce(function(nrOfPages) {
+			Debug.log("ButtonsMediator is notified : loadPages.completed! - " + nrOfPages + " pages");
+		}));
+		this.mediate(this.config.updated.add(function() {
+			Debug.log("ButtonsMediator is notified : configModel.updated!");
+			Debug.log(_g.config.host);
+			Debug.log(_g.config.productId);
+			Debug.log(_g.config.userId);
+			_g.view.txtInfo.set_text(_g.config.productId + ":" + _g.config.userId);
+		}));
+	}
+	,config: null
+	,debug: null
+	,loadPages: null
+	,stop: null
+	,play: null
+	,__class__: scorx.view.ButtonsMediator
+});
+sx.mvc.view.ScrollWidgetView = function() {
+	var _g = this;
+	ru.stablex.ui.widgets.Scroll.call(this);
+	this.set_w(500);
+	this.set_h(500);
+	this.zoom = sx.mvc.view.enums.ScrollWidgetZoom.ZoomFullHeight;
+	this.widget = ru.stablex.ui.UIBuilder.create(ru.stablex.ui.widgets.Widget);
+	this.addChild(this.widget);
+	this.createChildren();
+	this.addSkin();
+	this.refresh();
+	this.addEventListener(flash.events.Event.ADDED,function(e) {
+		sx.mvc.app.AppView.REGISTER.dispatch(_g);
+	});
+};
+$hxClasses["sx.mvc.view.ScrollWidgetView"] = sx.mvc.view.ScrollWidgetView;
+sx.mvc.view.ScrollWidgetView.__name__ = ["sx","mvc","view","ScrollWidgetView"];
+sx.mvc.view.ScrollWidgetView.__super__ = ru.stablex.ui.widgets.Scroll;
+sx.mvc.view.ScrollWidgetView.prototype = $extend(ru.stablex.ui.widgets.Scroll.prototype,{
+	getZoomSize: function(zoom,width,height) {
+		var w = 1;
+		var h = 1;
+		if(this.zoom == null) this.zoom = sx.mvc.view.enums.ScrollWidgetZoom.Zoom40;
+		var _g = this;
+		switch( (_g.zoom)[1] ) {
+		case 1:
+			h = Math.max(297,Math.min(891,height - 20));
+			w = 210 / 297 * h;
+			break;
+		case 0:
+			w = Math.max(210,Math.min(630,width - 20));
+			h = 297 / 210 * w;
+			break;
+		case 2:
+			w = 252.;
+			h = 891 * 0.4;
+			break;
+		case 3:
+			w = 378.;
+			h = 534.6;
+			break;
+		case 4:
+			w = 504.;
+			h = 891 * 0.8;
+			break;
+		case 5:
+			w = 630;
+			h = 891;
+			break;
+		}
+		return new flash.geom.Point(w,h);
+	}
+	,addPage: function(pageNr,nrOfPages,data) {
+		var size = this.getZoomSize(this.zoom,this.get_w(),this.get_h());
+		var bmp = js.Boot.__cast(this.widget.getChildAt(pageNr - 1) , ru.stablex.ui.widgets.Bmp);
+		if(data != null) bmp._src = null;
+		bmp._bitmapData = data;
+		bmp.set_w(size.x);
+		bmp.set_h(size.y);
+		var child = this.widget.getChildAt(pageNr - 1);
+		child.set_width(size.x);
+		child.set_height(size.y);
+		bmp.removeChildAt(0);
+		bmp.removeChildAt(0);
+	}
+	,clearPages: function() {
+		while(this.widget.nmeChildren.length > 0) this.widget.removeChildAt(0);
+	}
+	,initPages: function(nrOfPages) {
+		this.clearPages();
+		var _g = 0;
+		while(_g < nrOfPages) {
+			var i = _g++;
+			this.widget.addChild(this.getTest());
+		}
+		this.resize_(0,0,this.get_w(),this.get_h());
+		this.widget.refresh();
+	}
+	,setZoom: function(zoom) {
+		this.zoom = zoom;
+		this.resize_();
+	}
+	,getTest: function() {
+		var bmp = ru.stablex.ui.UIBuilder.create(ru.stablex.ui.widgets.Bmp);
+		var size = this.getZoomSize(this.zoom,this.get_w(),this.get_h());
+		var s = new flash.display.Sprite();
+		bmp.addChild(s);
+		s.get_graphics().beginFill(14540253);
+		s.get_graphics().drawRect(0,0,size.x,size.y);
+		var child = bmp;
+		bmp.set_w(s.set_width(child.set_width(size.x)));
+		bmp.set_h(s.set_height(child.set_height(size.y)));
+		var progress = new cx.flash.ui.UIProgress(10,10,50,50,15658734,13421772,0,6);
+		progress.spin();
+		bmp.addChild(progress);
+		return bmp;
+	}
+	,resize_: function(x,y,width,height) {
+		if(height == null) height = 0;
+		if(width == null) width = 0;
+		if(y == null) y = 0;
+		if(x == null) x = 0;
+		if(width == 0) width = this.get_w();
+		if(height == 0) height = this.get_h();
+		this.set_w(width);
+		this.set_h(height);
+		var size = this.getZoomSize(this.zoom,width,height);
+		this.pageSize = cx.flash.layout.DocumentLayout.arrange(this.widget,width,size.x,size.y);
+		this.refresh();
+	}
+	,afterResize: function(x,y,width,height) {
+		var _g = this;
+		cx.TimerTools.timeout(function() {
+			_g.resize_(x,y,width,height);
+		},200);
+	}
+	,addSkin: function() {
+		var skin = new ru.stablex.ui.skins.Paint();
+		skin.color = 65280;
+		this.skin = skin;
+		this.applySkin();
+		var sliderSkin = new ru.stablex.ui.skins.Paint();
+		sliderSkin.color = 16711680;
+		sliderSkin.apply(this.vBar.slider);
+		sliderSkin.apply(this.hBar.slider);
+		var barSkin = new ru.stablex.ui.skins.Paint();
+		barSkin.color = 255;
+		barSkin.apply(this.vBar);
+		barSkin.apply(this.hBar);
+		this.vBar.set_visible(true);
+		this.vBar.set_h(0);
+		this.vBar.set_w(10);
+		this.hBar.set_visible(true);
+		this.hBar.set_h(10);
+		this.hBar.set_w(0);
+		this.refresh();
+	}
+	,createChildren: function() {
+	}
+	,onInitialize: function() {
+		ru.stablex.ui.widgets.Scroll.prototype.onInitialize.call(this);
+		console.log("on init");
+	}
+	,zoom: null
+	,pageSize: null
+	,widget: null
+	,__class__: sx.mvc.view.ScrollWidgetView
+});
+scorx.view.PagesView = function() {
+	sx.mvc.view.ScrollWidgetView.call(this);
+};
+$hxClasses["scorx.view.PagesView"] = scorx.view.PagesView;
+scorx.view.PagesView.__name__ = ["scorx","view","PagesView"];
+scorx.view.PagesView.__super__ = sx.mvc.view.ScrollWidgetView;
+scorx.view.PagesView.prototype = $extend(sx.mvc.view.ScrollWidgetView.prototype,{
+	createChildren: function() {
+	}
+	,btnStart: null
+	,__class__: scorx.view.PagesView
+});
+scorx.view.PagesMediator = function() {
+	mmvc.impl.Mediator.call(this);
+};
+$hxClasses["scorx.view.PagesMediator"] = scorx.view.PagesMediator;
+scorx.view.PagesMediator.__name__ = ["scorx","view","PagesMediator"];
+scorx.view.PagesMediator.__super__ = mmvc.impl.Mediator;
+scorx.view.PagesMediator.prototype = $extend(mmvc.impl.Mediator.prototype,{
+	onRegister: function() {
+		var _g = this;
+		Debug.log("PagesMediator registered");
+		this.mediate(this.loadPages.status.add(function(status) {
+			var $e = (status);
+			switch( $e[1] ) {
+			case 0:
+				var nrOfPages = $e[2];
+				Debug.log("PagesMediator is notified :loadPages.started... " + nrOfPages);
+				_g.view.initPages(nrOfPages);
+				break;
+			case 1:
+				var pageInfo = $e[2];
+				var pageNr = pageInfo.pageNr;
+				var nrOfPages = pageInfo.nrOfPages;
+				var data = pageInfo.data;
+				_g.view.addPage(pageNr,nrOfPages,data);
+				break;
+			case 2:
+				var nrOfPages = $e[2];
+				Debug.log("PagesMediator is notified :loadPages.completed... " + nrOfPages);
+				break;
+			}
+		}));
+		this.setzoom.add(function(zoom) {
+			_g.view.setZoom(zoom);
+		});
+	}
+	,setzoom: null
+	,loadPages: null
+	,__class__: scorx.view.PagesMediator
+});
+sx.ScorxColors = function() { }
+$hxClasses["sx.ScorxColors"] = sx.ScorxColors;
+sx.ScorxColors.__name__ = ["sx","ScorxColors"];
 sx.data = {}
 sx.data.ImageLoaderExt = function(url,idx) {
 	this.idx = idx;
@@ -17672,21 +18532,10 @@ sx.data.ImageLoaderExt.prototype = $extend(mloader.ImageLoader.prototype,{
 	idx: null
 	,__class__: sx.data.ImageLoaderExt
 });
-sx.data.ScoreLoadingType = $hxClasses["sx.data.ScoreLoadingType"] = { __ename__ : true, __constructs__ : ["screen","print","thumb"] }
-sx.data.ScoreLoadingType.screen = ["screen",0];
-sx.data.ScoreLoadingType.screen.toString = $estr;
-sx.data.ScoreLoadingType.screen.__enum__ = sx.data.ScoreLoadingType;
-sx.data.ScoreLoadingType.print = ["print",1];
-sx.data.ScoreLoadingType.print.toString = $estr;
-sx.data.ScoreLoadingType.print.__enum__ = sx.data.ScoreLoadingType;
-sx.data.ScoreLoadingType.thumb = ["thumb",2];
-sx.data.ScoreLoadingType.thumb.toString = $estr;
-sx.data.ScoreLoadingType.thumb.__enum__ = sx.data.ScoreLoadingType;
-sx.data.ScoreLoader = function(productId,userId) {
+sx.data.ScoreLoader = function(productId,userId,host) {
 	if(userId == null) userId = 0;
 	if(productId == null) productId = 0;
-	this.productId = productId;
-	this.userId = userId;
+	this.setParameters(productId,userId,host);
 };
 $hxClasses["sx.data.ScoreLoader"] = sx.data.ScoreLoader;
 sx.data.ScoreLoader.__name__ = ["sx","data","ScoreLoader"];
@@ -17699,6 +18548,7 @@ sx.data.ScoreLoader.prototype = {
 	,queueFirstPageComplete: function(event) {
 	}
 	,loadOtherPages: function(nrOfPages) {
+		Debug.log("loadOtherPages");
 		if(nrOfPages < 2) throw "This shouldn't happen!";
 		var queue = new mloader.LoaderQueue();
 		queue.maxLoading = 2;
@@ -17712,6 +18562,17 @@ sx.data.ScoreLoader.prototype = {
 		queue.load();
 	}
 	,onImageLoaded: function(event) {
+		var $e = (event.type);
+		switch( $e[1] ) {
+		case 3:
+			Debug.log("Image loaded successfully");
+			break;
+		case 4:
+			var e = $e[2];
+			Debug.log("Image Loader failed: " + Std.string(e));
+			return;
+		default:
+		}
 		var content = event.target.content;
 		var loader = js.Boot.__cast(event.target , sx.data.ImageLoaderExt);
 		var bitmapData = loader.content;
@@ -17719,9 +18580,14 @@ sx.data.ScoreLoader.prototype = {
 		this.onPageLoaded(pageNr + 1,this.nrOfPages,bitmapData,this.typeString);
 	}
 	,onCountComplete: function(event) {
+		Debug.log("onCountComplete");
 		var nrOfPages = 1;
 		try {
 			nrOfPages = Std.parseInt(event.target.content);
+			if(nrOfPages == 0) {
+				Debug.log("onCountComplete nrOfPages IS 0!!!");
+				nrOfPages = 1;
+			}
 		} catch( e ) {
 			console.log(e);
 		}
@@ -17729,22 +18595,48 @@ sx.data.ScoreLoader.prototype = {
 		this.onPageLoaded(0,this.nrOfPages,null,this.typeString);
 		if(this.nrOfPages > 1) this.loadOtherPages(this.nrOfPages);
 	}
+	,onInfoComplete: function(event) {
+		var $e = (event.type);
+		switch( $e[1] ) {
+		case 3:
+			Debug.log("Info loaded successfully");
+			break;
+		case 4:
+			var e = $e[2];
+			Debug.log("Info Loader failed: " + Std.string(e));
+			return;
+		default:
+		}
+		Debug.log("onInfoComplete SUCCESS");
+		Debug.log(event.target.content);
+	}
+	,getInfoLoader: function() {
+		var url = this.host + ("media/info/" + this.productId + "/" + this.userId + "?ext=.json");
+		Debug.log("getInfoLoader: " + url);
+		var infoLoader = new mloader.JsonLoader(url);
+		infoLoader.loaded.addOnce($bind(this,this.onInfoComplete)).forType(mloader.LoaderEventType.Complete);
+		return infoLoader;
+	}
 	,getCountLoader: function() {
-		var url = sx.data.ScoreLoader.HOST + ("media/" + this.typeString + "/count/" + this.productId + "?ext=.txt");
+		var url = this.host + ("media/" + this.typeString + "/count/" + this.productId + "?ext=.txt");
+		Debug.log("getCountLoader: " + url);
 		var countLoader = new mloader.StringLoader(url);
 		countLoader.loaded.addOnce($bind(this,this.onCountComplete)).forType(mloader.LoaderEventType.Complete);
 		return countLoader;
 	}
 	,getPageLoader: function(pageNr) {
-		var url = sx.data.ScoreLoader.HOST + ("media/" + this.typeString + "/" + this.productId + "/" + pageNr + "/" + this.userId + "?ext=.png");
+		var url = this.host + ("media/" + this.typeString + "/" + this.productId + "/" + pageNr + "/" + this.userId + "?ext=.png");
+		Debug.log("getPageLoader: " + url);
 		var imageLoader = new sx.data.ImageLoaderExt(url,pageNr);
 		imageLoader.loaded.addOnce($bind(this,this.onImageLoaded)).forType(mloader.LoaderEventType.Complete);
 		return imageLoader;
 	}
 	,loadFirstPageAndCount: function() {
+		Debug.log("loadFirstPageAndCount");
 		var queue = new mloader.LoaderQueue();
 		queue.maxLoading = 2;
 		queue.ignoreFailures = false;
+		queue.add(this.getInfoLoader());
 		queue.add(this.getCountLoader());
 		queue.add(this.getPageLoader(0));
 		queue.load();
@@ -17754,9 +18646,10 @@ sx.data.ScoreLoader.prototype = {
 		this.typeString = Std.string(type);
 		this.loadFirstPageAndCount();
 	}
-	,setParameters: function(productId,userId) {
+	,setParameters: function(productId,userId,host) {
 		if(userId == null) userId = 0;
 		if(productId == null) productId = 0;
+		this.host = host != null?host:sx.data.ScoreLoader.HOST;
 		this.productId = productId;
 		this.userId = userId;
 	}
@@ -17764,10 +18657,22 @@ sx.data.ScoreLoader.prototype = {
 	,nrOfPages: null
 	,userId: null
 	,productId: null
+	,host: null
 	,__class__: sx.data.ScoreLoader
 }
+sx.data.ScoreLoadingType = $hxClasses["sx.data.ScoreLoadingType"] = { __ename__ : true, __constructs__ : ["screen","print","thumb"] }
+sx.data.ScoreLoadingType.screen = ["screen",0];
+sx.data.ScoreLoadingType.screen.toString = $estr;
+sx.data.ScoreLoadingType.screen.__enum__ = sx.data.ScoreLoadingType;
+sx.data.ScoreLoadingType.print = ["print",1];
+sx.data.ScoreLoadingType.print.toString = $estr;
+sx.data.ScoreLoadingType.print.__enum__ = sx.data.ScoreLoadingType;
+sx.data.ScoreLoadingType.thumb = ["thumb",2];
+sx.data.ScoreLoadingType.thumb.toString = $estr;
+sx.data.ScoreLoadingType.thumb.__enum__ = sx.data.ScoreLoadingType;
 sx.mvc.app.AppView = function() {
 	flash.display.Sprite.call(this);
+	console.log("AppView new()");
 	sx.mvc.app.AppView.REGISTER.add($bind(this,this.activeMediators));
 };
 $hxClasses["sx.mvc.app.AppView"] = sx.mvc.app.AppView;
@@ -17785,25 +18690,52 @@ sx.mvc.app.AppView.prototype = $extend(flash.display.Sprite.prototype,{
 	,viewAdded: null
 	,__class__: sx.mvc.app.AppView
 });
-sx.mvc.view.SxScrollZoom = $hxClasses["sx.mvc.view.SxScrollZoom"] = { __ename__ : true, __constructs__ : ["ZoomFullWidth","ZoomFullHeight","Zoom40","Zoom60","Zoom80","Zoom100"] }
-sx.mvc.view.SxScrollZoom.ZoomFullWidth = ["ZoomFullWidth",0];
-sx.mvc.view.SxScrollZoom.ZoomFullWidth.toString = $estr;
-sx.mvc.view.SxScrollZoom.ZoomFullWidth.__enum__ = sx.mvc.view.SxScrollZoom;
-sx.mvc.view.SxScrollZoom.ZoomFullHeight = ["ZoomFullHeight",1];
-sx.mvc.view.SxScrollZoom.ZoomFullHeight.toString = $estr;
-sx.mvc.view.SxScrollZoom.ZoomFullHeight.__enum__ = sx.mvc.view.SxScrollZoom;
-sx.mvc.view.SxScrollZoom.Zoom40 = ["Zoom40",2];
-sx.mvc.view.SxScrollZoom.Zoom40.toString = $estr;
-sx.mvc.view.SxScrollZoom.Zoom40.__enum__ = sx.mvc.view.SxScrollZoom;
-sx.mvc.view.SxScrollZoom.Zoom60 = ["Zoom60",3];
-sx.mvc.view.SxScrollZoom.Zoom60.toString = $estr;
-sx.mvc.view.SxScrollZoom.Zoom60.__enum__ = sx.mvc.view.SxScrollZoom;
-sx.mvc.view.SxScrollZoom.Zoom80 = ["Zoom80",4];
-sx.mvc.view.SxScrollZoom.Zoom80.toString = $estr;
-sx.mvc.view.SxScrollZoom.Zoom80.__enum__ = sx.mvc.view.SxScrollZoom;
-sx.mvc.view.SxScrollZoom.Zoom100 = ["Zoom100",5];
-sx.mvc.view.SxScrollZoom.Zoom100.toString = $estr;
-sx.mvc.view.SxScrollZoom.Zoom100.__enum__ = sx.mvc.view.SxScrollZoom;
+sx.mvc.view.HBoxView = function() {
+	var _g = this;
+	ru.stablex.ui.widgets.HBox.call(this);
+	this.childPadding = 8;
+	this.set_padding(8);
+	this.createChildren();
+	this.addSkin();
+	this.refresh();
+	this.addEventListener(flash.events.Event.ADDED,function(e) {
+		sx.mvc.app.AppView.REGISTER.dispatch(_g);
+	});
+};
+$hxClasses["sx.mvc.view.HBoxView"] = sx.mvc.view.HBoxView;
+sx.mvc.view.HBoxView.__name__ = ["sx","mvc","view","HBoxView"];
+sx.mvc.view.HBoxView.__super__ = ru.stablex.ui.widgets.HBox;
+sx.mvc.view.HBoxView.prototype = $extend(ru.stablex.ui.widgets.HBox.prototype,{
+	addSkin: function() {
+	}
+	,createChildren: function() {
+		var label = ru.stablex.ui.UIBuilder.create(ru.stablex.ui.widgets.Text);
+		label.set_text("This is HBoxView - createChildren() should be overridden!");
+		label.set_w(400);
+		this.addChild(label);
+	}
+	,__class__: sx.mvc.view.HBoxView
+});
+sx.mvc.view.enums = {}
+sx.mvc.view.enums.ScrollWidgetZoom = $hxClasses["sx.mvc.view.enums.ScrollWidgetZoom"] = { __ename__ : true, __constructs__ : ["ZoomFullWidth","ZoomFullHeight","Zoom40","Zoom60","Zoom80","Zoom100"] }
+sx.mvc.view.enums.ScrollWidgetZoom.ZoomFullWidth = ["ZoomFullWidth",0];
+sx.mvc.view.enums.ScrollWidgetZoom.ZoomFullWidth.toString = $estr;
+sx.mvc.view.enums.ScrollWidgetZoom.ZoomFullWidth.__enum__ = sx.mvc.view.enums.ScrollWidgetZoom;
+sx.mvc.view.enums.ScrollWidgetZoom.ZoomFullHeight = ["ZoomFullHeight",1];
+sx.mvc.view.enums.ScrollWidgetZoom.ZoomFullHeight.toString = $estr;
+sx.mvc.view.enums.ScrollWidgetZoom.ZoomFullHeight.__enum__ = sx.mvc.view.enums.ScrollWidgetZoom;
+sx.mvc.view.enums.ScrollWidgetZoom.Zoom40 = ["Zoom40",2];
+sx.mvc.view.enums.ScrollWidgetZoom.Zoom40.toString = $estr;
+sx.mvc.view.enums.ScrollWidgetZoom.Zoom40.__enum__ = sx.mvc.view.enums.ScrollWidgetZoom;
+sx.mvc.view.enums.ScrollWidgetZoom.Zoom60 = ["Zoom60",3];
+sx.mvc.view.enums.ScrollWidgetZoom.Zoom60.toString = $estr;
+sx.mvc.view.enums.ScrollWidgetZoom.Zoom60.__enum__ = sx.mvc.view.enums.ScrollWidgetZoom;
+sx.mvc.view.enums.ScrollWidgetZoom.Zoom80 = ["Zoom80",4];
+sx.mvc.view.enums.ScrollWidgetZoom.Zoom80.toString = $estr;
+sx.mvc.view.enums.ScrollWidgetZoom.Zoom80.__enum__ = sx.mvc.view.enums.ScrollWidgetZoom;
+sx.mvc.view.enums.ScrollWidgetZoom.Zoom100 = ["Zoom100",5];
+sx.mvc.view.enums.ScrollWidgetZoom.Zoom100.toString = $estr;
+sx.mvc.view.enums.ScrollWidgetZoom.Zoom100.__enum__ = sx.mvc.view.enums.ScrollWidgetZoom;
 function $iterator(o) { if( o instanceof Array ) return function() { return HxOverrides.iter(o); }; return typeof(o.iterator) == 'function' ? $bind(o,o.iterator) : o.iterator; };
 var $_, $fid = 0;
 function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $fid++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; o.hx__closures__[m.__id__] = f; } return f; };
@@ -17847,6 +18779,8 @@ Xml.ProcessingInstruction = "processingInstruction";
 Xml.Document = "document";
 if(typeof(JSON) != "undefined") haxe.Json = JSON;
 haxe.Resource.content = [];
+var q = window.jQuery;
+js.JQuery = q;
 msignal.SlotList.NIL = new msignal.SlotList(null,null);
 flash.events.IEventDispatcher.__meta__ = { obj : { 'interface' : null}};
 flash.display.IBitmapDrawable.__meta__ = { obj : { 'interface' : null}};
@@ -17858,8 +18792,32 @@ flash.display.DisplayObject.TRANSFORM_INVALID = 32;
 flash.display.DisplayObject.BOUNDS_INVALID = 64;
 flash.display.DisplayObject.RENDER_VALIDATE_IN_PROGRESS = 1024;
 flash.display.DisplayObject.ALL_RENDER_FLAGS = 98;
+Config.host = "http://scorxdev.azurewebsites.net";
+Config.productId = 1;
+Config.userId = 1;
+Config.playbackLevel = "NoPlayback";
+Config.playbackChannelIds = "";
+Config.MANAGER_APPLICATION_ID = "print.mgr.ScorxPrintManager";
+Config.MANAGER_PUBLISHER_ID = "";
+Config.MANAGER_APPLICATION_URL = "http://dev.korakademin.se/app/ScorxPrintManager.air";
+Config.MANAGER_APPLICATION_VERSION = "0.303";
+Config.INVOKER_MESSAGE_PRINTJOB = "invokerMessagePrintjob";
+Constants.MANAGER_VIEW_W = 800;
+Constants.MANAGER_VIEW_H = 200;
+Constants.MANAGER_VIEW_H_COVER = 460;
+Constants.MANAGER_VIEW_COLOR = 20585;
+Constants.INSTALLER_VIEW_W = 300;
+Constants.INSTALLER_VIEW_H = 140;
+Constants.INSTALLER_VIEW_COLOR = 2012927;
+Constants.TEXT_FORMAT_HEADER2 = new flash.text.TextFormat("Arial",28,16777215);
+Constants.TEXT_FORMAT_BUTTON_LARGE = new flash.text.TextFormat("Arial",20,0);
+Constants.BUTTON_LARGE_W = 260;
+Constants.BUTTON_LARGE_H = 40;
+Constants.PLAYER_VIEW_SMALLTHUMBS_W = 40;
+Constants.PLAYER_VIEW_ZOOMBUTTONS_W = 50;
 IMap.__meta__ = { obj : { 'interface' : null}};
 cx.ConfigTools.missingFields = new Array();
+cx.WebTools.HTTP_PREFIX = "http://";
 cx.flash.graphic.GraphicTools.CIRCLE_SEGMENT_MAX = 6.3;
 cx.flash.graphic.GraphicTools.CIRCLE_SEGMENT_ROTATE = 270;
 cx.flash.ui.UIProgress.SEGMENT_MAX = 6.3;
@@ -18321,15 +19279,7 @@ pgr.gconsole.GConsole.ALIGN_DOWN = "DOWN";
 pgr.gconsole.GConsole.ALIGN_UP = "UP";
 pgr.gconsole.GameConsole.ALIGN_DOWN = "DOWN";
 pgr.gconsole.GameConsole.ALIGN_UP = "UP";
-player.Config.host = "http://scorxdev.azurewebsites.net/";
-player.Config.productId = 8;
-player.Config.userId = 1;
-player.AppMediator.__meta__ = { fields : { product : { name : ["product"], type : ["player.model.ProductModel"], inject : null}, config : { name : ["config"], type : ["player.model.ConfigModel"], inject : null}, configuration : { name : ["configuration"], type : ["player.controller.Conf"], inject : null}}};
-player.controller.ConfCommand.__meta__ = { fields : { product : { name : ["product"], type : ["player.model.ProductModel"], inject : null}, config : { name : ["config"], type : ["player.model.ConfigModel"], inject : null}}};
-player.controller.LoadCommand.__meta__ = { fields : { url : { name : ["url"], type : ["String"], inject : null}, load : { name : ["load"], type : ["player.controller.Load"], inject : null}}};
-player.controller.LoadPagesCommand.__meta__ = { fields : { product : { name : ["product"], type : ["player.model.ProductModel"], inject : null}, loader : { name : ["loader"], type : ["sx.data.ScoreLoader"], inject : null}, url : { name : ["url"], type : ["String"], inject : null}, loadPages : { name : ["loadPages"], type : ["player.controller.LoadPages"], inject : null}}};
-player.controller.PlayCommand.__meta__ = { fields : { position : { name : ["position"], type : ["Int"], inject : null}, play : { name : ["play"], type : ["player.controller.Play"], inject : null}, model : { name : ["model"], type : ["player.model.TimerModel"], inject : null}}};
-player.controller.StopCommand.__meta__ = { fields : { model : { name : ["model"], type : ["player.model.TimerModel"], inject : null}}};
+player.AppMediator.__meta__ = { fields : { loadPages : { name : ["loadPages"], type : ["scorx.controller.LoadPages"], inject : null}, config : { name : ["config"], type : ["scorx.model.Configuration"], inject : null}, confload : { name : ["confload"], type : ["scorx.controller.Confload"], inject : null}}};
 ru.stablex.ui.widgets.Widget._X_USE_LEFT = 1;
 ru.stablex.ui.widgets.Widget._X_USE_LEFT_PERCENT = 2;
 ru.stablex.ui.widgets.Widget._X_USE_RIGHT = 3;
@@ -18338,8 +19288,9 @@ ru.stablex.ui.widgets.Widget._Y_USE_TOP = 5;
 ru.stablex.ui.widgets.Widget._Y_USE_TOP_PERCENT = 6;
 ru.stablex.ui.widgets.Widget._Y_USE_BOTTOM = 7;
 ru.stablex.ui.widgets.Widget._Y_USE_BOTTOM_PERCENT = 8;
-player.view.ButtonsMediator.__meta__ = { fields : { loadPages : { name : ["loadPages"], type : ["player.controller.LoadPages"], inject : null}, stop : { name : ["stop"], type : ["player.controller.Stop"], inject : null}, play : { name : ["play"], type : ["player.controller.Play"], inject : null}}};
-player.view.PagesMediator.__meta__ = { fields : { loadPages : { name : ["loadPages"], type : ["player.controller.LoadPages"], inject : null}}};
+player.view.ConfigurationViewMediator.__meta__ = { fields : { config : { name : ["config"], type : ["scorx.model.Configuration"], inject : null}}};
+player.view.ZoomView.BTN_H = 40;
+player.view.ZoomMediator.__meta__ = { fields : { setzoom : { name : ["setzoom"], type : ["player.controller.Setzoom"], inject : null}}};
 ru.stablex.ui.UIBuilder.defaults = new haxe.ds.StringMap();
 ru.stablex.ui.UIBuilder._objects = new haxe.ds.StringMap();
 ru.stablex.ui.UIBuilder.skins = new haxe.ds.StringMap();
@@ -18353,6 +19304,21 @@ ru.stablex.ui.events.WidgetEvent.INITIAL_RESIZE = "widgetInitialResize";
 ru.stablex.ui.events.WidgetEvent.CHANGE = "widgetChange";
 ru.stablex.ui.events.WidgetEvent.SCROLL_START = "widgetScrollStart";
 ru.stablex.ui.events.WidgetEvent.SCROLL_STOP = "widgetScrollStop";
+scorx.controller.ConfloadCommand.__meta__ = { fields : { config : { name : ["config"], type : ["scorx.model.Configuration"], inject : null}, confload : { name : ["confload"], type : ["scorx.controller.Confload"], inject : null}}};
+scorx.controller.LoadCommand.__meta__ = { fields : { url : { name : ["url"], type : ["String"], inject : null}, load : { name : ["load"], type : ["scorx.controller.Load"], inject : null}}};
+scorx.controller.LoadPagesCommand.__meta__ = { fields : { loader : { name : ["loader"], type : ["sx.data.ScoreLoader"], inject : null}, debug : { name : ["debug"], type : ["Debug"], inject : null}, loadParameters : { name : ["loadParameters"], type : ["scorx.controller.LoadParameters"], inject : null}, loadPages : { name : ["loadPages"], type : ["scorx.controller.LoadPages"], inject : null}}};
+scorx.controller.PlayCommand.__meta__ = { fields : { position : { name : ["position"], type : ["Int"], inject : null}, play : { name : ["play"], type : ["scorx.controller.Play"], inject : null}, model : { name : ["model"], type : ["scorx.model.TimerModel"], inject : null}}};
+scorx.controller.StopCommand.__meta__ = { fields : { model : { name : ["model"], type : ["scorx.model.TimerModel"], inject : null}}};
+scorx.view.ButtonsMediator.__meta__ = { fields : { config : { name : ["config"], type : ["scorx.model.Configuration"], inject : null}, debug : { name : ["debug"], type : ["Debug"], inject : null}, loadPages : { name : ["loadPages"], type : ["scorx.controller.LoadPages"], inject : null}, stop : { name : ["stop"], type : ["scorx.controller.Stop"], inject : null}, play : { name : ["play"], type : ["scorx.controller.Play"], inject : null}}};
+scorx.view.PagesMediator.__meta__ = { fields : { setzoom : { name : ["setzoom"], type : ["player.controller.Setzoom"], inject : null}, loadPages : { name : ["loadPages"], type : ["scorx.controller.LoadPages"], inject : null}}};
+sx.ScorxColors.ScorxYellow = 16763174;
+sx.ScorxColors.ScorxGreen = 11521792;
+sx.ScorxColors.ScorxBlue = 6737407;
+sx.ScorxColors.ScorxRed = 15214407;
+sx.ScorxColors.ScorxPetrol = 20585;
+sx.ScorxColors.ScorxPetrolDark = 15439;
+sx.ScorxColors.ScorxPetrolLight = 28563;
+sx.ScorxColors.ScorxDarkgray = 3355443;
 sx.data.ScoreLoader.HOST = "http://scorxdev.azurewebsites.net/";
 sx.mvc.app.AppView.REGISTER = new msignal.Signal1();
 ApplicationMain.main();

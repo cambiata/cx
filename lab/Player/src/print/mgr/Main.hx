@@ -4,6 +4,7 @@ import cx.AirAppTools;
 import cx.BaseCodeTools;
 import cx.EnumTools;
 import cx.TimerTools;
+import cx.WebTools;
 import flash.display.Bitmap;
 import flash.display.BitmapData;
 import flash.geom.Point;
@@ -41,7 +42,6 @@ import scorx.data.JobData;
 import scorx.model.AirEvents;
 import scorx.model.AirTools;
 import scorx.model.Configuration;
-import scorx.model.Debug;
 import sx.data.ScoreLoader;
 import sx.mvc.app.AppView;
 import sx.mvc.app.base.AppBaseContext;
@@ -64,7 +64,7 @@ import ru.stablex.ui.widgets.Button;
  * @author 
  */
 
- @:bitmap("assets/img/scorx/scorx-blue.png") class BitmapDataLogo extends BitmapData { }
+ //@:bitmap("assets/img/scorx/scorx-blue.png") class BitmapDataLogo extends BitmapData { }
   class AppMediator extends AppBaseMediator
 {
 	@inject public var debug:Debug;
@@ -206,7 +206,7 @@ import ru.stablex.ui.widgets.Button;
 		);
 		this.txtEvents.text = 'Jokkas ' + jobType + ' : ' + jobData.productId + ' : ' + jobData.userId + ' : ' + jobData.host;
 		
-		debug.log(jobType + ' : ' + jobData.productId + ' : ' + jobData.userId + ' : ' + jobData.host);
+		Debug.log(jobType + ' : ' + jobData.productId + ' : ' + jobData.userId + ' : ' + jobData.host);
 		this.configuration.setValues(jobData.productId, jobData.userId, jobData.host);
 		this.txtNative.text = Std.string(this.status);
 		this.status.setStatus(MgrStatus.PrintLoad(jobData.productId, jobData.userId, jobData.host, Std.string(ScoreLoadingType.thumb)));		
@@ -228,17 +228,17 @@ import ru.stablex.ui.widgets.Button;
 	function setupUI() 
 	{		
 		
-		var logo:Bitmap = new Bitmap(new BitmapDataLogo(0, 0));
-		trace(new BitmapDataLogo(0, 0).width);
-		logo.x = 4;
-		logo.y = 4;
-		this.view.addChild(logo);
+		//var logo:Bitmap = new Bitmap(new BitmapDataLogo(0, 0));
+		//trace(new BitmapDataLogo(0, 0).width);
+		//logo.x = 4;
+		//logo.y = 4;
+		//this.view.addChild(logo);
 		
 		 var logoLabel = UIBuilder.create(Text);
 		logoLabel.format = Constants.TEXT_FORMAT_HEADER2;
 		logoLabel.text = 'Scorx Print Manager ' + airEvents.getAppVersion();
 		 logoLabel.w = 390;
-		 logoLabel.x = 30;		
+		 logoLabel.x = 8;		
 		 this.view.addChild(logoLabel);
 		
 		 label = UIBuilder.create(Text);
@@ -283,7 +283,7 @@ import ru.stablex.ui.widgets.Button;
 		
 		
 		this.thumbnailView = new ThumbnailsView();
-		this.thumbnailView.y = 250;
+		this.thumbnailView.y = 240;
 		this.view.addChild(this.thumbnailView);		
 		
 		//------------------------------------------------------------------------------
@@ -361,10 +361,10 @@ import ru.stablex.ui.widgets.Button;
 				);
 				this.txtEvents.text = 'YKKAS ' + jobType + ' : ' + jobData.productId + ' : ' + jobData.userId + ' : ' + jobData.host;
 				
-				
-				debug.log(jobType + ' : ' + jobData.productId + ' : ' + jobData.userId + ' : ' + jobData.host);
-				this.configuration.setValues(jobData.productId, jobData.userId, jobData.host);
-				this.status.setStatus(MgrStatus.PrintLoad(jobData.productId, jobData.userId, jobData.host, Std.string(ScoreLoadingType.print)));
+				var host = WebTools.addSlash(WebTools.addHttpPrefix(jobData.host));
+				Debug.log(jobType + ' : ' + jobData.productId + ' : ' + jobData.userId + ' : ' + host);
+				this.configuration.setValues(jobData.productId, jobData.userId, host);
+				this.status.setStatus(MgrStatus.PrintLoad(jobData.productId, jobData.userId, host, Std.string(ScoreLoadingType.print)));
 			}, 1000);
 		});
 		

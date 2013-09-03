@@ -7,7 +7,7 @@
 :: NOTICE: all paths are relative to project root
 
 :: Your certificate information
-set CERT_NAME="PrintManager"
+set CERT_NAME="ScorxPrintManager"
 set CERT_PASS=fd
 set CERT_FILE="bat\PrintManager.p12"
 set SIGNING_OPTIONS=-storetype pkcs12 -keystore %CERT_FILE% -storepass %CERT_PASS%
@@ -20,11 +20,11 @@ set APP_DIR=bin
 set FILE_OR_DIR=-C %APP_DIR% .
 
 :: Your application ID (must match <id> of Application descriptor)
-set APP_ID=print.mgr.PrintManager
+set APP_ID=print.mgr.ScorxPrintManager
 
 :: Output
 set AIR_PATH=air
-set AIR_NAME=PrintManager
+set AIR_NAME=ScorxPrintManager
 
 
 :validation

@@ -1,27 +1,27 @@
-<?xml version="1.0" encoding="utf-8" ?> 
+<?xml version="1.0" encoding="utf-8"?>
 <application xmlns="http://ns.adobe.com/air/application/3.7">
-	
-	<id>print.mgr.PrintManager</id> 
-	<versionNumber>1.0</versionNumber> 
-	<filename>PrintManager</filename> 
-	
-	<name>PrintManager</name> 
-	<description></description> 
-	<copyright></copyright> 
-	
-	<initialWindow> 
-		<title>PrintManager</title> 
-		<content>PrintManager.swf</content> 
-		<systemChrome>standard</systemChrome> 
-		<transparent>false</transparent> 
-		<visible>true</visible> 
-		<minimizable>true</minimizable> 
-		<maximizable>true</maximizable> 
-		<resizable>true</resizable> 
-	</initialWindow> 
-	
-	<!-- 
+  <id>print.mgr.ScorxPrintManager</id>
+  <versionNumber>0.303</versionNumber>
+  <filename>ScorxPrintManager</filename>
+  <name>ScorxPrintManager</name>
+  <initialWindow>
+    <title>Scorx Print Manager</title>
+    <content>ScorxPrintManager.swf</content>
+    <systemChrome>standard</systemChrome>
+    <transparent>false</transparent>
+    <visible>true</visible>
+    <minimizable>false</minimizable>
+    <maximizable>false</maximizable>
+    <resizable>false</resizable>
+    <x>200</x>
+    <y>200</y>
+    <width>800</width>
+    <height>500</height>
+  </initialWindow>
+  <!-- 
 	More options:
 	http://livedocs.adobe.com/flex/3/html/File_formats_1.html#1043413
 	-->
+  <allowBrowserInvocation>true</allowBrowserInvocation>
+  <copyright>ScorxMedia - All rights reserved!</copyright>
 </application>

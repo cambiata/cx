@@ -12,6 +12,8 @@ class Debug
 
 	static public function log(value:Dynamic) 
 	{
+		#if (flash || neko)
+		
 		try 
 		{
 			var item:StackItem = CallStack.callStack()[1];
@@ -32,8 +34,13 @@ class Debug
 			
 		}
 		
-	}
+		#end
 	
+		#if html5
+			trace(value);
+		#end
+	}
+
 
 	
 }

@@ -1,5 +1,6 @@
 package scorx.model;
 import cx.EnumTools;
+import cx.WebTools;
 import msignal.Signal.Signal0;
 import scorx.model.AccessLevelPlay;
 import scorx.model.utils.ChannelUtils;
@@ -28,7 +29,8 @@ class Configuration
 		
 		if (productId != null) this.productId = productId;
 		if (userId != null) this.userId = userId;
-		if (host != null) this.host = host;		
+		if (host != null) this.host = WebTools.addSlash(WebTools.addHttpPrefix(host));
+		
 		
 		this.playbackLevel  = (playbackLevel == null) ? AccessLevelPlay.NoPlayback : EnumTools.createFromString(AccessLevelPlay, playbackLevel);
 		

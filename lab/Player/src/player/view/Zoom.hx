@@ -1,6 +1,8 @@
 package player.view;
 
+import cx.TimerTools;
 import flash.display.StageDisplayState;
+import flash.events.Event;
 import flash.Lib;
 import player.controller.Setzoom;
 import ru.stablex.ui.skins.Paint;
@@ -80,6 +82,11 @@ class ZoomMediator extends mmvc.impl.Mediator<ZoomView>
 	
 	@inject public var setzoom:Setzoom;
 	
+	#if js 
+	var firstFullscreen:Bool = true;
+	#end
+	
+	
 	override function onRegister() 
 	 {
 		trace('ZoomMediator registered');	
@@ -89,11 +96,37 @@ class ZoomMediator extends mmvc.impl.Mediator<ZoomView>
 		};
 		
 		this.view.btnFull.onPress = function(e) {
-			this.setzoom.dispatch(ScrollWidgetZoom.ZoomFullHeight);			
+			this.setzoom.dispatch(ScrollWidgetZoom.ZoomFullHeight);	
+			
 		};
 		
-		this.view.btnScreenFull.onPress = function(e)	Lib.current.stage.displayState = (Lib.current.stage.displayState == StageDisplayState.NORMAL) ? StageDisplayState.FULL_SCREEN : StageDisplayState.NORMAL;				
+		this.view.btnScreenFull.onPress = function(e)	
+		{
+			
+			Debug.log(Lib.current.stage.displayState);
 		
+			
+			
+			#if js
+				var size:Dynamic = untyped __js__('__jsFullscreen()');
+				Debug.log(size);
+				
+				/*if (firstFullscreen) 
+				{
+					Lib.current.stage.displayState = (Lib.current.stage.displayState == StageDisplayState.NORMAL) ? StageDisplayState.FULL_SCREEN : StageDisplayState.NORMAL;
+					firstFullscreen = false;
+				}
+				*/
+				
+				TimerTools.delay(function() {
+					Debug.log('resize');			
+					Lib.current.stage.dispatchEvent(new Event(Event.RESIZE));
+				}, 300);			
+				
+			#else						
+				Lib.current.stage.displayState = (Lib.current.stage.displayState == StageDisplayState.NORMAL) ? StageDisplayState.FULL_SCREEN : StageDisplayState.NORMAL;				
+			#end
+		}
 	}	
 
 }

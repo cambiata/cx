@@ -6,7 +6,6 @@ import msignal.Signal.Signal0;
 import msignal.Signal.Signal1;
 import msignal.Signal.Signal2;
 import mmvc.impl.Command;
-import scorx.model.PlaybackEngine;
 import sx.data.ScoreLoader;
 import sx.data.ScoreLoadingType;
 
