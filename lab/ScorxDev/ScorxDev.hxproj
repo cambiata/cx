@@ -4,44 +4,37 @@
   <output>
     <movie outputType="Application" />
     <movie input="" />
-    <movie path="bin\ScorxPrintManager.swf" />
-    <movie fps="30" />
-    <movie width="800" />
-    <movie height="600" />
-    <movie version="3" />
-    <movie minorVersion="7" />
-    <movie platform="AIR" />
-    <movie background="#003C4F" />
+    <movie path="bin\index.n" />
+    <movie fps="0" />
+    <movie width="0" />
+    <movie height="0" />
+    <movie version="1" />
+    <movie minorVersion="0" />
+    <movie platform="Neko" />
+    <movie background="#FFFFFF" />
   </output>
   <!-- Other classes to be compiled into your SWF -->
   <classpaths>
+    <class path="src" />
     <class path="..\..\src" />
-    <class path="..\Player\src" />
   </classpaths>
   <!-- Build options -->
   <build>
     <option directives="" />
     <option flashStrict="False" />
-    <option mainClass="print.mgr.Main" />
-    <option enabledebug="True" />
+    <option mainClass="scorx.dev.Main" />
+    <option enabledebug="False" />
     <option additional="" />
   </build>
   <!-- haxelib libraries -->
   <haxelib>
-    <library name="air3" />
-    <library name="msignal" />
-    <library name="stablexui" />
-    <library name="mloader" />
-    <library name="mmvc" />
+    <library name="ufront" />
+    <library name="hscript" />
   </haxelib>
   <!-- Class files to compile (other referenced classes will automatically be included) -->
   <compileTargets>
-    <compile path="src\print\mgr\Main.hx" />
+    <compile path="src\scorx\dev\Main.hx" />
   </compileTargets>
-  <!-- Assets to embed into the output SWF -->
-  <library>
-    <!-- example: <asset path="..." id="..." update="..." glyphs="..." mode="..." place="..." sharepoint="..." /> -->
-  </library>
   <!-- Paths to exclude from the Project Explorer tree -->
   <hiddenPaths>
     <hidden path="obj" />
@@ -54,7 +47,7 @@
   <options>
     <option showHiddenPaths="False" />
     <option testMovie="Custom" />
-    <option testMovieCommand="Run.bat" />
+    <option testMovieCommand="run.bat" />
   </options>
   <!-- Plugin storage -->
   <storage />

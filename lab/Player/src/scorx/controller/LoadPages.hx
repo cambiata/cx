@@ -7,7 +7,7 @@ import msignal.Signal.Signal1;
 import msignal.Signal.Signal2;
 import mmvc.impl.Command;
 import sx.data.ScoreLoader;
-import sx.data.ScoreLoadingType;
+import scorx.types.ScoreLoadingType;
 
 /**
  * ...
@@ -61,9 +61,7 @@ class LoadPagesCommand extends Command
 {	
 	@inject public var loadPages:LoadPages;	
 	@inject public var loadParameters:LoadParameters;	 // parameter in LoadPages
-	@inject public var debug:Debug;	
 	@inject public var loader:ScoreLoader;
-	
 	
 	public function new() super();
 	
@@ -74,29 +72,29 @@ class LoadPagesCommand extends Command
 		
 		this.loader.setParameters(loadParameters.productId, loadParameters.userId, loadParameters.host);
 		
-		
-		
 		this.loader.onPageLoaded = function(pageNr:Int, nrOfPages:Int, data:BitmapData, type:String)
 		{			
-			Debug.log('loader.onPageLoaded');
+			trace('loader.onPageLoaded $pageNr/$nrOfPages');
 			
-			trace([pageNr, nrOfPages]);
 			if (pageNr == 0) 
 			{
+				trace('loader.started...');
 				this.loadPages.status.dispatch(LoadPagesStatus.started(nrOfPages));
-				Debug.log('loader.started...');
 			}
-			else if (pageNr == nrOfPages)
-			 {
-				 this.loadPages.status.dispatch(LoadPagesStatus.progress( { pageNr:pageNr, nrOfPages:nrOfPages, data:data } ));
-				 this.loadPages.status.dispatch(LoadPagesStatus.completed(nrOfPages));
-				 Debug.log('loader.completed...');
-			 }
-			 else
-			 {
+			else
+			{
+				trace('loader.progress...');
 				this.loadPages.status.dispatch(LoadPagesStatus.progress( { pageNr:pageNr, nrOfPages:nrOfPages, data:data } ));				
-				 Debug.log('loader.progress...');
-			 }
+			}
+			
+			//----------------------------------------------------------------- 
+			
+			if (pageNr == nrOfPages)
+			{
+				trace('loader.completed...');
+				//this.loadPages.status.dispatch(LoadPagesStatus.progress( { pageNr:pageNr, nrOfPages:nrOfPages, data:data } ));
+				this.loadPages.status.dispatch(LoadPagesStatus.completed(nrOfPages));
+			}			 
 		}
 	
 		this.loader.loadPages(loadParameters.type);

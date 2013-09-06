@@ -40,6 +40,7 @@ class PagesMediator extends mmvc.impl.Mediator<PagesView>
 					Debug.log('PagesMediator is notified :loadPages.started... $nrOfPages');			
 					this.view.initPages(nrOfPages);				
 				case LoadPagesStatus.progress(pageInfo):
+					Debug.log('PagesMediator progress');
 					var pageNr = pageInfo.pageNr;
 					var nrOfPages = pageInfo.nrOfPages;
 					var data = pageInfo.data;

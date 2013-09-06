@@ -6,7 +6,7 @@ import scorx.controller.LoadPages;
 import scorx.controller.Play;
 import scorx.controller.Stop;
 import scorx.model.Configuration;
-import sx.data.ScoreLoadingType;
+import scorx.types.ScoreLoadingType;
 import sx.mvc.view.VBoxView;
 
 

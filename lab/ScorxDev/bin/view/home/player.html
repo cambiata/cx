@@ -1,0 +1,37 @@
+<h3>Player</h3>
+<script src="/content/player/flash/swfobject.js"></script>
+
+<script>
+    var flashvars = {
+        host: "http://@host/",
+        productId: "@id",
+        userId: "@userId",
+        viewLevel: "accessLevel",
+        playbackLevel: "playbackLevel",
+        playbackChannelIds: "channelIds",
+        playbackChannelLabels: "AccessPlaybackChannelLabels"
+    };
+	
+    var params = {
+        menu: "false",
+        scale: "noScale",
+        allowFullscreen: "true",
+        allowScriptAccess: "always",
+        bgcolor: "",
+        wmode: "direct" // can cause issues with FP settings & webcam
+    };
+	
+    var attributes = {
+        id: "As3Test"
+    };
+	
+    swfobject.embedSWF(
+		"../Content/Player/Flash/Player.swf",
+		"player", "100%", "100%", "10.0.0",
+		"expressInstall.swf",
+		flashvars, params, attributes);
+</script>
+
+<div style="width:720px; height:500px;border:1px solid red;">
+    <div id="player" ></div>
+</div>

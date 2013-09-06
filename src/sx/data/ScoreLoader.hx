@@ -8,13 +8,12 @@ import mloader.Loader.LoaderErrorType;
 import mloader.LoaderQueue;
 import mloader.StringLoader;
 import mloader.JsonLoader;
+import scorx.types.ScoreLoadingType;
 
 /**
  * ...
  * @author 
  */
-
-
  
 class ScoreLoader
 {
@@ -49,9 +48,9 @@ class ScoreLoader
 	{
 		Debug.log('loadFirstPageAndCount');
 		var queue:LoaderQueue = new LoaderQueue();
-		queue.maxLoading = 2;
+		queue.maxLoading = 1;
 		queue.ignoreFailures = false;
-		queue.add(getInfoLoader());
+		//queue.add(getInfoLoader());
 		queue.add (getCountLoader());
 		queue.add(getPageLoader(0));
 		queue.load();
@@ -119,8 +118,6 @@ class ScoreLoader
 			
 		} catch (e:Dynamic) trace(e);
 		
-		
-		
 		this.nrOfPages = nrOfPages;
 		
 		this.onPageLoaded(0, this.nrOfPages, null, this.typeString);
@@ -140,7 +137,15 @@ class ScoreLoader
 		
 		var content = event.target.content;
 		var loader:ImageLoaderExt = cast(event.target, ImageLoaderExt);
-		var bitmapData:BitmapData = loader.content; // cast(event.target.content, BitmapData);
+		var bitmapData:BitmapData = null; 
+		
+		#if js
+			trace(event.target.content);
+			//bitmapData = content; // cast(event.target.content, BitmapData);			
+		#else
+			bitmapData = loader.content; 
+		#end
+		
 		var pageNr:Int = loader.idx;		
 		this.onPageLoaded(pageNr+1, this.nrOfPages, bitmapData, this.typeString);
 	}	

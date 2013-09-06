@@ -6,6 +6,8 @@ import js.Browser;
 import js.JQuery;
 #end
 
+import sx.data.ScoreLoader;
+import scorx.types.ScoreLoadingType;
 import sx.mvc.MvcMain;
 import sx.mvc.app.AppView;
 import sx.mvc.app.base.AppBaseMediator;
@@ -269,7 +271,7 @@ class AppMediator extends AppBaseMediator
 		mediate(this.config.updated.add(function() 
 		{
 			Debug.log('Config loaded!');
-			//this.reload();
+			this.loadContent();
 		}));			
 		
 		
@@ -319,6 +321,33 @@ class AppMediator extends AppBaseMediator
 		// kickof configuration
 		this.confload.dispatch();				
 	}
+	
+	private function loadContent()
+	{
+		Debug.log('Load Content');
+		var loadParameters:LoadParameters = new LoadParameters();
+		loadParameters.host = config.host;
+		loadParameters.productId = config.productId;
+		loadParameters.userId = config.userId;
+		loadParameters.type = ScoreLoadingType.screen;
+		Debug.log(loadParameters);
+		
+		loadPages.dispatch(loadParameters);			
+		loadPages.status.add(function(status:LoadPagesStatus)
+		{
+			switch(status) 
+			{
+				case LoadPagesStatus.started(nrOfPages):
+					trace('NrOfPages ' + nrOfPages);				
+				case LoadPagesStatus.completed:					
+					//loadChannelsController.dispatch(loadParameters);
+				default:					
+			}
+		});
+		
+		
+	}
+	
 }
 
 class AppContext extends AppBaseContext
@@ -334,7 +363,8 @@ class AppContext extends AppBaseContext
 	{
 		Debug.log('init');		
 		injector.mapSingleton(Configuration);		
-		injector.mapSingleton(Setzoom);		
+		injector.mapSingleton(Setzoom);
+		injector.mapSingleton(ScoreLoader);
 
 		commandMap.mapSignalClass(Confload, ConfloadCommand);				
 		commandMap.mapSignalClass(LoadPages, LoadPagesCommand);		
