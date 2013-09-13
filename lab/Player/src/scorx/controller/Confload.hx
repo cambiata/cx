@@ -34,8 +34,6 @@ class ConfloadCommand extends Command
 	
 	override public function execute():Void
 	{
-		Debug.log('ConfigCommand execute');		
-		
 		#if (flash || html5) 
 		ConfigTools.loadFlashVars(Config); 
 		#end
@@ -47,12 +45,6 @@ class ConfloadCommand extends Command
 		#if (air3)
 			trace('CONIFG AIR');
 		#end
-		
-		trace(Config.productId);
-		trace(Config.userId);
-		trace(Config.host);
-		trace(Config.playbackLevel);
-		trace(Config.playbackChannelIds);		
 		
 		this.config.setValues(Config.productId, Config.userId, Config.host, Config.playbackLevel, Config.playbackChannelIds);
 		this.confload.completed.dispatch();

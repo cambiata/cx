@@ -6,10 +6,10 @@
 	<meta title="Player" package="player.Player" version="1.0.0" company="" />
 	
 	<!-- output -->
-	<app main="player.Main" file="Player" path="bin" />
+	<app main="player.Main" file="Player" path="bin/content/player" />
 	
 	<window background="#eeeeee" fps="60" />
-	<window width="600" height="480" unless="mobile" />
+	<window width="1400" height="800" unless="mobile" />
 	<window orientation="landscape" vsync="false" antialiasing="0" if="cpp" />  
 	
 	<!-- classpath, haxe libs -->

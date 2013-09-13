@@ -80,8 +80,6 @@ class ConfigurationViewMediator extends mmvc.impl.Mediator<ConfigurationViewView
 	@inject public var config:Configuration;	
 	override function onRegister() 
 	 {
-		trace('ConfigurationViewMediator registered');	
-		
 		mediate(this.config.updated.add(function() 
 		{
 			

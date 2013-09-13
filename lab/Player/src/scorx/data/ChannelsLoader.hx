@@ -1,159 +1,136 @@
 package scorx.data;
-
+import flash.events.Event;
+import flash.events.IOErrorEvent;
+import flash.events.ProgressEvent;
+import flash.Lib;
+import flash.net.URLLoader;
+import flash.net.URLLoaderDataFormat;
+import flash.net.URLRequest;
 import flash.utils.ByteArray;
 import haxe.Json;
-import mloader.JsonLoader;
-import mloader.HttpLoader;
-import mloader.Loader.Loader;
-import mloader.Loader.LoaderEvent;
-import mloader.Loader.LoaderEventType;
-import mloader.Loader.LoaderErrorType;
-import mloader.LoaderQueue;
-import mloader.StringLoader;
-import tjson.TJSON;
+import scorx.data.DataLoader;
+import scorx.data.DataLoader.DataResult;
+import msignal.Signal.Signal1;
+import sx.player.TPlaybackChannels;
+
 /**
  * ...
- * @author 
+ * @author Jonas Nyström
  */
 class ChannelsLoader
 {
-
-	static var HOST = "http://scorxdev.azurewebsites.net/";
+	public var result:Signal1<ChannelsResult>;
+	
+	var countLoader:URLLoader;	
+	var infoUrl:String;
+	
 	var host:String;
 	var productId:Int;
-	var userId:Int;		
-	var channelIds:Array<String>;
+	var userId:Int;
 	
-	public function new(productId:Int=0, userId:Int = 0, host:String = null) 
-	{
-		this.setParameters(productId, userId, host);
-		this.channelIds = [];
-	}
+	var nrOfChannels:Int;
+	var nrOfLoaded:Int;	
 	
-	public function setParameters(productId:Int = 0, userId:Int = 0, host:String=null)
+	var labels:Map<String, String>;
+	
+	
+	public function new() 
 	{
-		this.host = (host != null) ? host : HOST;
+		this.result = new Signal1<ChannelsResult>();		
+		this.countLoader = new URLLoader();
+		this.countLoader.dataFormat = URLLoaderDataFormat.TEXT;
+		this.countLoader.addEventListener(Event.COMPLETE, countComplete);
+		this.countLoader.addEventListener(IOErrorEvent.IO_ERROR, function(e:Event) {this.result.dispatch(ChannelsResult.error('ChannelsLoader Count IO error', this.infoUrl)); trace('IOERROR');} );		
+	}	
+	
+	public function load(host:String, productId:Int, userId:Int)
+	{
+		trace('load Channels');
+		this.host = host;
 		this.productId = productId;
 		this.userId = userId;
-	}
+		this.infoUrl = '${host}media/channels/$productId';
+		this.countLoader.load(new URLRequest(this.infoUrl));
+	}	
 	
-	public function loadChannels()
+	private function countComplete(e:Event):Void 
 	{
-		Debug.log('LOAD CHANNELS::::');
-		loadChannelsInfo();				
-	}
-	
-	function loadChannelsInfo()
-	{
-		Debug.log('loadChannelsInfo');
-		var queue:LoaderQueue = new LoaderQueue();
-		queue.maxLoading = 2;
-		queue.ignoreFailures = false;
-		queue.add(getInfoLoader());
-		queue.load();		
-	}
-	
-	function getInfoLoader():StringLoader
-	{
-		var url:String  =  this.host + 'media/info/$productId/$userId?ext=.json';	
-		Debug.log('getInfoLoader: ' + url);
-		var infoLoader:StringLoader = new StringLoader(url);
-		infoLoader.loaded.addOnce(onInfoComplete).forType(LoaderEventType.Complete);	
-		return infoLoader;
-	}
-	
-	function onInfoComplete(event:LoaderEvent<Dynamic>) 
-	{
-		switch (event.type)
-		{
-			case Complete: 
-				Debug.log('Info loaded successfully');				
-			case Fail(e): 		    
-				Debug.log("Info Loader failed: " + e);
-				return;	
-			default:
-		}				
-		Debug.log('LoadChannels onInfoComplete SUCCESS');
-		Debug.log(event.target.content);
-		var content:String = StringTools.replace(Std.string(event.target.content), "/", "");
-		content = StringTools.replace(content, "\\", "");
-		//content = '"json":' + content;		
-		Debug.log(content);
-		var dyn:Dynamic = TJSON.parse(content);
-		
+		trace('complete');
+		var urlLoader = cast(e.target, URLLoader);
+		var data = urlLoader.data;
+		this.channels = null;
 		try 
 		{
-			Debug.log(dyn.PlayDetails.Channels);		
-			var channels:Array<Dynamic> = cast dyn.PlayDetails.Channels;
-			
-			for (channel in channels)
-			{
-				this.channelIds.push(channel.ChannelId);
-			}
-			
-		} catch (e:Dynamic) trace(e);
-
-		
-		this.onChannelLoaded(0, "", this.channelIds, null);
-		
-		if (this.channelIds.length > 0) 
-		{
-			loadChannels2();
+			this.channels = Json.parse(data);			
+			trace(channels);
 		}
-	}	
-	
-	
-	var loadedChannelCount:Int = 0;
-	
-	function loadChannels2()
-	{
-		Debug.log('loadOtherChannels');		
-		this.loadedChannelCount = 0;
-		var queue:LoaderQueue = new LoaderQueue();
-		queue.maxLoading = 2;
-		queue.ignoreFailures = false;
-		queue.loaded.addOnce(queueChannelsComplete).forType(LoaderEventType.Complete);				
-		for (channelId in this.channelIds)
-		{
-			trace('channelId... ' + channelId);
-			queue.add(getChannelLoader(channelId));						
-			
+		catch (e:Dynamic)
+		{			
+			this.result.dispatch(ChannelsResult.error('ChannelsLoader Count data format error: ' + Std.string(e), this.infoUrl));
+			return;
 		}
-		queue.load();
 		
-	}	
-	
-	function queueChannelsComplete(event:Dynamic) 
-	{
+		if (channels.length < 1) 
+		{
+			this.result.dispatch(ChannelsResult.error('ChannelsLoader Count Nr of channels error: Nr of channels =' + Std.string(channels.length), this.infoUrl));
+			return;
+		}
 		
+		this.channels.sort( function(a, b) return Reflect.compare(a.Id, b.Id) );
+		this.result.dispatch(ChannelsResult.started(channels));
+		this.loadChannels(channels);			
 	}
 	
-	
-	dynamic public function onChannelLoaded(channelNr:Int, channelId:String, channelIds:Array<String>, data:ByteArray) 
+	public function loadChannels(channels:TPlaybackChannels) 
 	{
-		trace('onChannelLoaded $channelNr / $channelIds.length ');
-	}
-	
-	function getChannelLoader(channelId:String):BytearrayLoader
-	{
-		var url:String = this.host + 'media/channel/$productId/$channelId/$userId?ext=.png';		
-		Debug.log('getChannelLoader: ' + url);
-		var loader = new BytearrayLoader(url, channelId);
-		loader.loaded.addOnce(onChannelComplete).forType(LoaderEventType.Complete);		
-		return loader;		
-	}	
-	
-	function onChannelComplete(event:LoaderEvent<Dynamic>) 
-	{
-		trace("onChannelComplete");
-		var loader:BytearrayLoader = cast(event.target, BytearrayLoader);
-		trace(loader.tag);
-		var data:ByteArray = loader.content;
-		trace(data.length);
+		this.nrOfLoaded = 0;
+		this.nrOfChannels = channels.length;
+		this.channelsData = [];
+		this.labels = new Map<String,String>();		
 		
-		this.loadedChannelCount++;
-		this.onChannelLoaded(this.loadedChannelCount, loader.tag, this.channelIds, data);
+		for (channel in channels)
+		{
+			this.labels.set(channel.Id, channel.Label);
+			var url = '${this.host}media/channel/${this.productId}/${channel.Id}/${this.userId}';
+			trace(url);
+			var dataLoader:DataLoader = new DataLoader();
+			dataLoader.result.add(onDataResult);
+			dataLoader.load(url, channel.Id);
+		}		
 	}
 	
+	private var channelsData:TChannelsData;
+	var channels:TPlaybackChannels;
 	
+	function onDataResult(result:DataResult) 
+	{
+		switch(result)
+		{
+			case DataResult.data(data, tag):
+				this.result.dispatch(ChannelsResult.loaded(data, tag));
+				
+				this.channelsData.push( { id:tag, label:'XYZ', data:data} );								
+				if (this.channelsData.length == this.nrOfChannels) {
+					
+					this.channelsData.sort( function(a, b) return Reflect.compare(a.id, b.id) );
+					
+					this.result.dispatch(ChannelsResult.complete(this.channelsData));
+				}
+			case DataResult.error(message, url):
+				trace(message);
+			case DataResult.progress(bytesLoaded, bytesTotal, pageNr):				
+		}
+	}
 }
+
+
+
+enum ChannelsResult
+{
+	started(channels:TPlaybackChannels);	
+	loaded(data:ByteArray, tag:String);
+	complete(channelsData:TChannelsData);
+	error(message:String, url:String );	
+}
+
+

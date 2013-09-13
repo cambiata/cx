@@ -22,12 +22,9 @@ class Load extends Signal1<String>
 }
 
 class LoadCommand extends Command
-{
-	
+{	
 	@inject public var load:Load;
-
-	@inject public var url:String;
-	
+	@inject public var url:String;	
 	public function new() super();	
 	
 	override public function execute():Void

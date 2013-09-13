@@ -8,7 +8,7 @@ package ;
 class Config
 {
 	static public var host:String =  "http://localhost:2000"; // http://scorxdev.azurewebsites.net"; // "localhost:26446"; // "http://scorxdev.azurewebsites.net/";
-	static public var productId:Int = 1;
+	static public var productId:Int = 43;
 	static public var userId:Int = 1;
 	
 	static public var playbackLevel:String = 'NoPlayback';

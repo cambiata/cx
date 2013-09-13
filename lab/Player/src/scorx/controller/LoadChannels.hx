@@ -48,17 +48,12 @@ class LoadChannelsCommand extends Command
 	
 	override public function execute():Void
 	{
-		Debug.log(['LoadChannelsCommand...', loadParameters.productId, loadParameters.userId, loadParameters.host]);
 		
 		this.loader.setParameters(loadParameters.productId, loadParameters.userId, loadParameters.host);	
 		
 		this.loader.onChannelLoaded = function(channelNr:Int, channelId:String, channelIds:Array<String>, data:ByteArray) 
 		{
 			var length = (data != null) ? data.length : 0;
-			
-			trace("onChannelLoaded " + channelNr + " " + channelId + " " +  channelIds + " " + length);
-			
-			
 			if (channelNr == 0)
 			{
 				this.loadChannelsController.status.dispatch(LoadChannelsStatus.started(channelIds));

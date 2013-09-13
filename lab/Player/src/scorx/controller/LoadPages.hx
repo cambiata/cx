@@ -67,23 +67,19 @@ class LoadPagesCommand extends Command
 	
 	override public function execute():Void
 	{				
-		
-		Debug.log(['LoadPagesCommand...', loadParameters.productId, loadParameters.userId, loadParameters.host]);
-		
 		this.loader.setParameters(loadParameters.productId, loadParameters.userId, loadParameters.host);
 		
 		this.loader.onPageLoaded = function(pageNr:Int, nrOfPages:Int, data:BitmapData, type:String)
 		{			
-			trace('loader.onPageLoaded $pageNr/$nrOfPages');
-			
+			//trace('loader.onPageLoaded $pageNr/$nrOfPages');
 			if (pageNr == 0) 
 			{
-				trace('loader.started...');
+				//trace('loader.started...');
 				this.loadPages.status.dispatch(LoadPagesStatus.started(nrOfPages));
 			}
 			else
 			{
-				trace('loader.progress...');
+				//trace('loader.progress...');
 				this.loadPages.status.dispatch(LoadPagesStatus.progress( { pageNr:pageNr, nrOfPages:nrOfPages, data:data } ));				
 			}
 			
@@ -91,8 +87,7 @@ class LoadPagesCommand extends Command
 			
 			if (pageNr == nrOfPages)
 			{
-				trace('loader.completed...');
-				//this.loadPages.status.dispatch(LoadPagesStatus.progress( { pageNr:pageNr, nrOfPages:nrOfPages, data:data } ));
+				//trace('loader.completed...');				
 				this.loadPages.status.dispatch(LoadPagesStatus.completed(nrOfPages));
 			}			 
 		}

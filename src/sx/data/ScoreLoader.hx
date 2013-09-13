@@ -1,5 +1,7 @@
 package sx.data;
 import flash.display.BitmapData;
+import flash.events.Event;
+import flash.utils.ByteArray;
 import mloader.ImageLoader;
 import mloader.Loader.Loader;
 import mloader.Loader.LoaderEvent;
@@ -8,6 +10,7 @@ import mloader.Loader.LoaderErrorType;
 import mloader.LoaderQueue;
 import mloader.StringLoader;
 import mloader.JsonLoader;
+import scorx.data.DataLoader;
 import scorx.types.ScoreLoadingType;
 
 /**
@@ -46,7 +49,7 @@ class ScoreLoader
 	
 	function loadFirstPageAndCount() 
 	{
-		Debug.log('loadFirstPageAndCount');
+		//Debug.log('loadFirstPageAndCount');
 		var queue:LoaderQueue = new LoaderQueue();
 		queue.maxLoading = 1;
 		queue.ignoreFailures = false;
@@ -59,8 +62,9 @@ class ScoreLoader
 	function getPageLoader(pageNr:Int):ImageLoader
 	{
 		var url:String = this.host + 'media/$typeString/$productId/$pageNr/$userId?ext=.png';		
-		Debug.log('getPageLoader: ' + url);
+		//Debug.log('getPageLoader: ' + url);
 		var imageLoader = new ImageLoaderExt(url, pageNr);
+		//var imageLoader = new BytearrayLoader(url, Std.string(pageNr));
 		imageLoader.loaded.addOnce(onImageLoaded).forType(LoaderEventType.Complete);		
 		return imageLoader;		
 	}
@@ -68,7 +72,7 @@ class ScoreLoader
 	function getCountLoader():StringLoader
 	{
 		var url:String  =  this.host + 'media/$typeString/count/$productId?ext=.txt';	
-		Debug.log('getCountLoader: ' + url);
+		//Debug.log('getCountLoader: ' + url);
 		var countLoader:StringLoader = new StringLoader(url);
 		countLoader.loaded.addOnce(onCountComplete).forType(LoaderEventType.Complete);	
 		return countLoader;
@@ -77,7 +81,7 @@ class ScoreLoader
 	function getInfoLoader():JsonLoader<Dynamic>
 	{
 		var url:String  =  this.host + 'media/info/$productId/$userId?ext=.json';	
-		Debug.log('getInfoLoader: ' + url);
+		//Debug.log('getInfoLoader: ' + url);
 		var infoLoader:JsonLoader<Dynamic> = new JsonLoader<Dynamic>(url);
 		infoLoader.loaded.addOnce(onInfoComplete).forType(LoaderEventType.Complete);	
 		return infoLoader;
@@ -90,21 +94,21 @@ class ScoreLoader
 		switch (event.type)
 		{
 			case Complete: 
-				Debug.log('Info loaded successfully');				
+				//Debug.log('Info loaded successfully');				
 			case Fail(e): 		    
-				Debug.log("Info Loader failed: " + e);
+				//Debug.log("Info Loader failed: " + e);
 				return;	
 			default:
 		}		
 		
-		Debug.log('onInfoComplete SUCCESS');
-		Debug.log(event.target.content);
+		//Debug.log('onInfoComplete SUCCESS');
+		//Debug.log(event.target.content);
 	}
 	
 	function onCountComplete(event:LoaderEvent<String>) 
 	{
 	
-		Debug.log('onCountComplete');
+		//Debug.log('onCountComplete');
 		var nrOfPages:Int = 1;
 		try 
 		{
@@ -112,7 +116,7 @@ class ScoreLoader
 			
 			if (nrOfPages  == 0) 
 			{
-				Debug.log('onCountComplete nrOfPages IS 0!!!');
+				//Debug.log('onCountComplete nrOfPages IS 0!!!');
 				nrOfPages = 1;
 			}
 			
@@ -128,31 +132,53 @@ class ScoreLoader
 	{
 		switch (event.type)
 		{
-			case Complete: Debug.log('Image loaded successfully');
+			case Complete: 
+				//Debug.log('Image loaded successfully');
 			case Fail(e): 		    
-				Debug.log("Image Loader failed: " + e);
+				//Debug.log("Image Loader failed: " + e);
 				return;	
 			default:
 		}
 		
 		var content = event.target.content;
 		var loader:ImageLoaderExt = cast(event.target, ImageLoaderExt);
-		var bitmapData:BitmapData = null; 
+		//var data:ByteArray = loader.content;		
+		var bitmapData:BitmapData = cast loader.content;
+		/*
+		#if flash
+		
+		
+		#end
+		
+		
 		
 		#if js
 			trace(event.target.content);
 			//bitmapData = content; // cast(event.target.content, BitmapData);			
 		#else
 			bitmapData = loader.content; 
-		#end
-		
-		var pageNr:Int = loader.idx;		
+		#end		
+		*/
+		var pageNr:Int = loader.idx;
 		this.onPageLoaded(pageNr+1, this.nrOfPages, bitmapData, this.typeString);
+		
+		/*
+		var imgLoader:flash.display.Loader = new flash.display.Loader();
+
+		imgLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, function(e = null) 
+		{
+			Debug.log('complete!!!');
+		});		
+		imgLoader.loadBytes(data);
+		Debug.log('load bytes');
+		*/
+		
+		
 	}	
 	
 	function loadOtherPages(nrOfPages:Int)
 	{
-		Debug.log('loadOtherPages');
+		//Debug.log('loadOtherPages');
 		if (nrOfPages < 2 ) throw "This shouldn't happen!";
 		
 		var queue:LoaderQueue = new LoaderQueue();

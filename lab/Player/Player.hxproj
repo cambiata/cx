@@ -6,8 +6,8 @@
     <movie input="" />
     <movie path="application.xml" />
     <movie fps="60" />
-    <movie width="600" />
-    <movie height="480" />
+    <movie width="1400" />
+    <movie height="800" />
     <movie version="3" />
     <movie minorVersion="0" />
     <movie platform="NME" />
@@ -18,7 +18,7 @@
   <classpaths>
     <class path="src" />
     <class path="..\..\src" />
-    <class path="bin\flash\haxe" />
+    <class path="bin\content\player\flash\haxe" />
   </classpaths>
   <!-- Build options -->
   <build>

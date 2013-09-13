@@ -1,12 +1,14 @@
 package player;
 
 
-#if js 
-import js.Browser;
-import js.JQuery;
-#end
-
-import sx.data.ScoreLoader;
+import scorx.data.ChannelsLoader;
+import scorx.data.PagesLoader;
+import scorx.data.GridLoader;
+import scorx.model.PlaybackEngine;
+import scorx.model.PlayPosition;
+import sx.player.grid.PageSystemsUtils;
+import scorx.data.GridProc;
+//import sx.data.ScoreLoader;
 import scorx.types.ScoreLoadingType;
 import sx.mvc.MvcMain;
 import sx.mvc.app.AppView;
@@ -27,17 +29,25 @@ import scorx.controller.Confload;
 import scorx.model.Configuration;
 import player.view.ConfigurationView.ConfigurationViewView;
 import player.view.ConfigurationView.ConfigurationViewMediator;
+import player.view.Scroller.ScrollerView;
+import player.view.Scroller.ScrollerMediator;
 import scorx.view.Pages.PagesView;
 import scorx.view.Pages.PagesMediator;
 import player.controller.Setzoom;
-import scorx.controller.LoadPages;
-import scorx.controller.LoadPages.LoadPagesCommand;
+//import scorx.controller.LoadPages;
+//import scorx.controller.LoadPages.LoadPagesCommand;
 
 import scorx.view.Buttons.ButtonsView;
 import scorx.view.Buttons.ButtonsMediator;
 import player.view.Zoom.ZoomView;
 import player.view.Zoom.ZoomMediator;
 import flash.display.StageDisplayState;
+
+#if js 
+import js.Browser;
+import js.JQuery;
+#end
+
 
 /*
 import Config;
@@ -255,50 +265,49 @@ class AppMediator extends AppBaseMediator
 	
 	@inject public var confload:Confload;
 	@inject public var config:Configuration;	
-	@inject public var loadPages:LoadPages;	
+
 	
 	var layoutManager:LayoutManager;	
 	var viewConfigurationViewView:ConfigurationViewView;	
 	var pagesView:PagesView;	
 	var zoomView:ZoomView;	
-	
+	var viewScrollerView:ScrollerView;
 	
 	override function register() 	
 	{
-		Debug.log('register');
-		
+		//Debug.log('register');		
 		// autoload pages after configuration model update
 		mediate(this.config.updated.add(function() 
 		{
-			Debug.log('Config loaded!');
 			this.loadContent();
 		}));			
 		
 		
 		// Create views
 		this.pagesView = new PagesView();
-		this.view.addChild(this.pagesView);				
+		this.view.addChild(this.pagesView);		
+		
 		this.viewConfigurationViewView = new ConfigurationViewView();
 		this.view.addChild(viewConfigurationViewView);			
-		zoomView = new ZoomView();
+		
+		this.zoomView = new ZoomView();
 		this.view.addChild(zoomView);		
+		
+		this.viewScrollerView = new ScrollerView();		
+		this.view.addChild(viewScrollerView);
+			
 		
 		// Layout views
 		this.layoutManager = new LayoutManager();
-		//this.layoutManager.add(new WidgetItem(this.buttonsView, Horizontal.RIGHT, Vertical.TOP));
-		//this.layoutManager.add(new WidgetItem(this.smallthumbsView, Horizontal.LEFT, Vertical.STRETCH_MARGIN(0, 30)));
-		//this.layoutManager.add(new WidgetItem(this.zoomView, Horizontal.RIGHT, Vertical.TOP));
-		
 		this.layoutManager.add(new WidgetItem(this.viewConfigurationViewView, Horizontal.LEFT_MARGIN(20), Vertical.BOTTOM_MARGIN(20)));
 		this.layoutManager.add(new WidgetItem(this.zoomView, Horizontal.RIGHT, Vertical.TOP));		
-		//this.layoutManager.add(new WidgetItem(this.viewPlaybackMixerView, Horizontal.RIGHT_MARGIN(4), Vertical.BOTTOM_MARGIN(4)));
+		this.layoutManager.add(new WidgetItem(this.viewScrollerView, Horizontal.STRETCH_MARGIN(40, 60), Vertical.BOTTOM));
 		
-		var pagesItem:WidgetItem = new WidgetItem(this.pagesView, Horizontal.STRETCH_MARGIN(40, 60), Vertical.STRETCH);
+		var pagesItem:WidgetItem = new WidgetItem(this.pagesView, Horizontal.STRETCH_MARGIN(40, 60), Vertical.STRETCH_MARGIN(0, 30));
 		this.layoutManager.add(pagesItem);
 		pagesItem.afterResize = function (x, y, width, height) 
 		{
-			Debug.log('AppMediator - register - pagesItem.afterResize $width $height');
-			//this.pagesView.afterResize(x, y, width, height);	
+			this.pagesView.afterResize(x, y, width, height);	
 		}		
 		
 		this.layoutManager.resize();		
@@ -306,17 +315,9 @@ class AppMediator extends AppBaseMediator
 		#if js
 		Lib.current.stage.addEventListener(Event.RESIZE, function(e = null) {
 			Debug.log('After resize');
-			Debug.log(Lib.current.stage.displayState);
-			Debug.log(Browser.window.innerWidth);
-			Debug.log(Lib.current.stage.width);
-			Debug.log(Lib.current.stage.stageWidth);						
-			
 			this.layoutManager.resize(Lib.current.stage.stageWidth, Lib.current.stage.stageHeight);
-
 		});
 		#end
-		
-		
 		
 		// kickof configuration
 		this.confload.dispatch();				
@@ -324,28 +325,25 @@ class AppMediator extends AppBaseMediator
 	
 	private function loadContent()
 	{
-		Debug.log('Load Content');
+		/*
 		var loadParameters:LoadParameters = new LoadParameters();
 		loadParameters.host = config.host;
 		loadParameters.productId = config.productId;
 		loadParameters.userId = config.userId;
 		loadParameters.type = ScoreLoadingType.screen;
-		Debug.log(loadParameters);
-		
 		loadPages.dispatch(loadParameters);			
 		loadPages.status.add(function(status:LoadPagesStatus)
 		{
 			switch(status) 
 			{
 				case LoadPagesStatus.started(nrOfPages):
-					trace('NrOfPages ' + nrOfPages);				
+					//trace('NrOfPages ' + nrOfPages);				
 				case LoadPagesStatus.completed:					
 					//loadChannelsController.dispatch(loadParameters);
 				default:					
 			}
 		});
-		
-		
+		*/		
 	}
 	
 }
@@ -354,24 +352,29 @@ class AppContext extends AppBaseContext
 {
 	override function config() 
 	{			
-		Debug.log('config');
 		UIBuilder.init("../../assets/ui/scorx-defaults.xml");
 		UIBuilder.regSkins("../../assets/ui/scorx-skins.xml");				
 	}
 	
 	override function init() 	
 	{
-		Debug.log('init');		
 		injector.mapSingleton(Configuration);		
 		injector.mapSingleton(Setzoom);
-		injector.mapSingleton(ScoreLoader);
-
+		injector.mapSingleton(GridProc);
+		injector.mapSingleton(PageSystemsUtils);
+		injector.mapSingleton(PlayPosition);
+		injector.mapSingleton(GridLoader);
+		injector.mapSingleton(PagesLoader);
+		injector.mapSingleton(ChannelsLoader);
+		injector.mapSingleton(PlaybackEngine);
+		
+		
 		commandMap.mapSignalClass(Confload, ConfloadCommand);				
-		commandMap.mapSignalClass(LoadPages, LoadPagesCommand);		
 		
 		mediatorMap.mapView(ZoomView, ZoomMediator);				
 		mediatorMap.mapView(PagesView, PagesMediator);					
-		mediatorMap.mapView(ConfigurationViewView, ConfigurationViewMediator);			
+		mediatorMap.mapView(ConfigurationViewView, ConfigurationViewMediator);	
+		mediatorMap.mapView(ScrollerView, ScrollerMediator);
 		mediatorMap.mapView(sx.mvc.app.AppView, AppMediator);
 	}
 }

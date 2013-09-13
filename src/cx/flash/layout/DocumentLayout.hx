@@ -1,6 +1,7 @@
 package cx.flash.layout;
 import flash.display.DisplayObject;
 import flash.geom.Point;
+import flash.geom.Rectangle;
 import motion.Actuate;
 import ru.stablex.ui.widgets.Widget;
 //import ru.stablex.ui.widgets.Widget;
@@ -71,13 +72,21 @@ class DocumentLayout
 				child.y = childY[i];
 			}
 		}
+		
+		// set child positions
+		var result:DocInfo = { holderRect: new Rectangle(0, 0, holder.w, holder.h), pageSize: new Point(childWidth, childHeight), pageInfos: new DocPageInfos() };		
+		for (i in 0...numChildren) 
+		{
+			var pageInfo:DocPageInfo = { rect: new Rectangle(childX[i], childY[i], childWidth, childHeight), };
+			result.pageInfos.push(pageInfo);
+		}
 
 		var holderX = Math.max(0, (holderWidth - holder.w) / 2);
 		var holderY = Math.max(0, holder.y);
 		holder.x = holderX;
 		holder.y = holderY;
 		
-		return new Point(childWidth, childHeight);
+		return result; // new Point(childWidth, childHeight);
 	}	
 	
 	static public  function pagesArrangeWidths(holder:Widget, holderWidth:Float, childWidth:Float = 210, childHeight:Float = 297) 
@@ -91,4 +100,17 @@ class DocumentLayout
 			child.height = childHeight;
 		}		
 	 }
+}
+
+typedef DocInfo = {
+	holderRect:Rectangle,
+	pageSize:Point,
+	pageInfos:DocPageInfos,
+	
+}
+
+typedef DocPageInfos = Array<DocPageInfo>;
+
+typedef DocPageInfo = {
+	rect:Rectangle,
 }

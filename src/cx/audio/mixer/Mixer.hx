@@ -20,7 +20,7 @@ import flash.events.Event;
  */
 
 class Mixer {
-	private var sounds:Vector<Sound>;
+	public var sounds(default, null):Vector<Sound>;
 	private var bytes:Vector <ByteArray>;
 	private var volumes:Vector<Float>;
 	private var channelsCount:Int;
@@ -89,7 +89,7 @@ class Mixer {
 		bufferPos += bufferSize;		
 		posCurrent = bufferPos / bufferEnd;
 		
-		if (posCurrent >= posStop) this.stopPlayback();
+		//if (posCurrent >= posStop) this.stopPlayback();
 		if (playCallback != null) this.playCallback(posStart, posStop, posCurrent);		
 	}
 	

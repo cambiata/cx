@@ -1,8 +1,11 @@
 package scorx.model;
 import cx.audio.mixer.Mixer;
+import flash.events.Event;
 import flash.media.Sound;
 import flash.utils.ByteArray;
 import flash.Vector.Vector;
+import scorx.data.TChannelData;
+import scorx.data.TChannelsData;
 
 /**
  * ...
@@ -10,9 +13,11 @@ import flash.Vector.Vector;
  */
 class PlaybackEngine
 {
-	var sounds:Array<Sound>;
+	public var sounds(default, null):Array<Sound>;
 	var mixer:Mixer;
 	var channelIds:Array<String>;
+	var nrOfChannels:Int;
+	var nrOfLoaded:Int;
 	
 	public function new() 
 	{
@@ -21,7 +26,9 @@ class PlaybackEngine
 	
 	public function reset()
 	{
-		this.sounds = new Array<Sound>();		
+		this.sounds = [];		
+		this.nrOfChannels = 0;
+		this.nrOfLoaded = 0;
 	}
 	
 	public function addChannel(channelId:String, data:ByteArray)
@@ -31,20 +38,50 @@ class PlaybackEngine
 		var sound:Sound = new Sound();
 		sound.loadCompressedDataFromByteArray(data, data.length);
 		this.sounds.push(sound);
+	}
+
+	
+	public function addChannels(channels:TChannelsData)
+	{
+		this.reset();
+		this.nrOfChannels = channels.length;
 		
+		for (channel in channels)
+		{
+			var ch:TChannelData = channel;
+			this.channelIds.push(ch.id);
+			var sound:Sound = new Sound();
+			//sound.addEventListener(flash.events.s, onSoundComplete);
+			sound.loadCompressedDataFromByteArray(ch.data, ch.data.length);
+			this.sounds.push(sound);
+		}
+	}	
+	
+	private function onSoundComplete(e:Event):Void 
+	{
+		this.nrOfLoaded++;
+		trace([this.nrOfLoaded + ' / ' + this.nrOfChannels]);
 	}
 	
 	public function complete()
 	{
-		trace(sounds.length);
+		
 		this.mixer = new Mixer(sounds, function(startPos:Float, endPos:Float, curPos:Float) {
 			trace(curPos);
+			
 		});		
+		
+		
+		
+		
 	}
 	
 	public function start(startPos:Float= 0)
 	{
-		//this.mixer.stopPlayback();
+		for (sound in this.mixer.sounds)
+		{
+			trace(sound.length);
+		}		
 		this.mixer.startPlayback(startPos);				
 	}
 	

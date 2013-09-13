@@ -14,5 +14,5 @@ enum Vertical
 	
 	TOP_MARGIN(margin:Float);
 	BOTTOM_MARGIN(margin:Float);
-	STRETCH_MARGIN(topMargin:Float, BOTTOM_MARGIN:Float);
+	STRETCH_MARGIN(topMargin:Float, bottomMargin:Float);
 }

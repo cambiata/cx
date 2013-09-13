@@ -20,7 +20,6 @@ class StopCommand extends Command
 {
 	@inject public var model:TimerModel;
 
-
 	override public function execute():Void
 	{
 		this.model.stop();

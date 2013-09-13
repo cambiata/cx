@@ -119,8 +119,7 @@ class WebTools {
 	static private var HTTP_PREFIX = "http://";
 	
 	static public function addHttpPrefix(host:Null<String>) 
-	{
-		trace(StringTools.startsWith(host, HTTP_PREFIX));
+	{		
 		if (!StringTools.startsWith(host, HTTP_PREFIX)) return HTTP_PREFIX + host;
 		return host;
 	}

@@ -33,6 +33,8 @@ class WidgetItem implements ILayoutItem
 		var targetWidth = this.target.w;
 		var targetHeight = this.target.h;
 		
+		var refresh:Bool = false;
+		
 		switch(this.horizontal) 
 		{
 			case Horizontal.LEFT:
@@ -44,6 +46,7 @@ class WidgetItem implements ILayoutItem
 			case Horizontal.STRETCH:	
 				this.target.x = 0;
 				this.target.w = stageWidth;
+				refresh = true;
 			case Horizontal.NONE:
 				
 			case Horizontal.LEFT_MARGIN(margin):
@@ -53,7 +56,7 @@ class WidgetItem implements ILayoutItem
 			case Horizontal.STRETCH_MARGIN(leftMargin, rightMargin):
 				this.target.x = leftMargin;
 				this.target.w = stageWidth - leftMargin - rightMargin;					
-				
+				refresh = true;
 		}		
 		
 		switch(this.vertical) 
@@ -67,6 +70,7 @@ class WidgetItem implements ILayoutItem
 			case Vertical.STRETCH:	
 				this.target.y = 0;
 				this.target.h = stageHeight;
+				refresh = true;
 			case Vertical.NONE:
 				
 			case Vertical.TOP_MARGIN(margin):
@@ -76,8 +80,11 @@ class WidgetItem implements ILayoutItem
 			case Vertical.STRETCH_MARGIN(topMargin, bottomMargin):
 				this.target.y = topMargin;
 				this.target.h = stageHeight - topMargin - bottomMargin;				
+				refresh = true;
 		}			
 
+		if (refresh) this.target.refresh();
+	
 		this.afterResize(target.x, target.y, target.w, target.h);
 		
 	}

@@ -6,7 +6,9 @@ import cx.TimerTools;
 import flash.display.BitmapData;
 import flash.display.DisplayObject;
 import flash.display.Sprite;
+import flash.events.MouseEvent;
 import flash.geom.Point;
+import flash.ui.Mouse;
 import ru.stablex.ui.widgets.Scroll;
 import ru.stablex.ui.widgets.Widget;
 import ru.stablex.ui.widgets.Button;
@@ -14,6 +16,9 @@ import ru.stablex.ui.widgets.Bmp;
 import ru.stablex.ui.UIBuilder;
 import flash.events.Event;
 import sx.mvc.view.enums.ScrollWidgetZoom;
+import sx.player.grid.PageBars;
+import sx.player.grid.PageSystems;
+import sx.player.grid.PageSystemsUtils;
 
 /**
  * ...
@@ -22,6 +27,10 @@ import sx.mvc.view.enums.ScrollWidgetZoom;
 class ScrollWidgetView extends Scroll
 {
 	public var widget(default, null): Widget;
+	public var gridOverlay(default, null): Widget;
+	public var orgOverlay(default, null): Widget;
+	public var pagesOverlay(default, null): Widget;
+	
 	
 	var pageSize:Point;
 	var zoom:ScrollWidgetZoom;		
@@ -29,6 +38,8 @@ class ScrollWidgetView extends Scroll
 	public function new() 
 	{	
 		super();
+		
+		
 		this.w = 500;
 		this.h = 500;
 		
@@ -36,12 +47,39 @@ class ScrollWidgetView extends Scroll
 		
 		this.widget = UIBuilder.create(Widget);
 		
+		this.pagesOverlay = UIBuilder.create(Widget);
+		this.widget.addChild(this.pagesOverlay);
+		this.doubleClickEnabled = true;
+		this.pagesOverlay.doubleClickEnabled = true;
+		this.pagesOverlay.addEventListener(MouseEvent.DOUBLE_CLICK, function(e:MouseEvent) {
+			trace('double');
+			this.handleMouseDoubleClick(this.pagesOverlay.mouseX, this.pagesOverlay.mouseY);
+		});		
+		
+		
+		/*
+		this.pagesOverlay.graphics.beginFill(0x00FF00);
+		this.pagesOverlay.graphics.drawRect(0, 0, 400, 400);		
+		*/
+		
+		this.gridOverlay = UIBuilder.create(Widget);
+		this.widget.addChild(this.gridOverlay);
+		
+		this.orgOverlay = UIBuilder.create(Widget);
+		this.widget.addChild(this.orgOverlay);
+
+				
+		
+		/*
+		this.gridOverlay.graphics.beginFill(0x0000FF);
+		this.gridOverlay.graphics.drawRect(0, 0, 300, 300);		
+		*/
+		
 		this.addChild(this.widget);
-		createChildren();
+		
+		//createChildren();
 		addSkin();
 		this.refresh();
-
-
 		
 		this.addEventListener(Event.ADDED, function(e)  { sx.mvc.app.AppView.REGISTER.dispatch(this); } );
 		
@@ -72,8 +110,6 @@ class ScrollWidgetView extends Scroll
 		sliderSkin.color = 0xFF0000;
 		sliderSkin.apply(this.vBar.slider);
 		sliderSkin.apply(this.hBar.slider);
-
-		
 		
 		var barSkin = new  ru.stablex.ui.skins.Paint();
 		barSkin.color = 0x0000FF;
@@ -124,9 +160,34 @@ class ScrollWidgetView extends Scroll
 		this.h = height;
 		
 		var size:Point = this.getZoomSize(this.zoom, width, height);			
-		this.pageSize = DocumentLayout.arrange(widget, width, size.x, size.y);	
-		this.refresh();			
+		
+		var docInfo:DocInfo = DocumentLayout.arrange(this.pagesOverlay, width, size.x, size.y);			
+		this.widget.w = docInfo.holderRect.width;
+		this.widget.h = docInfo.holderRect.height;		
+		this.pageSize = docInfo.pageSize;			
+		
+		this.gridOverlay.x = this.pagesOverlay.x;
+		this.gridOverlay.w = this.pagesOverlay.w;
+		this.gridOverlay.h = this.pagesOverlay.h;
+			
+		this.orgOverlay.x = this.pagesOverlay.x;		
+		this.orgOverlay.w = this.pagesOverlay.w;
+		this.orgOverlay.h = this.pagesOverlay.h;
+		
+		/*	
+			var pageBars:PageBars = gridProcessor.getPageBars(documentInfo);			
+			PageSystemsUtils.drawPageBars(this.gridOverlay, pageBars);
+		*/
+		this.afterReziseGrid(this.gridOverlay, docInfo);
+		
+		this.refresh();	
 	}
+	
+	dynamic public function afterReziseGrid(gridOverlay:Widget, docInfo:DocInfo)
+	{
+		trace('AFTER RESIZE GRID');
+	}
+	
 	
 	private function getTest()
 	{		
@@ -150,40 +211,59 @@ class ScrollWidgetView extends Scroll
 
 	public function setZoom(zoom:ScrollWidgetZoom)
 	{
-		this.zoom = zoom;
+		this.zoom = zoom;		
+		this.scrollY = 0;
 		this.resize_();
 	}	
 	
 	public function initPages(nrOfPages:Int) 
-	{
+	{		
 		clearPages();
-		for (i in 0...nrOfPages) widget.addChild(getTest());
+		//for (i in 0...nrOfPages) widget.addChild(getTest());
+		for (i in 0...nrOfPages) this.pagesOverlay.addChild(getTest());
+		this.pagesOverlay.refresh();
 		this.resize_(0, 0, this.w, this.h);
+		
+		
 		widget.refresh();
 	}
 	
 	public function clearPages()
 	{
-		while (widget.numChildren > 0) widget.removeChildAt(0);		
+		//while (widget.numChildren > 0) widget.removeChildAt(0);		
+		while (this.pagesOverlay.numChildren > 0) this.pagesOverlay.removeChildAt(0);
 	}
 	
 	public function addPage(pageNr:Int, nrOfPages:Int, data:BitmapData) 
 	{
 		var size:Point = getZoomSize(this.zoom, this.w, this.h);
 		
-		var bmp = cast(widget.getChildAt(pageNr-1), Bmp);		
+		var bmp = cast(this.pagesOverlay.getChildAt(pageNr), Bmp);		
 		bmp.bitmapData = data;
 		bmp.w = size.x;
 		bmp.h = size.y;
 		
-		var child : DisplayObject = widget.getChildAt(pageNr-1);
+		/*
+		bmp.addEventListener(MouseEvent.MOUSE_DOWN, function(e:MouseEvent) {			
+			this.handleMouseDown(pageNr, e.localX, e.localY);
+		});
+		*/
+		
+		bmp.doubleClickEnabled = true;
+		
+		var child : DisplayObject = this.pagesOverlay.getChildAt(pageNr);
 		child.width = size.x;
 		child.height = size.y;
 		
 		bmp.removeChildAt(0);
 		bmp.removeChildAt(0);
+		
 	}
 	
+	dynamic public function handleMouseDoubleClick(x:Float, y:Float)
+	{
+		trace('handleMouseDown');
+	}
 	
 	private function getZoomSize(zoom: ScrollWidgetZoom, width:Float, height:Float):Point
 	{

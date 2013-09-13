@@ -89,8 +89,6 @@ class ZoomMediator extends mmvc.impl.Mediator<ZoomView>
 	
 	override function onRegister() 
 	 {
-		trace('ZoomMediator registered');	
-
 		this.view.btnZ40.onPress = function(e) {			
 			this.setzoom.dispatch(ScrollWidgetZoom.Zoom40);			
 		};

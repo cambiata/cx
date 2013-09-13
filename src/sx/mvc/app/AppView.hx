@@ -16,7 +16,6 @@ class AppView  extends Sprite  implements IViewContainer
 	public function new()
 	{
 		super();	
-		trace('AppView new()');
 		REGISTER.add(activeMediators);
 	}
 
