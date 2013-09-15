@@ -28,7 +28,7 @@ class Constants
 
 	// 
 	static public var PLAYER_VIEW_SMALLTHUMBS_W:Float = 40;
-	static public var PLAYER_VIEW_ZOOMBUTTONS_W:Float = 50;
+	static public var PLAYER_VIEW_ZOOMBUTTONS_W:Float = 80;
 	
 	
 	

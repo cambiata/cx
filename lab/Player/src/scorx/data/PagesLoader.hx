@@ -38,8 +38,7 @@ class PagesLoader
 		this.countLoader = new URLLoader();
 		this.countLoader.dataFormat = URLLoaderDataFormat.TEXT;
 		this.countLoader.addEventListener(Event.COMPLETE, countComplete);
-		this.countLoader.addEventListener(IOErrorEvent.IO_ERROR, function(e:Event) {this.result.dispatch(PagesResult.error('ScreenLoader Count IO error', this.url)); trace('IOERROR');} );		
-		
+		this.countLoader.addEventListener(IOErrorEvent.IO_ERROR, function(e:Event) {this.result.dispatch(PagesResult.error('ScreenLoader Count IO error', this.url)); trace('IOERROR');} );				
 	}
 	
 	private function countComplete(e:Event):Void 
@@ -65,8 +64,6 @@ class PagesLoader
 		this.result.dispatch(PagesResult.started(nrOfPages));
 		this.loadPages(nrOfPages);		
 	}
-	
-	
 	
 	public function load(host:String, productId:Int, userId:Int)
 	{
@@ -101,8 +98,9 @@ class PagesLoader
 				this.result.dispatch(PagesResult.success(pageNr, this.nrOfPages, data));
 				this.nrOfLoaded++;
 				if (this.nrOfLoaded == this.nrOfPages) this.result.dispatch(PagesResult.complete(this.nrOfPages));
-			case ImgResult.error(message, url):
-				trace(message);
+			case ImgResult.error(message, url):				
+				this.result.dispatch(PagesResult.error(message, url));
+				
 			case ImgResult.progress(bytesLoaded, bytesTotal, pageNr):
 		}
 	}

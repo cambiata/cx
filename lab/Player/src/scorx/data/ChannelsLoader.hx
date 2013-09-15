@@ -19,6 +19,7 @@ import sx.player.TPlaybackChannels;
  */
 class ChannelsLoader
 {
+	
 	public var result:Signal1<ChannelsResult>;
 	
 	var countLoader:URLLoader;	
@@ -32,6 +33,7 @@ class ChannelsLoader
 	var nrOfLoaded:Int;	
 	
 	var labels:Map<String, String>;
+	
 	
 	
 	public function new() 
@@ -78,7 +80,13 @@ class ChannelsLoader
 		
 		this.channels.sort( function(a, b) return Reflect.compare(a.Id, b.Id) );
 		this.result.dispatch(ChannelsResult.started(channels));
-		this.loadChannels(channels);			
+
+		#if js
+			trace('ChannelsLoader JS');
+			this.result.dispatch(ChannelsResult.complete(null));
+		#else		
+			this.loadChannels(channels);			
+		#end
 	}
 	
 	public function loadChannels(channels:TPlaybackChannels) 
@@ -118,6 +126,7 @@ class ChannelsLoader
 				}
 			case DataResult.error(message, url):
 				trace(message);
+				this.result.dispatch(ChannelsResult.error(message, url));
 			case DataResult.progress(bytesLoaded, bytesTotal, pageNr):				
 		}
 	}

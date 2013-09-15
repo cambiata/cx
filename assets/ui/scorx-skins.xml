@@ -11,7 +11,6 @@
 
     <buttonPlay:Paint color="0xFF0000" corners="[8]" />
     
-    
     <redUp:Paint
         color = "0xFF0000"
         corners = "[3]"
@@ -43,10 +42,10 @@
     />   
     
     <progress:Paint
-        color  = "0x005069"        
+        color  = "0xcccccc"        
         corners = "[15]"
     />
-    <progressBar:Paint color="0x1eb6ff" corners="[15]" alpha="1" />    
+    <progressBar:Paint color="0x5555FF" corners="[15]" alpha="1" />    
     
     
     

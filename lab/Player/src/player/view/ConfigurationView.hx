@@ -1,5 +1,6 @@
 package player.view;
 
+import flash.text.TextFormat;
 import ru.stablex.ui.UIBuilder;
 import ru.stablex.ui.widgets.Button;
 import ru.stablex.ui.skins.Paint;
@@ -20,57 +21,60 @@ class ConfigurationViewView extends VBoxView
 	public  var labelProductId:Text;
 	public var labelHost:Text;
 	public var labelPlaybackLevel:Text;
-	public var labelPlaybackChannelIds:Text;
-	public var labelPlaybackChannelLabels:Text;
+	public var labelViewLevel:Text;
 
 	public var btn:Button;	
 	
 	override public function createChildren() 
 	 {
-		 this.childPadding = 0;
+		this.childPadding = 0;
 		 
 		this.align = 'top,left';
 		
-		 this.labelTitle = UIBuilder.create(Text);
-		this.labelTitle.text = 'CONFIGURATION:';
-		this.addChild(this.labelTitle);
+		var format = new TextFormat('Arial', 10);
 		
-		 this.labelUserId = UIBuilder.create(Text);
+		this.labelUserId = UIBuilder.create(Text);
+		this.labelUserId.h = 14;
 		this.labelUserId.text = 'UserId:';
+		this.labelUserId.format = format;		
 		this.addChild(this.labelUserId);
 	
 		this.labelProductId = UIBuilder.create(Text);
+		this.labelProductId.h = 14;
 		this.labelProductId.text = 'ProductId:';
+		this.labelProductId.format = format;
 		this.addChild(this.labelProductId);		
 		
 		this.labelHost = UIBuilder.create(Text);
+		this.labelHost.h = 14;
 		this.labelHost.text = 'Host:';
+		this.labelHost.format = format;
 		this.addChild(this.labelHost);				
 		
 		this.labelPlaybackLevel = UIBuilder.create(Text);
+		this.labelPlaybackLevel.h = 14;
 		this.labelPlaybackLevel.text = 'PlaybackLevel:';
+		this.labelPlaybackLevel.format = format;
 		this.addChild(this.labelPlaybackLevel);				
 
-		this.labelPlaybackChannelIds = UIBuilder.create(Text);
-		this.labelPlaybackChannelIds.text = 'Channel ids:';
-		this.addChild(this.labelPlaybackChannelIds);				
+		this.labelViewLevel = UIBuilder.create(Text);
+		this.labelViewLevel.h = 14;
+		this.labelViewLevel.text = 'ViewLevel:';
+		this.labelViewLevel.format = format;
+		this.addChild(this.labelViewLevel);		
 		
-		this.labelPlaybackChannelLabels = UIBuilder.create(Text);
-		this.labelPlaybackChannelLabels.text = 'Channel labels:';
-		this.addChild(this.labelPlaybackChannelLabels);					
-		
-		
-		this.w = 360;
-		this.h = 160;		
+		this.w = 200;
+		this.h = 90;		
 	}
 	
 	override public function addSkin()
 	 {
 		var skin:Paint = new Paint();
 		skin.color = 0xFFFFFF;
-		skin.alpha = 0.4;
+		skin.corners = [8];
+		skin.alpha = 1;
 		skin.border = 1;
-		skin.borderColor = 0xFF0000;
+		skin.borderColor = 0xDDDDDD;
 		skin.apply(this);				
 	}
 }
@@ -88,15 +92,8 @@ class ConfigurationViewMediator extends mmvc.impl.Mediator<ConfigurationViewView
 			this.view.labelHost.text = 'Host: ' + config.host;
 			
 			this.view.labelPlaybackLevel.text = 'PlaybackLevel: ' + Std.string(config.playbackLevel);			
-			this.view.labelPlaybackChannelIds.text = "Channel ids: ";
-			this.view.labelPlaybackChannelLabels.text = "Channel labels: ";
+			this.view.labelViewLevel.text = 'ViewLevel: ' + Std.string(config.viewLevel);
 
-			if (config.playbackChannels != null)
-				for (channel in config.playbackChannels)
-				{
-					this.view.labelPlaybackChannelIds.text  += channel.channelId;
-					this.view.labelPlaybackChannelLabels.text  += channel.channelLabel;
-				}
 		}));				
 	}	
 }

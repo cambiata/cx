@@ -83,7 +83,8 @@ class WidgetItem implements ILayoutItem
 				refresh = true;
 		}			
 
-		if (refresh) this.target.refresh();
+		//if (refresh) this.target.refresh();
+		this.target.refresh();
 	
 		this.afterResize(target.x, target.y, target.w, target.h);
 		

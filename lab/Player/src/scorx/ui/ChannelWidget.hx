@@ -23,26 +23,29 @@ class ChannelWidget extends Widget
 		super();
 		this.channelId = channelId;		
 		
-		this.w = 100;
+		this.w = 80;
 		this.h = 30;
 		
-		 this.label = UIBuilder.create(Text);
-		 label.text = channelLabel;
-		 this.label.format = new TextFormat("Arial", 12, 0xFFFFFF, true);
-		 label.w = 100;
-		 this.addChild(label);
+		this.label = UIBuilder.create(Text);
+		label.text = channelLabel;
+		this.label.format = new TextFormat("Arial", 11, 0x000000, true);
+		label.w = 80;
+		label.h = 12;
+		this.addChild(label);
 		
 		progress = UIBuilder.create(Progress);
 		 progress.defaults = "Default";
 		 progress.interactive = true;
-		 progress.w = 100;
+		 progress.w = 80;
 		 progress.h = 16;
 		 progress.y = 20;
 		 progress.max = 1;
-		 progress.value = 0.7;
+		 progress.value = 0.7;		 
 		 this.addChild(progress);
 		 
 		 progress.addEventListener(WidgetEvent.CHANGE, onChange);
+		 progress.useHandCursor = true;
+		 
 		 
 	}
 	
@@ -53,7 +56,7 @@ class ChannelWidget extends Widget
 	
 	public dynamic function  onChangeValue(channelId:String, value:Float)
 	{
-		trace([channelId, value]);
+		//trace([channelId, value]);
 	}
 	
 }

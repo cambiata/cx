@@ -46,7 +46,7 @@ class PlayPosition
 			if (this.pageBar == null) return;
 			if (this.currentPos != this.prevPos) this.positionSignal.dispatch(new PlayPositionInfo(this.currentPos, this.sender, this.pageBar.pageIdx));
 			this.prevPos = this.currentPos;			
-		}, 1000) ;
+		}, 500) ;
 	}
 	
 	private var prevPageIdx:Int = 0;

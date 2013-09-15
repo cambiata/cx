@@ -1,16 +1,21 @@
 package player.view;
 
+import cx.EnumTools;
 import cx.TimerTools;
 import flash.display.StageDisplayState;
 import flash.events.Event;
 import flash.Lib;
+import flash.text.TextFormat;
 import player.controller.Setzoom;
 import ru.stablex.ui.skins.Paint;
 import ru.stablex.ui.UIBuilder;
 import ru.stablex.ui.widgets.Button;
+import scorx.data.Zooma;
+import scorx.view.Pages.PagesMediator;
 import sx.mvc.view.enums.ScrollWidgetZoom;
 import sx.mvc.view.HBoxView;
 import sx.mvc.view.VBoxView;
+import sx.ScorxColors;
 
 /**
  * ...
@@ -24,63 +29,48 @@ class ZoomView extends VBoxView
 
 	
 	//static public inline var BTN_W:Float =40;
-	static public inline var BTN_H:Float =40;	
+	static public inline var BTN_H:Float = 32;	
 	
 	override public function createChildren() 
 	 {
-		this.align = 'top,center';
-		
+		this.align = 'top,center';		
 		btnScreenFull = createButton('Full');
-		this.addChild(btnScreenFull);
-
-		btnZ40 = createButton('40%');
-		this.addChild(btnZ40);
-		
-		btnFull = createButton('Page');
-		this.addChild(btnFull);
-		
-		/* 
-		 this.btn = UIBuilder.create(Button);
-		this.btn.text = "ZoomView";
-		this.btn.w = BTN_W;
-		this.btn.h = BTN_H;
-		this.addChild(this.btn);
-		*/
-		
-		this.w =Constants.PLAYER_VIEW_ZOOMBUTTONS_W;
-		
+		this.addChild(btnScreenFull);		
+		btnFull = createButton('Page');		
+		this.addChild(btnFull);		
+		this.align = 'top,center';		
+		this.w = 100;		
 	}
 	
 	private function createButton(text:String):Button
 	{
 		var btn:Button = UIBuilder.create(Button);
-		btn.w = Constants.PLAYER_VIEW_ZOOMBUTTONS_W - 8;
-		btn.h = BTN_H;			
+		btn.w = 80;		
 		btn.text = text; // Std.string(i);
+		btn.format = new TextFormat('Arial', 12, 0xFFFFFF);
 		
 		var skin:Paint = new Paint();
-		skin.color = 0xFFFFFF;
+		skin.color = ScorxColors.ScorxPetrol;
 		skin.corners = [8, 8];
-		skin.border = 2;
-		skin.borderColor = 0xcccccc;			
 		btn.skin = skin;
 		
 		var skin:Paint = new Paint();
-		skin.color = 0xFFFFFF;
-		skin.corners = [8, 8];
-		skin.border = 2;
-		skin.borderColor = 0x888888;			
-		btn.skinHovered = skin;			
+		skin.color = ScorxColors.ScorxPetrolLight;
+		skin.corners = [8, 8];		
+		btn.skinHovered = skin;		
+		
 		btn.refresh();	
 		return btn;
 	}
-	
+
 }
 
 class ZoomMediator extends mmvc.impl.Mediator<ZoomView>
 {
 	
-	@inject public var setzoom:Setzoom;
+	//@inject public var setzoom:Setzoom;
+	@inject public var zooma:Zooma;
+	
 	
 	#if js 
 	var firstFullscreen:Bool = true;
@@ -88,22 +78,39 @@ class ZoomMediator extends mmvc.impl.Mediator<ZoomView>
 	
 	
 	override function onRegister() 
-	 {
-		this.view.btnZ40.onPress = function(e) {			
-			this.setzoom.dispatch(ScrollWidgetZoom.Zoom40);			
+	 {	
+		this.view.btnFull.onPress = function(e) {
+			//this.setzoom.dispatch(ScrollWidgetZoom.ZoomFullHeight);		
+			if (zooma.getZoom() == ScrollWidgetZoom.ZoomFullHeight)
+			{
+				this.zooma.setZoom(ScrollWidgetZoom.Zoom40);
+			}
+			else
+			{
+				this.zooma.setZoom(ScrollWidgetZoom.ZoomFullHeight);				
+			}
 		};
 		
-		this.view.btnFull.onPress = function(e) {
-			this.setzoom.dispatch(ScrollWidgetZoom.ZoomFullHeight);	
-			
-		};
+		/*
+		this.setzoom.add(function(zoom:ScrollWidgetZoom) {
+			trace(Std.string(zoom));			
+		});
+		*/
+		
+		this.zooma.zoomSignal.add(function(zoom:ScrollWidgetZoom) {
+			switch(zoom)
+			{
+				case ScrollWidgetZoom.ZoomFullHeight:
+					this.view.btnFull.text = 'To small';
+				default:
+					this.view.btnFull.text = 'To full';
+			}
+		});
+		
 		
 		this.view.btnScreenFull.onPress = function(e)	
-		{
-			
+		{			
 			Debug.log(Lib.current.stage.displayState);
-		
-			
 			
 			#if js
 				var size:Dynamic = untyped __js__('__jsFullscreen()');

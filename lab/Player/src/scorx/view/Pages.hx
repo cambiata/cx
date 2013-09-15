@@ -6,9 +6,14 @@ import player.controller.Setzoom;
 import ru.stablex.ui.events.ScrollEvent;
 import ru.stablex.ui.events.WidgetEvent;
 import scorx.controller.LoadPages;
+import scorx.data.Errors;
 import scorx.data.GridLoader;
 import scorx.data.GridProc;
 import scorx.data.PagesLoader;
+import scorx.data.Zooma;
+import scorx.model.AccessLevelView;
+import scorx.model.Configuration;
+import scorx.model.PlaybackEngine;
 import scorx.model.PlayPosition;
 import sx.mvc.view.enums.ScrollWidgetZoom;
 import sx.mvc.view.HBoxView;
@@ -49,7 +54,10 @@ class PagesMediator extends mmvc.impl.Mediator<PagesView>
 	@inject public var gridProc:GridProc;
 	@inject public var pageSystemUtils:PageSystemsUtils;
 	@inject public var playPosition:PlayPosition;
-	
+	@inject public var errors:Errors;
+	@inject public var playbackEngine:PlaybackEngine;
+	@inject public var configuration:Configuration;
+	@inject public var zooma:Zooma;
 	
 	override function onRegister()
 	{
@@ -83,29 +91,43 @@ class PagesMediator extends mmvc.impl.Mediator<PagesView>
 			switch(result)
 			{
 				case GridResult.success(xmlString):
-					gridProc.init(xmlString);
+					try 
+					{
+						gridProc.init(xmlString);						
+					}
+					catch (e:Dynamic)
+					{
+						errors.addError('Grid error - ' + xmlString);
+					}
 					
 				case GridResult.error(message, url):
-				
+					errors.addError(message + ' Url: ' + url);
 			}
 			
 		});
 		
-		mediate(playPosition.positionSignal.add(function(info:PlayPositionInfo) {
-			
-			trace('posSignal' + info.pos);
+		mediate(playPosition.positionSignal.add(function(info:PlayPositionInfo) {			
 			if (this.pageBars == null) return;		
-			var pageIdx = info.pageIdx;
-			if (info.pos == 0) pageIdx = -1;
-			if (info.pos == 1) pageIdx = -1;			
-			pageSystemUtils.drawOrgMasks(this.pageBars, pageIdx, gridProc.pageCoordinates);			
+			if (configuration.viewLevel == AccessLevelView.OrganizationView) 
+			{
+				var pageIdx = info.pageIdx;
+				if (info.pos == 0) pageIdx = -1;
+				if (info.pos >= 1) pageIdx = -1;
+				pageSystemUtils.drawOrgMasks(this.pageBars, pageIdx, gridProc.pageCoordinates);			
+			}
 		}));
 		
-
+		/*
 		setzoom.add(function(zoom:ScrollWidgetZoom)
 		{
 			this.view.setZoom(zoom);
 		});
+		*/
+		
+		this.zooma.zoomSignal.add(function(zoom:ScrollWidgetZoom) {
+			this.view.setZoom(zoom);
+		});
+		
 		
 		this.view.afterReziseGrid = function(gridOverlay:Widget, docInfo:DocInfo)
 		{		
@@ -122,6 +144,10 @@ class PagesMediator extends mmvc.impl.Mediator<PagesView>
 			var pos:Float = gridProc.getPositionFromCoords(x, y);
 			if (pos == -1) return;
 			playPosition.setPosition(pos, this.view);
+			var oneSecond:Float = 1000 / this.playbackEngine.getSoundLength();			
+			this.playbackEngine.start(pos - oneSecond/2);
+			
+			
 			
 		}
 		
@@ -132,9 +158,6 @@ class PagesMediator extends mmvc.impl.Mediator<PagesView>
 			playPosition.setViewPort(new Rectangle(0, 0, this.view.w, this.view.h), this.view.scrollX, this.view.scrollY);
 			this.redrawGrid(this.view.gridOverlay, this.docInfo);
 		}
-		
-		
-		
 		
 		/*
 		this.gridProc.updatePointerPosition = function(pageBar:PageBar)
@@ -160,7 +183,7 @@ class PagesMediator extends mmvc.impl.Mediator<PagesView>
 		this.pageBars = gridProc.getPageBars(docInfo);			
 		pageSystemUtils.drawPageBars(this.pageBars);	
 		playPosition.setViewPort(new Rectangle(0, 0, this.view.w, this.view.h), this.view.scrollX, this.view.scrollY);
-		pageSystemUtils.drawOrgMasks(this.pageBars, -1, gridProc.pageCoordinates);	
+		if (configuration.viewLevel == AccessLevelView.OrganizationView) pageSystemUtils.drawOrgMasks(this.pageBars, -1, gridProc.pageCoordinates);	
 		playPosition.setPosition(playPosition.getPosition(), this.view);		
 	}
 	

@@ -15,6 +15,10 @@ class GridLoader
 	var urlLoader:URLLoader;
 	var url:String;
 
+	var host:String;
+	var productId:Int;
+	var userId:Int;	
+	
 	public function new() 
 	{
 		this.result = new Signal1<GridResult>();
@@ -46,11 +50,19 @@ class GridLoader
 	
 	public var result:Signal1<GridResult>;
 	
-	public function load(url:String)
+	public function load(host:String, productId:Int, userId:Int)
 	{
-		this.url = url;
+		this.host = host;
+		this.productId = productId;
+		this.userId = userId;		
+		
+		this.url = '${this.host}media/grid/${this.productId}';
+		trace(this.url);
 		this.urlLoader.load(new URLRequest(url));
 	}
+	
+
+	
 	
 }
 

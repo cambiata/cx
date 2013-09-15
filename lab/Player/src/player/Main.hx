@@ -1,9 +1,10 @@
 package player;
 
-
 import scorx.data.ChannelsLoader;
+import scorx.data.Errors;
 import scorx.data.PagesLoader;
 import scorx.data.GridLoader;
+import scorx.data.Zooma;
 import scorx.model.PlaybackEngine;
 import scorx.model.PlayPosition;
 import sx.player.grid.PageSystemsUtils;
@@ -25,17 +26,21 @@ import cx.layout.LayoutManager;
 import cx.layout.WidgetItem;
 import cx.layout.Vertical;
 
+import scorx.model.AccessLevelPlay;
 import scorx.controller.Confload;
 import scorx.model.Configuration;
+import player.view.Errordisplay.ErrordisplayView;
+import player.view.Errordisplay.ErrordisplayMediator;
 import player.view.ConfigurationView.ConfigurationViewView;
 import player.view.ConfigurationView.ConfigurationViewMediator;
+import player.view.PlaybackMixer.PlaybackMixerView;
+import player.view.PlaybackMixer.PlaybackMixerMediator;
 import player.view.Scroller.ScrollerView;
 import player.view.Scroller.ScrollerMediator;
 import scorx.view.Pages.PagesView;
 import scorx.view.Pages.PagesMediator;
 import player.controller.Setzoom;
-//import scorx.controller.LoadPages;
-//import scorx.controller.LoadPages.LoadPagesCommand;
+
 
 import scorx.view.Buttons.ButtonsView;
 import scorx.view.Buttons.ButtonsMediator;
@@ -142,8 +147,9 @@ class AppMediator extends AppBaseMediator
 
 		viewConfigurationViewView = new ConfigurationViewView();
 		this.view.addChild(viewConfigurationViewView);		
-
+		
 		viewPlaybackMixerView = new PlaybackMixerView();
+		
 		this.view.addChild(viewPlaybackMixerView);		
 		
 		this.layoutManager = new LayoutManager();
@@ -265,6 +271,11 @@ class AppMediator extends AppBaseMediator
 	
 	@inject public var confload:Confload;
 	@inject public var config:Configuration;	
+	@inject public var gridLoader:GridLoader;
+	@inject public var pagesLoader:PagesLoader;
+	@inject public var channelsLoader:ChannelsLoader;	
+	@inject public var errors:Errors;
+	
 
 	
 	var layoutManager:LayoutManager;	
@@ -272,15 +283,14 @@ class AppMediator extends AppBaseMediator
 	var pagesView:PagesView;	
 	var zoomView:ZoomView;	
 	var viewScrollerView:ScrollerView;
+	var viewPlaybackMixerView:PlaybackMixerView;	
+	var viewErrordisplayView:ErrordisplayView;
 	
 	override function register() 	
 	{
 		//Debug.log('register');		
 		// autoload pages after configuration model update
-		mediate(this.config.updated.add(function() 
-		{
-			this.loadContent();
-		}));			
+		
 		
 		
 		// Create views
@@ -295,15 +305,25 @@ class AppMediator extends AppBaseMediator
 		
 		this.viewScrollerView = new ScrollerView();		
 		this.view.addChild(viewScrollerView);
+		
+		this.viewPlaybackMixerView = new PlaybackMixerView();
+		this.view.addChild(viewPlaybackMixerView);
 			
+		viewErrordisplayView = new ErrordisplayView();
+		this.view.addChild(viewErrordisplayView);		
+		
 		
 		// Layout views
 		this.layoutManager = new LayoutManager();
 		this.layoutManager.add(new WidgetItem(this.viewConfigurationViewView, Horizontal.LEFT_MARGIN(20), Vertical.BOTTOM_MARGIN(20)));
-		this.layoutManager.add(new WidgetItem(this.zoomView, Horizontal.RIGHT, Vertical.TOP));		
 		this.layoutManager.add(new WidgetItem(this.viewScrollerView, Horizontal.STRETCH_MARGIN(40, 60), Vertical.BOTTOM));
 		
-		var pagesItem:WidgetItem = new WidgetItem(this.pagesView, Horizontal.STRETCH_MARGIN(40, 60), Vertical.STRETCH_MARGIN(0, 30));
+		this.layoutManager.add(new WidgetItem(this.zoomView, Horizontal.RIGHT, Vertical.TOP));
+		this.layoutManager.add(new WidgetItem(this.viewPlaybackMixerView, Horizontal.RIGHT, Vertical.TOP_MARGIN(100)));		
+		this.layoutManager.add(new WidgetItem(this.viewErrordisplayView, Horizontal.CENTER, Vertical.CENTER));				
+		
+		
+		var pagesItem:WidgetItem = new WidgetItem(this.pagesView, Horizontal.STRETCH_MARGIN(0, 100), Vertical.STRETCH_MARGIN(0, 30));
 		this.layoutManager.add(pagesItem);
 		pagesItem.afterResize = function (x, y, width, height) 
 		{
@@ -319,7 +339,50 @@ class AppMediator extends AppBaseMediator
 		});
 		#end
 		
-		// kickof configuration
+		
+		mediate(this.config.updated.add(function() 
+		{
+			this.pagesLoader.load(config.host, config.productId, config.userId);
+			
+			if (config.playbackLevel == AccessLevelPlay.FullPlayback)
+			{
+				this.gridLoader.load(config.host, config.productId, config.userId);
+				this.channelsLoader.load(config.host, config.productId, config.userId);
+			}
+			
+			
+		}));	
+		
+		this.channelsLoader.result.add(function(result:ChannelsResult) {
+			switch(result)
+			{
+				case ChannelsResult.error(message, url):
+					errors.addError(message + ' Url: ' + url);
+				default:
+			}
+		});
+		
+		this.pagesLoader.result.add(function(result:PagesResult) {
+			switch(result)
+			{
+				case PagesResult.error(message, url):
+					errors.addError(message + ' Url: ' + url);
+				default:									
+			}
+		}); 
+		
+		this.gridLoader.result.add(function(result:GridResult) {
+			switch(result)
+			{
+				case GridResult.error(message, url):
+					errors.addError(message + ' Url: ' + url);
+				default:									
+			}						
+		});
+		
+		
+		
+		// kickoff configuration
 		this.confload.dispatch();				
 	}
 	
@@ -367,7 +430,8 @@ class AppContext extends AppBaseContext
 		injector.mapSingleton(PagesLoader);
 		injector.mapSingleton(ChannelsLoader);
 		injector.mapSingleton(PlaybackEngine);
-		
+		injector.mapSingleton(Errors);
+		injector.mapSingleton(Zooma);
 		
 		commandMap.mapSignalClass(Confload, ConfloadCommand);				
 		
@@ -375,6 +439,9 @@ class AppContext extends AppBaseContext
 		mediatorMap.mapView(PagesView, PagesMediator);					
 		mediatorMap.mapView(ConfigurationViewView, ConfigurationViewMediator);	
 		mediatorMap.mapView(ScrollerView, ScrollerMediator);
+		mediatorMap.mapView(PlaybackMixerView, PlaybackMixerMediator);		
+		mediatorMap.mapView(ErrordisplayView, ErrordisplayMediator);		
+		
 		mediatorMap.mapView(sx.mvc.app.AppView, AppMediator);
 	}
 }

@@ -26,8 +26,16 @@ class GridProc
 	
 	public function init(xmlString:String=null) 
 	{
-		this.gridSystems = (xmlString != null) ? this.xmlToGridSystems(xmlString) : this.testGridSystems();
-		this.afterInit(this.gridSystems);
+		try 
+		{
+			this.gridSystems = (xmlString != null) ? this.xmlToGridSystems(xmlString) : this.testGridSystems();
+			this.afterInit(this.gridSystems);			
+		}
+		catch (e:Dynamic)
+		{
+			this.gridSystems = null;
+			throw "Grid Error: " + xmlString;
+		}
 	}
 	
 	dynamic public function afterInit(gridSystems:GridSystems)
@@ -147,8 +155,8 @@ class GridProc
 		{
 			if (pageBar.rect.contains(x, y))
 			{
-				trace([pageBar.pageIdx, pageBar.sysIdx, pageBar.barIdx]);
-				return pageBar.pos;
+				var delta:Float = (x - pageBar.rect.x) / pageBar.rect.width;
+				return pageBar.pos + delta * (pageBar.nextPos-pageBar.pos);
 			}			
 		}
 		return -1;

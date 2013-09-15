@@ -60,6 +60,15 @@
 			skinPressedName  = "'buttonPressed'"
 		/>
 		
+        <Settings
+            ico-src        = "'ui/android/img/ico/dark/settings.png'"
+            autoWidth      = "true"
+            childPadding   = "0"
+            icoBeforeLabel = "false"
+            apart          = "true"
+        />		
+		
+		
 		<Test 
 			skinName         = "'buttonTest'"
 			skinHoveredName  = "'buttonTestHovered'"
