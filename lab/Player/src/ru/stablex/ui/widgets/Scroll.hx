@@ -63,7 +63,7 @@ class Scroll extends Widget{
 
 
     /**
-    * Constructor
+    * ConstructorO
     *  `.overflow` = false by default
     */
     public function new () : Void {

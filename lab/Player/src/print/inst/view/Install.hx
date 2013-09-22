@@ -1,5 +1,7 @@
 package print.inst.view;
 
+import flash.text.TextFieldAutoSize;
+import flash.text.TextFormat;
 import ru.stablex.ui.skins.Paint;
 import ru.stablex.ui.UIBuilder;
 import ru.stablex.ui.widgets.Button;
@@ -19,19 +21,29 @@ class InstallView extends VBoxView
 	 public var btn:Button;	
 	
 	public var label:Text;
+	public var info:Text;
 	override public function createChildren() 
 	 {
 		 
+		this.w = Constants.INSTALLER_VIEW_W;
+		this.h = Constants.INSTALLER_VIEW_H;
+
 		btn = UIBuilder.create(Button);
-		btn.text = "Click here to install Scorx Print Manager";
+		btn.text = "Installera Scorx Print";
 		this.btn.w = Constants.BUTTON_LARGE_W;
 		this.btn.h = Constants.BUTTON_LARGE_H;
 		this.btn.format = Constants.TEXT_FORMAT_BUTTON_LARGE; 
 		this.addChild(this.btn);
 		
-		this.w = Constants.INSTALLER_VIEW_W;
-		this.h = Constants.INSTALLER_VIEW_H;
+		this.info = UIBuilder.create(Text);
+		this.info.format = new TextFormat('Arial', 14, 0xFFFFFF);
+		this.info.label.htmlText = 'För att skriva ut behöver du installera <br />programvaran Scorx Print.';
+		this.info.w = this.w - 20;
+		this.info.autoHeight = true;	
+		this.info.label.multiline = true;
 		
+		this.info.label.autoSize = TextFieldAutoSize.LEFT;
+		this.addChild(this.info);				
 	}
 	
 	override public function addSkin()

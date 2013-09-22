@@ -12,6 +12,7 @@ import flash.Lib;
 import flash.filesystem.File;
 import flash.desktop.NativeApplication;
 import flash.display.Sprite;
+import flash.text.TextFormat;
 import flash.utils.Function;
 import haxe.xml.Check.Rule;
 import pgr.gconsole.GameConsole;
@@ -32,6 +33,12 @@ import print.mgr.view.Thumbnails.ThumbnailsView;
 import print.mgr.view.Thumbnails.ThumbnailsMediator;
 import print.mgr.view.PrintoutDone.PrintoutDoneView;
 import print.mgr.view.PrintoutDone.PrintoutDoneMediator;
+import player.view.Errordisplay.ErrordisplayView;
+import player.view.Errordisplay.ErrordisplayMediator;
+import scorx.data.Errors;
+import sx.ScorxColors;
+
+import scorx.data.PagesLoader;
 
 
 import ru.stablex.ui.widgets.Text;
@@ -47,7 +54,7 @@ import sx.mvc.app.AppView;
 import sx.mvc.app.base.AppBaseContext;
 import sx.mvc.app.base.AppBaseMediator;
 import sx.mvc.MvcMain;
-import sx.data.ScoreLoadingType;
+import scorx.types.ScoreLoadingType;
 
 import flash.events.BrowserInvokeEvent;
 import flash.desktop.NativeApplication;
@@ -75,6 +82,8 @@ import ru.stablex.ui.widgets.Button;
 	//@inject public var loader:ScoreLoader;
 	@inject public var loadThumbnails:LoadPages;
 	@inject public var printConfig:PrinterConfig;
+	@inject public var thumbsLoader:PagesLoader;
+	@inject public var errors:Errors;
 		
 	var txtParams:Text;
 	var txtEvents:Text;
@@ -90,6 +99,7 @@ import ru.stablex.ui.widgets.Button;
 	var printSelectView:PrintoutSelectView;
 	var printProcessView:PrintoutProcessView;
 	var printDoneView:PrintoutDoneView;
+	var errorsView:ErrordisplayView;
 	
 	override function register() 	
 	{
@@ -99,6 +109,7 @@ import ru.stablex.ui.widgets.Button;
 		
 		setupUI();
 		
+		/*
 		mediate(this.loadThumbnails.status.add(function(status:LoadPagesStatus) {
 			switch(status)
 			{
@@ -117,7 +128,25 @@ import ru.stablex.ui.widgets.Button;
 					this.status.setStatus(MgrStatus.PrintSelect);
 			}
 		}));
-	
+		*/
+		
+		this.thumbsLoader.result.add(function(result:PagesResult) {
+			trace('thumbs result...' + Std.string(result));
+			switch(result)
+			{
+				case PagesResult.started(nrOfPages):
+					this.printConfig.init(nrOfPages);
+					this.thumbnailView.init(nrOfPages);
+				case PagesResult.success(pageNr, nrOfPages, data):
+					this.thumbnailView.addPage(pageNr, data);
+				case PagesResult.complete(nrOfPages):
+					this.thumbnailView.freeze();
+					this.status.setStatus(MgrStatus.PrintSelect);
+				case PagesResult.error(message, url):
+					this.errors.addError(message + ":" + url);
+			}
+		});
+		
 
 		mediate(this.status.updated.add(function(status:MgrStatus) {
 			this.txtStatus.text = Std.string(status);		
@@ -127,29 +156,31 @@ import ru.stablex.ui.widgets.Button;
 				case MgrStatus.Startup: 
 					{
 						this.viewstack.showIdx(0);
-						this.label.text = 'Startup ' + airEvents.getAppVersion() ;
+						//this.label.text = 'Startup ' + airEvents.getAppVersion() ;
 					}
 				case MgrStatus.PrintLoad(productId, userId, host, type): 
 					{
 						this.viewstack.showIdx(1);
-						this.label.text = 'Loading thumbnails...';
+						//this.label.text = 'Loading thumbnails...';
 						configuration.setValues(productId, userId, host);
-						kickoffLoadingThumbnails(productId, userId, host, type);
+						// Load thumbs!
+						this.thumbsLoader.load(configuration.host, configuration.productId, configuration.userId, "thumb");
+						
 					}
 				case MgrStatus.PrintSelect:
-						this.label.text = 'Select printer';
+						//this.label.text = 'Select printer';
 						this.viewstack.showIdx(3);
 						
 				case MgrStatus.PrintProcess(pageNr, nrOfPages, action):
-						this.label.text = '$action page $pageNr/$nrOfPages';
+						//this.label.text = '$action page $pageNr/$nrOfPages';
 						this.viewstack.showIdx(4);
 				case MgrStatus.PrintDone:
-						this.label.text = 'Done!';
+						//this.label.text = 'Done!';
 						this.viewstack.showIdx(5);
 				default:					
 					{
 						this.viewstack.showIdx(2);
-						this.label.text = 'Scorx Print Manager  x' + airEvents.getAppVersion();
+						//this.label.text = 'Scorx Print Manager  x' + airEvents.getAppVersion();
 					}
 					
 			}
@@ -209,20 +240,7 @@ import ru.stablex.ui.widgets.Button;
 		Debug.log(jobType + ' : ' + jobData.productId + ' : ' + jobData.userId + ' : ' + jobData.host);
 		this.configuration.setValues(jobData.productId, jobData.userId, jobData.host);
 		this.txtNative.text = Std.string(this.status);
-		this.status.setStatus(MgrStatus.PrintLoad(jobData.productId, jobData.userId, jobData.host, Std.string(ScoreLoadingType.thumb)));		
-		
-	}
-	
-	
-	function kickoffLoadingThumbnails(productId:Int, userId:Int, host:String, type:String) 
-	{
-		//this.label.text = 'Kickoff';
-		var loadParameters:LoadParameters = new LoadParameters();
-		loadParameters.host = host;
-		loadParameters.productId = productId;
-		loadParameters.userId = userId;
-		loadParameters.type = ScoreLoadingType.thumb;
-		loadThumbnails.dispatch(loadParameters);		
+		this.status.setStatus(MgrStatus.PrintLoad(jobData.productId, jobData.userId, jobData.host, Std.string(ScoreLoadingType.thumb)));				
 	}
 	
 	function setupUI() 
@@ -234,57 +252,59 @@ import ru.stablex.ui.widgets.Button;
 		//logo.y = 4;
 		//this.view.addChild(logo);
 		
-		 var logoLabel = UIBuilder.create(Text);
-		logoLabel.format = Constants.TEXT_FORMAT_HEADER2;
-		logoLabel.text = 'Scorx Print Manager ' + airEvents.getAppVersion();
-		 logoLabel.w = 390;
-		 logoLabel.x = 8;		
-		 this.view.addChild(logoLabel);
-		
-		 label = UIBuilder.create(Text);
+		var logoLabel = UIBuilder.create(Text);
+		logoLabel.format = new TextFormat('Arial', 32, 0xFFFFFF);
+		logoLabel.text = 'Scorx Print - (' + airEvents.getAppVersion() + ')';
+		logoLabel.w = 390;
+		logoLabel.x = 8;		
+		this.view.addChild(logoLabel);
+		label = UIBuilder.create(Text);
 		label.format = Constants.TEXT_FORMAT_HEADER2;
 		label.text ='';
 		label.align = 'right';
-		 label.w = 390;
-		 label.x = 400;
-		 label.y = 4;
-		 this.view.addChild(label);		
+		label.w = 300;
+		label.x = 800 - label.w - 10;
+		label.y = 4;
+		this.view.addChild(label);		
 		
 		var button:Button = UIBuilder.create(Button);
-		button.text = 'Scorx Print Manager ' + airEvents.getAppVersion();
+		button.text = 'Scorx Print ' + airEvents.getAppVersion();
 		button.w = 200;
-		button.y = 440;
-		this.view.addChild(button);
+		button.y = 510;
+		button.x = 10;
+		//this.view.addChild(button);
 		
 		txtParams = UIBuilder.create(Text);
 		txtParams.text = 'Params...';
-		txtParams.x = 200;
-		txtParams.y = 450;
+		txtParams.x = 220;
+		txtParams.y = 500;
 		this.view.addChild(txtParams);			
 		
 		txtStatus = UIBuilder.create(Text);
 		txtStatus.text = 'Status...';
-		txtStatus.x = 500;
-		txtStatus.y = 450;
+		txtStatus.x = 600;
+		txtStatus.y = 500;
 		this.view.addChild(txtStatus);				
 		
-		
 		txtEvents = UIBuilder.create(Text);
-		txtEvents.text = 'Params...';
-		txtEvents.x = 200;
-		txtEvents.y = 470;
+		txtEvents.text = 'Events...';
+		txtEvents.x = 600;
+		txtEvents.y = 520;
 		this.view.addChild(txtEvents);		
 
 		txtNative = UIBuilder.create(Text);
-		txtNative.text = 'Params...';
-		txtNative.x = 200;
-		txtNative.y = 490;
+		txtNative.text = 'Native...';
+		txtNative.x = 220;
+		txtNative.y = 520;
 		this.view.addChild(txtNative);	
 		
 		
 		this.thumbnailView = new ThumbnailsView();
 		this.thumbnailView.y = 240;
 		this.view.addChild(this.thumbnailView);		
+		
+
+		
 		
 		//------------------------------------------------------------------------------
 		
@@ -329,8 +349,16 @@ import ru.stablex.ui.widgets.Button;
 
 		
 		this.viewstack.showIdx(0);
+
+		this.errorsView = new ErrordisplayView();
+		this.errorsView.x = (800 - this.errorsView.w) / 2;
+		this.errorsView.y = 120;
+		this.view.addChild(this.errorsView);		
+		
+		
 		
 		button.onPress = function(e) {			
+			//errors.addError('Test');
 			status.setStatus(MgrStatus.PrintLoad(this.configuration.productId, this.configuration.userId, this.configuration.host, 'print'));			
 		}
 		
@@ -359,7 +387,7 @@ import ru.stablex.ui.widgets.Button;
 					BaseCodeTools.decode(e.arguments[3]),
 					e.arguments[4]
 				);
-				this.txtEvents.text = 'YKKAS ' + jobType + ' : ' + jobData.productId + ' : ' + jobData.userId + ' : ' + jobData.host;
+				this.txtEvents.text = jobType + ' : ' + jobData.productId + ' : ' + jobData.userId + ' : ' + jobData.host;
 				
 				var host = WebTools.addSlash(WebTools.addHttpPrefix(jobData.host));
 				Debug.log(jobType + ' : ' + jobData.productId + ' : ' + jobData.userId + ' : ' + host);
@@ -368,13 +396,10 @@ import ru.stablex.ui.widgets.Button;
 			}, 1000);
 		});
 		
-		
-		
 		NativeApplication.nativeApplication.addEventListener(InvokeEvent.INVOKE, function(e : InvokeEvent)
 		{			
 			this.txtNative.text = 'NATIVE EVENT ' + e.arguments;
 			trace( 'NATIVE EVENT ' + e.arguments);
-			//this.status.setStatus(MgrStatus.Default);
 		});			
 	}
 	
@@ -400,6 +425,8 @@ import ru.stablex.ui.widgets.Button;
 		injector.mapSingleton(ScoreLoader);				
 		injector.mapSingleton(PrinterConfig);
 		injector.mapSingleton(Printjob);
+		injector.mapSingleton(PagesLoader);
+		injector.mapSingleton(Errors);
 		
 		
 		commandMap.mapSignalClass(Confload, ConfloadCommand);		
@@ -411,6 +438,8 @@ import ru.stablex.ui.widgets.Button;
 		mediatorMap.mapView(PrintoutProcessView, PrintoutProcessMediator);		
 		mediatorMap.mapView(ThumbnailsView, ThumbnailsMediator);		
 		mediatorMap.mapView(PrintoutDoneView, PrintoutDoneMediator);
+		mediatorMap.mapView(ErrordisplayView, ErrordisplayMediator);		
+		
 		
 		mediatorMap.mapView(AppView, AppMediator);
 	}

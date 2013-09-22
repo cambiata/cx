@@ -30,6 +30,7 @@ class PagesLoader
 	
 	var nrOfPages:Int;
 	var nrOfLoaded:Int;
+	var pageType:String;
 
 	public function new() 
 	{		
@@ -53,25 +54,27 @@ class PagesLoader
 		}
 		catch (e:Dynamic)
 		{			
-			this.result.dispatch(PagesResult.error('ScreenLoader Count data format error: ' + Std.string(e), this.countUrl));
+			this.result.dispatch(PagesResult.error('PagesLoader Count data format error: ' + Std.string(e), this.countUrl));
 			return;
 		}
 		if (nrOfPages < 1) 
 		{
-			this.result.dispatch(PagesResult.error('ScreenLoader Count Nr of pages error: Nr of pages =' + Std.string(nrOfPages), this.countUrl));
+			this.result.dispatch(PagesResult.error('PagesLoader Count Nr of pages error: Nr of pages =' + Std.string(nrOfPages), this.countUrl));
 			return;
 		}
 		this.result.dispatch(PagesResult.started(nrOfPages));
 		this.loadPages(nrOfPages);		
 	}
 	
-	public function load(host:String, productId:Int, userId:Int)
+	public function load(host:String, productId:Int, userId:Int, pageType:String="screen")
 	{
 		this.host = host;
 		this.productId = productId;
 		this.userId = userId;
+		this.pageType = pageType;
 		
-		this.countUrl = '${host}media/screen/count/$productId';
+		this.countUrl = '${host}media/$pageType/count/$productId';
+		trace(this.countUrl);
 		this.countLoader.load(new URLRequest(countUrl));
 	}
 	
@@ -82,7 +85,7 @@ class PagesLoader
 		this.nrOfPages = nrOfPages;		
 		for (pageNr in 0...nrOfPages)
 		{
-			var url = '${this.host}media/screen/${this.productId}/$pageNr/${this.userId}';
+			var url = '${this.host}media/${this.pageType}/${this.productId}/$pageNr/${this.userId}';
 			trace(url);			
 			var imgLoader:ImgLoader = new ImgLoader();		
 			imgLoader.result.add(onImgLoaderResult);

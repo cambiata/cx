@@ -46,7 +46,7 @@ class PrintoutProcessView extends WidgetView
 		this.addChild(label);
 		
 		 this.btn = UIBuilder.create(Button);
-		this.btn.text = "Abort Printing";
+		this.btn.text = "Avbryt utskrift";
 		this.btn.w = 140;
 		this.btn.y = 250;
 		this.btn.x = 330;
@@ -87,7 +87,7 @@ class PrintoutProcessMediator extends mmvc.impl.Mediator<PrintoutProcessView>
 				case MgrStatus.PrintProcess(pageNr, nrOfPages, action):
 					var value = pageNr / (nrOfPages + 1);					
 					this.view.spinProgress.value = value;
-					this.view.label.text = 'Processing page $pageNr of $nrOfPages';
+					this.view.label.text = 'Skriver ut sida $pageNr av $nrOfPages';
 				default:
 			}
 		}));

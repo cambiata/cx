@@ -83,8 +83,7 @@ class Printjob
 			}
 			
 			loadOnePage.beforeComplete = function(pageNr:Int, data:BitmapData, type:String)
-			{
-				
+			{				
 				this.status.setStatus(MgrStatus.PrintProcess(pageNr+1, nrOfPages, 'print'));				
 				AirAppTools.testPrint(printerName, data);				
 			}

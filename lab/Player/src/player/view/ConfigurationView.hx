@@ -65,6 +65,9 @@ class ConfigurationViewView extends VBoxView
 		
 		this.w = 200;
 		this.h = 90;		
+		
+		this.visible = false;
+		
 	}
 	
 	override public function addSkin()

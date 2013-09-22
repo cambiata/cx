@@ -10,6 +10,7 @@ import sx.mvc.view.HBoxView;
 import sx.mvc.view.BoxView;
 import sx.mvc.view.VBoxView;
 import sx.mvc.view.WidgetView;
+import sx.ScorxColors;
 
 /**
  * ...
@@ -20,6 +21,7 @@ class ErrordisplayView extends WidgetView
 
 	public var btn:Button;	
 	public var tf:Text;
+	public var caption:Text;
 	
 	
 	override public function createChildren() 
@@ -33,10 +35,18 @@ class ErrordisplayView extends WidgetView
 		this.btn.y = this.h - 40;
 		this.btn.x = this.w - 110;
 		
+		this.caption = UIBuilder.create(Text);
+		this.caption.format = new TextFormat('Arial', 24, 0xFFFFFF, true);
+		this.caption.text = "Oops!";
+		this.caption.x = 10;
+		this.caption.y = 10;
+		this.addChild(this.caption);
+		
 		this.tf = UIBuilder.create(Text);
 		this.tf.format = new TextFormat('Arial', 12, 0xFFFFFF);
-		this.tf.text = 'Error';
-		this.tf.x = this.tf.y = 10;
+		this.tf.text = '...';
+		this.tf.x = 10;
+		this.tf.y = 46;
 		
 		this.addChild(this.tf);
 		
@@ -47,7 +57,7 @@ class ErrordisplayView extends WidgetView
 	 {
 		
 		var skin = new Paint();
-		skin.color = 0x800000;
+		skin.color = ScorxColors.ScorxBlue;
 		skin.corners = [8, 8];
 		skin.apply(this);				
 	}
@@ -75,7 +85,7 @@ class ErrordisplayMediator extends mmvc.impl.Mediator<ErrordisplayView>
 					this.view.tf.text = '';
 					for (mess in messages)
 					{
-						this.view.tf.text += mess + '\n';						
+						this.view.tf.text += mess.substr(0, 200) + '\n';						
 					}
 					this.view.tf.refresh();
 					

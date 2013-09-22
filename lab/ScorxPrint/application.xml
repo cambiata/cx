@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<application xmlns="http://ns.adobe.com/air/application/3.8">
+  <id>print.mgr.ScorxPrint</id>
+  <versionNumber>0.402</versionNumber>
+  <filename>ScorxPrint</filename>
+  <name>ScorxPrint</name>  
+  <initialWindow>
+    <title>ScorxPrint</title>
+    <content>ScorxPrint.swf</content>
+    <systemChrome>standard</systemChrome>
+    <transparent>false</transparent>
+    <visible>true</visible>
+    <minimizable>false</minimizable>
+    <maximizable>false</maximizable>
+    <resizable>false</resizable>
+    <x>200</x>
+    <y>200</y>
+    <width>800</width>
+    <height>530</height>
+    <maxSize>800 530</maxSize>
+  </initialWindow>
+  <!-- 
+	More options:
+	http://livedocs.adobe.com/flex/3/html/File_formats_1.html#1043413
+	-->
+  <allowBrowserInvocation>true</allowBrowserInvocation>
+  <copyright>Scorx AB</copyright>
+</application>

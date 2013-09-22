@@ -41,11 +41,27 @@
         corners = "[3]"
     />   
     
+    <grayMiddle:Paint
+        color = "0xAAAAAA"
+        corners = "[3]"
+    />   	
+
+    <grayDark:Paint
+        color = "0x666666"
+        corners = "[3]"
+    />   	
+	
+    <scorxGreen:Paint
+        color = "0x9ab600"
+        corners = "[3]"
+    />   	
+	
+	
     <progress:Paint
         color  = "0xcccccc"        
-        corners = "[15]"
+        corners = "[8]"
     />
-    <progressBar:Paint color="0x5555FF" corners="[15]" alpha="1" />    
+    <progressBar:Paint color="0x66cdff" corners="[8]" alpha="1" />    
     
     
     

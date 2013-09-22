@@ -20,7 +20,7 @@ class AirTools
 	@inject public var debug:Debug;
 	public function init() 
 	{
-		airTools = new AIRTools(Config.MANAGER_APPLICATION_ID, Config.MANAGER_PUBLISHER_ID, Config.MANAGER_APPLICATION_URL, Config.MANAGER_APPLICATION_VERSION);				
+		airTools = new AIRTools(Config.MANAGER_APPLICATION_ID, Config.MANAGER_PUBLISHER_ID, Config.MANAGER_APPLICATION_URL, Config.printVersion);				
 		airTools.statusCallback = this.airStatusChange;
 		airTools.errorCallback = this.airErrorChange;				
 	}

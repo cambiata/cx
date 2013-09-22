@@ -2,12 +2,14 @@ package print.mgr.view;
 
 import flash.display.BitmapData;
 import flash.display.DisplayObject;
+import flash.events.Event;
 import flash.events.MouseEvent;
 import print.mgr.model.PrinterConfig;
 import ru.stablex.ui.widgets.Checkbox;
 import ru.stablex.ui.widgets.Text;
 import ru.stablex.ui.widgets.Toggle;
 import ru.stablex.ui.widgets.VBox;
+import sx.ScorxColors;
 
 import ru.stablex.ui.skins.Paint;
 import ru.stablex.ui.UIBuilder;
@@ -24,8 +26,11 @@ import sx.mvc.view.VBoxView;
 class ThumbnailsView extends HBoxView 
  {
 	 
-	 private var clickable:Bool;
+	private var clickable:Bool;
+	var widget:Widget;
 	public var btn:Button;	
+	
+	public var print(default, null):Bool;
 	
 	override public function createChildren() 
 	 {
@@ -60,18 +65,19 @@ class ThumbnailsView extends HBoxView
 	{
 		var parent:Widget = this;
 		
-		var widget:Widget = UIBuilder.create(Widget);
-		var idx = Std.int(Math.min(parent.numChildren, pageNr - 1));
+		widget = UIBuilder.create(Widget);
+		var idx = Std.int(Math.min(parent.numChildren, pageNr));
 		trace([pageNr, idx]);
 		parent.addChildAt(widget, idx);
-		widget.w = 110;
+		widget.y = 8;
+		widget.w = 114;
 		widget.h = 180;
-		
-		
 		
 		var bmp:Bmp = UIBuilder.create(Bmp);
 		bmp.bitmapData = data;
 		bmp.w = 105;
+		bmp.x = 3;
+		bmp.y = 3;
 		bmp.h = 148;
 		
 		var child : DisplayObject = cast bmp;
@@ -79,21 +85,27 @@ class ThumbnailsView extends HBoxView
 		child.height = 148;		
 		widget.addChild(bmp);
 
+		/*
 		var labelNr:Text = UIBuilder.create(Text);
-		labelNr.text = "Page " + pageNr;
+		labelNr.text = "Sid " + pageNr;
 		widget.addChild(labelNr);		
+		*/
+		
 		
 		var cb:Toggle = UIBuilder.create(Toggle);
 		cb.down();
-		cb.x = 80;
-		cb.y = 4;
+		cb.x = 16;
+		cb.y = 154;
+		cb.w = 70;
+		cb.h = 20;
+		cb.text = "Sid " + (pageNr+1);
 		widget.addChild(cb);
 		cb.onPress = function(e) 
 		{			
 			var value:Bool = (cb.state == 'up');
-			this.toggle(pageNr-1, value);			
+			this.toggle(pageNr, value);			
 		};
-		
+	
 		parent.refresh();
 	}
 	
@@ -106,6 +118,9 @@ class ThumbnailsView extends HBoxView
 	{
 		trace('x');
 	}
+	
+
+	
 	
 }
 
@@ -127,8 +142,8 @@ class ThumbnailsMediator extends mmvc.impl.Mediator<ThumbnailsView>
 		this.view.toggle = function(pageNr:Int, value:Bool)
 		{
 			trace(['toggle', pageNr, value]);
-			trace(printConfig.getSelectedPages());
-			printConfig.setPage(pageNr, value);
+			trace(printConfig.getSelectedPages());			
+			printConfig.setPage(pageNr, value);			
 		}
 		
 	}	

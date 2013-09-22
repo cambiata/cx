@@ -24,16 +24,21 @@ class Configuration
 	public var playbackLevel(default, null):AccessLevelPlay;
 	public var viewLevel(default, null):AccessLevelView;
 	
+	public var printVersion(default, null):String = "0.1";
+	
 	//public var playbackChannels(default, null): Array<PlaybackChannel>;
 	
-	public function setValues(productId:Null<Int> = null, userId:Null<Int> = null, host:Null<String> = null, playbackLevel:Null<String>=null, viewLevel:Null<String>=null )
+	public function setValues(productId:Null<Int> = null, userId:Null<Int> = null, host:Null<String> = null, playbackLevel:Null<String>=null, viewLevel:Null<String>=null, printVersion:Null<String>=null )
 	{		
 		if (productId != null) this.productId = productId;
 		if (userId != null) this.userId = userId;
 		if (host != null) this.host = WebTools.addSlash(WebTools.addHttpPrefix(host));
 		
+		
 		this.playbackLevel  = (playbackLevel == null) ? AccessLevelPlay.NoPlayback : EnumTools.createFromString(AccessLevelPlay, playbackLevel);
 		this.viewLevel = (viewLevel == null) ? AccessLevelView.OrganizationView : EnumTools.createFromString(AccessLevelView, viewLevel);
+
+		if (printVersion != null) this.printVersion = printVersion;
 		
 		this.updated.dispatch();
 	}

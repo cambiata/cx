@@ -14,6 +14,7 @@ import sx.data.ScoreLoadingType;
 import sx.mvc.view.HBoxView;
 import sx.mvc.view.VBoxView;
 import sx.mvc.view.WidgetView;
+import sx.ScorxColors;
 
 /**
  * ...
@@ -38,12 +39,23 @@ class InstalledView extends VBoxView
 		 this.addChild(label);
 		*/
 		 
+		var skin:Paint = new Paint();
+		skin.color = ScorxColors.ScorxGreenDark;
+		skin.corners = [8];
+
+		var skinHover:Paint = new Paint();
+		skinHover.color = ScorxColors.ScorxGreen;
+		skinHover.corners = [8];
+		
 		this.btnStartPrintManager = UIBuilder.create(Button);
-		this.btnStartPrintManager.text = "Start Print Manager";		
+		this.btnStartPrintManager.text = "Skriv ut";		
 		this.btnStartPrintManager.w = Constants.BUTTON_LARGE_W;
 		this.btnStartPrintManager.h = Constants.BUTTON_LARGE_H;
-		this.btnStartPrintManager.format = Constants.TEXT_FORMAT_BUTTON_LARGE; 
+		this.btnStartPrintManager.format = Constants.TEXT_FORMAT_BUTTON_LARGE_WHITE; 
+		this.btnStartPrintManager.skin = skin;
+		this.btnStartPrintManager.skinHovered = skinHover;
 		this.btnStartPrintManager.refresh();
+		
 		//this.btnStartPrintManager.y = 50;
 		
 		this.addChild(this.btnStartPrintManager);

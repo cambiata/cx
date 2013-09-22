@@ -2,11 +2,15 @@ package player.view;
 
 import cx.EnumTools;
 import cx.TimerTools;
+import flash.display.Bitmap;
+import flash.display.BitmapData;
 import flash.display.StageDisplayState;
 import flash.events.Event;
 import flash.Lib;
 import flash.text.TextFormat;
 import player.controller.Setzoom;
+import ru.stablex.ui.skins.Img;
+import ru.stablex.ui.skins.Layer;
 import ru.stablex.ui.skins.Paint;
 import ru.stablex.ui.UIBuilder;
 import ru.stablex.ui.widgets.Button;
@@ -21,9 +25,27 @@ import sx.ScorxColors;
  * ...
  * @author 
  */
+
+@:bitmap('assets/img/checkboxChecked.png') class TestBitmap extends BitmapData { }
+@:bitmap('assets/img/zoom-full.png') class BmpZoomFull extends BitmapData { }
+@:bitmap('assets/img/zoom-full-light.png') class BmpZoomFullLight extends BitmapData { }
+
+@:bitmap('assets/img/zoom-minus.png') class BmpZoomMinus extends BitmapData { }
+@:bitmap('assets/img/zoom-minus-light.png') class BmpZoomMinusLight extends BitmapData { }
+
+@:bitmap('assets/img/zoom-plus.png') class BmpZoomPlus extends BitmapData { }
+@:bitmap('assets/img/zoom-plus-light.png') class BmpZoomPlusLight extends BitmapData { }
+
+
+ 
 class ZoomView extends VBoxView 
  {
-	 public var btnScreenFull:Button;
+	public var skinMinus:Img;
+	public  var skinMinusLight:Img;
+	public  var skinPlus:Img;
+	public  var skinPlusLight:Img;
+	 
+	public var btnScreenFull:Button;
 	public var btnZ40:Button;
 	public var btnFull:Button;
 
@@ -33,11 +55,42 @@ class ZoomView extends VBoxView
 	
 	override public function createChildren() 
 	 {
-		this.align = 'top,center';		
-		btnScreenFull = createButton('Full');
-		this.addChild(btnScreenFull);		
-		btnFull = createButton('Page');		
-		this.addChild(btnFull);		
+		this.childPadding = 10;		 
+		this.align = 'top,center';			
+		btnScreenFull = UIBuilder.create(Button);		
+		var skinFull:Img = new Img();
+		skinFull.bitmapData = new BmpZoomFull(0, 0);
+		var skinFullLight:Img = new Img();
+		skinFullLight.bitmapData = new BmpZoomFullLight(0, 0);
+		btnScreenFull.skin = skinFull;
+		btnScreenFull.skinHovered = skinFullLight;
+		btnScreenFull.w = 80;
+		btnScreenFull.h = 32;
+		
+		this.addChild(btnScreenFull);
+		
+
+		btnFull = UIBuilder.create(Button);		
+		btnFull.w = 80;
+		btnFull.h = 32;
+
+		skinMinus = new Img();
+		skinMinus.bitmapData = new BmpZoomMinus(0, 0);
+		skinMinusLight = new Img();
+		skinMinusLight.bitmapData = new BmpZoomMinusLight(0, 0);
+		
+		btnFull.skin = skinMinus;
+		btnFull.skinHovered = skinMinusLight;
+		this.addChild(btnFull);
+		
+		skinPlus = new Img();
+		skinPlus.bitmapData = new BmpZoomPlus(0, 0);
+		skinPlusLight = new Img();
+		skinPlusLight.bitmapData = new BmpZoomPlusLight(0, 0);		
+		
+		
+		
+		//this.addChild(btnFull);		
 		this.align = 'top,center';		
 		this.w = 100;		
 	}
@@ -49,16 +102,15 @@ class ZoomView extends VBoxView
 		btn.text = text; // Std.string(i);
 		btn.format = new TextFormat('Arial', 12, 0xFFFFFF);
 		
-		var skin:Paint = new Paint();
-		skin.color = ScorxColors.ScorxPetrol;
-		skin.corners = [8, 8];
-		btn.skin = skin;
-		
-		var skin:Paint = new Paint();
-		skin.color = ScorxColors.ScorxPetrolLight;
-		skin.corners = [8, 8];		
-		btn.skinHovered = skin;		
-		
+		var skinFull:Img = new Img();
+		skinFull.bitmapData = new BmpZoomFull(0, 0);
+		var skinFullLight:Img = new Img();
+		skinFullLight.bitmapData = new BmpZoomFullLight(0, 0);
+	
+		btn.w = 80;
+		btn.h = 26;
+		btn.skin = skinFull;		
+		btn.skinHovered = skinFullLight;		
 		btn.refresh();	
 		return btn;
 	}
@@ -80,7 +132,8 @@ class ZoomMediator extends mmvc.impl.Mediator<ZoomView>
 	override function onRegister() 
 	 {	
 		this.view.btnFull.onPress = function(e) {
-			//this.setzoom.dispatch(ScrollWidgetZoom.ZoomFullHeight);		
+			//this.setzoom.dispatch(ScrollWidgetZoom.ZoomFullHeight);	
+			trace('onPress');
 			if (zooma.getZoom() == ScrollWidgetZoom.ZoomFullHeight)
 			{
 				this.zooma.setZoom(ScrollWidgetZoom.Zoom40);
@@ -101,9 +154,11 @@ class ZoomMediator extends mmvc.impl.Mediator<ZoomView>
 			switch(zoom)
 			{
 				case ScrollWidgetZoom.ZoomFullHeight:
-					this.view.btnFull.text = 'To small';
+					this.view.btnFull.skin = this.view.skinMinus;
+					this.view.btnFull.skinHovered = this.view.skinMinusLight;
 				default:
-					this.view.btnFull.text = 'To full';
+					this.view.btnFull.skin = this.view.skinPlus;
+					this.view.btnFull.skinHovered = this.view.skinPlusLight;
 			}
 		});
 		
@@ -129,7 +184,11 @@ class ZoomMediator extends mmvc.impl.Mediator<ZoomView>
 				}, 300);			
 				
 			#else						
+				
 				Lib.current.stage.displayState = (Lib.current.stage.displayState == StageDisplayState.NORMAL) ? StageDisplayState.FULL_SCREEN : StageDisplayState.NORMAL;				
+				zooma.doZoomResetTop();
+				
+				
 			#end
 		}
 	}	

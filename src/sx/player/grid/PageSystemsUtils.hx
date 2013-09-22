@@ -2,6 +2,7 @@ package sx.player.grid;
 import flash.display.Sprite;
 import flash.geom.Rectangle;
 import sx.player.grid.PageBars;
+import sx.ScorxColors;
 
 /**
  * ...
@@ -31,11 +32,11 @@ class PageSystemsUtils
 	{		
 		clear(this.target);
 		
-		this.target.graphics.lineStyle(1, 0xAAAAAA);
+		this.target.graphics.lineStyle(1, 0xCCCCCC);
 		for (pageBar in pageBars)
 		{
 			var r = pageBar.rect.clone();
-			r.inflate(1, 1);
+			//r.inflate(1, 1);
 			this.target.graphics.drawRect(r.x, r.y, r.width, r.height);			
 		}
 	}
@@ -47,7 +48,7 @@ class PageSystemsUtils
 	
 	public function createPointer(pointerPosition:PointerPosition)
 	{
-		this.pointer.graphics.lineStyle(2, 0xFF0000, 0.5);
+		this.pointer.graphics.lineStyle(1.5, 0xff8200, 1);
 		this.pointer.graphics.moveTo(0, 0);
 		this.pointer.graphics.lineTo(0, 100);
 	}
@@ -68,14 +69,14 @@ class PageSystemsUtils
 		this.currentNotPageIdx = notPageIdx;
 						
 		this.orgTarget.graphics.clear();
-		this.orgTarget.graphics.beginFill(0xFF0000);		
+		this.orgTarget.graphics.beginFill(ScorxColors.ScorxRed);		
 		
 		var keys = pageCoordinates.keys();
 		for (key in keys)
 		{
 			if (key == notPageIdx) continue;
 			var pageRect = pageCoordinates.get(key).clone();
-			var radius = pageRect.width / 5;
+			var radius = pageRect.width / 6;
 			this.orgTarget.graphics.drawCircle(pageRect.x + (pageRect.width / 2), pageRect.y + (pageRect.height / 2), radius);
 		}
 

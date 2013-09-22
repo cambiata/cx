@@ -32,8 +32,9 @@ class AirAppTools
 				'img',
 				'bitmap',
 				'bmp',
-				//'pdf',
+				'pdf',
 				'document',
+				'onenote',
 				'image',
 				'fax',
 				'virtual'
@@ -71,16 +72,16 @@ class AirAppTools
 	static public function testPrint(printer:String, bitmapData:BitmapData)
 	{
 		var printJob:PrintJob = new PrintJob();
-		printJob.printer = printer;
+		printJob.printer = printer;		
 		//trace('Current printer: ' + printer);
+		
 		if (printJob.start2(null, false))
 		{
 			try
-			{
-				
+			{				
 				var bitmap = new Bitmap(bitmapData);
-				bitmap.width = 630*0.94;
-				bitmap.height = 891*0.94;
+				bitmap.width = 630*0.90;
+				bitmap.height = 891*0.90;
 				var s = new Sprite();
 				s.addChild(bitmap);
 				printJob.addPage(s);

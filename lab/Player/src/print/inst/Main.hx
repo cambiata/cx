@@ -4,6 +4,7 @@ import cx.AIRTools;
 import flash.display.StageAlign;
 import flash.display.StageScaleMode;
 import flash.Lib;
+import flash.text.TextFormat;
 import pgr.gconsole.GameConsole;
 import print.inst.view.Available.AvailableMediator;
 import print.inst.view.Available.AvailableView;
@@ -87,7 +88,7 @@ import print.inst.view.Install.InstallMediator;
 		}));				
 		
 		this.mediate(this.config.updated.add(function() {
-			this.txtConfig.text = this.config.productId + ':' + this.config.userId + ':' + this.config.host;			
+			this.txtConfig.text = this.config.printVersion + ' - ' + this.config.productId + ':' + this.config.userId + ':' + this.config.host;			
 		}));
 		
 		
@@ -131,17 +132,22 @@ import print.inst.view.Install.InstallMediator;
 		 this.view.addChild(label);			
 		*/
 		
+		
 		txtStatus = UIBuilder.create(Text);
+		txtStatus.format = new TextFormat('Arial', 10, 0x666666);
 		txtStatus.text = 'status...';
-		txtStatus.x = 10;
-		txtStatus.y = 106;
-		this.view.addChild(txtStatus);		
+		txtStatus.x = 180;
+		txtStatus.y = 120;
+		this.view.addChild(txtStatus);	
+		this.txtStatus.visible = false;
 		
 		txtConfig = UIBuilder.create(Text);
-		txtConfig.text = 'STATUS?';
+		txtConfig.format = new TextFormat('Arial', 10, 0x666666);
+		txtConfig.text = '...';
 		txtConfig.x = 10;
 		txtConfig.y = 120;
 		this.view.addChild(txtConfig);		
+		this.txtConfig.visible = false;
 		
 		/*
 		button = UIBuilder.create(Button);

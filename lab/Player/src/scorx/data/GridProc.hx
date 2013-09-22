@@ -162,6 +162,14 @@ class GridProc
 		return -1;
 	}
 	
+	public function getPageCoordinates(pageIdx:Int):Rectangle
+	{
+		if (this.pageCoordinates == null) return null;
+		return this.pageCoordinates.get(pageIdx);		
+	}
+	
+	
+	
 	public function setPointerPosition(value:Float)
 	{
 		var pageBar:PageBar = findPageBarFromPos(value);

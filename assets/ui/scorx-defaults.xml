@@ -126,24 +126,7 @@
 		/>
 	</Scroll>
 		
-	<Toggle>
-		<Default
-			w = "20"
-			h = "20"
-			format-size = "14"
-			format-color = "0xFFFFFF"		    
-			label-embedFonts = "true"
-			skinName = "'button'"
-			skinHoveredName = "'redHovered'"
-			skinPressedName = "'redPressed'"
 
-			states-up-skinName = "'rgbThree'"
-			states-up-text = "'Released state'"
-
-			states-down-skinName = "'rgbOne'"
-			states-down-text = "'Pressed state'"
-		/>
-	</Toggle>	
 	
     <Checkbox>
         <Default
@@ -164,6 +147,64 @@
             bar-skinName = "'progressBar'"
         />
     </Progress>    
+	
+	
+    <Options>
+        <Default
+            skin:Paint-color = "0x555555"
+            skin:Paint-corners = "[8]"
+			
+			padding = "6"
+			format-color     	= "0xFFFFFF"
+			format-font			= "'Arial'"
+			format-size      	= "14"			
+
+			
+            box-skin:Paint-color = "0x222222"
+            box-padding = "8"
+            box-childPadding = "8"
+			box-w = "300"
+			apart            = "true"
+        />
+		
+        <Picker
+			format-color     	= "0xFFFFFF"
+			format-font			= "'Arial'"
+			format-size      	= "14"				
+		
+            alignList = "false"
+            list-skinName = "'popup'"
+            list-widthPt = "100"
+            list-heightPt = "100"
+        />		
+		
+    </Options>
+
+    <Toggle>
+        <option
+
+			w = "200"
+			h = "20"
+			format-color     	= "0xFFFFFF"
+			format-font			= "'Arial'"
+			format-size      	= "14"			    			
+
+			
+        />
+	
+		<Default		
+			format-color     	= "0xFFFFFF"
+			format-font			= "'Arial'"
+			format-size      	= "12"				
+			w = "16"
+			h = "16"
+			
+			states-up-skinName = "'grayDark'"		
+			states-down-skinName = "'scorxGreen'"	
+		/>
+	
+    </Toggle>	
+	
     
     
 	

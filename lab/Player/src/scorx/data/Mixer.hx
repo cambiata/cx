@@ -121,7 +121,7 @@ class Mixer {
 			//posCurrent = (outputChannel.position / sound0Length) + positionAdjust;
 			if (posCurrent >= posStop) this.timerStopPlayback();
 			//if (outputChannel.position >= sound0Length) this.timerStopPlayback();
-			trace([bufferPos, bufferEnd]);
+			//trace([bufferPos, bufferEnd]);
 			if (playCallback != null) this.playCallback(posStart, sound0Length, posCurrent);	
 		//}
 		

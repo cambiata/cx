@@ -1,5 +1,6 @@
 package player;
 
+import cx.TimerTools;
 import scorx.data.ChannelsLoader;
 import scorx.data.Errors;
 import scorx.data.PagesLoader;
@@ -346,8 +347,10 @@ class AppMediator extends AppBaseMediator
 			
 			if (config.playbackLevel == AccessLevelPlay.FullPlayback)
 			{
-				this.gridLoader.load(config.host, config.productId, config.userId);
-				this.channelsLoader.load(config.host, config.productId, config.userId);
+				TimerTools.delay(function() {
+					this.gridLoader.load(config.host, config.productId, config.userId);
+					this.channelsLoader.load(config.host, config.productId, config.userId);					
+				}, 1000);
 			}
 			
 			

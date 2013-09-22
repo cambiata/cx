@@ -1,5 +1,11 @@
 package print.mgr.view;
 
+import cx.AirAppTools;
+import cx.AIRTools;
+import flash.desktop.NativeApplication;
+import flash.display.NativeWindow;
+import flash.Lib;
+import flash.system.ApplicationDomain;
 import ru.stablex.ui.skins.Paint;
 import ru.stablex.ui.UIBuilder;
 import ru.stablex.ui.widgets.Button;
@@ -18,8 +24,8 @@ class PrintoutDoneView extends VBoxView
 	override public function createChildren() 
 	 {
 		this.btn = UIBuilder.create(Button);
-		this.btn.text = "PrintoutDoneView";
-		this.btn.w = 140;
+		this.btn.text = "Utskrift färdig - stäng Scorx Print";
+		this.btn.w = 240;
 		this.addChild(this.btn);
 		this.w = Constants.MANAGER_VIEW_W;
 		this.h = Constants.MANAGER_VIEW_H_COVER;		
@@ -41,7 +47,7 @@ class PrintoutDoneMediator extends mmvc.impl.Mediator<PrintoutDoneView>
 		
 		this.view.btn.onPress = function(e)
 		{
-			// do something...
+			NativeApplication.nativeApplication.exit();
 		};		
 		
 	}	

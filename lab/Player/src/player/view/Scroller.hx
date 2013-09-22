@@ -21,6 +21,7 @@ import sx.mvc.view.HBoxView;
 import sx.mvc.view.VBoxView;
 import scorx.model.PlayPosition.PlayPositionInfo;
 import sx.player.TPlaybackChannels;
+import sx.ScorxColors;
 
 
 /**
@@ -85,6 +86,8 @@ class ScrollerView extends HBoxView
 		
 		this.w = 400;
 		this.h = 30;		
+		
+		this.visible = false;
 	}
 	
 	override public function addSkin()
@@ -194,6 +197,7 @@ class ScrollerMediator extends mmvc.impl.Mediator<ScrollerView>
 							trace(channelData.id);
 						}
 						playbackEngine.addChannels(channelsData);
+						this.view.visible = true;
 					#end
 				default:
 			}
@@ -233,15 +237,12 @@ class ScrollerMediator extends mmvc.impl.Mediator<ScrollerView>
 		
 		// update pointer position from playPosition 
 		this.playbackEngine.onPosition.add(function( position:Float) {				
-			trace('position ' + position);			
+			//trace('position ' + position);			
 			this.playPosition.setPosition(position, this);
-			
-			
 		});		
 		
 		this.playbackEngine.onStart.add(function(position:Float) {
-			trace('onStart ' + position);
-			
+			//trace('onStart ' + position);			
 		});
 	}	
 }

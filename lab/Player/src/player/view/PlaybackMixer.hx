@@ -1,6 +1,9 @@
 package player.view;
 
+import cx.flash.ui.UIProgress;
+import flash.display.BitmapData;
 import flash.text.TextFormat;
+import ru.stablex.ui.skins.Img;
 import ru.stablex.ui.UIBuilder;
 import ru.stablex.ui.widgets.Button;
 import ru.stablex.ui.skins.Paint;
@@ -26,56 +29,63 @@ import sx.ScorxColors;
  * ...
  * @author 
  */
+
+@:bitmap('assets/img/play-round.png') class BmpPlay extends BitmapData { }
+@:bitmap('assets/img/play-round-light.png') class BmpPlayLight extends BitmapData { }
+
+@:bitmap('assets/img/stop-round.png') class BmpStop extends BitmapData { }
+@:bitmap('assets/img/stop-round-light.png') class BmpStopLight extends BitmapData { }
+ 
+ 
+ 
 class PlaybackMixerView extends VBoxView 
  {
-	 var progress:Progress;
-	public var playSkin:Paint;
-	public var playSkinHover:Paint;
-	public var stopSkin:Paint;
-	public var stopSkinHover:Paint;
+	public var progress:UIProgress;
+
+	public var playSkin:Img;
+	public var playSkinHover:Img;
+	public var stopSkin:Img;
+	public var stopSkinHover:Img;
 
 	 public var btnWidget:Widget;
 	 public var btn:Button;	
 	
 	override public function createChildren() 
 	{
-		 this.paddingBottom = 12;
-		 this.childPadding = 8;
+		this.paddingBottom = 12;
+		this.childPadding = 8;
 		
 		this.w = 100;
 		this.h = 320;			 
-		 
-		playSkin = new Paint();
-		playSkin.color = ScorxColors.ScorxGreenDark;
-		playSkin.corners = [8];		
-		playSkinHover = new Paint();
-		playSkinHover.color = ScorxColors.ScorxGreen;
-		playSkinHover.corners = [8];		
 		
+		playSkin = new Img();
+		playSkin.bitmapData = new BmpPlay(0,0);
+		playSkinHover = new Img();
+		playSkinHover.bitmapData = new BmpPlayLight(0,0);
 		
-		stopSkin = new Paint();
-		stopSkin.color = ScorxColors.ScorxRed;
-		stopSkin.corners = [8];
-		stopSkinHover = new Paint();
-		stopSkinHover.color = ScorxColors.ScorxRedLight;
-		stopSkinHover.corners = [8];		
-		
+		stopSkin = new Img();
+		stopSkin.bitmapData = new BmpStop(0,0);
+		stopSkinHover = new Img();
+		stopSkinHover.bitmapData = new BmpStopLight(0,0);
 
 		this.btnWidget = UIBuilder.create(Widget);
-		this.btnWidget.h = 30;
+		this.btnWidget.h = 70;
 		this.btnWidget.w = this.w;
 		this.addChild(btnWidget);
 		
 		this.btn = UIBuilder.create(Button);
-		this.btn.x = 10;
-		this.btn.format = new TextFormat('Arial', 12, 0xFFFFFF);		
-		this.btn.text = "Play";		
+		this.btn.x = 15;			
+		this.btn.text = "";		
 		this.btn.w = 80;
+		this.btn.h = 70;
 		this.btn.skin = this.playSkin;		
 		this.btn.skinHovered = this.playSkinHover;
 		this.btnWidget.addChild(this.btn);
 		this.btn.visible = false;
 		
+		progress = new UIProgress(18, 3, 60, 60, 0xDDDDDD, 0xFFFFFF);
+		progress.spin();
+		//this.btnWidget.addChild(progress);
 		
 		this.align = "top,center";
 
@@ -134,23 +144,24 @@ class PlaybackMixerMediator extends mmvc.impl.Mediator<PlaybackMixerView>
 						this.view.refresh();
 						channelWidget.onChangeValue = playbackEngine.setVolume;
 					}
+					this.view.btnWidget.addChild(this.view.progress);
+					
 				case ChannelsResult.complete(channelsData):
 						this.view.btn.visible = true;
+						this.view.btnWidget.removeChild(this.view.progress);
 				default:
 			}
 		});		
 
 		
 		this.playbackEngine.onStart.add(function(pos:Float) {
-			this.view.btn.text = 'Stop';
-			this.view.btn.skin = this.view.stopSkin;
+						this.view.btn.skin = this.view.stopSkin;
 			this.view.btn.skinHovered =  this.view.stopSkinHover;
 			this.view.btn.refresh();
 			
 		});
 		
 		this.playbackEngine.onStop.add(function() {
-			this.view.btn.text = 'Start';
 			this.view.btn.skin = this.view.playSkin;
 			this.view.btn.skinHovered =  this.view.playSkinHover;
 			this.view.btn.refresh();

@@ -1,6 +1,7 @@
 package scorx.view;
 import cx.TimerTools;
 import flash.display.BitmapData;
+import flash.events.MouseEvent;
 import flash.geom.Rectangle;
 import player.controller.Setzoom;
 import ru.stablex.ui.events.ScrollEvent;
@@ -39,14 +40,35 @@ class PagesView extends ScrollWidgetView
 	public var btnStart:Button;
 	override public function createChildren() 
 	{	
-
+		
+		
 	}	
+	
+	
+	override function _beforeScroll(e:MouseEvent)
+	{
+		this.beforeScroll();
+		super._beforeScroll(e);		
+	}
+		
+	dynamic public function beforeScroll()
+	{
+		
+		
+	}
+	
+	
+	
+	
 }
 
 class PagesMediator extends mmvc.impl.Mediator<PagesView>
 {
 	var pageBars:PageBars;
 	var docInfo:DocInfo;
+	var autoScroll:Bool = true;
+	
+	
 	
 	@inject public var pagesLoader:PagesLoader;
 	@inject public var gridLoader:GridLoader;
@@ -59,8 +81,15 @@ class PagesMediator extends mmvc.impl.Mediator<PagesView>
 	@inject public var configuration:Configuration;
 	@inject public var zooma:Zooma;
 	
+	static var SCROLL_MARGIN:Int = 10;
+	
 	override function onRegister()
 	{
+		this.view.beforeScroll = this.beforeViewScroll;
+		
+		
+		this.view.setZoom(zooma.getZoom());
+		
 		this.view.addEventListener(WidgetEvent.SCROLL_STOP, function(e:WidgetEvent) {
 			playPosition.setViewPort(new Rectangle(0, 0, this.view.w, this.view.h), this.view.scrollX, this.view.scrollY);
 		});		
@@ -108,13 +137,24 @@ class PagesMediator extends mmvc.impl.Mediator<PagesView>
 		
 		mediate(playPosition.positionSignal.add(function(info:PlayPositionInfo) {			
 			if (this.pageBars == null) return;		
+
+			var pageIdx = info.pageIdx;
+			
+			// org masking...
 			if (configuration.viewLevel == AccessLevelView.OrganizationView) 
 			{
-				var pageIdx = info.pageIdx;
 				if (info.pos == 0) pageIdx = -1;
 				if (info.pos >= 1) pageIdx = -1;
 				pageSystemUtils.drawOrgMasks(this.pageBars, pageIdx, gridProc.pageCoordinates);			
 			}
+						
+			// scrolling
+			if (this.autoScroll)
+			{				
+				var pageRect:Rectangle = gridProc.getPageCoordinates(pageIdx);
+				if (pageRect != null) this.view.scrollY = SCROLL_MARGIN-pageRect.y;
+			}
+			
 		}));
 		
 		/*
@@ -130,58 +170,55 @@ class PagesMediator extends mmvc.impl.Mediator<PagesView>
 		
 		
 		this.view.afterReziseGrid = function(gridOverlay:Widget, docInfo:DocInfo)
-		{		
-			trace('afterReziseGrid');
+		{	
+			//trace('afterReziseGrid');
 			this.docInfo = docInfo;
-			this.redrawGrid(this.view.gridOverlay, this.docInfo);
+			this.redrawGrid(this.view.gridOverlay, this.docInfo, Config.drawGrid);
 		}
-		
-		
 		
 		this.view.handleMouseDoubleClick = function(x:Float, y:Float)
 		{
-			trace([x, y]);
+			//trace([x, y]);
 			var pos:Float = gridProc.getPositionFromCoords(x, y);
 			if (pos == -1) return;
 			playPosition.setPosition(pos, this.view);
 			var oneSecond:Float = 1000 / this.playbackEngine.getSoundLength();			
 			this.playbackEngine.start(pos - oneSecond/2);
-			
-			
-			
 		}
 		
 		this.gridProc.afterInit = function(gridSystems:GridSystems)
 		{
-			trace('gridProc.afterInit');
+			//trace('gridProc.afterInit');
 			pageSystemUtils.init(this.view.gridOverlay, this.view.orgOverlay);
 			playPosition.setViewPort(new Rectangle(0, 0, this.view.w, this.view.h), this.view.scrollX, this.view.scrollY);
-			this.redrawGrid(this.view.gridOverlay, this.docInfo);
+			this.redrawGrid(this.view.gridOverlay, this.docInfo, Config.drawGrid);
 		}
 		
-		/*
-		this.gridProc.updatePointerPosition = function(pageBar:PageBar)
-		{			
-			pageSystemUtils.updatePointerPosition(pageBar.deltaX, pageBar.rect.y, pageBar.rect.height);	
-		}
-		*/
-		
-		/*
-		this.playPosition.scroll = function(x:Float, y:Float)
-		{
+		this.zooma.zoomResetTopSignal.add(function() {
+			// TODO - doesn't work...
+			this.view.scrollY = 0;
 			trace(this.view.scrollY);
-			this.view.scrollY -= y;			
-		}
-		*/	
+		});
 	
 	}
 	
-	private function redrawGrid(gridOverlay:Widget, docInfo:DocInfo)
+	private function beforeViewScroll()
+	{
+		//trace('BEFORE...');
+		this.autoScroll = false;
+		TimerTools.timeout(function() {
+			//trace('After');
+			this.autoScroll = true;
+		}, 3000);
+		
+	}
+	
+	private function redrawGrid(gridOverlay:Widget, docInfo:DocInfo, gridVisible:Bool)
 	{
 		if (gridProc.gridSystems == null) return;
 		if (this.docInfo.pageInfos.length < 1) return;
 		this.pageBars = gridProc.getPageBars(docInfo);			
-		pageSystemUtils.drawPageBars(this.pageBars);	
+		if (gridVisible) pageSystemUtils.drawPageBars(this.pageBars);	
 		playPosition.setViewPort(new Rectangle(0, 0, this.view.w, this.view.h), this.view.scrollX, this.view.scrollY);
 		if (configuration.viewLevel == AccessLevelView.OrganizationView) pageSystemUtils.drawOrgMasks(this.pageBars, -1, gridProc.pageCoordinates);	
 		playPosition.setPosition(playPosition.getPosition(), this.view);		

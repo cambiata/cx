@@ -46,7 +46,7 @@ class ConfloadCommand extends Command
 			trace('CONIFG AIR');
 		#end
 		
-		this.config.setValues(Config.productId, Config.userId, Config.host, Config.playbackLevel, Config.viewLevel);
+		this.config.setValues(Config.productId, Config.userId, Config.host, Config.playbackLevel, Config.viewLevel, Config.printVersion);
 		this.confload.completed.dispatch();
 	}
 }

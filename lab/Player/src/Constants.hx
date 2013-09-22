@@ -22,7 +22,8 @@ class Constants
 	
 	// 
 	static public var TEXT_FORMAT_HEADER2:TextFormat = new  TextFormat('Arial', 28, 0xffffff); 
-	static public var TEXT_FORMAT_BUTTON_LARGE:TextFormat =  new TextFormat('Arial', 20, 0x000000);
+	static public var TEXT_FORMAT_BUTTON_LARGE:TextFormat =  new TextFormat('Arial', 16, 0x000000, true);
+	static public var TEXT_FORMAT_BUTTON_LARGE_WHITE:TextFormat =  new TextFormat('Arial', 16, 0xffffff, true);
 	static public var BUTTON_LARGE_W:Float = 260;
 	static public var BUTTON_LARGE_H:Float = 40;
 
