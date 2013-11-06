@@ -1,11 +1,11 @@
 package nx3.elements.tools;
 import nx3.elements.ENoteType;
-import jasononeil.CleverSort;
+
 /**
  * ...
  * @author 
  */
-using  jasononeil.CleverSort;
+using CleverSort;
 class ENoteTypeTools
 {
 

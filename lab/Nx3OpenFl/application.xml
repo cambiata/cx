@@ -16,13 +16,10 @@
 	<source path="../../src/" /> 
 	<haxelib name="openfl" />
 	<haxelib name="actuate" />
-	<haxelib name="tink_core" />
-	<haxelib name="tink_macro" /> 
 	<haxelib name="svg" />
 	 
 	<!-- assets -->
 	<icon path="assets/openfl.svg" />
-	<assets path="assets/img" rename="img" />
 	
 	<!-- optimize output -->
 	<haxeflag name="-dce std" if="haxe3" />
