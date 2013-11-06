@@ -752,7 +752,7 @@ return {
    *    };
    *
    *    ctx = WebGLDebugUtils.makeDebugContext(
-   *        canvas.getContext("webgl"), throwOnGLError);
+   *        canvas.getContext ("webgl"), throwOnGLError);
    *
    * @param {!WebGLRenderingContext} ctx The webgl context to wrap.
    * @param {!function(err, funcName, args): void} opt_onErrorFunc The function

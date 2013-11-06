@@ -17,10 +17,9 @@ import nx3.render.svg.Elements;
 import nx3.render.svg.ShapeTools;
 import nx3.render.tools.RenderTools;
 import nx3.xamples.Examples;
-
+import nx3.xamples.main.openfl.Main.OpenFlMain;
 import nx3.render.scaling.Scaling;
 import nx3.render.FrameRenderer;
-//import nx3.xamples.Examples;
 import nx3.elements.NHead;
 import nx3.elements.NNote;
 import nx3.elements.DNote;
@@ -30,33 +29,40 @@ import nx3.io.NoteXML;
 
 /**
  * ...
- * @author 
+ * @author Jonas Nyström
  */
 import nx3.io.NoteXML;
 import nx3.io.VoiceXML;
 
-class Main extends Sprite 
+class Main extends OpenFlMain 
+{
+	/* ENTRY POINT */
+	override function start()
+	{
+		this.addChild(Examples.basic2()); 
+	}
+}
+
+class OpenFlMain extends Sprite
 {
 	var inited:Bool;
-
-	/* ENTRY POINT */
 	
 	function resize(e) 
 	{
 		if (!inited) init();
-		// else (resize or orientation change)
 	}
 	
 	function init() 
 	{
 		if (inited) return;
 		inited = true;
-		
-		this.addChild(Examples.basic2()); 
-
+		start();
 	}
-
-	/* SETUP */
+	
+	function start()
+	{
+		throw "Should be overridden!";
+	}
 
 	public function new() 
 	{
@@ -80,6 +86,8 @@ class Main extends Sprite
 		// static entry point
 		Lib.current.stage.align = flash.display.StageAlign.TOP_LEFT;
 		Lib.current.stage.scaleMode = flash.display.StageScaleMode.NO_SCALE;
-		Lib.current.addChild(new Main());
-	}
+		Lib.current.addChild(new OpenFlMain());
+	}	
+	
+	
 }

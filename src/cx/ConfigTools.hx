@@ -18,6 +18,16 @@ using StringTools;
 using cx.StrTools;
 class ConfigTools
 {
+	
+	static public function getConfig(configObject:Dynamic)
+	{
+		#if (neko || cpp)		
+			loadConfig(configObject);
+		#end
+		#if (flash || html5)
+			loadFlashVars(configObject);
+		#end		
+	}
 
 	#if (neko || cpp)
 	static public function loadConfig(configObject:Dynamic, ?filename:String='default.conf', ?delimiter:String='=', ?arrayDelimiter:String=',', throwIfNoConfigFile:Bool=false):Void  {

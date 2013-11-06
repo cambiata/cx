@@ -15,10 +15,15 @@ ApplicationMain.main = function() {
 	ApplicationMain.urlLoaders = new haxe.ds.StringMap();
 	ApplicationMain.total = 0;
 	flash.Lib.get_current().loaderInfo = flash.display.LoaderInfo.create(null);
+	try {
+		if(Reflect.hasField(js.Browser.window,"winParameters")) flash.Lib.get_current().loaderInfo.parameters = (Reflect.field(js.Browser.window,"winParameters"))();
+		flash.Lib.get_current().get_stage().loaderInfo = flash.Lib.get_current().loaderInfo;
+	} catch( e ) {
+	}
 	ApplicationMain.preloader = new NMEPreloader();
 	flash.Lib.get_current().addChild(ApplicationMain.preloader);
 	ApplicationMain.preloader.onInit();
-	var resourcePrefix = "NME_:bitmap_";
+	var resourcePrefix = "__ASSET__:bitmap_";
 	var _g = 0, _g1 = haxe.Resource.listNames();
 	while(_g < _g1.length) {
 		var resourceName = _g1[_g];
@@ -86,8 +91,8 @@ flash.events.IEventDispatcher.prototype = {
 	,__class__: flash.events.IEventDispatcher
 }
 flash.events.EventDispatcher = function(target) {
-	if(target != null) this.nmeTarget = target; else this.nmeTarget = this;
-	this.nmeEventMap = [];
+	if(target != null) this.__target = target; else this.__target = this;
+	this.__eventMap = [];
 };
 $hxClasses["flash.events.EventDispatcher"] = flash.events.EventDispatcher;
 flash.events.EventDispatcher.__name__ = ["flash","events","EventDispatcher"];
@@ -103,7 +108,7 @@ flash.events.EventDispatcher.prototype = {
 		return "[ " + this.__name__ + " ]";
 	}
 	,setList: function(type,list) {
-		this.nmeEventMap[type] = list;
+		this.__eventMap[type] = list;
 	}
 	,removeEventListener: function(type,listener,inCapture) {
 		if(inCapture == null) inCapture = false;
@@ -123,13 +128,13 @@ flash.events.EventDispatcher.prototype = {
 		return this.existList(type);
 	}
 	,getList: function(type) {
-		return this.nmeEventMap[type];
+		return this.__eventMap[type];
 	}
 	,existList: function(type) {
-		return this.nmeEventMap != null && this.nmeEventMap[type] != undefined;
+		return this.__eventMap != null && this.__eventMap[type] != undefined;
 	}
 	,dispatchEvent: function(event) {
-		if(event.target == null) event.target = this.nmeTarget;
+		if(event.target == null) event.target = this.__target;
 		var capture = event.eventPhase == flash.events.EventPhase.CAPTURING_PHASE;
 		if(this.existList(event.type)) {
 			var list = this.getList(event.type);
@@ -138,7 +143,7 @@ flash.events.EventDispatcher.prototype = {
 				var listener = list[idx];
 				if(listener.mUseCapture == capture) {
 					listener.dispatchEvent(event);
-					if(event.nmeGetIsCancelledNow()) return true;
+					if(event.__getIsCancelledNow()) return true;
 				}
 				if(idx < list.length && listener != list[idx]) {
 				} else idx++;
@@ -161,8 +166,8 @@ flash.events.EventDispatcher.prototype = {
 		list.push(new flash.events.Listener(inListener,capture,priority));
 		list.sort(flash.events.EventDispatcher.compareListeners);
 	}
-	,nmeEventMap: null
-	,nmeTarget: null
+	,__eventMap: null
+	,__target: null
 	,__class__: flash.events.EventDispatcher
 }
 flash.display = {}
@@ -175,35 +180,35 @@ flash.display.IBitmapDrawable.prototype = {
 }
 flash.display.DisplayObject = function() {
 	flash.events.EventDispatcher.call(this,null);
-	this._nmeId = flash.utils.Uuid.uuid();
+	this.___id = flash.utils.Uuid.uuid();
 	this.set_parent(null);
 	this.set_transform(new flash.geom.Transform(this));
-	this.nmeX = 0.0;
-	this.nmeY = 0.0;
-	this.nmeScaleX = 1.0;
-	this.nmeScaleY = 1.0;
-	this.nmeRotation = 0.0;
-	this.nmeWidth = 0.0;
-	this.nmeHeight = 0.0;
+	this.__x = 0.0;
+	this.__y = 0.0;
+	this.__scaleX = 1.0;
+	this.__scaleY = 1.0;
+	this.__rotation = 0.0;
+	this.__width = 0.0;
+	this.__height = 0.0;
 	this.set_visible(true);
 	this.alpha = 1.0;
-	this.nmeFilters = new Array();
-	this.nmeBoundsRect = new flash.geom.Rectangle();
-	this.nmeScrollRect = null;
-	this.nmeMask = null;
-	this.nmeMaskingObj = null;
-	this.set_nmeCombinedVisible(this.get_visible());
+	this.__filters = new Array();
+	this.__boundsRect = new flash.geom.Rectangle();
+	this.__scrollRect = null;
+	this.__mask = null;
+	this.__maskingObj = null;
+	this.set___combinedVisible(this.get_visible());
 };
 $hxClasses["flash.display.DisplayObject"] = flash.display.DisplayObject;
 flash.display.DisplayObject.__name__ = ["flash","display","DisplayObject"];
 flash.display.DisplayObject.__interfaces__ = [flash.display.IBitmapDrawable];
 flash.display.DisplayObject.__super__ = flash.events.EventDispatcher;
 flash.display.DisplayObject.prototype = $extend(flash.events.EventDispatcher.prototype,{
-	nmeSrUpdateDivs: function() {
-		var gfx = this.nmeGetGraphics();
+	__srUpdateDivs: function() {
+		var gfx = this.__getGraphics();
 		if(gfx == null || this.parent == null) return;
-		if(this.nmeScrollRect == null) {
-			if(this._srAxes != null && gfx.nmeSurface.parentNode == this._srAxes && this._srWindow.parentNode != null) this._srWindow.parentNode.replaceChild(gfx.nmeSurface,this._srWindow);
+		if(this.__scrollRect == null) {
+			if(this._srAxes != null && gfx.__surface.parentNode == this._srAxes && this._srWindow.parentNode != null) this._srWindow.parentNode.replaceChild(gfx.__surface,this._srWindow);
 			return;
 		}
 		if(this._srWindow == null) {
@@ -223,146 +228,146 @@ flash.display.DisplayObject.prototype = $extend(flash.events.EventDispatcher.pro
 		var pnt = this.parent.localToGlobal(new flash.geom.Point(this.get_x(),this.get_y()));
 		this._srWindow.style.left = pnt.x + "px";
 		this._srWindow.style.top = pnt.y + "px";
-		this._srWindow.style.width = this.nmeScrollRect.width + "px";
-		this._srWindow.style.height = this.nmeScrollRect.height + "px";
-		this._srAxes.style.left = -pnt.x - this.nmeScrollRect.x + "px";
-		this._srAxes.style.top = -pnt.y - this.nmeScrollRect.y + "px";
-		if(gfx.nmeSurface.parentNode != this._srAxes && gfx.nmeSurface.parentNode != null) {
-			gfx.nmeSurface.parentNode.insertBefore(this._srWindow,gfx.nmeSurface);
-			flash.Lib.nmeRemoveSurface(gfx.nmeSurface);
-			this._srAxes.appendChild(gfx.nmeSurface);
+		this._srWindow.style.width = this.__scrollRect.width + "px";
+		this._srWindow.style.height = this.__scrollRect.height + "px";
+		this._srAxes.style.left = -pnt.x - this.__scrollRect.x + "px";
+		this._srAxes.style.top = -pnt.y - this.__scrollRect.y + "px";
+		if(gfx.__surface.parentNode != this._srAxes && gfx.__surface.parentNode != null) {
+			gfx.__surface.parentNode.insertBefore(this._srWindow,gfx.__surface);
+			flash.Lib.__removeSurface(gfx.__surface);
+			this._srAxes.appendChild(gfx.__surface);
 		}
 	}
-	,nmeGetSrWindow: function() {
+	,__getSrWindow: function() {
 		return this._srWindow;
 	}
 	,set_width: function(inValue) {
 		if(this.get__boundsInvalid()) this.validateBounds();
-		var w = this.nmeBoundsRect.width;
-		if(this.nmeScaleX * w != inValue) {
+		var w = this.__boundsRect.width;
+		if(this.__scaleX * w != inValue) {
 			if(w == 0) {
-				this.nmeScaleX = 1;
-				this.nmeInvalidateMatrix(true);
-				this._nmeRenderFlags |= 64;
-				if(this.parent != null) this.parent._nmeRenderFlags |= 64;
-				w = this.nmeBoundsRect.width;
+				this.__scaleX = 1;
+				this.__invalidateMatrix(true);
+				this.___renderFlags |= 64;
+				if(this.parent != null) this.parent.___renderFlags |= 64;
+				w = this.__boundsRect.width;
 			}
 			if(w <= 0) return 0;
-			this.nmeScaleX = inValue / w;
-			this.nmeInvalidateMatrix(true);
-			this._nmeRenderFlags |= 64;
-			if(this.parent != null) this.parent._nmeRenderFlags |= 64;
+			this.__scaleX = inValue / w;
+			this.__invalidateMatrix(true);
+			this.___renderFlags |= 64;
+			if(this.parent != null) this.parent.___renderFlags |= 64;
 		}
 		return inValue;
 	}
 	,get_width: function() {
 		if(this.get__boundsInvalid()) this.validateBounds();
-		return this.nmeWidth;
+		return this.__width;
 	}
 	,set_y: function(inValue) {
-		if(this.nmeY != inValue) {
-			this.nmeY = inValue;
-			this.nmeInvalidateMatrix(true);
-			if(this.parent != null) this.parent.nmeInvalidateBounds();
+		if(this.__y != inValue) {
+			this.__y = inValue;
+			this.__invalidateMatrix(true);
+			if(this.parent != null) this.parent.__invalidateBounds();
 		}
 		return inValue;
 	}
 	,get_y: function() {
-		return this.nmeY;
+		return this.__y;
 	}
 	,set_x: function(inValue) {
-		if(this.nmeX != inValue) {
-			this.nmeX = inValue;
-			this.nmeInvalidateMatrix(true);
-			if(this.parent != null) this.parent.nmeInvalidateBounds();
+		if(this.__x != inValue) {
+			this.__x = inValue;
+			this.__invalidateMatrix(true);
+			if(this.parent != null) this.parent.__invalidateBounds();
 		}
 		return inValue;
 	}
 	,get_x: function() {
-		return this.nmeX;
+		return this.__x;
 	}
 	,set_visible: function(inValue) {
-		if(this.nmeVisible != inValue) {
-			this.nmeVisible = inValue;
+		if(this.__visible != inValue) {
+			this.__visible = inValue;
 			this.setSurfaceVisible(inValue);
 		}
-		return this.nmeVisible;
+		return this.__visible;
 	}
 	,get_visible: function() {
-		return this.nmeVisible;
+		return this.__visible;
 	}
 	,set_transform: function(inValue) {
 		this.transform = inValue;
-		this.nmeX = this.transform.get_matrix().tx;
-		this.nmeY = this.transform.get_matrix().ty;
-		this.nmeInvalidateMatrix(true);
+		this.__x = this.transform.get_matrix().tx;
+		this.__y = this.transform.get_matrix().ty;
+		this.__invalidateMatrix(true);
 		return inValue;
 	}
 	,get__topmostSurface: function() {
-		var gfx = this.nmeGetGraphics();
-		if(gfx != null) return gfx.nmeSurface;
+		var gfx = this.__getGraphics();
+		if(gfx != null) return gfx.__surface;
 		return null;
 	}
 	,get_stage: function() {
-		var gfx = this.nmeGetGraphics();
-		if(gfx != null) return flash.Lib.nmeGetStage();
+		var gfx = this.__getGraphics();
+		if(gfx != null) return flash.Lib.__getStage();
 		return null;
 	}
 	,set_scrollRect: function(inValue) {
-		this.nmeScrollRect = inValue;
-		this.nmeSrUpdateDivs();
+		this.__scrollRect = inValue;
+		this.__srUpdateDivs();
 		return inValue;
 	}
 	,get_scrollRect: function() {
-		if(this.nmeScrollRect == null) return null;
-		return this.nmeScrollRect.clone();
+		if(this.__scrollRect == null) return null;
+		return this.__scrollRect.clone();
 	}
 	,set_scaleY: function(inValue) {
-		if(this.nmeScaleY != inValue) {
-			this.nmeScaleY = inValue;
-			this.nmeInvalidateMatrix(true);
-			this._nmeRenderFlags |= 64;
-			if(this.parent != null) this.parent._nmeRenderFlags |= 64;
+		if(this.__scaleY != inValue) {
+			this.__scaleY = inValue;
+			this.__invalidateMatrix(true);
+			this.___renderFlags |= 64;
+			if(this.parent != null) this.parent.___renderFlags |= 64;
 		}
 		return inValue;
 	}
 	,get_scaleY: function() {
-		return this.nmeScaleY;
+		return this.__scaleY;
 	}
 	,set_scaleX: function(inValue) {
-		if(this.nmeScaleX != inValue) {
-			this.nmeScaleX = inValue;
-			this.nmeInvalidateMatrix(true);
-			this._nmeRenderFlags |= 64;
-			if(this.parent != null) this.parent._nmeRenderFlags |= 64;
+		if(this.__scaleX != inValue) {
+			this.__scaleX = inValue;
+			this.__invalidateMatrix(true);
+			this.___renderFlags |= 64;
+			if(this.parent != null) this.parent.___renderFlags |= 64;
 		}
 		return inValue;
 	}
 	,get_scaleX: function() {
-		return this.nmeScaleX;
+		return this.__scaleX;
 	}
 	,set_rotation: function(inValue) {
-		if(this.nmeRotation != inValue) {
-			this.nmeRotation = inValue;
-			this.nmeInvalidateMatrix(true);
-			this._nmeRenderFlags |= 64;
-			if(this.parent != null) this.parent._nmeRenderFlags |= 64;
+		if(this.__rotation != inValue) {
+			this.__rotation = inValue;
+			this.__invalidateMatrix(true);
+			this.___renderFlags |= 64;
+			if(this.parent != null) this.parent.___renderFlags |= 64;
 		}
 		return inValue;
 	}
 	,get_rotation: function() {
-		return this.nmeRotation;
+		return this.__rotation;
 	}
 	,set_parent: function(inValue) {
 		if(inValue == this.parent) return inValue;
-		this.nmeInvalidateMatrix();
+		this.__invalidateMatrix();
 		if(this.parent != null) {
-			HxOverrides.remove(this.parent.nmeChildren,this);
-			this.parent.nmeInvalidateBounds();
+			HxOverrides.remove(this.parent.__children,this);
+			this.parent.__invalidateBounds();
 		}
 		if(inValue != null) {
-			inValue._nmeRenderFlags |= 64;
-			if(inValue.parent != null) inValue.parent._nmeRenderFlags |= 64;
+			inValue.___renderFlags |= 64;
+			if(inValue.parent != null) inValue.parent.___renderFlags |= 64;
 		}
 		if(this.parent == null && inValue != null) {
 			this.parent = inValue;
@@ -375,12 +380,12 @@ flash.display.DisplayObject.prototype = $extend(flash.events.EventDispatcher.pro
 		} else this.parent = inValue;
 		return inValue;
 	}
-	,set_nmeCombinedVisible: function(inValue) {
-		if(this.nmeCombinedVisible != inValue) {
-			this.nmeCombinedVisible = inValue;
+	,set___combinedVisible: function(inValue) {
+		if(this.__combinedVisible != inValue) {
+			this.__combinedVisible = inValue;
 			this.setSurfaceVisible(inValue);
 		}
-		return this.nmeCombinedVisible;
+		return this.__combinedVisible;
 	}
 	,get_mouseY: function() {
 		return this.globalToLocal(new flash.geom.Point(0,this.get_stage().get_mouseY())).y;
@@ -389,68 +394,68 @@ flash.display.DisplayObject.prototype = $extend(flash.events.EventDispatcher.pro
 		return this.globalToLocal(new flash.geom.Point(this.get_stage().get_mouseX(),0)).x;
 	}
 	,get__matrixInvalid: function() {
-		return (this._nmeRenderFlags & 4) != 0;
+		return (this.___renderFlags & 4) != 0;
 	}
 	,get__matrixChainInvalid: function() {
-		return (this._nmeRenderFlags & 8) != 0;
+		return (this.___renderFlags & 8) != 0;
 	}
 	,set_mask: function(inValue) {
-		if(this.nmeMask != null) this.nmeMask.nmeMaskingObj = null;
-		this.nmeMask = inValue;
-		if(this.nmeMask != null) this.nmeMask.nmeMaskingObj = this;
-		return this.nmeMask;
+		if(this.__mask != null) this.__mask.__maskingObj = null;
+		this.__mask = inValue;
+		if(this.__mask != null) this.__mask.__maskingObj = this;
+		return this.__mask;
 	}
 	,get_mask: function() {
-		return this.nmeMask;
+		return this.__mask;
 	}
 	,set_height: function(inValue) {
 		if(this.get__boundsInvalid()) this.validateBounds();
-		var h = this.nmeBoundsRect.height;
-		if(this.nmeScaleY * h != inValue) {
+		var h = this.__boundsRect.height;
+		if(this.__scaleY * h != inValue) {
 			if(h == 0) {
-				this.nmeScaleY = 1;
-				this.nmeInvalidateMatrix(true);
-				this._nmeRenderFlags |= 64;
-				if(this.parent != null) this.parent._nmeRenderFlags |= 64;
-				h = this.nmeBoundsRect.height;
+				this.__scaleY = 1;
+				this.__invalidateMatrix(true);
+				this.___renderFlags |= 64;
+				if(this.parent != null) this.parent.___renderFlags |= 64;
+				h = this.__boundsRect.height;
 			}
 			if(h <= 0) return 0;
-			this.nmeScaleY = inValue / h;
-			this.nmeInvalidateMatrix(true);
-			this._nmeRenderFlags |= 64;
-			if(this.parent != null) this.parent._nmeRenderFlags |= 64;
+			this.__scaleY = inValue / h;
+			this.__invalidateMatrix(true);
+			this.___renderFlags |= 64;
+			if(this.parent != null) this.parent.___renderFlags |= 64;
 		}
 		return inValue;
 	}
 	,get_height: function() {
 		if(this.get__boundsInvalid()) this.validateBounds();
-		return this.nmeHeight;
+		return this.__height;
 	}
 	,set_filters: function(filters) {
-		var oldFilterCount = this.nmeFilters == null?0:this.nmeFilters.length;
+		var oldFilterCount = this.__filters == null?0:this.__filters.length;
 		if(filters == null) {
-			this.nmeFilters = null;
+			this.__filters = null;
 			if(oldFilterCount > 0) this.invalidateGraphics();
 		} else {
-			this.nmeFilters = new Array();
+			this.__filters = new Array();
 			var _g = 0;
 			while(_g < filters.length) {
 				var filter = filters[_g];
 				++_g;
-				this.nmeFilters.push(filter.clone());
+				this.__filters.push(filter.clone());
 			}
 			this.invalidateGraphics();
 		}
 		return filters;
 	}
 	,get__boundsInvalid: function() {
-		var gfx = this.nmeGetGraphics();
-		if(gfx == null) return (this._nmeRenderFlags & 64) != 0; else return (this._nmeRenderFlags & 64) != 0 || gfx.boundsDirty;
+		var gfx = this.__getGraphics();
+		if(gfx == null) return (this.___renderFlags & 64) != 0; else return (this.___renderFlags & 64) != 0 || gfx.boundsDirty;
 	}
 	,get_filters: function() {
-		if(this.nmeFilters == null) return [];
+		if(this.__filters == null) return [];
 		var result = new Array();
-		var _g = 0, _g1 = this.nmeFilters;
+		var _g = 0, _g1 = this.__filters;
 		while(_g < _g1.length) {
 			var filter = _g1[_g];
 			++_g;
@@ -459,293 +464,296 @@ flash.display.DisplayObject.prototype = $extend(flash.events.EventDispatcher.pro
 		return result;
 	}
 	,get__bottommostSurface: function() {
-		var gfx = this.nmeGetGraphics();
-		if(gfx != null) return gfx.nmeSurface;
+		var gfx = this.__getGraphics();
+		if(gfx != null) return gfx.__surface;
 		return null;
 	}
-	,validateBounds: function() {
-		if(this.get__boundsInvalid()) {
-			var gfx = this.nmeGetGraphics();
-			if(gfx == null) {
-				this.nmeBoundsRect.x = this.get_x();
-				this.nmeBoundsRect.y = this.get_y();
-				this.nmeBoundsRect.width = 0;
-				this.nmeBoundsRect.height = 0;
-			} else {
-				this.nmeBoundsRect = gfx.nmeExtent.clone();
-				if(this.scale9Grid != null) {
-					this.nmeBoundsRect.width *= this.nmeScaleX;
-					this.nmeBoundsRect.height *= this.nmeScaleY;
-					this.nmeWidth = this.nmeBoundsRect.width;
-					this.nmeHeight = this.nmeBoundsRect.height;
-				} else {
-					this.nmeWidth = this.nmeBoundsRect.width * this.nmeScaleX;
-					this.nmeHeight = this.nmeBoundsRect.height * this.nmeScaleY;
-				}
-				gfx.boundsDirty = false;
-			}
-			this._nmeRenderFlags &= -65;
-		}
-	}
-	,toString: function() {
-		return "[DisplayObject name=" + this.name + " id=" + this._nmeId + "]";
-	}
-	,setSurfaceVisible: function(inValue) {
-		var gfx = this.nmeGetGraphics();
-		if(gfx != null && gfx.nmeSurface != null) flash.Lib.nmeSetSurfaceVisible(gfx.nmeSurface,inValue);
-	}
-	,nmeValidateMatrix: function() {
-		var parentMatrixInvalid = (this._nmeRenderFlags & 8) != 0 && this.parent != null;
-		if((this._nmeRenderFlags & 4) != 0 || parentMatrixInvalid) {
-			if(parentMatrixInvalid) this.parent.nmeValidateMatrix();
+	,__validateMatrix: function() {
+		var parentMatrixInvalid = (this.___renderFlags & 8) != 0 && this.parent != null;
+		if((this.___renderFlags & 4) != 0 || parentMatrixInvalid) {
+			if(parentMatrixInvalid) this.parent.__validateMatrix();
 			var m = this.transform.get_matrix();
-			if((this._nmeRenderFlags & 16) != 0) this._nmeRenderFlags &= -5;
-			if((this._nmeRenderFlags & 4) != 0) {
+			if((this.___renderFlags & 16) != 0) this.___renderFlags &= -5;
+			if((this.___renderFlags & 4) != 0) {
 				m.identity();
-				m.scale(this.nmeScaleX,this.nmeScaleY);
-				var rad = this.nmeRotation * flash.geom.Transform.DEG_TO_RAD;
+				m.scale(this.__scaleX,this.__scaleY);
+				var rad = this.__rotation * flash.geom.Transform.DEG_TO_RAD;
 				if(rad != 0.0) m.rotate(rad);
-				m.translate(this.nmeX,this.nmeY);
+				m.translate(this.__x,this.__y);
 				this.transform._matrix.copy(m);
 				m;
 			}
-			var cm = this.transform.nmeGetFullMatrix(null);
-			var fm = this.parent == null?m:this.parent.transform.nmeGetFullMatrix(m);
+			var cm = this.transform.__getFullMatrix(null);
+			var fm = this.parent == null?m:this.parent.transform.__getFullMatrix(m);
 			this._fullScaleX = fm._sx;
 			this._fullScaleY = fm._sy;
 			if(cm.a != fm.a || cm.b != fm.b || cm.c != fm.c || cm.d != fm.d || cm.tx != fm.tx || cm.ty != fm.ty) {
-				this.transform.nmeSetFullMatrix(fm);
-				this._nmeRenderFlags |= 32;
+				this.transform.__setFullMatrix(fm);
+				this.___renderFlags |= 32;
 			}
-			this._nmeRenderFlags &= -29;
+			this.___renderFlags &= -29;
 		}
 	}
-	,nmeUnifyChildrenWithDOM: function(lastMoveObj) {
-		var gfx = this.nmeGetGraphics();
+	,__unifyChildrenWithDOM: function(lastMoveObj) {
+		var gfx = this.__getGraphics();
 		if(gfx != null && lastMoveObj != null && this != lastMoveObj) {
-			var ogfx = lastMoveObj.nmeGetGraphics();
-			if(ogfx != null) flash.Lib.nmeSetSurfaceZIndexAfter(this.nmeScrollRect == null?gfx.nmeSurface:this._srWindow,lastMoveObj.nmeScrollRect == null?ogfx.nmeSurface:lastMoveObj == this.parent?ogfx.nmeSurface:lastMoveObj._srWindow);
+			var ogfx = lastMoveObj.__getGraphics();
+			if(ogfx != null) flash.Lib.__setSurfaceZIndexAfter(this.__scrollRect == null?gfx.__surface:this._srWindow,lastMoveObj.__scrollRect == null?ogfx.__surface:lastMoveObj == this.parent?ogfx.__surface:lastMoveObj._srWindow);
 		}
 		if(gfx == null) return lastMoveObj; else return this;
 	}
-	,nmeTestFlag: function(mask) {
-		return (this._nmeRenderFlags & mask) != 0;
+	,__testFlag: function(mask) {
+		return (this.___renderFlags & mask) != 0;
 	}
-	,nmeSetMatrix: function(inValue) {
+	,__setMatrix: function(inValue) {
 		this.transform._matrix.copy(inValue);
 		return inValue;
 	}
-	,nmeSetFullMatrix: function(inValue) {
-		return this.transform.nmeSetFullMatrix(inValue);
+	,__setFullMatrix: function(inValue) {
+		return this.transform.__setFullMatrix(inValue);
 	}
-	,nmeSetFlagToValue: function(mask,value) {
-		if(value) this._nmeRenderFlags |= mask; else this._nmeRenderFlags &= ~mask;
+	,__setFlagToValue: function(mask,value) {
+		if(value) this.___renderFlags |= mask; else this.___renderFlags &= ~mask;
 	}
-	,nmeSetFlag: function(mask) {
-		this._nmeRenderFlags |= mask;
+	,__setFlag: function(mask) {
+		this.___renderFlags |= mask;
 	}
-	,nmeSetDimensions: function() {
+	,__setDimensions: function() {
 		if(this.scale9Grid != null) {
-			this.nmeBoundsRect.width *= this.nmeScaleX;
-			this.nmeBoundsRect.height *= this.nmeScaleY;
-			this.nmeWidth = this.nmeBoundsRect.width;
-			this.nmeHeight = this.nmeBoundsRect.height;
+			this.__boundsRect.width *= this.__scaleX;
+			this.__boundsRect.height *= this.__scaleY;
+			this.__width = this.__boundsRect.width;
+			this.__height = this.__boundsRect.height;
 		} else {
-			this.nmeWidth = this.nmeBoundsRect.width * this.nmeScaleX;
-			this.nmeHeight = this.nmeBoundsRect.height * this.nmeScaleY;
+			this.__width = this.__boundsRect.width * this.__scaleX;
+			this.__height = this.__boundsRect.height * this.__scaleY;
 		}
 	}
-	,nmeRender: function(inMask,clipRect) {
-		if(!this.nmeCombinedVisible) return;
-		var gfx = this.nmeGetGraphics();
+	,__render: function(inMask,clipRect) {
+		if(!this.__combinedVisible) return;
+		var gfx = this.__getGraphics();
 		if(gfx == null) return;
-		if((this._nmeRenderFlags & 4) != 0 || (this._nmeRenderFlags & 8) != 0) this.nmeValidateMatrix();
-		if(gfx.nmeRender(inMask,this.nmeFilters,1,1)) {
-			this._nmeRenderFlags |= 64;
-			if(this.parent != null) this.parent._nmeRenderFlags |= 64;
-			this.nmeApplyFilters(gfx.nmeSurface);
-			this._nmeRenderFlags |= 32;
+		if((this.___renderFlags & 4) != 0 || (this.___renderFlags & 8) != 0) this.__validateMatrix();
+		if(gfx.__render(inMask,this.__filters,1,1)) {
+			this.___renderFlags |= 64;
+			if(this.parent != null) this.parent.___renderFlags |= 64;
+			this.__applyFilters(gfx.__surface);
+			this.___renderFlags |= 32;
 		}
-		var fullAlpha = (this.parent != null?this.parent.nmeCombinedAlpha:1) * this.alpha;
+		var fullAlpha = (this.parent != null?this.parent.__combinedAlpha:1) * this.alpha;
 		if(inMask != null) {
 			var m = this.getSurfaceTransform(gfx);
-			flash.Lib.nmeDrawToSurface(gfx.nmeSurface,inMask,m,fullAlpha,clipRect);
+			flash.Lib.__drawToSurface(gfx.__surface,inMask,m,fullAlpha,clipRect);
 		} else {
-			if((this._nmeRenderFlags & 32) != 0) {
+			if((this.___renderFlags & 32) != 0) {
 				var m = this.getSurfaceTransform(gfx);
-				flash.Lib.nmeSetSurfaceTransform(gfx.nmeSurface,m);
-				this._nmeRenderFlags &= -33;
-				this.nmeSrUpdateDivs();
+				flash.Lib.__setSurfaceTransform(gfx.__surface,m);
+				this.___renderFlags &= -33;
+				this.__srUpdateDivs();
 			}
-			flash.Lib.nmeSetSurfaceOpacity(gfx.nmeSurface,fullAlpha);
+			flash.Lib.__setSurfaceOpacity(gfx.__surface,fullAlpha);
 		}
 	}
-	,nmeRemoveFromStage: function() {
-		var gfx = this.nmeGetGraphics();
-		if(gfx != null && flash.Lib.nmeIsOnStage(gfx.nmeSurface)) {
-			flash.Lib.nmeRemoveSurface(gfx.nmeSurface);
+	,__removeFromStage: function() {
+		var gfx = this.__getGraphics();
+		if(gfx != null && flash.Lib.__isOnStage(gfx.__surface)) {
+			flash.Lib.__removeSurface(gfx.__surface);
 			var evt = new flash.events.Event(flash.events.Event.REMOVED_FROM_STAGE,false,false);
 			this.dispatchEvent(evt);
 		}
 	}
-	,nmeMatrixOverridden: function() {
-		this.nmeX = this.transform.get_matrix().tx;
-		this.nmeY = this.transform.get_matrix().ty;
-		this._nmeRenderFlags |= 16;
-		this._nmeRenderFlags |= 4;
-		this._nmeRenderFlags |= 64;
-		if(this.parent != null) this.parent._nmeRenderFlags |= 64;
+	,__matrixOverridden: function() {
+		this.__x = this.transform.get_matrix().tx;
+		this.__y = this.transform.get_matrix().ty;
+		this.___renderFlags |= 16;
+		this.___renderFlags |= 4;
+		this.___renderFlags |= 64;
+		if(this.parent != null) this.parent.___renderFlags |= 64;
 	}
-	,nmeIsOnStage: function() {
-		var gfx = this.nmeGetGraphics();
-		if(gfx != null && flash.Lib.nmeIsOnStage(gfx.nmeSurface)) return true;
+	,__isOnStage: function() {
+		var gfx = this.__getGraphics();
+		if(gfx != null && flash.Lib.__isOnStage(gfx.__surface)) return true;
 		return false;
 	}
-	,nmeInvalidateMatrix: function(local) {
+	,__invalidateMatrix: function(local) {
 		if(local == null) local = false;
-		if(local) this._nmeRenderFlags |= 4; else this._nmeRenderFlags |= 8;
+		if(local) this.___renderFlags |= 4; else this.___renderFlags |= 8;
 	}
-	,nmeInvalidateBounds: function() {
-		this._nmeRenderFlags |= 64;
-		if(this.parent != null) this.parent._nmeRenderFlags |= 64;
+	,__invalidateBounds: function() {
+		this.___renderFlags |= 64;
+		if(this.parent != null) this.parent.___renderFlags |= 64;
 	}
-	,nmeGetSurface: function() {
-		var gfx = this.nmeGetGraphics();
+	,__getSurface: function() {
+		var gfx = this.__getGraphics();
 		var surface = null;
-		if(gfx != null) surface = gfx.nmeSurface;
+		if(gfx != null) surface = gfx.__surface;
 		return surface;
 	}
-	,nmeGetObjectUnderPoint: function(point) {
+	,__getObjectUnderPoint: function(point) {
 		if(!this.get_visible()) return null;
-		var gfx = this.nmeGetGraphics();
+		var gfx = this.__getGraphics();
 		if(gfx != null) {
-			gfx.nmeRender();
-			var extX = gfx.nmeExtent.x;
-			var extY = gfx.nmeExtent.y;
+			gfx.__render();
+			var extX = gfx.__extent.x;
+			var extY = gfx.__extent.y;
 			var local = this.globalToLocal(point);
 			if(local.x - extX <= 0 || local.y - extY <= 0 || (local.x - extX) * this.get_scaleX() > this.get_width() || (local.y - extY) * this.get_scaleY() > this.get_height()) return null;
-			if(gfx.nmeHitTest(local.x,local.y)) return this;
+			if(gfx.__hitTest(local.x,local.y)) return this;
 		}
 		return null;
 	}
-	,nmeGetMatrix: function() {
+	,__getMatrix: function() {
 		return this.transform.get_matrix();
 	}
-	,nmeGetInteractiveObjectStack: function(outStack) {
+	,__getInteractiveObjectStack: function(outStack) {
 		var io = this;
 		if(io != null) outStack.push(io);
-		if(this.parent != null) this.parent.nmeGetInteractiveObjectStack(outStack);
+		if(this.parent != null) this.parent.__getInteractiveObjectStack(outStack);
 	}
-	,nmeGetGraphics: function() {
+	,__getGraphics: function() {
 		return null;
 	}
-	,nmeGetFullMatrix: function(localMatrix) {
-		return this.transform.nmeGetFullMatrix(localMatrix);
+	,__getFullMatrix: function(localMatrix) {
+		return this.transform.__getFullMatrix(localMatrix);
 	}
-	,nmeFireEvent: function(event) {
+	,__fireEvent: function(event) {
 		var stack = [];
-		if(this.parent != null) this.parent.nmeGetInteractiveObjectStack(stack);
+		if(this.parent != null) this.parent.__getInteractiveObjectStack(stack);
 		var l = stack.length;
 		if(l > 0) {
-			event.nmeSetPhase(flash.events.EventPhase.CAPTURING_PHASE);
+			event.__setPhase(flash.events.EventPhase.CAPTURING_PHASE);
 			stack.reverse();
 			var _g = 0;
 			while(_g < stack.length) {
 				var obj = stack[_g];
 				++_g;
 				event.currentTarget = obj;
-				obj.nmeDispatchEvent(event);
-				if(event.nmeGetIsCancelled()) return;
+				obj.__dispatchEvent(event);
+				if(event.__getIsCancelled()) return;
 			}
 		}
-		event.nmeSetPhase(flash.events.EventPhase.AT_TARGET);
+		event.__setPhase(flash.events.EventPhase.AT_TARGET);
 		event.currentTarget = this;
-		this.nmeDispatchEvent(event);
-		if(event.nmeGetIsCancelled()) return;
+		this.__dispatchEvent(event);
+		if(event.__getIsCancelled()) return;
 		if(event.bubbles) {
-			event.nmeSetPhase(flash.events.EventPhase.BUBBLING_PHASE);
+			event.__setPhase(flash.events.EventPhase.BUBBLING_PHASE);
 			stack.reverse();
 			var _g = 0;
 			while(_g < stack.length) {
 				var obj = stack[_g];
 				++_g;
 				event.currentTarget = obj;
-				obj.nmeDispatchEvent(event);
-				if(event.nmeGetIsCancelled()) return;
+				obj.__dispatchEvent(event);
+				if(event.__getIsCancelled()) return;
 			}
 		}
 	}
-	,nmeDispatchEvent: function(event) {
+	,__dispatchEvent: function(event) {
 		if(event.target == null) event.target = this;
 		event.currentTarget = this;
 		return flash.events.EventDispatcher.prototype.dispatchEvent.call(this,event);
 	}
-	,nmeClearFlag: function(mask) {
-		this._nmeRenderFlags &= ~mask;
+	,__contains: function(child) {
+		return false;
 	}
-	,nmeBroadcast: function(event) {
-		this.nmeDispatchEvent(event);
+	,__clearFlag: function(mask) {
+		this.___renderFlags &= ~mask;
 	}
-	,nmeApplyFilters: function(surface) {
-		if(this.nmeFilters != null) {
-			var _g = 0, _g1 = this.nmeFilters;
+	,__broadcast: function(event) {
+		this.__dispatchEvent(event);
+	}
+	,__applyFilters: function(surface) {
+		if(this.__filters != null) {
+			var _g = 0, _g1 = this.__filters;
 			while(_g < _g1.length) {
 				var filter = _g1[_g];
 				++_g;
-				filter.nmeApplyFilter(surface);
+				filter.__applyFilter(surface);
 			}
 		}
 	}
-	,nmeAddToStage: function(newParent,beforeSibling) {
-		var gfx = this.nmeGetGraphics();
+	,__addToStage: function(newParent,beforeSibling) {
+		var gfx = this.__getGraphics();
 		if(gfx == null) return;
-		if(newParent.nmeGetGraphics() != null) {
-			flash.Lib.nmeSetSurfaceId(gfx.nmeSurface,this._nmeId);
-			if(beforeSibling != null && beforeSibling.nmeGetGraphics() != null) flash.Lib.nmeAppendSurface(gfx.nmeSurface,beforeSibling.get__bottommostSurface()); else {
+		if(newParent.__getGraphics() != null) {
+			flash.Lib.__setSurfaceId(gfx.__surface,this.___id);
+			if(beforeSibling != null && beforeSibling.__getGraphics() != null) flash.Lib.__appendSurface(gfx.__surface,beforeSibling.get__bottommostSurface()); else {
 				var stageChildren = [];
-				var _g = 0, _g1 = newParent.nmeChildren;
+				var _g = 0, _g1 = newParent.__children;
 				while(_g < _g1.length) {
 					var child = _g1[_g];
 					++_g;
 					if(child.get_stage() != null) stageChildren.push(child);
 				}
-				if(stageChildren.length < 1) flash.Lib.nmeAppendSurface(gfx.nmeSurface,null,newParent.get__topmostSurface()); else {
+				if(stageChildren.length < 1) flash.Lib.__appendSurface(gfx.__surface,null,newParent.get__topmostSurface()); else {
 					var nextSibling = stageChildren[stageChildren.length - 1];
 					var container;
 					while(js.Boot.__instanceof(nextSibling,flash.display.DisplayObjectContainer)) {
 						container = js.Boot.__cast(nextSibling , flash.display.DisplayObjectContainer);
-						if(container.nmeChildren.length > 0) nextSibling = container.nmeChildren[container.nmeChildren.length - 1]; else break;
+						if(container.__children.length > 0) nextSibling = container.__children[container.__children.length - 1]; else break;
 					}
-					if(nextSibling.nmeGetGraphics() != gfx) flash.Lib.nmeAppendSurface(gfx.nmeSurface,null,nextSibling.get__topmostSurface()); else flash.Lib.nmeAppendSurface(gfx.nmeSurface);
+					if(nextSibling.__getGraphics() != gfx) flash.Lib.__appendSurface(gfx.__surface,null,nextSibling.get__topmostSurface()); else flash.Lib.__appendSurface(gfx.__surface);
 				}
 			}
-			flash.Lib.nmeSetSurfaceTransform(gfx.nmeSurface,this.getSurfaceTransform(gfx));
-		} else if(newParent.name == "Stage") flash.Lib.nmeAppendSurface(gfx.nmeSurface);
-		if(this.nmeIsOnStage()) {
-			this.nmeSrUpdateDivs();
+			flash.Lib.__setSurfaceTransform(gfx.__surface,this.getSurfaceTransform(gfx));
+		} else if(newParent.name == "Stage") flash.Lib.__appendSurface(gfx.__surface);
+		if(this.__isOnStage()) {
+			this.__srUpdateDivs();
 			var evt = new flash.events.Event(flash.events.Event.ADDED_TO_STAGE,false,false);
 			this.dispatchEvent(evt);
 		}
 	}
+	,validateBounds: function() {
+		if(this.get__boundsInvalid()) {
+			var gfx = this.__getGraphics();
+			if(gfx == null) {
+				this.__boundsRect.x = this.get_x();
+				this.__boundsRect.y = this.get_y();
+				this.__boundsRect.width = 0;
+				this.__boundsRect.height = 0;
+			} else {
+				this.__boundsRect = gfx.__extent.clone();
+				if(this.scale9Grid != null) {
+					this.__boundsRect.width *= this.__scaleX;
+					this.__boundsRect.height *= this.__scaleY;
+					this.__width = this.__boundsRect.width;
+					this.__height = this.__boundsRect.height;
+				} else {
+					this.__width = this.__boundsRect.width * this.__scaleX;
+					this.__height = this.__boundsRect.height * this.__scaleY;
+				}
+				gfx.boundsDirty = false;
+			}
+			this.___renderFlags &= -65;
+		}
+	}
+	,toString: function() {
+		return "[DisplayObject name=" + this.name + " id=" + this.___id + "]";
+	}
+	,setSurfaceVisible: function(inValue) {
+		var gfx = this.__getGraphics();
+		if(gfx != null && gfx.__surface != null) flash.Lib.__setSurfaceVisible(gfx.__surface,inValue);
+	}
 	,localToGlobal: function(point) {
-		if((this._nmeRenderFlags & 4) != 0 || (this._nmeRenderFlags & 8) != 0) this.nmeValidateMatrix();
-		return this.transform.nmeGetFullMatrix(null).transformPoint(point);
+		if((this.___renderFlags & 4) != 0 || (this.___renderFlags & 8) != 0) this.__validateMatrix();
+		return this.transform.__getFullMatrix(null).transformPoint(point);
 	}
 	,invalidateGraphics: function() {
-		var gfx = this.nmeGetGraphics();
+		var gfx = this.__getGraphics();
 		if(gfx != null) {
-			gfx.nmeChanged = true;
-			gfx.nmeClearNextCycle = true;
+			gfx.__changed = true;
+			gfx.__clearNextCycle = true;
 		}
 	}
 	,hitTestPoint: function(x,y,shapeFlag) {
 		if(shapeFlag == null) shapeFlag = false;
 		var boundingBox = shapeFlag == null?true:!shapeFlag;
-		if(!boundingBox) return this.nmeGetObjectUnderPoint(new flash.geom.Point(x,y)) != null; else {
-			var gfx = this.nmeGetGraphics();
+		if(!boundingBox) return this.__getObjectUnderPoint(new flash.geom.Point(x,y)) != null; else {
+			var gfx = this.__getGraphics();
 			if(gfx != null) {
-				var extX = gfx.nmeExtent.x;
-				var extY = gfx.nmeExtent.y;
+				var extX = gfx.__extent.x;
+				var extY = gfx.__extent.y;
 				var local = this.globalToLocal(new flash.geom.Point(x,y));
 				if(local.x - extX < 0 || local.y - extY < 0 || (local.x - extX) * this.get_scaleX() > this.get_width() || (local.y - extY) * this.get_scaleY() > this.get_height()) return false; else return true;
 			}
@@ -761,73 +769,73 @@ flash.display.DisplayObject.prototype = $extend(flash.events.EventDispatcher.pro
 		return false;
 	}
 	,handleGraphicsUpdated: function(gfx) {
-		this._nmeRenderFlags |= 64;
-		if(this.parent != null) this.parent._nmeRenderFlags |= 64;
-		this.nmeApplyFilters(gfx.nmeSurface);
-		this._nmeRenderFlags |= 32;
+		this.___renderFlags |= 64;
+		if(this.parent != null) this.parent.___renderFlags |= 64;
+		this.__applyFilters(gfx.__surface);
+		this.___renderFlags |= 32;
 	}
 	,globalToLocal: function(inPos) {
-		if((this._nmeRenderFlags & 4) != 0 || (this._nmeRenderFlags & 8) != 0) this.nmeValidateMatrix();
-		return this.transform.nmeGetFullMatrix(null).invert().transformPoint(inPos);
+		if((this.___renderFlags & 4) != 0 || (this.___renderFlags & 8) != 0) this.__validateMatrix();
+		return this.transform.__getFullMatrix(null).invert().transformPoint(inPos);
 	}
 	,getSurfaceTransform: function(gfx) {
-		var extent = gfx.nmeExtentWithFilters;
-		var fm = this.transform.nmeGetFullMatrix(null);
-		fm.nmeTranslateTransformed(extent.get_topLeft());
+		var extent = gfx.__extentWithFilters;
+		var fm = this.transform.__getFullMatrix(null);
+		fm.__translateTransformed(extent.get_topLeft());
 		return fm;
 	}
 	,getScreenBounds: function() {
 		if(this.get__boundsInvalid()) this.validateBounds();
-		return this.nmeBoundsRect.clone();
+		return this.__boundsRect.clone();
 	}
 	,getRect: function(targetCoordinateSpace) {
 		return this.getBounds(targetCoordinateSpace);
 	}
 	,getBounds: function(targetCoordinateSpace) {
-		if((this._nmeRenderFlags & 4) != 0 || (this._nmeRenderFlags & 8) != 0) this.nmeValidateMatrix();
+		if((this.___renderFlags & 4) != 0 || (this.___renderFlags & 8) != 0) this.__validateMatrix();
 		if(this.get__boundsInvalid()) this.validateBounds();
-		var m = this.transform.nmeGetFullMatrix(null);
-		if(targetCoordinateSpace != null) m.concat(targetCoordinateSpace.transform.nmeGetFullMatrix(null).invert());
-		var rect = this.nmeBoundsRect.transform(m);
+		var m = this.transform.__getFullMatrix(null);
+		if(targetCoordinateSpace != null) m.concat(targetCoordinateSpace.transform.__getFullMatrix(null).invert());
+		var rect = this.__boundsRect.transform(m);
 		return rect;
 	}
 	,drawToSurface: function(inSurface,matrix,inColorTransform,blendMode,clipRect,smoothing) {
 		var oldAlpha = this.alpha;
 		this.alpha = 1;
-		this.nmeRender(inSurface,clipRect);
+		this.__render(inSurface,clipRect);
 		this.alpha = oldAlpha;
 	}
 	,dispatchEvent: function(event) {
-		var result = this.nmeDispatchEvent(event);
-		if(event.nmeGetIsCancelled()) return true;
+		var result = this.__dispatchEvent(event);
+		if(event.__getIsCancelled()) return true;
 		if(event.bubbles && this.parent != null) this.parent.dispatchEvent(event);
 		return result;
 	}
 	,_srAxes: null
 	,_srWindow: null
 	,_topmostSurface: null
-	,_nmeRenderFlags: null
-	,_nmeId: null
+	,___renderFlags: null
+	,___id: null
 	,_fullScaleY: null
 	,_fullScaleX: null
 	,_bottommostSurface: null
-	,nmeY: null
-	,nmeX: null
-	,nmeWidth: null
-	,nmeVisible: null
-	,nmeScrollRect: null
-	,nmeScaleY: null
-	,nmeScaleX: null
-	,nmeRotation: null
-	,nmeMaskingObj: null
-	,nmeMask: null
-	,nmeHeight: null
-	,nmeFilters: null
-	,nmeBoundsRect: null
+	,__y: null
+	,__x: null
+	,__width: null
+	,__visible: null
+	,__scrollRect: null
+	,__scaleY: null
+	,__scaleX: null
+	,__rotation: null
+	,__maskingObj: null
+	,__mask: null
+	,__height: null
+	,__filters: null
+	,__boundsRect: null
+	,__combinedVisible: null
 	,transform: null
 	,scale9Grid: null
 	,parent: null
-	,nmeCombinedVisible: null
 	,name: null
 	,loaderInfo: null
 	,cacheAsBitmap: null
@@ -835,7 +843,7 @@ flash.display.DisplayObject.prototype = $extend(flash.events.EventDispatcher.pro
 	,alpha: null
 	,accessibilityProperties: null
 	,__class__: flash.display.DisplayObject
-	,__properties__: {set_filters:"set_filters",get_filters:"get_filters",set_height:"set_height",get_height:"get_height",set_mask:"set_mask",get_mask:"get_mask",get_mouseX:"get_mouseX",get_mouseY:"get_mouseY",set_nmeCombinedVisible:"set_nmeCombinedVisible",set_parent:"set_parent",set_rotation:"set_rotation",get_rotation:"get_rotation",set_scaleX:"set_scaleX",get_scaleX:"get_scaleX",set_scaleY:"set_scaleY",get_scaleY:"get_scaleY",set_scrollRect:"set_scrollRect",get_scrollRect:"get_scrollRect",get_stage:"get_stage",set_transform:"set_transform",set_visible:"set_visible",get_visible:"get_visible",set_width:"set_width",get_width:"get_width",set_x:"set_x",get_x:"get_x",set_y:"set_y",get_y:"get_y",get__bottommostSurface:"get__bottommostSurface",get__boundsInvalid:"get__boundsInvalid",get__matrixChainInvalid:"get__matrixChainInvalid",get__matrixInvalid:"get__matrixInvalid",get__topmostSurface:"get__topmostSurface"}
+	,__properties__: {set_filters:"set_filters",get_filters:"get_filters",set_height:"set_height",get_height:"get_height",set_mask:"set_mask",get_mask:"get_mask",get_mouseX:"get_mouseX",get_mouseY:"get_mouseY",set_parent:"set_parent",set_rotation:"set_rotation",get_rotation:"get_rotation",set_scaleX:"set_scaleX",get_scaleX:"get_scaleX",set_scaleY:"set_scaleY",get_scaleY:"get_scaleY",set_scrollRect:"set_scrollRect",get_scrollRect:"get_scrollRect",get_stage:"get_stage",set_transform:"set_transform",set_visible:"set_visible",get_visible:"get_visible",set_width:"set_width",get_width:"get_width",set_x:"set_x",get_x:"get_x",set_y:"set_y",get_y:"get_y",set___combinedVisible:"set___combinedVisible",get__bottommostSurface:"get__bottommostSurface",get__boundsInvalid:"get__boundsInvalid",get__matrixChainInvalid:"get__matrixChainInvalid",get__matrixInvalid:"get__matrixInvalid",get__topmostSurface:"get__topmostSurface"}
 });
 flash.display.InteractiveObject = function() {
 	flash.display.DisplayObject.call(this);
@@ -849,19 +857,19 @@ flash.display.InteractiveObject.__name__ = ["flash","display","InteractiveObject
 flash.display.InteractiveObject.__super__ = flash.display.DisplayObject;
 flash.display.InteractiveObject.prototype = $extend(flash.display.DisplayObject.prototype,{
 	set_tabIndex: function(inIndex) {
-		return this.nmeTabIndex = inIndex;
+		return this.__tabIndex = inIndex;
 	}
 	,get_tabIndex: function() {
-		return this.nmeTabIndex;
+		return this.__tabIndex;
+	}
+	,__getObjectUnderPoint: function(point) {
+		if(!this.mouseEnabled) return null; else return flash.display.DisplayObject.prototype.__getObjectUnderPoint.call(this,point);
 	}
 	,toString: function() {
-		return "[InteractiveObject name=" + this.name + " id=" + this._nmeId + "]";
+		return "[InteractiveObject name=" + this.name + " id=" + this.___id + "]";
 	}
-	,nmeGetObjectUnderPoint: function(point) {
-		if(!this.mouseEnabled) return null; else return flash.display.DisplayObject.prototype.nmeGetObjectUnderPoint.call(this,point);
-	}
-	,nmeTabIndex: null
-	,nmeDoubleClickEnabled: null
+	,__tabIndex: null
+	,__doubleClickEnabled: null
 	,tabEnabled: null
 	,mouseEnabled: null
 	,focusRect: null
@@ -870,11 +878,11 @@ flash.display.InteractiveObject.prototype = $extend(flash.display.DisplayObject.
 	,__properties__: $extend(flash.display.DisplayObject.prototype.__properties__,{set_tabIndex:"set_tabIndex",get_tabIndex:"get_tabIndex"})
 });
 flash.display.DisplayObjectContainer = function() {
-	this.nmeChildren = new Array();
+	this.__children = new Array();
 	this.mouseChildren = true;
 	this.tabChildren = true;
 	flash.display.InteractiveObject.call(this);
-	this.nmeCombinedAlpha = this.alpha;
+	this.__combinedAlpha = this.alpha;
 };
 $hxClasses["flash.display.DisplayObjectContainer"] = flash.display.DisplayObjectContainer;
 flash.display.DisplayObjectContainer.__name__ = ["flash","display","DisplayObjectContainer"];
@@ -882,30 +890,30 @@ flash.display.DisplayObjectContainer.__super__ = flash.display.InteractiveObject
 flash.display.DisplayObjectContainer.prototype = $extend(flash.display.InteractiveObject.prototype,{
 	set_scrollRect: function(inValue) {
 		inValue = flash.display.InteractiveObject.prototype.set_scrollRect.call(this,inValue);
-		this.nmeUnifyChildrenWithDOM();
+		this.__unifyChildrenWithDOM();
 		return inValue;
 	}
 	,set_visible: function(inVal) {
-		this.set_nmeCombinedVisible(inVal);
+		this.set___combinedVisible(this.parent != null?this.parent.__combinedVisible && inVal:inVal);
 		return flash.display.InteractiveObject.prototype.set_visible.call(this,inVal);
 	}
 	,get_numChildren: function() {
-		return this.nmeChildren.length;
+		return this.__children.length;
 	}
-	,set_nmeCombinedVisible: function(inVal) {
-		if(inVal != this.nmeCombinedVisible) {
-			var _g = 0, _g1 = this.nmeChildren;
+	,set___combinedVisible: function(inVal) {
+		if(inVal != this.__combinedVisible) {
+			var _g = 0, _g1 = this.__children;
 			while(_g < _g1.length) {
 				var child = _g1[_g];
 				++_g;
-				child.set_nmeCombinedVisible(child.get_visible() && inVal);
+				child.set___combinedVisible(child.get_visible() && inVal);
 			}
 		}
-		return flash.display.InteractiveObject.prototype.set_nmeCombinedVisible.call(this,inVal);
+		return flash.display.InteractiveObject.prototype.set___combinedVisible.call(this,inVal);
 	}
 	,set_filters: function(filters) {
 		flash.display.InteractiveObject.prototype.set_filters.call(this,filters);
-		var _g = 0, _g1 = this.nmeChildren;
+		var _g = 0, _g1 = this.__children;
 		while(_g < _g1.length) {
 			var child = _g1[_g];
 			++_g;
@@ -913,230 +921,249 @@ flash.display.DisplayObjectContainer.prototype = $extend(flash.display.Interacti
 		}
 		return filters;
 	}
+	,__unifyChildrenWithDOM: function(lastMoveObj) {
+		var obj = flash.display.InteractiveObject.prototype.__unifyChildrenWithDOM.call(this,lastMoveObj);
+		var _g = 0, _g1 = this.__children;
+		while(_g < _g1.length) {
+			var child = _g1[_g];
+			++_g;
+			obj = child.__unifyChildrenWithDOM(obj);
+			if(child.get_scrollRect() != null) obj = child;
+		}
+		return obj;
+	}
+	,__swapSurface: function(c1,c2) {
+		if(this.__children[c1] == null) throw "Null element at index " + c1 + " length " + this.__children.length;
+		if(this.__children[c2] == null) throw "Null element at index " + c2 + " length " + this.__children.length;
+		var gfx1 = this.__children[c1].__getGraphics();
+		var gfx2 = this.__children[c2].__getGraphics();
+		if(gfx1 != null && gfx2 != null) {
+			var surface1 = this.__children[c1].__scrollRect == null?gfx1.__surface:this.__children[c1].__getSrWindow();
+			var surface2 = this.__children[c2].__scrollRect == null?gfx2.__surface:this.__children[c2].__getSrWindow();
+			if(surface1 != null && surface2 != null) flash.Lib.__swapSurface(surface1,surface2);
+		}
+	}
+	,__render: function(inMask,clipRect) {
+		if(!this.__visible) return;
+		if(clipRect == null && this.__scrollRect != null) clipRect = this.__scrollRect;
+		flash.display.InteractiveObject.prototype.__render.call(this,inMask,clipRect);
+		this.__combinedAlpha = this.parent != null?this.parent.__combinedAlpha * this.alpha:this.alpha;
+		var _g = 0, _g1 = this.__children;
+		while(_g < _g1.length) {
+			var child = _g1[_g];
+			++_g;
+			if(child.__visible) {
+				if(clipRect != null) {
+					if((child.___renderFlags & 4) != 0 || (child.___renderFlags & 8) != 0) child.__validateMatrix();
+				}
+				child.__render(inMask,clipRect);
+			}
+		}
+		if(this.__addedChildren) {
+			this.__unifyChildrenWithDOM();
+			this.__addedChildren = false;
+		}
+	}
+	,__removeFromStage: function() {
+		flash.display.InteractiveObject.prototype.__removeFromStage.call(this);
+		var _g = 0, _g1 = this.__children;
+		while(_g < _g1.length) {
+			var child = _g1[_g];
+			++_g;
+			child.__removeFromStage();
+		}
+	}
+	,__removeChild: function(child) {
+		HxOverrides.remove(this.__children,child);
+		child.__removeFromStage();
+		child.set_parent(null);
+		if(this.getChildIndex(child) >= 0) throw "Not removed properly";
+		return child;
+	}
+	,__invalidateMatrix: function(local) {
+		if(local == null) local = false;
+		if(!((this.___renderFlags & 8) != 0) && !((this.___renderFlags & 4) != 0)) {
+			var _g = 0, _g1 = this.__children;
+			while(_g < _g1.length) {
+				var child = _g1[_g];
+				++_g;
+				child.__invalidateMatrix();
+			}
+		}
+		flash.display.InteractiveObject.prototype.__invalidateMatrix.call(this,local);
+	}
+	,__getObjectsUnderPoint: function(point,stack) {
+		var l = this.__children.length - 1;
+		var _g1 = 0, _g = this.__children.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			var result = this.__children[l - i].__getObjectUnderPoint(point);
+			if(result != null) stack.push(result);
+		}
+	}
+	,__getObjectUnderPoint: function(point) {
+		if(!this.get_visible()) return null;
+		var l = this.__children.length - 1;
+		var _g1 = 0, _g = this.__children.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			var result = null;
+			if(this.mouseEnabled) result = this.__children[l - i].__getObjectUnderPoint(point);
+			if(result != null) return this.mouseChildren?result:this;
+		}
+		return flash.display.InteractiveObject.prototype.__getObjectUnderPoint.call(this,point);
+	}
+	,__contains: function(child) {
+		if(child == null) return false;
+		if(this == child) return true;
+		var _g = 0, _g1 = this.__children;
+		while(_g < _g1.length) {
+			var c = _g1[_g];
+			++_g;
+			if(c == child || c.__contains(child)) return true;
+		}
+		return false;
+	}
+	,__broadcast: function(event) {
+		var _g = 0, _g1 = this.__children;
+		while(_g < _g1.length) {
+			var child = _g1[_g];
+			++_g;
+			child.__broadcast(event);
+		}
+		this.dispatchEvent(event);
+	}
+	,__addToStage: function(newParent,beforeSibling) {
+		flash.display.InteractiveObject.prototype.__addToStage.call(this,newParent,beforeSibling);
+		var _g = 0, _g1 = this.__children;
+		while(_g < _g1.length) {
+			var child = _g1[_g];
+			++_g;
+			if(child.__getGraphics() == null || !child.__isOnStage()) child.__addToStage(this);
+		}
+	}
 	,validateBounds: function() {
 		if(this.get__boundsInvalid()) {
 			flash.display.InteractiveObject.prototype.validateBounds.call(this);
-			var _g = 0, _g1 = this.nmeChildren;
+			var _g = 0, _g1 = this.__children;
 			while(_g < _g1.length) {
 				var obj = _g1[_g];
 				++_g;
 				if(obj.get_visible()) {
 					var r = obj.getBounds(this);
 					if(r.width != 0 || r.height != 0) {
-						if(this.nmeBoundsRect.width == 0 && this.nmeBoundsRect.height == 0) this.nmeBoundsRect = r.clone(); else this.nmeBoundsRect.extendBounds(r);
+						if(this.__boundsRect.width == 0 && this.__boundsRect.height == 0) this.__boundsRect = r.clone(); else this.__boundsRect.extendBounds(r);
 					}
 				}
 			}
 			if(this.scale9Grid != null) {
-				this.nmeBoundsRect.width *= this.nmeScaleX;
-				this.nmeBoundsRect.height *= this.nmeScaleY;
-				this.nmeWidth = this.nmeBoundsRect.width;
-				this.nmeHeight = this.nmeBoundsRect.height;
+				this.__boundsRect.width *= this.__scaleX;
+				this.__boundsRect.height *= this.__scaleY;
+				this.__width = this.__boundsRect.width;
+				this.__height = this.__boundsRect.height;
 			} else {
-				this.nmeWidth = this.nmeBoundsRect.width * this.nmeScaleX;
-				this.nmeHeight = this.nmeBoundsRect.height * this.nmeScaleY;
+				this.__width = this.__boundsRect.width * this.__scaleX;
+				this.__height = this.__boundsRect.height * this.__scaleY;
 			}
 		}
 	}
 	,toString: function() {
-		return "[DisplayObjectContainer name=" + this.name + " id=" + this._nmeId + "]";
+		return "[DisplayObjectContainer name=" + this.name + " id=" + this.___id + "]";
 	}
 	,swapChildrenAt: function(child1,child2) {
-		var swap = this.nmeChildren[child1];
-		this.nmeChildren[child1] = this.nmeChildren[child2];
-		this.nmeChildren[child2] = swap;
+		var swap = this.__children[child1];
+		this.__children[child1] = this.__children[child2];
+		this.__children[child2] = swap;
 		swap = null;
 	}
 	,swapChildren: function(child1,child2) {
 		var c1 = -1;
 		var c2 = -1;
 		var swap;
-		var _g1 = 0, _g = this.nmeChildren.length;
+		var _g1 = 0, _g = this.__children.length;
 		while(_g1 < _g) {
 			var i = _g1++;
-			if(this.nmeChildren[i] == child1) c1 = i; else if(this.nmeChildren[i] == child2) c2 = i;
+			if(this.__children[i] == child1) c1 = i; else if(this.__children[i] == child2) c2 = i;
 		}
 		if(c1 != -1 && c2 != -1) {
-			swap = this.nmeChildren[c1];
-			this.nmeChildren[c1] = this.nmeChildren[c2];
-			this.nmeChildren[c2] = swap;
+			swap = this.__children[c1];
+			this.__children[c1] = this.__children[c2];
+			this.__children[c2] = swap;
 			swap = null;
-			this.nmeSwapSurface(c1,c2);
-			child1.nmeUnifyChildrenWithDOM();
-			child2.nmeUnifyChildrenWithDOM();
+			this.__swapSurface(c1,c2);
+			child1.__unifyChildrenWithDOM();
+			child2.__unifyChildrenWithDOM();
 		}
 	}
 	,setChildIndex: function(child,index) {
-		if(index > this.nmeChildren.length) throw "Invalid index position " + index;
+		if(index > this.__children.length) throw "Invalid index position " + index;
 		var oldIndex = this.getChildIndex(child);
 		if(oldIndex < 0) {
 			var msg = "setChildIndex : object " + child.name + " not found.";
 			if(child.parent == this) {
 				var realindex = -1;
-				var _g1 = 0, _g = this.nmeChildren.length;
+				var _g1 = 0, _g = this.__children.length;
 				while(_g1 < _g) {
 					var i = _g1++;
-					if(this.nmeChildren[i] == child) {
+					if(this.__children[i] == child) {
 						realindex = i;
 						break;
 					}
 				}
-				if(realindex != -1) msg += "Internal error: Real child index was " + Std.string(realindex); else msg += "Internal error: Child was not in nmeChildren array!";
+				if(realindex != -1) msg += "Internal error: Real child index was " + Std.string(realindex); else msg += "Internal error: Child was not in __children array!";
 			}
 			throw msg;
 		}
 		if(index < oldIndex) {
 			var i = oldIndex;
 			while(i > index) {
-				this.swapChildren(this.nmeChildren[i],this.nmeChildren[i - 1]);
+				this.swapChildren(this.__children[i],this.__children[i - 1]);
 				i--;
 			}
 		} else if(oldIndex < index) {
 			var i = oldIndex;
 			while(i < index) {
-				this.swapChildren(this.nmeChildren[i],this.nmeChildren[i + 1]);
+				this.swapChildren(this.__children[i],this.__children[i + 1]);
 				i++;
 			}
 		}
 	}
 	,removeChildAt: function(index) {
-		if(index >= 0 && index < this.nmeChildren.length) return this.nmeRemoveChild(this.nmeChildren[index]);
+		if(index >= 0 && index < this.__children.length) return this.__removeChild(this.__children[index]);
 		throw "removeChildAt(" + index + ") : none found?";
 	}
 	,removeChild: function(inChild) {
-		var _g = 0, _g1 = this.nmeChildren;
+		var _g = 0, _g1 = this.__children;
 		while(_g < _g1.length) {
 			var child = _g1[_g];
 			++_g;
 			if(child == inChild) return (function($this) {
 				var $r;
-				child.nmeRemoveFromStage();
+				HxOverrides.remove($this.__children,child);
+				child.__removeFromStage();
 				child.set_parent(null);
+				if($this.getChildIndex(child) >= 0) throw "Not removed properly";
 				$r = child;
 				return $r;
 			}(this));
 		}
 		throw "removeChild : none found?";
 	}
-	,nmeUnifyChildrenWithDOM: function(lastMoveObj) {
-		var obj = flash.display.InteractiveObject.prototype.nmeUnifyChildrenWithDOM.call(this,lastMoveObj);
-		var _g = 0, _g1 = this.nmeChildren;
-		while(_g < _g1.length) {
-			var child = _g1[_g];
-			++_g;
-			obj = child.nmeUnifyChildrenWithDOM(obj);
-			if(child.get_scrollRect() != null) obj = child;
-		}
-		return obj;
-	}
-	,nmeSwapSurface: function(c1,c2) {
-		if(this.nmeChildren[c1] == null) throw "Null element at index " + c1 + " length " + this.nmeChildren.length;
-		if(this.nmeChildren[c2] == null) throw "Null element at index " + c2 + " length " + this.nmeChildren.length;
-		var gfx1 = this.nmeChildren[c1].nmeGetGraphics();
-		var gfx2 = this.nmeChildren[c2].nmeGetGraphics();
-		if(gfx1 != null && gfx2 != null) flash.Lib.nmeSwapSurface(this.nmeChildren[c1].nmeScrollRect == null?gfx1.nmeSurface:this.nmeChildren[c1].nmeGetSrWindow(),this.nmeChildren[c2].nmeScrollRect == null?gfx2.nmeSurface:this.nmeChildren[c2].nmeGetSrWindow());
-	}
-	,nmeRender: function(inMask,clipRect) {
-		if(!this.nmeVisible) return;
-		if(clipRect == null && this.nmeScrollRect != null) clipRect = this.nmeScrollRect;
-		flash.display.InteractiveObject.prototype.nmeRender.call(this,inMask,clipRect);
-		this.nmeCombinedAlpha = this.parent != null?this.parent.nmeCombinedAlpha * this.alpha:this.alpha;
-		var _g = 0, _g1 = this.nmeChildren;
-		while(_g < _g1.length) {
-			var child = _g1[_g];
-			++_g;
-			if(child.nmeVisible) {
-				if(clipRect != null) {
-					if((child._nmeRenderFlags & 4) != 0 || (child._nmeRenderFlags & 8) != 0) child.nmeValidateMatrix();
-				}
-				child.nmeRender(inMask,clipRect);
-			}
-		}
-		if(this.nmeAddedChildren) {
-			this.nmeUnifyChildrenWithDOM();
-			this.nmeAddedChildren = false;
-		}
-	}
-	,nmeRemoveFromStage: function() {
-		flash.display.InteractiveObject.prototype.nmeRemoveFromStage.call(this);
-		var _g = 0, _g1 = this.nmeChildren;
-		while(_g < _g1.length) {
-			var child = _g1[_g];
-			++_g;
-			child.nmeRemoveFromStage();
-		}
-	}
-	,nmeRemoveChild: function(child) {
-		child.nmeRemoveFromStage();
-		child.set_parent(null);
-		return child;
-	}
-	,nmeInvalidateMatrix: function(local) {
-		if(local == null) local = false;
-		if(!((this._nmeRenderFlags & 8) != 0) && !((this._nmeRenderFlags & 4) != 0)) {
-			var _g = 0, _g1 = this.nmeChildren;
-			while(_g < _g1.length) {
-				var child = _g1[_g];
-				++_g;
-				child.nmeInvalidateMatrix();
-			}
-		}
-		flash.display.InteractiveObject.prototype.nmeInvalidateMatrix.call(this,local);
-	}
-	,nmeGetObjectsUnderPoint: function(point,stack) {
-		var l = this.nmeChildren.length - 1;
-		var _g1 = 0, _g = this.nmeChildren.length;
-		while(_g1 < _g) {
-			var i = _g1++;
-			var result = this.nmeChildren[l - i].nmeGetObjectUnderPoint(point);
-			if(result != null) stack.push(result);
-		}
-	}
-	,nmeGetObjectUnderPoint: function(point) {
-		if(!this.get_visible()) return null;
-		var l = this.nmeChildren.length - 1;
-		var _g1 = 0, _g = this.nmeChildren.length;
-		while(_g1 < _g) {
-			var i = _g1++;
-			var result = null;
-			if(this.mouseEnabled) result = this.nmeChildren[l - i].nmeGetObjectUnderPoint(point);
-			if(result != null) return this.mouseChildren?result:this;
-		}
-		return flash.display.InteractiveObject.prototype.nmeGetObjectUnderPoint.call(this,point);
-	}
-	,nmeBroadcast: function(event) {
-		var _g = 0, _g1 = this.nmeChildren;
-		while(_g < _g1.length) {
-			var child = _g1[_g];
-			++_g;
-			child.nmeBroadcast(event);
-		}
-		this.dispatchEvent(event);
-	}
-	,nmeAddToStage: function(newParent,beforeSibling) {
-		flash.display.InteractiveObject.prototype.nmeAddToStage.call(this,newParent,beforeSibling);
-		var _g = 0, _g1 = this.nmeChildren;
-		while(_g < _g1.length) {
-			var child = _g1[_g];
-			++_g;
-			if(child.nmeGetGraphics() == null || !child.nmeIsOnStage()) child.nmeAddToStage(this);
-		}
-	}
 	,getObjectsUnderPoint: function(point) {
 		var result = new Array();
-		this.nmeGetObjectsUnderPoint(point,result);
+		this.__getObjectsUnderPoint(point,result);
 		return result;
 	}
 	,getChildIndex: function(inChild) {
-		var _g1 = 0, _g = this.nmeChildren.length;
+		var _g1 = 0, _g = this.__children.length;
 		while(_g1 < _g) {
 			var i = _g1++;
-			if(this.nmeChildren[i] == inChild) return i;
+			if(this.__children[i] == inChild) return i;
 		}
 		return -1;
 	}
 	,getChildByName: function(inName) {
-		var _g = 0, _g1 = this.nmeChildren;
+		var _g = 0, _g1 = this.__children;
 		while(_g < _g1.length) {
 			var child = _g1[_g];
 			++_g;
@@ -1145,31 +1172,23 @@ flash.display.DisplayObjectContainer.prototype = $extend(flash.display.Interacti
 		return null;
 	}
 	,getChildAt: function(index) {
-		if(index >= 0 && index < this.nmeChildren.length) return this.nmeChildren[index];
-		throw "getChildAt : index out of bounds " + index + "/" + this.nmeChildren.length;
+		if(index >= 0 && index < this.__children.length) return this.__children[index];
+		throw "getChildAt : index out of bounds " + index + "/" + this.__children.length;
 		return null;
 	}
 	,contains: function(child) {
-		if(child == null) return false;
-		if(this == child) return true;
-		var _g = 0, _g1 = this.nmeChildren;
-		while(_g < _g1.length) {
-			var c = _g1[_g];
-			++_g;
-			if(c == child) return true;
-		}
-		return false;
+		return this.__contains(child);
 	}
 	,addChildAt: function(object,index) {
-		if(index > this.nmeChildren.length || index < 0) throw "Invalid index position " + index;
-		this.nmeAddedChildren = true;
+		if(index > this.__children.length || index < 0) throw "Invalid index position " + index;
+		this.__addedChildren = true;
 		if(object.parent == this) {
 			this.setChildIndex(object,index);
 			return object;
 		}
-		if(index == this.nmeChildren.length) return this.addChild(object); else {
-			if(this.nmeIsOnStage()) object.nmeAddToStage(this,this.nmeChildren[index]);
-			this.nmeChildren.splice(index,0,object);
+		if(index == this.__children.length) return this.addChild(object); else {
+			if(this.__isOnStage()) object.__addToStage(this,this.__children[index]);
+			this.__children.splice(index,0,object);
 			object.set_parent(this);
 		}
 		return object;
@@ -1177,31 +1196,34 @@ flash.display.DisplayObjectContainer.prototype = $extend(flash.display.Interacti
 	,addChild: function(object) {
 		if(object == null) throw "DisplayObjectContainer asked to add null child object";
 		if(object == this) throw "Adding to self";
-		this.nmeAddedChildren = true;
+		this.__addedChildren = true;
 		if(object.parent == this) {
-			this.setChildIndex(object,this.nmeChildren.length - 1);
+			this.setChildIndex(object,this.__children.length - 1);
 			return object;
 		}
+		var _g = 0, _g1 = this.__children;
+		while(_g < _g1.length) {
+			var child = _g1[_g];
+			++_g;
+			if(child == object) throw "Internal error: child already existed at index " + this.getChildIndex(object);
+		}
 		object.set_parent(this);
-		if(this.nmeIsOnStage()) object.nmeAddToStage(this);
-		if(this.nmeChildren == null) this.nmeChildren = new Array();
-		this.nmeChildren.push(object);
+		if(this.__isOnStage()) object.__addToStage(this);
+		if(this.__children == null) this.__children = new Array();
+		this.__children.push(object);
 		return object;
 	}
-	,__removeChild: function(child) {
-		HxOverrides.remove(this.nmeChildren,child);
-	}
-	,nmeAddedChildren: null
+	,__addedChildren: null
+	,__combinedAlpha: null
+	,__children: null
 	,tabChildren: null
-	,nmeCombinedAlpha: null
-	,nmeChildren: null
 	,mouseChildren: null
 	,__class__: flash.display.DisplayObjectContainer
 	,__properties__: $extend(flash.display.InteractiveObject.prototype.__properties__,{get_numChildren:"get_numChildren"})
 });
 flash.display.Sprite = function() {
 	flash.display.DisplayObjectContainer.call(this);
-	this.nmeGraphics = new flash.display.Graphics();
+	this.__graphics = new flash.display.Graphics();
 	this.buttonMode = false;
 };
 $hxClasses["flash.display.Sprite"] = flash.display.Sprite;
@@ -1210,55 +1232,55 @@ flash.display.Sprite.__super__ = flash.display.DisplayObjectContainer;
 flash.display.Sprite.prototype = $extend(flash.display.DisplayObjectContainer.prototype,{
 	set_useHandCursor: function(cursor) {
 		if(cursor == this.useHandCursor) return cursor;
-		if(this.nmeCursorCallbackOver != null) this.removeEventListener(flash.events.MouseEvent.ROLL_OVER,this.nmeCursorCallbackOver);
-		if(this.nmeCursorCallbackOut != null) this.removeEventListener(flash.events.MouseEvent.ROLL_OUT,this.nmeCursorCallbackOut);
-		if(!cursor) flash.Lib.nmeSetCursor(flash._Lib.CursorType.Default); else {
-			this.nmeCursorCallbackOver = function(_) {
-				flash.Lib.nmeSetCursor(flash._Lib.CursorType.Pointer);
+		if(this.__cursorCallbackOver != null) this.removeEventListener(flash.events.MouseEvent.ROLL_OVER,this.__cursorCallbackOver);
+		if(this.__cursorCallbackOut != null) this.removeEventListener(flash.events.MouseEvent.ROLL_OUT,this.__cursorCallbackOut);
+		if(!cursor) flash.Lib.__setCursor(flash._Lib.CursorType.Default); else {
+			this.__cursorCallbackOver = function(_) {
+				flash.Lib.__setCursor(flash._Lib.CursorType.Pointer);
 			};
-			this.nmeCursorCallbackOut = function(_) {
-				flash.Lib.nmeSetCursor(flash._Lib.CursorType.Default);
+			this.__cursorCallbackOut = function(_) {
+				flash.Lib.__setCursor(flash._Lib.CursorType.Default);
 			};
-			this.addEventListener(flash.events.MouseEvent.ROLL_OVER,this.nmeCursorCallbackOver);
-			this.addEventListener(flash.events.MouseEvent.ROLL_OUT,this.nmeCursorCallbackOut);
+			this.addEventListener(flash.events.MouseEvent.ROLL_OVER,this.__cursorCallbackOver);
+			this.addEventListener(flash.events.MouseEvent.ROLL_OUT,this.__cursorCallbackOut);
 		}
 		this.useHandCursor = cursor;
 		return cursor;
 	}
 	,get_graphics: function() {
-		return this.nmeGraphics;
+		return this.__graphics;
 	}
 	,get_dropTarget: function() {
-		return this.nmeDropTarget;
+		return this.__dropTarget;
+	}
+	,__getGraphics: function() {
+		return this.__graphics;
 	}
 	,toString: function() {
-		return "[Sprite name=" + this.name + " id=" + this._nmeId + "]";
+		return "[Sprite name=" + this.name + " id=" + this.___id + "]";
 	}
 	,stopDrag: function() {
-		if(this.nmeIsOnStage()) {
-			this.get_stage().nmeStopDrag(this);
-			var l = this.parent.nmeChildren.length - 1;
+		if(this.__isOnStage()) {
+			this.get_stage().__stopDrag(this);
+			var l = this.parent.__children.length - 1;
 			var obj = this.get_stage();
-			var _g1 = 0, _g = this.parent.nmeChildren.length;
+			var _g1 = 0, _g = this.parent.__children.length;
 			while(_g1 < _g) {
 				var i = _g1++;
-				var result = this.parent.nmeChildren[l - i].nmeGetObjectUnderPoint(new flash.geom.Point(this.get_stage().get_mouseX(),this.get_stage().get_mouseY()));
+				var result = this.parent.__children[l - i].__getObjectUnderPoint(new flash.geom.Point(this.get_stage().get_mouseX(),this.get_stage().get_mouseY()));
 				if(result != null) obj = result;
 			}
-			if(obj != this) this.nmeDropTarget = obj; else this.nmeDropTarget = this.get_stage();
+			if(obj != this) this.__dropTarget = obj; else this.__dropTarget = this.get_stage();
 		}
 	}
 	,startDrag: function(lockCenter,bounds) {
 		if(lockCenter == null) lockCenter = false;
-		if(this.nmeIsOnStage()) this.get_stage().nmeStartDrag(this,lockCenter,bounds);
+		if(this.__isOnStage()) this.get_stage().__startDrag(this,lockCenter,bounds);
 	}
-	,nmeGetGraphics: function() {
-		return this.nmeGraphics;
-	}
-	,nmeGraphics: null
-	,nmeDropTarget: null
-	,nmeCursorCallbackOver: null
-	,nmeCursorCallbackOut: null
+	,__graphics: null
+	,__dropTarget: null
+	,__cursorCallbackOver: null
+	,__cursorCallbackOut: null
 	,useHandCursor: null
 	,buttonMode: null
 	,__class__: flash.display.Sprite
@@ -1268,33 +1290,48 @@ var nx3 = {}
 nx3.xamples = {}
 nx3.xamples.main = {}
 nx3.xamples.main.openfl = {}
-nx3.xamples.main.openfl.Main = function() {
+nx3.xamples.main.openfl.OpenFlMain = function() {
 	flash.display.Sprite.call(this);
 	this.addEventListener(flash.events.Event.ADDED_TO_STAGE,$bind(this,this.added));
 };
-$hxClasses["nx3.xamples.main.openfl.Main"] = nx3.xamples.main.openfl.Main;
-nx3.xamples.main.openfl.Main.__name__ = ["nx3","xamples","main","openfl","Main"];
-nx3.xamples.main.openfl.Main.main = function() {
+$hxClasses["nx3.xamples.main.openfl.OpenFlMain"] = nx3.xamples.main.openfl.OpenFlMain;
+nx3.xamples.main.openfl.OpenFlMain.__name__ = ["nx3","xamples","main","openfl","OpenFlMain"];
+nx3.xamples.main.openfl.OpenFlMain.main = function() {
 	flash.Lib.get_current().get_stage().align = flash.display.StageAlign.TOP_LEFT;
 	flash.Lib.get_current().get_stage().scaleMode = flash.display.StageScaleMode.NO_SCALE;
-	flash.Lib.get_current().addChild(new nx3.xamples.main.openfl.Main());
+	flash.Lib.get_current().addChild(new nx3.xamples.main.openfl.OpenFlMain());
 }
-nx3.xamples.main.openfl.Main.__super__ = flash.display.Sprite;
-nx3.xamples.main.openfl.Main.prototype = $extend(flash.display.Sprite.prototype,{
+nx3.xamples.main.openfl.OpenFlMain.__super__ = flash.display.Sprite;
+nx3.xamples.main.openfl.OpenFlMain.prototype = $extend(flash.display.Sprite.prototype,{
 	added: function(e) {
 		this.removeEventListener(flash.events.Event.ADDED_TO_STAGE,$bind(this,this.added));
 		this.get_stage().addEventListener(flash.events.Event.RESIZE,$bind(this,this.resize));
 		this.init();
 	}
+	,start: function() {
+		throw "Should be overridden!";
+	}
 	,init: function() {
 		if(this.inited) return;
 		this.inited = true;
-		this.addChild(nx3.xamples.Examples.basic2());
+		this.start();
 	}
 	,resize: function(e) {
 		if(!this.inited) this.init();
 	}
 	,inited: null
+	,__class__: nx3.xamples.main.openfl.OpenFlMain
+});
+nx3.xamples.main.openfl.Main = function() {
+	nx3.xamples.main.openfl.OpenFlMain.call(this);
+};
+$hxClasses["nx3.xamples.main.openfl.Main"] = nx3.xamples.main.openfl.Main;
+nx3.xamples.main.openfl.Main.__name__ = ["nx3","xamples","main","openfl","Main"];
+nx3.xamples.main.openfl.Main.__super__ = nx3.xamples.main.openfl.OpenFlMain;
+nx3.xamples.main.openfl.Main.prototype = $extend(nx3.xamples.main.openfl.OpenFlMain.prototype,{
+	start: function() {
+		this.addChild(nx3.xamples.Examples.basic2());
+	}
 	,__class__: nx3.xamples.main.openfl.Main
 });
 var DocumentClass = function() {
@@ -2187,6 +2224,9 @@ flash.Lib = function(rootElement,width,height) {
 $hxClasses["flash.Lib"] = flash.Lib;
 flash.Lib.__name__ = ["flash","Lib"];
 flash.Lib.__properties__ = {get_current:"get_current"}
+flash.Lib.addCallback = function(functionName,closure) {
+	flash.Lib.mMe.__scr[functionName] = closure;
+}
 flash.Lib["as"] = function(v,c) {
 	return js.Boot.__instanceof(v,c)?v:null;
 }
@@ -2197,9 +2237,73 @@ flash.Lib.getTimer = function() {
 	return (haxe.Timer.stamp() - flash.Lib.starttime) * 1000 | 0;
 }
 flash.Lib.getURL = function(request,target) {
-	document.open(request.url);
+	if(target == null) target = "_blank";
+	window.open(request.url,target);
 }
-flash.Lib.nmeAppendSurface = function(surface,before,after) {
+flash.Lib.preventDefaultTouchMove = function() {
+	js.Browser.document.addEventListener("touchmove",function(evt) {
+		evt.preventDefault();
+	},false);
+}
+flash.Lib.Run = function(tgt,width,height) {
+	flash.Lib.mMe = new flash.Lib(tgt,width,height);
+	var _g1 = 0, _g = tgt.attributes.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		var attr = tgt.attributes.item(i);
+		if(StringTools.startsWith(attr.name,"data-")) {
+			if(attr.name == "data-" + "framerate") flash.Lib.__getStage().set_frameRate(Std.parseFloat(attr.value));
+		}
+	}
+	var _g = 0, _g1 = flash.Lib.HTML_TOUCH_EVENT_TYPES;
+	while(_g < _g1.length) {
+		var type = _g1[_g];
+		++_g;
+		tgt.addEventListener(type,($_=flash.Lib.__getStage(),$bind($_,$_.__queueStageEvent)),true);
+	}
+	var _g = 0, _g1 = flash.Lib.HTML_TOUCH_ALT_EVENT_TYPES;
+	while(_g < _g1.length) {
+		var type = _g1[_g];
+		++_g;
+		tgt.addEventListener(type,($_=flash.Lib.__getStage(),$bind($_,$_.__queueStageEvent)),true);
+	}
+	var _g = 0, _g1 = flash.Lib.HTML_DIV_EVENT_TYPES;
+	while(_g < _g1.length) {
+		var type = _g1[_g];
+		++_g;
+		tgt.addEventListener(type,($_=flash.Lib.__getStage(),$bind($_,$_.__queueStageEvent)),true);
+	}
+	if(Reflect.hasField(js.Browser.window,"on" + "devicemotion")) js.Browser.window.addEventListener("devicemotion",($_=flash.Lib.__getStage(),$bind($_,$_.__queueStageEvent)),true);
+	if(Reflect.hasField(js.Browser.window,"on" + "orientationchange")) js.Browser.window.addEventListener("orientationchange",($_=flash.Lib.__getStage(),$bind($_,$_.__queueStageEvent)),true);
+	var _g = 0, _g1 = flash.Lib.HTML_WINDOW_EVENT_TYPES;
+	while(_g < _g1.length) {
+		var type = _g1[_g];
+		++_g;
+		js.Browser.window.addEventListener(type,($_=flash.Lib.__getStage(),$bind($_,$_.__queueStageEvent)),false);
+	}
+	if(tgt.style.backgroundColor != null && tgt.style.backgroundColor != "") flash.Lib.__getStage().set_backgroundColor(flash.Lib.__parseColor(tgt.style.backgroundColor,function(res,pos,cur) {
+		return pos == 0?res | cur << 16:pos == 1?res | cur << 8:pos == 2?res | cur:(function($this) {
+			var $r;
+			throw "pos should be 0-2";
+			return $r;
+		}(this));
+	})); else flash.Lib.__getStage().set_backgroundColor(16777215);
+	flash.Lib.get_current().get_graphics().beginFill(flash.Lib.__getStage().get_backgroundColor());
+	flash.Lib.get_current().get_graphics().drawRect(0,0,width,height);
+	flash.Lib.__setSurfaceId(flash.Lib.get_current().get_graphics().__surface,"Root MovieClip");
+	flash.Lib.__getStage().__updateNextWake();
+	return flash.Lib.mMe;
+}
+flash.Lib.setUserScalable = function(isScalable) {
+	if(isScalable == null) isScalable = true;
+	var meta = js.Browser.document.createElement("meta");
+	meta.name = "viewport";
+	meta.content = "user-scalable=" + (isScalable?"yes":"no");
+}
+flash.Lib.trace = function(arg) {
+	if(window.console != null) window.console.log(arg);
+}
+flash.Lib.__appendSurface = function(surface,before,after) {
 	if(flash.Lib.mMe.__scr != null) {
 		surface.style.setProperty("position","absolute","");
 		surface.style.setProperty("left","0px","");
@@ -2218,7 +2322,7 @@ flash.Lib.nmeAppendSurface = function(surface,before,after) {
 		if(before != null) before.parentNode.insertBefore(surface,before); else if(after != null && after.nextSibling != null) after.parentNode.insertBefore(surface,after.nextSibling); else flash.Lib.mMe.__scr.appendChild(surface);
 	}
 }
-flash.Lib.nmeAppendText = function(surface,container,text,wrap,isHtml) {
+flash.Lib.__appendText = function(surface,container,text,wrap,isHtml) {
 	var _g1 = 0, _g = surface.childNodes.length;
 	while(_g1 < _g) {
 		var i = _g1++;
@@ -2230,9 +2334,9 @@ flash.Lib.nmeAppendText = function(surface,container,text,wrap,isHtml) {
 	if(!wrap) container.style.setProperty("white-space","nowrap","");
 	surface.appendChild(container);
 }
-flash.Lib.nmeBootstrap = function() {
+flash.Lib.__bootstrap = function() {
 	if(flash.Lib.mMe == null) {
-		var target = js.Browser.document.getElementById("haxe:jeash");
+		var target = js.Browser.document.getElementById("haxe:openfl");
 		if(target == null) target = js.Browser.document.createElement("div");
 		var agent = navigator.userAgent;
 		if(agent.indexOf("BlackBerry") > -1 && target.style.height == "100%") target.style.height = screen.height + "px";
@@ -2240,10 +2344,10 @@ flash.Lib.nmeBootstrap = function() {
 			var version = Std.parseFloat(HxOverrides.substr(agent,agent.indexOf("Android") + 8,3));
 			if(version <= 2.3) flash.Lib.mForce2DTransform = true;
 		}
-		flash.Lib.Run(target,flash.Lib.nmeGetWidth(),flash.Lib.nmeGetHeight());
+		flash.Lib.Run(target,flash.Lib.__getWidth(),flash.Lib.__getHeight());
 	}
 }
-flash.Lib.nmeCopyStyle = function(src,tgt) {
+flash.Lib.__copyStyle = function(src,tgt) {
 	tgt.id = src.id;
 	var _g = 0, _g1 = ["left","top","transform","transform-origin","-moz-transform","-moz-transform-origin","-webkit-transform","-webkit-transform-origin","-o-transform","-o-transform-origin","opacity","display"];
 	while(_g < _g1.length) {
@@ -2252,7 +2356,7 @@ flash.Lib.nmeCopyStyle = function(src,tgt) {
 		tgt.style.setProperty(prop,src.style.getPropertyValue(prop),"");
 	}
 }
-flash.Lib.nmeCreateSurfaceAnimationCSS = function(surface,data,template,templateFunc,fps,discrete,infinite) {
+flash.Lib.__createSurfaceAnimationCSS = function(surface,data,template,templateFunc,fps,discrete,infinite) {
 	if(infinite == null) infinite = false;
 	if(discrete == null) discrete = false;
 	if(fps == null) fps = 25;
@@ -2261,10 +2365,10 @@ flash.Lib.nmeCreateSurfaceAnimationCSS = function(surface,data,template,template
 		return null;
 	}
 	var style = null;
-	if(surface.getAttribute("data-nme-anim") != null) style = js.Browser.document.getElementById(surface.getAttribute("data-nme-anim")); else {
+	if(surface.getAttribute("data-openfl-anim") != null) style = js.Browser.document.getElementById(surface.getAttribute("data-openfl-anim")); else {
 		style = flash.Lib.mMe.__scr.appendChild(js.Browser.document.createElement("style"));
-		style.sheet.id = "__nme_anim_" + surface.id + "__";
-		surface.setAttribute("data-nme-anim",style.sheet.id);
+		style.sheet.id = "__openfl_anim_" + surface.id + "__";
+		surface.setAttribute("data-openfl-anim",style.sheet.id);
 	}
 	var keyframeStylesheetRule = "";
 	var _g1 = 0, _g = data.length;
@@ -2297,12 +2401,12 @@ flash.Lib.nmeCreateSurfaceAnimationCSS = function(surface,data,template,template
 	style.sheet.insertRule("#" + surface.id + " { " + animationStylesheetRule + " } ",rules.length);
 	return style;
 }
-flash.Lib.nmeDesignMode = function(mode) {
+flash.Lib.__designMode = function(mode) {
 	js.Browser.document.designMode = mode?"on":"off";
 }
-flash.Lib.nmeDisableFullScreen = function() {
+flash.Lib.__disableFullScreen = function() {
 }
-flash.Lib.nmeDisableRightClick = function() {
+flash.Lib.__disableRightClick = function() {
 	if(flash.Lib.mMe != null) try {
 		flash.Lib.mMe.__scr.oncontextmenu = function() {
 			return false;
@@ -2311,7 +2415,7 @@ flash.Lib.nmeDisableRightClick = function() {
 		flash.Lib.trace("Disable right click not supported in this browser.");
 	}
 }
-flash.Lib.nmeDrawClippedImage = function(surface,tgtCtx,clipRect) {
+flash.Lib.__drawClippedImage = function(surface,tgtCtx,clipRect) {
 	if(clipRect != null) {
 		if(clipRect.x < 0) {
 			clipRect.width += clipRect.x;
@@ -2326,7 +2430,7 @@ flash.Lib.nmeDrawClippedImage = function(surface,tgtCtx,clipRect) {
 		tgtCtx.drawImage(surface,clipRect.x,clipRect.y,clipRect.width,clipRect.height,clipRect.x,clipRect.y,clipRect.width,clipRect.height);
 	} else tgtCtx.drawImage(surface,0,0);
 }
-flash.Lib.nmeDrawSurfaceRect = function(surface,tgt,x,y,rect) {
+flash.Lib.__drawSurfaceRect = function(surface,tgt,x,y,rect) {
 	var tgtCtx = tgt.getContext("2d");
 	tgt.width = rect.width;
 	tgt.height = rect.height;
@@ -2334,69 +2438,69 @@ flash.Lib.nmeDrawSurfaceRect = function(surface,tgt,x,y,rect) {
 	tgt.style.left = x + "px";
 	tgt.style.top = y + "px";
 }
-flash.Lib.nmeDrawToSurface = function(surface,tgt,matrix,alpha,clipRect,smoothing) {
+flash.Lib.__drawToSurface = function(surface,tgt,matrix,alpha,clipRect,smoothing) {
 	if(smoothing == null) smoothing = true;
 	if(alpha == null) alpha = 1.0;
 	var srcCtx = surface.getContext("2d");
 	var tgtCtx = tgt.getContext("2d");
 	tgtCtx.globalAlpha = alpha;
-	flash.Lib.nmeSetImageSmoothing(tgtCtx,smoothing);
+	flash.Lib.__setImageSmoothing(tgtCtx,smoothing);
 	if(surface.width > 0 && surface.height > 0) {
 		if(matrix != null) {
 			tgtCtx.save();
 			if(matrix.a == 1 && matrix.b == 0 && matrix.c == 0 && matrix.d == 1) tgtCtx.translate(matrix.tx,matrix.ty); else tgtCtx.setTransform(matrix.a,matrix.b,matrix.c,matrix.d,matrix.tx,matrix.ty);
-			flash.Lib.nmeDrawClippedImage(surface,tgtCtx,clipRect);
+			flash.Lib.__drawClippedImage(surface,tgtCtx,clipRect);
 			tgtCtx.restore();
-		} else flash.Lib.nmeDrawClippedImage(surface,tgtCtx,clipRect);
+		} else flash.Lib.__drawClippedImage(surface,tgtCtx,clipRect);
 	}
 }
-flash.Lib.nmeEnableFullScreen = function() {
+flash.Lib.__enableFullScreen = function() {
 	if(flash.Lib.mMe != null) {
 		var origWidth = flash.Lib.mMe.__scr.style.getPropertyValue("width");
 		var origHeight = flash.Lib.mMe.__scr.style.getPropertyValue("height");
 		flash.Lib.mMe.__scr.style.setProperty("width","100%","");
 		flash.Lib.mMe.__scr.style.setProperty("height","100%","");
-		flash.Lib.nmeDisableFullScreen = function() {
+		flash.Lib.__disableFullScreen = function() {
 			flash.Lib.mMe.__scr.style.setProperty("width",origWidth,"");
 			flash.Lib.mMe.__scr.style.setProperty("height",origHeight,"");
 		};
 	}
 }
-flash.Lib.nmeEnableRightClick = function() {
+flash.Lib.__enableRightClick = function() {
 	if(flash.Lib.mMe != null) try {
 		flash.Lib.mMe.__scr.oncontextmenu = null;
 	} catch( e ) {
 		flash.Lib.trace("Enable right click not supported in this browser.");
 	}
 }
-flash.Lib.nmeFullScreenHeight = function() {
+flash.Lib.__fullScreenHeight = function() {
 	return js.Browser.window.innerHeight;
 }
-flash.Lib.nmeFullScreenWidth = function() {
+flash.Lib.__fullScreenWidth = function() {
 	return js.Browser.window.innerWidth;
 }
-flash.Lib.nmeGetHeight = function() {
-	var tgt = flash.Lib.mMe != null?flash.Lib.mMe.__scr:js.Browser.document.getElementById("haxe:jeash");
+flash.Lib.__getHeight = function() {
+	var tgt = flash.Lib.mMe != null?flash.Lib.mMe.__scr:js.Browser.document.getElementById("haxe:openfl");
 	return tgt != null && tgt.clientHeight > 0?tgt.clientHeight:500;
 }
-flash.Lib.nmeGetStage = function() {
+flash.Lib.__getStage = function() {
 	if(flash.Lib.mStage == null) {
-		var width = flash.Lib.nmeGetWidth();
-		var height = flash.Lib.nmeGetHeight();
+		var width = flash.Lib.__getWidth();
+		var height = flash.Lib.__getHeight();
 		flash.Lib.mStage = new flash.display.Stage(width,height);
 	}
 	return flash.Lib.mStage;
 }
-flash.Lib.nmeGetWidth = function() {
-	var tgt = flash.Lib.mMe != null?flash.Lib.mMe.__scr:js.Browser.document.getElementById("haxe:jeash");
+flash.Lib.__getWidth = function() {
+	var tgt = flash.Lib.mMe != null?flash.Lib.mMe.__scr:js.Browser.document.getElementById("haxe:openfl");
 	return tgt != null && tgt.clientWidth > 0?tgt.clientWidth:500;
 }
-flash.Lib.nmeIsOnStage = function(surface) {
+flash.Lib.__isOnStage = function(surface) {
 	var p = surface;
 	while(p != null && p != flash.Lib.mMe.__scr) p = p.parentNode;
 	return p == flash.Lib.mMe.__scr;
 }
-flash.Lib.nmeParseColor = function(str,cb) {
+flash.Lib.__parseColor = function(str,cb) {
 	var re = new EReg("rgb\\(([0-9]*), ?([0-9]*), ?([0-9]*)\\)","");
 	var hex = new EReg("#([0-9a-zA-Z][0-9a-zA-Z])([0-9a-zA-Z][0-9a-zA-Z])([0-9a-zA-Z][0-9a-zA-Z])","");
 	if(re.match(str)) {
@@ -2419,9 +2523,9 @@ flash.Lib.nmeParseColor = function(str,cb) {
 		return col;
 	} else throw "Cannot parse color '" + str + "'.";
 }
-flash.Lib.nmeRemoveSurface = function(surface) {
+flash.Lib.__removeSurface = function(surface) {
 	if(flash.Lib.mMe.__scr != null) {
-		var anim = surface.getAttribute("data-nme-anim");
+		var anim = surface.getAttribute("data-openfl-anim");
 		if(anim != null) {
 			var style = js.Browser.document.getElementById(anim);
 			if(style != null) flash.Lib.mMe.__scr.removeChild(style);
@@ -2430,15 +2534,15 @@ flash.Lib.nmeRemoveSurface = function(surface) {
 	}
 	return surface;
 }
-flash.Lib.nmeSetSurfaceBorder = function(surface,color,size) {
+flash.Lib.__setSurfaceBorder = function(surface,color,size) {
 	surface.style.setProperty("border-color","#" + StringTools.hex(color),"");
 	surface.style.setProperty("border-style","solid","");
 	surface.style.setProperty("border-width",size + "px","");
 	surface.style.setProperty("border-collapse","collapse","");
 }
-flash.Lib.nmeSetSurfaceClipping = function(surface,rect) {
+flash.Lib.__setSurfaceClipping = function(surface,rect) {
 }
-flash.Lib.nmeSetSurfaceFont = function(surface,font,bold,size,color,align,lineHeight) {
+flash.Lib.__setSurfaceFont = function(surface,font,bold,size,color,align,lineHeight) {
 	surface.style.setProperty("font-family",font,"");
 	surface.style.setProperty("font-weight",Std.string(bold),"");
 	surface.style.setProperty("color","#" + StringTools.hex(color),"");
@@ -2446,10 +2550,10 @@ flash.Lib.nmeSetSurfaceFont = function(surface,font,bold,size,color,align,lineHe
 	surface.style.setProperty("text-align",align,"");
 	surface.style.setProperty("line-height",lineHeight + "px","");
 }
-flash.Lib.nmeSetSurfaceOpacity = function(surface,alpha) {
+flash.Lib.__setSurfaceOpacity = function(surface,alpha) {
 	surface.style.setProperty("opacity",Std.string(alpha),"");
 }
-flash.Lib.nmeSetSurfacePadding = function(surface,padding,margin,display) {
+flash.Lib.__setSurfacePadding = function(surface,padding,margin,display) {
 	surface.style.setProperty("padding",padding + "px","");
 	surface.style.setProperty("margin",margin + "px","");
 	surface.style.setProperty("top",padding + 2 + "px","");
@@ -2458,8 +2562,8 @@ flash.Lib.nmeSetSurfacePadding = function(surface,padding,margin,display) {
 	surface.style.setProperty("bottom",padding + 1 + "px","");
 	surface.style.setProperty("display",display?"inline":"block","");
 }
-flash.Lib.nmeSetSurfaceTransform = function(surface,matrix) {
-	if(matrix.a == 1 && matrix.b == 0 && matrix.c == 0 && matrix.d == 1 && surface.getAttribute("data-nme-anim") == null) {
+flash.Lib.__setSurfaceTransform = function(surface,matrix) {
+	if(matrix.a == 1 && matrix.b == 0 && matrix.c == 0 && matrix.d == 1 && surface.getAttribute("data-openfl-anim") == null) {
 		surface.style.left = matrix.tx + "px";
 		surface.style.top = matrix.ty + "px";
 		surface.style.setProperty("transform","","");
@@ -2477,19 +2581,19 @@ flash.Lib.nmeSetSurfaceTransform = function(surface,matrix) {
 		surface.style.setProperty("-ms-transform","matrix(" + matrix.a + ", " + matrix.b + ", " + matrix.c + ", " + matrix.d + ", " + matrix.tx + ", " + matrix.ty + ")","");
 	}
 }
-flash.Lib.nmeSetSurfaceZIndexAfter = function(surface1,surface2) {
+flash.Lib.__setSurfaceZIndexAfter = function(surface1,surface2) {
 	if(surface1 != null && surface2 != null) {
 		if(surface1.parentNode != surface2.parentNode && surface2.parentNode != null) surface2.parentNode.appendChild(surface1);
 		if(surface2.parentNode != null) {
 			var nextSibling = surface2.nextSibling;
 			if(surface1.previousSibling != surface2) {
-				var swap = flash.Lib.nmeRemoveSurface(surface1);
+				var swap = flash.Lib.__removeSurface(surface1);
 				if(nextSibling == null) surface2.parentNode.appendChild(swap); else surface2.parentNode.insertBefore(swap,nextSibling);
 			}
 		}
 	}
 }
-flash.Lib.nmeSwapSurface = function(surface1,surface2) {
+flash.Lib.__swapSurface = function(surface1,surface2) {
 	var parent1 = surface1.parentNode;
 	var parent2 = surface2.parentNode;
 	if(parent1 != null && parent2 != null) {
@@ -2507,11 +2611,11 @@ flash.Lib.nmeSwapSurface = function(surface1,surface2) {
 		}
 	}
 }
-flash.Lib.nmeSetContentEditable = function(surface,contentEditable) {
+flash.Lib.__setContentEditable = function(surface,contentEditable) {
 	if(contentEditable == null) contentEditable = true;
 	surface.setAttribute("contentEditable",contentEditable?"true":"false");
 }
-flash.Lib.nmeSetCursor = function(type) {
+flash.Lib.__setCursor = function(type) {
 	if(flash.Lib.mMe != null) flash.Lib.mMe.__scr.style.cursor = (function($this) {
 		var $r;
 		switch( (type)[1] ) {
@@ -2527,7 +2631,7 @@ flash.Lib.nmeSetCursor = function(type) {
 		return $r;
 	}(this));
 }
-flash.Lib.nmeSetImageSmoothing = function(context,enabled) {
+flash.Lib.__setImageSmoothing = function(context,enabled) {
 	var _g = 0, _g1 = ["imageSmoothingEnabled","mozImageSmoothingEnabled","webkitImageSmoothingEnabled"];
 	while(_g < _g1.length) {
 		var variant = _g1[_g];
@@ -2535,28 +2639,28 @@ flash.Lib.nmeSetImageSmoothing = function(context,enabled) {
 		context[variant] = enabled;
 	}
 }
-flash.Lib.nmeSetSurfaceAlign = function(surface,align) {
+flash.Lib.__setSurfaceAlign = function(surface,align) {
 	surface.style.setProperty("text-align",align,"");
 }
-flash.Lib.nmeSetSurfaceId = function(surface,name) {
+flash.Lib.__setSurfaceId = function(surface,name) {
 	var regex = new EReg("[^a-zA-Z0-9\\-]","g");
 	surface.id = regex.replace(name,"_");
 }
-flash.Lib.nmeSetSurfaceRotation = function(surface,rotate) {
+flash.Lib.__setSurfaceRotation = function(surface,rotate) {
 	surface.style.setProperty("transform","rotate(" + rotate + "deg)","");
 	surface.style.setProperty("-moz-transform","rotate(" + rotate + "deg)","");
 	surface.style.setProperty("-webkit-transform","rotate(" + rotate + "deg)","");
 	surface.style.setProperty("-o-transform","rotate(" + rotate + "deg)","");
 	surface.style.setProperty("-ms-transform","rotate(" + rotate + "deg)","");
 }
-flash.Lib.nmeSetSurfaceScale = function(surface,scale) {
+flash.Lib.__setSurfaceScale = function(surface,scale) {
 	surface.style.setProperty("transform","scale(" + scale + ")","");
 	surface.style.setProperty("-moz-transform","scale(" + scale + ")","");
 	surface.style.setProperty("-webkit-transform","scale(" + scale + ")","");
 	surface.style.setProperty("-o-transform","scale(" + scale + ")","");
 	surface.style.setProperty("-ms-transform","scale(" + scale + ")","");
 }
-flash.Lib.nmeSetSurfaceSpritesheetAnimation = function(surface,spec,fps) {
+flash.Lib.__setSurfaceSpritesheetAnimation = function(surface,spec,fps) {
 	if(spec.length == 0) return surface;
 	var div = js.Browser.document.createElement("div");
 	div.style.backgroundImage = "url(" + surface.toDataURL("image/png") + ")";
@@ -2565,25 +2669,25 @@ flash.Lib.nmeSetSurfaceSpritesheetAnimation = function(surface,spec,fps) {
 	var templateFunc = function(frame) {
 		return { left : -frame.x, top : -frame.y, width : frame.width, height : frame.height};
 	};
-	flash.Lib.nmeCreateSurfaceAnimationCSS(div,spec,keyframeTpl,templateFunc,fps,true,true);
-	if(flash.Lib.nmeIsOnStage(surface)) {
-		flash.Lib.nmeAppendSurface(div);
-		flash.Lib.nmeCopyStyle(surface,div);
-		flash.Lib.nmeSwapSurface(surface,div);
-		flash.Lib.nmeRemoveSurface(surface);
-	} else flash.Lib.nmeCopyStyle(surface,div);
+	flash.Lib.__createSurfaceAnimationCSS(div,spec,keyframeTpl,templateFunc,fps,true,true);
+	if(flash.Lib.__isOnStage(surface)) {
+		flash.Lib.__appendSurface(div);
+		flash.Lib.__copyStyle(surface,div);
+		flash.Lib.__swapSurface(surface,div);
+		flash.Lib.__removeSurface(surface);
+	} else flash.Lib.__copyStyle(surface,div);
 	return div;
 }
-flash.Lib.nmeSetSurfaceVisible = function(surface,visible) {
+flash.Lib.__setSurfaceVisible = function(surface,visible) {
 	if(visible) surface.style.setProperty("display","block",""); else surface.style.setProperty("display","none","");
 }
-flash.Lib.nmeSetTextDimensions = function(surface,width,height,align) {
+flash.Lib.__setTextDimensions = function(surface,width,height,align) {
 	surface.style.setProperty("width",width + "px","");
 	surface.style.setProperty("height",height + "px","");
 	surface.style.setProperty("overflow","hidden","");
 	surface.style.setProperty("text-align",align,"");
 }
-flash.Lib.nmeSurfaceHitTest = function(surface,x,y) {
+flash.Lib.__surfaceHitTest = function(surface,x,y) {
 	var _g1 = 0, _g = surface.childNodes.length;
 	while(_g1 < _g) {
 		var i = _g1++;
@@ -2592,87 +2696,11 @@ flash.Lib.nmeSurfaceHitTest = function(surface,x,y) {
 	}
 	return false;
 }
-flash.Lib.preventDefaultTouchMove = function() {
-	js.Browser.document.addEventListener("touchmove",function(evt) {
-		evt.preventDefault();
-	},false);
-}
-flash.Lib.Run = function(tgt,width,height) {
-	flash.Lib.mMe = new flash.Lib(tgt,width,height);
-	var _g1 = 0, _g = tgt.attributes.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		var attr = tgt.attributes.item(i);
-		if(StringTools.startsWith(attr.name,"data-")) {
-			if(attr.name == "data-" + "framerate") flash.Lib.nmeGetStage().set_frameRate(Std.parseFloat(attr.value));
-		}
-	}
-	if(Reflect.hasField(tgt,"on" + flash.Lib.HTML_TOUCH_EVENT_TYPES[0])) {
-		var _g = 0, _g1 = flash.Lib.HTML_TOUCH_EVENT_TYPES;
-		while(_g < _g1.length) {
-			var type = _g1[_g];
-			++_g;
-			tgt.addEventListener(type,($_=flash.Lib.nmeGetStage(),$bind($_,$_.nmeQueueStageEvent)),true);
-		}
-	} else {
-		var _g = 0, _g1 = flash.Lib.HTML_TOUCH_ALT_EVENT_TYPES;
-		while(_g < _g1.length) {
-			var type = _g1[_g];
-			++_g;
-			tgt.addEventListener(type,($_=flash.Lib.nmeGetStage(),$bind($_,$_.nmeQueueStageEvent)),true);
-		}
-	}
-	var _g = 0, _g1 = flash.Lib.HTML_DIV_EVENT_TYPES;
-	while(_g < _g1.length) {
-		var type = _g1[_g];
-		++_g;
-		tgt.addEventListener(type,($_=flash.Lib.nmeGetStage(),$bind($_,$_.nmeQueueStageEvent)),true);
-	}
-	if(Reflect.hasField(js.Browser.window,"on" + "devicemotion")) js.Browser.window.addEventListener("devicemotion",($_=flash.Lib.nmeGetStage(),$bind($_,$_.nmeQueueStageEvent)),true);
-	if(Reflect.hasField(js.Browser.window,"on" + "orientationchange")) js.Browser.window.addEventListener("orientationchange",($_=flash.Lib.nmeGetStage(),$bind($_,$_.nmeQueueStageEvent)),true);
-	var _g = 0, _g1 = flash.Lib.HTML_WINDOW_EVENT_TYPES;
-	while(_g < _g1.length) {
-		var type = _g1[_g];
-		++_g;
-		js.Browser.window.addEventListener(type,($_=flash.Lib.nmeGetStage(),$bind($_,$_.nmeQueueStageEvent)),false);
-	}
-	if(tgt.style.backgroundColor != null && tgt.style.backgroundColor != "") flash.Lib.nmeGetStage().set_backgroundColor(flash.Lib.nmeParseColor(tgt.style.backgroundColor,function(res,pos,cur) {
-		return pos == 0?res | cur << 16:pos == 1?res | cur << 8:pos == 2?res | cur:(function($this) {
-			var $r;
-			throw "pos should be 0-2";
-			return $r;
-		}(this));
-	})); else flash.Lib.nmeGetStage().set_backgroundColor(16777215);
-	flash.Lib.get_current().get_graphics().beginFill(flash.Lib.nmeGetStage().get_backgroundColor());
-	flash.Lib.get_current().get_graphics().drawRect(0,0,width,height);
-	flash.Lib.nmeSetSurfaceId(flash.Lib.get_current().get_graphics().nmeSurface,"Root MovieClip");
-	flash.Lib.nmeGetStage().nmeUpdateNextWake();
-	try {
-		var winParameters = js.Browser.window.winParameters();
-		var _g = 0, _g1 = Reflect.fields(winParameters);
-		while(_g < _g1.length) {
-			var prop = _g1[_g];
-			++_g;
-			flash.Lib.get_current().loaderInfo.parameters[prop] = Reflect.field(winParameters,prop);
-		}
-	} catch( e ) {
-	}
-	return flash.Lib.mMe;
-}
-flash.Lib.setUserScalable = function(isScalable) {
-	if(isScalable == null) isScalable = true;
-	var meta = js.Browser.document.createElement("meta");
-	meta.name = "viewport";
-	meta.content = "user-scalable=" + (isScalable?"yes":"no");
-}
-flash.Lib.trace = function(arg) {
-	if(window.console != null) window.console.log(arg);
-}
 flash.Lib.get_current = function() {
 	if(flash.Lib.mMainClassRoot == null) {
 		flash.Lib.mMainClassRoot = new flash.display.MovieClip();
 		flash.Lib.mCurrent = flash.Lib.mMainClassRoot;
-		flash.Lib.nmeGetStage().addChild(flash.Lib.mCurrent);
+		flash.Lib.__getStage().addChild(flash.Lib.mCurrent);
 	}
 	return flash.Lib.mMainClassRoot;
 }
@@ -2811,12 +2839,12 @@ flash.display.Bitmap = function(inBitmapData,inPixelSnapping,inSmoothing) {
 	this.smoothing = inSmoothing;
 	if(inBitmapData != null) {
 		this.set_bitmapData(inBitmapData);
-		this.bitmapData.nmeReferenceCount++;
-		if(this.bitmapData.nmeReferenceCount == 1) this.nmeGraphics = new flash.display.Graphics(this.bitmapData._nmeTextureBuffer);
+		this.bitmapData.__referenceCount++;
+		if(this.bitmapData.__referenceCount == 1) this.__graphics = new flash.display.Graphics(this.bitmapData.___textureBuffer);
 	}
 	if(this.pixelSnapping == null) this.pixelSnapping = flash.display.PixelSnapping.AUTO;
-	if(this.nmeGraphics == null) this.nmeGraphics = new flash.display.Graphics();
-	if(this.bitmapData != null) this.nmeRender();
+	if(this.__graphics == null) this.__graphics = new flash.display.Graphics();
+	if(this.bitmapData != null) this.__render();
 };
 $hxClasses["flash.display.Bitmap"] = flash.display.Bitmap;
 flash.display.Bitmap.__name__ = ["flash","display","Bitmap"];
@@ -2825,15 +2853,59 @@ flash.display.Bitmap.prototype = $extend(flash.display.DisplayObject.prototype,{
 	set_bitmapData: function(inBitmapData) {
 		if(inBitmapData != this.bitmapData) {
 			if(this.bitmapData != null) {
-				this.bitmapData.nmeReferenceCount--;
-				if(this.nmeGraphics.nmeSurface == this.bitmapData._nmeTextureBuffer) flash.Lib.nmeSetSurfaceOpacity(this.bitmapData._nmeTextureBuffer,0);
+				this.bitmapData.__referenceCount--;
+				if(this.__graphics.__surface == this.bitmapData.___textureBuffer) flash.Lib.__setSurfaceOpacity(this.bitmapData.___textureBuffer,0);
 			}
-			if(inBitmapData != null) inBitmapData.nmeReferenceCount++;
+			if(inBitmapData != null) inBitmapData.__referenceCount++;
 		}
-		this._nmeRenderFlags |= 64;
-		if(this.parent != null) this.parent._nmeRenderFlags |= 64;
+		this.___renderFlags |= 64;
+		if(this.parent != null) this.parent.___renderFlags |= 64;
 		this.bitmapData = inBitmapData;
 		return inBitmapData;
+	}
+	,__render: function(inMask,clipRect) {
+		if(!this.__combinedVisible) return;
+		if(this.bitmapData == null) return;
+		if((this.___renderFlags & 4) != 0 || (this.___renderFlags & 8) != 0) this.__validateMatrix();
+		if(this.bitmapData.___textureBuffer != this.__graphics.__surface) {
+			var imageDataLease = this.bitmapData.__lease;
+			if(imageDataLease != null && (this.__currentLease == null || imageDataLease.seed != this.__currentLease.seed || imageDataLease.time != this.__currentLease.time)) {
+				var srcCanvas = this.bitmapData.___textureBuffer;
+				this.__graphics.__surface.width = srcCanvas.width;
+				this.__graphics.__surface.height = srcCanvas.height;
+				this.__graphics.clear();
+				flash.Lib.__drawToSurface(srcCanvas,this.__graphics.__surface);
+				this.__currentLease = imageDataLease.clone();
+				this.___renderFlags |= 64;
+				if(this.parent != null) this.parent.___renderFlags |= 64;
+				this.__applyFilters(this.__graphics.__surface);
+				this.___renderFlags |= 32;
+			}
+		}
+		if(inMask != null) {
+			this.__applyFilters(this.__graphics.__surface);
+			var m = this.getBitmapSurfaceTransform(this.__graphics);
+			flash.Lib.__drawToSurface(this.__graphics.__surface,inMask,m,(this.parent != null?this.parent.__combinedAlpha:1) * this.alpha,clipRect,this.smoothing);
+		} else {
+			if((this.___renderFlags & 32) != 0) {
+				var m = this.getBitmapSurfaceTransform(this.__graphics);
+				flash.Lib.__setSurfaceTransform(this.__graphics.__surface,m);
+				this.___renderFlags &= -33;
+			}
+			if(!this.__init) {
+				flash.Lib.__setSurfaceOpacity(this.__graphics.__surface,0);
+				this.__init = true;
+			} else flash.Lib.__setSurfaceOpacity(this.__graphics.__surface,(this.parent != null?this.parent.__combinedAlpha:1) * this.alpha);
+		}
+	}
+	,__getObjectUnderPoint: function(point) {
+		if(!this.get_visible()) return null; else if(this.bitmapData != null) {
+			var local = this.globalToLocal(point);
+			if(local.x < 0 || local.y < 0 || local.x > this.get_width() / this.get_scaleX() || local.y > this.get_height() / this.get_scaleY()) return null; else return this;
+		} else return flash.display.DisplayObject.prototype.__getObjectUnderPoint.call(this,point);
+	}
+	,__getGraphics: function() {
+		return this.__graphics;
 	}
 	,validateBounds: function() {
 		if(this.get__boundsInvalid()) {
@@ -2841,76 +2913,32 @@ flash.display.Bitmap.prototype = $extend(flash.display.DisplayObject.prototype,{
 			if(this.bitmapData != null) {
 				var r = new flash.geom.Rectangle(0,0,this.bitmapData.get_width(),this.bitmapData.get_height());
 				if(r.width != 0 || r.height != 0) {
-					if(this.nmeBoundsRect.width == 0 && this.nmeBoundsRect.height == 0) this.nmeBoundsRect = r.clone(); else this.nmeBoundsRect.extendBounds(r);
+					if(this.__boundsRect.width == 0 && this.__boundsRect.height == 0) this.__boundsRect = r.clone(); else this.__boundsRect.extendBounds(r);
 				}
 			}
 			if(this.scale9Grid != null) {
-				this.nmeBoundsRect.width *= this.nmeScaleX;
-				this.nmeBoundsRect.height *= this.nmeScaleY;
-				this.nmeWidth = this.nmeBoundsRect.width;
-				this.nmeHeight = this.nmeBoundsRect.height;
+				this.__boundsRect.width *= this.__scaleX;
+				this.__boundsRect.height *= this.__scaleY;
+				this.__width = this.__boundsRect.width;
+				this.__height = this.__boundsRect.height;
 			} else {
-				this.nmeWidth = this.nmeBoundsRect.width * this.nmeScaleX;
-				this.nmeHeight = this.nmeBoundsRect.height * this.nmeScaleY;
+				this.__width = this.__boundsRect.width * this.__scaleX;
+				this.__height = this.__boundsRect.height * this.__scaleY;
 			}
 		}
 	}
 	,toString: function() {
-		return "[Bitmap name=" + this.name + " id=" + this._nmeId + "]";
-	}
-	,nmeRender: function(inMask,clipRect) {
-		if(!this.nmeCombinedVisible) return;
-		if(this.bitmapData == null) return;
-		if((this._nmeRenderFlags & 4) != 0 || (this._nmeRenderFlags & 8) != 0) this.nmeValidateMatrix();
-		if(this.bitmapData._nmeTextureBuffer != this.nmeGraphics.nmeSurface) {
-			var imageDataLease = this.bitmapData.nmeLease;
-			if(imageDataLease != null && (this.nmeCurrentLease == null || imageDataLease.seed != this.nmeCurrentLease.seed || imageDataLease.time != this.nmeCurrentLease.time)) {
-				var srcCanvas = this.bitmapData._nmeTextureBuffer;
-				this.nmeGraphics.nmeSurface.width = srcCanvas.width;
-				this.nmeGraphics.nmeSurface.height = srcCanvas.height;
-				this.nmeGraphics.clear();
-				flash.Lib.nmeDrawToSurface(srcCanvas,this.nmeGraphics.nmeSurface);
-				this.nmeCurrentLease = imageDataLease.clone();
-				this._nmeRenderFlags |= 64;
-				if(this.parent != null) this.parent._nmeRenderFlags |= 64;
-				this.nmeApplyFilters(this.nmeGraphics.nmeSurface);
-				this._nmeRenderFlags |= 32;
-			}
-		}
-		if(inMask != null) {
-			this.nmeApplyFilters(this.nmeGraphics.nmeSurface);
-			var m = this.getBitmapSurfaceTransform(this.nmeGraphics);
-			flash.Lib.nmeDrawToSurface(this.nmeGraphics.nmeSurface,inMask,m,(this.parent != null?this.parent.nmeCombinedAlpha:1) * this.alpha,clipRect,this.smoothing);
-		} else {
-			if((this._nmeRenderFlags & 32) != 0) {
-				var m = this.getBitmapSurfaceTransform(this.nmeGraphics);
-				flash.Lib.nmeSetSurfaceTransform(this.nmeGraphics.nmeSurface,m);
-				this._nmeRenderFlags &= -33;
-			}
-			if(!this.nmeInit) {
-				flash.Lib.nmeSetSurfaceOpacity(this.nmeGraphics.nmeSurface,0);
-				this.nmeInit = true;
-			} else flash.Lib.nmeSetSurfaceOpacity(this.nmeGraphics.nmeSurface,(this.parent != null?this.parent.nmeCombinedAlpha:1) * this.alpha);
-		}
-	}
-	,nmeGetObjectUnderPoint: function(point) {
-		if(!this.get_visible()) return null; else if(this.bitmapData != null) {
-			var local = this.globalToLocal(point);
-			if(local.x < 0 || local.y < 0 || local.x > this.get_width() || local.y > this.get_height()) return null; else return this;
-		} else return flash.display.DisplayObject.prototype.nmeGetObjectUnderPoint.call(this,point);
-	}
-	,nmeGetGraphics: function() {
-		return this.nmeGraphics;
+		return "[Bitmap name=" + this.name + " id=" + this.___id + "]";
 	}
 	,getBitmapSurfaceTransform: function(gfx) {
-		var extent = gfx.nmeExtentWithFilters;
-		var fm = this.transform.nmeGetFullMatrix(null);
-		fm.nmeTranslateTransformed(extent.get_topLeft());
+		var extent = gfx.__extentWithFilters;
+		var fm = this.transform.__getFullMatrix(null);
+		fm.__translateTransformed(extent.get_topLeft());
 		return fm;
 	}
-	,nmeInit: null
-	,nmeCurrentLease: null
-	,nmeGraphics: null
+	,__init: null
+	,__currentLease: null
+	,__graphics: null
 	,smoothing: null
 	,pixelSnapping: null
 	,bitmapData: null
@@ -2920,38 +2948,38 @@ flash.display.Bitmap.prototype = $extend(flash.display.DisplayObject.prototype,{
 flash.display.BitmapData = function(width,height,transparent,inFillColor) {
 	if(inFillColor == null) inFillColor = -1;
 	if(transparent == null) transparent = true;
-	this.nmeLocked = false;
-	this.nmeReferenceCount = 0;
-	this.nmeLeaseNum = 0;
-	this.nmeLease = new flash.display.ImageDataLease();
-	this.nmeLease.set(this.nmeLeaseNum++,new Date().getTime());
-	this._nmeTextureBuffer = js.Browser.document.createElement("canvas");
-	this._nmeTextureBuffer.width = width;
-	this._nmeTextureBuffer.height = height;
-	this._nmeId = flash.utils.Uuid.uuid();
-	flash.Lib.nmeSetSurfaceId(this._nmeTextureBuffer,this._nmeId);
-	this.nmeTransparent = transparent;
+	this.__locked = false;
+	this.__referenceCount = 0;
+	this.__leaseNum = 0;
+	this.__lease = new flash.display.ImageDataLease();
+	this.__lease.set(this.__leaseNum++,new Date().getTime());
+	this.___textureBuffer = js.Browser.document.createElement("canvas");
+	this.___textureBuffer.width = width;
+	this.___textureBuffer.height = height;
+	this.___id = flash.utils.Uuid.uuid();
+	flash.Lib.__setSurfaceId(this.___textureBuffer,this.___id);
+	this.__transparent = transparent;
 	this.rect = new flash.geom.Rectangle(0,0,width,height);
-	if(this.nmeTransparent) {
-		this.nmeTransparentFiller = js.Browser.document.createElement("canvas");
-		this.nmeTransparentFiller.width = width;
-		this.nmeTransparentFiller.height = height;
-		var ctx = this.nmeTransparentFiller.getContext("2d");
+	if(this.__transparent) {
+		this.__transparentFiller = js.Browser.document.createElement("canvas");
+		this.__transparentFiller.width = width;
+		this.__transparentFiller.height = height;
+		var ctx = this.__transparentFiller.getContext("2d");
 		ctx.fillStyle = "rgba(0,0,0,0);";
 		ctx.fill();
 	}
 	if(inFillColor != null && width > 0 && height > 0) {
-		if(!this.nmeTransparent) inFillColor |= -16777216;
-		this.nmeInitColor = inFillColor;
-		this.nmeFillRect(this.rect,inFillColor);
+		if(!this.__transparent) inFillColor |= -16777216;
+		this.__initColor = inFillColor;
+		this.__fillRect(this.rect,inFillColor);
 	}
 };
 $hxClasses["flash.display.BitmapData"] = flash.display.BitmapData;
 flash.display.BitmapData.__name__ = ["flash","display","BitmapData"];
 flash.display.BitmapData.__interfaces__ = [flash.display.IBitmapDrawable];
 flash.display.BitmapData.getRGBAPixels = function(bitmapData) {
-	var p = bitmapData.getPixels(new flash.geom.Rectangle(0,0,bitmapData._nmeTextureBuffer != null?bitmapData._nmeTextureBuffer.width:0,bitmapData._nmeTextureBuffer != null?bitmapData._nmeTextureBuffer.height:0));
-	var num = (bitmapData._nmeTextureBuffer != null?bitmapData._nmeTextureBuffer.width:0) * (bitmapData._nmeTextureBuffer != null?bitmapData._nmeTextureBuffer.height:0);
+	var p = bitmapData.getPixels(new flash.geom.Rectangle(0,0,bitmapData.___textureBuffer != null?bitmapData.___textureBuffer.width:0,bitmapData.___textureBuffer != null?bitmapData.___textureBuffer.height:0));
+	var num = (bitmapData.___textureBuffer != null?bitmapData.___textureBuffer.width:0) * (bitmapData.___textureBuffer != null?bitmapData.___textureBuffer.height:0);
 	p.position = 0;
 	var _g = 0;
 	while(_g < num) {
@@ -2969,12 +2997,17 @@ flash.display.BitmapData.getRGBAPixels = function(bitmapData) {
 	}
 	return p;
 }
-flash.display.BitmapData.loadFromBytes = function(bytes,inRawAlpha,onload) {
+flash.display.BitmapData.loadFromBase64 = function(base64,type,onload) {
 	var bitmapData = new flash.display.BitmapData(0,0);
-	bitmapData.nmeLoadFromBytes(bytes,inRawAlpha,onload);
+	bitmapData.__loadFromBase64(base64,type,onload);
 	return bitmapData;
 }
-flash.display.BitmapData.nmeBase64Encode = function(bytes) {
+flash.display.BitmapData.loadFromBytes = function(bytes,inRawAlpha,onload) {
+	var bitmapData = new flash.display.BitmapData(0,0);
+	bitmapData.__loadFromBytes(bytes,inRawAlpha,onload);
+	return bitmapData;
+}
+flash.display.BitmapData.__base64Encode = function(bytes) {
 	var blob = "";
 	var codex = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 	bytes.position = 0;
@@ -2995,30 +3028,30 @@ flash.display.BitmapData.nmeBase64Encode = function(bytes) {
 	}
 	return blob;
 }
-flash.display.BitmapData.nmeCreateFromHandle = function(inHandle) {
+flash.display.BitmapData.__createFromHandle = function(inHandle) {
 	var result = new flash.display.BitmapData(0,0);
-	result._nmeTextureBuffer = inHandle;
+	result.___textureBuffer = inHandle;
 	return result;
 }
-flash.display.BitmapData.nmeIsJPG = function(bytes) {
+flash.display.BitmapData.__isJPG = function(bytes) {
 	bytes.position = 0;
 	return bytes.readByte() == 255 && bytes.readByte() == 216;
 }
-flash.display.BitmapData.nmeIsPNG = function(bytes) {
+flash.display.BitmapData.__isPNG = function(bytes) {
 	bytes.position = 0;
 	return bytes.readByte() == 137 && bytes.readByte() == 80 && bytes.readByte() == 78 && bytes.readByte() == 71 && bytes.readByte() == 13 && bytes.readByte() == 10 && bytes.readByte() == 26 && bytes.readByte() == 10;
 }
 flash.display.BitmapData.prototype = {
 	get_width: function() {
-		if(this._nmeTextureBuffer != null) return this._nmeTextureBuffer.width; else return 0;
+		if(this.___textureBuffer != null) return this.___textureBuffer.width; else return 0;
 	}
 	,get_transparent: function() {
-		return this.nmeTransparent;
+		return this.__transparent;
 	}
 	,get_height: function() {
-		if(this._nmeTextureBuffer != null) return this._nmeTextureBuffer.height; else return 0;
+		if(this.___textureBuffer != null) return this.___textureBuffer.height; else return 0;
 	}
-	,nmeOnLoad: function(data,e) {
+	,__onLoad: function(data,e) {
 		var canvas = data.texture;
 		var width = data.image.width;
 		var height = data.image.height;
@@ -3029,31 +3062,131 @@ flash.display.BitmapData.prototype = {
 		data.bitmapData.width = width;
 		data.bitmapData.height = height;
 		data.bitmapData.rect = new flash.geom.Rectangle(0,0,width,height);
-		data.bitmapData.nmeBuildLease();
+		data.bitmapData.__buildLease();
 		if(data.inLoader != null) {
 			var e1 = new flash.events.Event(flash.events.Event.COMPLETE);
 			e1.target = data.inLoader;
 			data.inLoader.dispatchEvent(e1);
 		}
 	}
-	,unlock: function(changeRect) {
-		this.nmeLocked = false;
-		var ctx = this._nmeTextureBuffer.getContext("2d");
-		if(this.nmeImageDataChanged) {
-			if(changeRect != null) ctx.putImageData(this.nmeImageData,0,0,changeRect.x,changeRect.y,changeRect.width,changeRect.height); else ctx.putImageData(this.nmeImageData,0,0);
+	,__loadFromFile: function(inFilename,inLoader) {
+		var _g = this;
+		var image = js.Browser.document.createElement("img");
+		if(inLoader != null) {
+			var data = { image : image, texture : this.___textureBuffer, inLoader : inLoader, bitmapData : this};
+			image.addEventListener("load",(function(f,a1) {
+				return function(e) {
+					return f(a1,e);
+				};
+			})($bind(this,this.__onLoad),data),false);
+			image.addEventListener("error",function(e) {
+				if(!image.complete) _g.__onLoad(data,e);
+			},false);
 		}
-		var _g = 0, _g1 = this.nmeCopyPixelList;
+		image.src = inFilename;
+		if(image.complete) {
+		}
+	}
+	,__incrNumRefBitmaps: function() {
+		this.__assignedBitmaps++;
+	}
+	,__getNumRefBitmaps: function() {
+		return this.__assignedBitmaps;
+	}
+	,__loadFromBytes: function(bytes,inRawAlpha,onload) {
+		var _g = this;
+		var type = "";
+		if(flash.display.BitmapData.__isPNG(bytes)) type = "image/png"; else if(flash.display.BitmapData.__isJPG(bytes)) type = "image/jpeg"; else throw new flash.errors.IOError("BitmapData tried to read a PNG/JPG ByteArray, but found an invalid header.");
+		if(inRawAlpha != null) this.__loadFromBase64(flash.display.BitmapData.__base64Encode(bytes),type,function(_) {
+			var ctx = _g.___textureBuffer.getContext("2d");
+			var pixels = ctx.getImageData(0,0,_g.___textureBuffer.width,_g.___textureBuffer.height);
+			var _g2 = 0, _g1 = inRawAlpha.length;
+			while(_g2 < _g1) {
+				var i = _g2++;
+				pixels.data[i * 4 + 3] = inRawAlpha.readUnsignedByte();
+			}
+			ctx.putImageData(pixels,0,0);
+			if(onload != null) onload(_g);
+		}); else this.__loadFromBase64(flash.display.BitmapData.__base64Encode(bytes),type,onload);
+	}
+	,__loadFromBase64: function(base64,type,onload) {
+		var _g = this;
+		var img = js.Browser.document.createElement("img");
+		var canvas = this.___textureBuffer;
+		var drawImage = function(_) {
+			canvas.width = img.width;
+			canvas.height = img.height;
+			var ctx = canvas.getContext("2d");
+			ctx.drawImage(img,0,0);
+			_g.rect = new flash.geom.Rectangle(0,0,canvas.width,canvas.height);
+			if(onload != null) onload(_g);
+		};
+		img.addEventListener("load",drawImage,false);
+		img.src = "data:" + type + ";base64," + base64;
+	}
+	,__getLease: function() {
+		return this.__lease;
+	}
+	,__fillRect: function(rect,color) {
+		this.__lease.set(this.__leaseNum++,new Date().getTime());
+		var ctx = this.___textureBuffer.getContext("2d");
+		var r = (color & 16711680) >>> 16;
+		var g = (color & 65280) >>> 8;
+		var b = color & 255;
+		var a = this.__transparent?color >>> 24:255;
+		if(!this.__locked) {
+			var style = "rgba(" + r + ", " + g + ", " + b + ", " + a / 255 + ")";
+			ctx.fillStyle = style;
+			ctx.fillRect(rect.x,rect.y,rect.width,rect.height);
+		} else {
+			var s = 4 * (Math.round(rect.x) + Math.round(rect.y) * this.__imageData.width);
+			var offsetY;
+			var offsetX;
+			var _g1 = 0, _g = Math.round(rect.height);
+			while(_g1 < _g) {
+				var i = _g1++;
+				offsetY = i * this.__imageData.width;
+				var _g3 = 0, _g2 = Math.round(rect.width);
+				while(_g3 < _g2) {
+					var j = _g3++;
+					offsetX = 4 * (j + offsetY);
+					this.__imageData.data[s + offsetX] = r;
+					this.__imageData.data[s + offsetX + 1] = g;
+					this.__imageData.data[s + offsetX + 2] = b;
+					this.__imageData.data[s + offsetX + 3] = a;
+				}
+			}
+			this.__imageDataChanged = true;
+		}
+	}
+	,__decrNumRefBitmaps: function() {
+		this.__assignedBitmaps--;
+	}
+	,__clearCanvas: function() {
+		var ctx = this.___textureBuffer.getContext("2d");
+		ctx.clearRect(0,0,this.___textureBuffer.width,this.___textureBuffer.height);
+	}
+	,__buildLease: function() {
+		this.__lease.set(this.__leaseNum++,new Date().getTime());
+	}
+	,unlock: function(changeRect) {
+		this.__locked = false;
+		var ctx = this.___textureBuffer.getContext("2d");
+		if(this.__imageDataChanged) {
+			if(changeRect != null) ctx.putImageData(this.__imageData,0,0,changeRect.x,changeRect.y,changeRect.width,changeRect.height); else ctx.putImageData(this.__imageData,0,0);
+		}
+		var _g = 0, _g1 = this.__copyPixelList;
 		while(_g < _g1.length) {
 			var copyCache = _g1[_g];
 			++_g;
-			if(this.nmeTransparent && copyCache.transparentFiller != null) {
+			if(this.__transparent && copyCache.transparentFiller != null) {
 				var trpCtx = copyCache.transparentFiller.getContext("2d");
 				var trpData = trpCtx.getImageData(copyCache.sourceX,copyCache.sourceY,copyCache.sourceWidth,copyCache.sourceHeight);
 				ctx.putImageData(trpData,copyCache.destX,copyCache.destY);
 			}
 			ctx.drawImage(copyCache.handle,copyCache.sourceX,copyCache.sourceY,copyCache.sourceWidth,copyCache.sourceHeight,copyCache.destX,copyCache.destY,copyCache.sourceWidth,copyCache.sourceHeight);
 		}
-		this.nmeLease.set(this.nmeLeaseNum++,new Date().getTime());
+		this.__lease.set(this.__leaseNum++,new Date().getTime());
 	}
 	,threshold: function(sourceBitmapData,sourceRect,destPoint,operation,threshold,color,mask,copySource) {
 		if(copySource == null) copySource = false;
@@ -3066,8 +3199,8 @@ flash.display.BitmapData.prototype = {
 		rect = this.clipRect(rect);
 		if(rect == null) return;
 		var len = Math.round(4 * rect.width * rect.height);
-		if(!this.nmeLocked) {
-			var ctx = this._nmeTextureBuffer.getContext("2d");
+		if(!this.__locked) {
+			var ctx = this.___textureBuffer.getContext("2d");
 			var imageData = ctx.createImageData(rect.width,rect.height);
 			var _g = 0;
 			while(_g < len) {
@@ -3076,57 +3209,57 @@ flash.display.BitmapData.prototype = {
 			}
 			ctx.putImageData(imageData,rect.x,rect.y);
 		} else {
-			var offset = Math.round(4 * this.nmeImageData.width * rect.y + rect.x * 4);
+			var offset = Math.round(4 * this.__imageData.width * rect.y + rect.x * 4);
 			var pos = offset;
 			var boundR = Math.round(4 * (rect.x + rect.width));
 			var _g = 0;
 			while(_g < len) {
 				var i = _g++;
-				if(pos % (this.nmeImageData.width * 4) > boundR - 1) pos += this.nmeImageData.width * 4 - boundR;
-				this.nmeImageData.data[pos] = byteArray.readByte();
+				if(pos % (this.__imageData.width * 4) > boundR - 1) pos += this.__imageData.width * 4 - boundR;
+				this.__imageData.data[pos] = byteArray.readByte();
 				pos++;
 			}
-			this.nmeImageDataChanged = true;
+			this.__imageDataChanged = true;
 		}
 	}
 	,setPixel32: function(x,y,color) {
-		if(x < 0 || y < 0 || x >= (this._nmeTextureBuffer != null?this._nmeTextureBuffer.width:0) || y >= (this._nmeTextureBuffer != null?this._nmeTextureBuffer.height:0)) return;
-		if(!this.nmeLocked) {
-			this.nmeLease.set(this.nmeLeaseNum++,new Date().getTime());
-			var ctx = this._nmeTextureBuffer.getContext("2d");
+		if(x < 0 || y < 0 || x >= (this.___textureBuffer != null?this.___textureBuffer.width:0) || y >= (this.___textureBuffer != null?this.___textureBuffer.height:0)) return;
+		if(!this.__locked) {
+			this.__lease.set(this.__leaseNum++,new Date().getTime());
+			var ctx = this.___textureBuffer.getContext("2d");
 			var imageData = ctx.createImageData(1,1);
 			imageData.data[0] = (color & 16711680) >>> 16;
 			imageData.data[1] = (color & 65280) >>> 8;
 			imageData.data[2] = color & 255;
-			if(this.nmeTransparent) imageData.data[3] = (color & -16777216) >>> 24; else imageData.data[3] = 255;
+			if(this.__transparent) imageData.data[3] = (color & -16777216) >>> 24; else imageData.data[3] = 255;
 			ctx.putImageData(imageData,x,y);
 		} else {
-			var offset = 4 * y * this.nmeImageData.width + x * 4;
-			this.nmeImageData.data[offset] = (color & 16711680) >>> 16;
-			this.nmeImageData.data[offset + 1] = (color & 65280) >>> 8;
-			this.nmeImageData.data[offset + 2] = color & 255;
-			if(this.nmeTransparent) this.nmeImageData.data[offset + 3] = (color & -16777216) >>> 24; else this.nmeImageData.data[offset + 3] = 255;
-			this.nmeImageDataChanged = true;
+			var offset = 4 * y * this.__imageData.width + x * 4;
+			this.__imageData.data[offset] = (color & 16711680) >>> 16;
+			this.__imageData.data[offset + 1] = (color & 65280) >>> 8;
+			this.__imageData.data[offset + 2] = color & 255;
+			if(this.__transparent) this.__imageData.data[offset + 3] = (color & -16777216) >>> 24; else this.__imageData.data[offset + 3] = 255;
+			this.__imageDataChanged = true;
 		}
 	}
 	,setPixel: function(x,y,color) {
-		if(x < 0 || y < 0 || x >= (this._nmeTextureBuffer != null?this._nmeTextureBuffer.width:0) || y >= (this._nmeTextureBuffer != null?this._nmeTextureBuffer.height:0)) return;
-		if(!this.nmeLocked) {
-			this.nmeLease.set(this.nmeLeaseNum++,new Date().getTime());
-			var ctx = this._nmeTextureBuffer.getContext("2d");
+		if(x < 0 || y < 0 || x >= (this.___textureBuffer != null?this.___textureBuffer.width:0) || y >= (this.___textureBuffer != null?this.___textureBuffer.height:0)) return;
+		if(!this.__locked) {
+			this.__lease.set(this.__leaseNum++,new Date().getTime());
+			var ctx = this.___textureBuffer.getContext("2d");
 			var imageData = ctx.createImageData(1,1);
 			imageData.data[0] = (color & 16711680) >>> 16;
 			imageData.data[1] = (color & 65280) >>> 8;
 			imageData.data[2] = color & 255;
-			if(this.nmeTransparent) imageData.data[3] = 255;
+			if(this.__transparent) imageData.data[3] = 255;
 			ctx.putImageData(imageData,x,y);
 		} else {
-			var offset = 4 * y * this.nmeImageData.width + x * 4;
-			this.nmeImageData.data[offset] = (color & 16711680) >>> 16;
-			this.nmeImageData.data[offset + 1] = (color & 65280) >>> 8;
-			this.nmeImageData.data[offset + 2] = color & 255;
-			if(this.nmeTransparent) this.nmeImageData.data[offset + 3] = 255;
-			this.nmeImageDataChanged = true;
+			var offset = 4 * y * this.__imageData.width + x * 4;
+			this.__imageData.data[offset] = (color & 16711680) >>> 16;
+			this.__imageData.data[offset + 1] = (color & 65280) >>> 8;
+			this.__imageData.data[offset + 2] = color & 255;
+			if(this.__transparent) this.__imageData.data[offset + 3] = 255;
+			this.__imageDataChanged = true;
 		}
 	}
 	,scroll: function(x,y) {
@@ -3138,10 +3271,10 @@ flash.display.BitmapData.prototype = {
 		if(high == null) high = 255;
 		if(low == null) low = 0;
 		var generator = new flash.display._BitmapData.MinstdGenerator(randomSeed);
-		var ctx = this._nmeTextureBuffer.getContext("2d");
+		var ctx = this.___textureBuffer.getContext("2d");
 		var imageData = null;
-		if(this.nmeLocked) imageData = this.nmeImageData; else imageData = ctx.createImageData(this._nmeTextureBuffer.width,this._nmeTextureBuffer.height);
-		var _g1 = 0, _g = this._nmeTextureBuffer.width * this._nmeTextureBuffer.height;
+		if(this.__locked) imageData = this.__imageData; else imageData = ctx.createImageData(this.___textureBuffer.width,this.___textureBuffer.height);
+		var _g1 = 0, _g = this.___textureBuffer.width * this.___textureBuffer.height;
 		while(_g1 < _g) {
 			var i = _g1++;
 			if(grayScale) imageData.data[i * 4] = imageData.data[i * 4 + 1] = imageData.data[i * 4 + 2] = low + generator.nextValue() % (high - low + 1); else {
@@ -3151,109 +3284,14 @@ flash.display.BitmapData.prototype = {
 			}
 			imageData.data[i * 4 + 3] = (channelOptions & 8) == 0?255:low + generator.nextValue() % (high - low + 1);
 		}
-		if(this.nmeLocked) this.nmeImageDataChanged = true; else ctx.putImageData(imageData,0,0);
-	}
-	,nmeLoadFromFile: function(inFilename,inLoader) {
-		var _g = this;
-		var image = js.Browser.document.createElement("img");
-		if(inLoader != null) {
-			var data = { image : image, texture : this._nmeTextureBuffer, inLoader : inLoader, bitmapData : this};
-			image.addEventListener("load",(function(f,a1) {
-				return function(e) {
-					return f(a1,e);
-				};
-			})($bind(this,this.nmeOnLoad),data),false);
-			image.addEventListener("error",function(e) {
-				if(!image.complete) _g.nmeOnLoad(data,e);
-			},false);
-		}
-		image.src = inFilename;
-		if(image.complete) {
-		}
-	}
-	,nmeIncrNumRefBitmaps: function() {
-		this.nmeAssignedBitmaps++;
-	}
-	,nmeGetNumRefBitmaps: function() {
-		return this.nmeAssignedBitmaps;
-	}
-	,nmeLoadFromBytes: function(bytes,inRawAlpha,onload) {
-		var _g = this;
-		var type = "";
-		if(flash.display.BitmapData.nmeIsPNG(bytes)) type = "image/png"; else if(flash.display.BitmapData.nmeIsJPG(bytes)) type = "image/jpeg"; else throw new flash.errors.IOError("BitmapData tried to read a PNG/JPG ByteArray, but found an invalid header.");
-		var img = js.Browser.document.createElement("img");
-		var canvas = this._nmeTextureBuffer;
-		var drawImage = function(_) {
-			canvas.width = img.width;
-			canvas.height = img.height;
-			var ctx = canvas.getContext("2d");
-			ctx.drawImage(img,0,0);
-			if(inRawAlpha != null) {
-				var pixels = ctx.getImageData(0,0,img.width,img.height);
-				var _g1 = 0, _g2 = inRawAlpha.length;
-				while(_g1 < _g2) {
-					var i = _g1++;
-					pixels.data[i * 4 + 3] = inRawAlpha.readUnsignedByte();
-				}
-				ctx.putImageData(pixels,0,0);
-			}
-			_g.rect = new flash.geom.Rectangle(0,0,canvas.width,canvas.height);
-			if(onload != null) onload(_g);
-		};
-		img.addEventListener("load",drawImage,false);
-		img.src = "data:" + type + ";base64," + flash.display.BitmapData.nmeBase64Encode(bytes);
-	}
-	,nmeGetLease: function() {
-		return this.nmeLease;
-	}
-	,nmeFillRect: function(rect,color) {
-		this.nmeLease.set(this.nmeLeaseNum++,new Date().getTime());
-		var ctx = this._nmeTextureBuffer.getContext("2d");
-		var r = (color & 16711680) >>> 16;
-		var g = (color & 65280) >>> 8;
-		var b = color & 255;
-		var a = this.nmeTransparent?color >>> 24:255;
-		if(!this.nmeLocked) {
-			var style = "rgba(" + r + ", " + g + ", " + b + ", " + a / 255 + ")";
-			ctx.fillStyle = style;
-			ctx.fillRect(rect.x,rect.y,rect.width,rect.height);
-		} else {
-			var s = 4 * (Math.round(rect.x) + Math.round(rect.y) * this.nmeImageData.width);
-			var offsetY;
-			var offsetX;
-			var _g1 = 0, _g = Math.round(rect.height);
-			while(_g1 < _g) {
-				var i = _g1++;
-				offsetY = i * this.nmeImageData.width;
-				var _g3 = 0, _g2 = Math.round(rect.width);
-				while(_g3 < _g2) {
-					var j = _g3++;
-					offsetX = 4 * (j + offsetY);
-					this.nmeImageData.data[s + offsetX] = r;
-					this.nmeImageData.data[s + offsetX + 1] = g;
-					this.nmeImageData.data[s + offsetX + 2] = b;
-					this.nmeImageData.data[s + offsetX + 3] = a;
-				}
-			}
-			this.nmeImageDataChanged = true;
-		}
-	}
-	,nmeDecrNumRefBitmaps: function() {
-		this.nmeAssignedBitmaps--;
-	}
-	,nmeClearCanvas: function() {
-		var ctx = this._nmeTextureBuffer.getContext("2d");
-		ctx.clearRect(0,0,this._nmeTextureBuffer.width,this._nmeTextureBuffer.height);
-	}
-	,nmeBuildLease: function() {
-		this.nmeLease.set(this.nmeLeaseNum++,new Date().getTime());
+		if(this.__locked) this.__imageDataChanged = true; else ctx.putImageData(imageData,0,0);
 	}
 	,lock: function() {
-		this.nmeLocked = true;
-		var ctx = this._nmeTextureBuffer.getContext("2d");
-		this.nmeImageData = ctx.getImageData(0,0,this._nmeTextureBuffer != null?this._nmeTextureBuffer.width:0,this._nmeTextureBuffer != null?this._nmeTextureBuffer.height:0);
-		this.nmeImageDataChanged = false;
-		this.nmeCopyPixelList = [];
+		this.__locked = true;
+		var ctx = this.___textureBuffer.getContext("2d");
+		this.__imageData = ctx.getImageData(0,0,this.___textureBuffer != null?this.___textureBuffer.width:0,this.___textureBuffer != null?this.___textureBuffer.height:0);
+		this.__imageDataChanged = false;
+		this.__copyPixelList = [];
 	}
 	,hitTest: function(firstPoint,firstAlphaThreshold,secondObject,secondBitmapDataPoint,secondAlphaThreshold) {
 		if(secondAlphaThreshold == null) secondAlphaThreshold = 1;
@@ -3270,7 +3308,7 @@ flash.display.BitmapData.prototype = {
 				rect.y -= firstPoint.y;
 				rect = me.clipRect(me.rect);
 				if(me.rect == null) return false;
-				var boundingBox = new flash.geom.Rectangle(0,0,me._nmeTextureBuffer != null?me._nmeTextureBuffer.width:0,me._nmeTextureBuffer != null?me._nmeTextureBuffer.height:0);
+				var boundingBox = new flash.geom.Rectangle(0,0,me.___textureBuffer != null?me.___textureBuffer.width:0,me.___textureBuffer != null?me.___textureBuffer.height:0);
 				if(!rect.intersects(boundingBox)) return false;
 				var diff = rect.intersection(boundingBox);
 				var offset = 4 * (Math.round(diff.x) + Math.round(diff.y) * imageData.width) + 3;
@@ -3286,8 +3324,8 @@ flash.display.BitmapData.prototype = {
 				var point = secondObject;
 				var x = point.x - firstPoint.x;
 				var y = point.y - firstPoint.y;
-				if(x < 0 || y < 0 || x >= (me._nmeTextureBuffer != null?me._nmeTextureBuffer.width:0) || y >= (me._nmeTextureBuffer != null?me._nmeTextureBuffer.height:0)) return false;
-				if(imageData.data[Math.round(4 * (y * (me._nmeTextureBuffer != null?me._nmeTextureBuffer.width:0) + x)) + 3] - firstAlphaThreshold > 0) return true;
+				if(x < 0 || y < 0 || x >= (me.___textureBuffer != null?me.___textureBuffer.width:0) || y >= (me.___textureBuffer != null?me.___textureBuffer.height:0)) return false;
+				if(imageData.data[Math.round(4 * (y * (me.___textureBuffer != null?me.___textureBuffer.width:0) + x)) + 3] - firstAlphaThreshold > 0) return true;
 				return false;
 			case "Bitmap":
 				throw "bitmapData.hitTest with a second object of type Bitmap is currently not supported for HTML5";
@@ -3300,26 +3338,26 @@ flash.display.BitmapData.prototype = {
 				return false;
 			}
 		};
-		if(!this.nmeLocked) {
-			this.nmeLease.set(this.nmeLeaseNum++,new Date().getTime());
-			var ctx = this._nmeTextureBuffer.getContext("2d");
-			var imageData = ctx.getImageData(0,0,this._nmeTextureBuffer != null?this._nmeTextureBuffer.width:0,this._nmeTextureBuffer != null?this._nmeTextureBuffer.height:0);
+		if(!this.__locked) {
+			this.__lease.set(this.__leaseNum++,new Date().getTime());
+			var ctx = this.___textureBuffer.getContext("2d");
+			var imageData = ctx.getImageData(0,0,this.___textureBuffer != null?this.___textureBuffer.width:0,this.___textureBuffer != null?this.___textureBuffer.height:0);
 			return doHitTest(imageData);
-		} else return doHitTest(this.nmeImageData);
+		} else return doHitTest(this.__imageData);
 	}
 	,handle: function() {
-		return this._nmeTextureBuffer;
+		return this.___textureBuffer;
 	}
 	,getPixels: function(rect) {
 		var len = Math.round(4 * rect.width * rect.height);
 		var byteArray = new flash.utils.ByteArray();
-		if(byteArray.allocated < len) byteArray._nmeResizeBuffer(byteArray.allocated = Math.max(len,byteArray.allocated * 2) | 0); else if(byteArray.allocated > len) byteArray._nmeResizeBuffer(byteArray.allocated = len);
+		if(byteArray.allocated < len) byteArray.___resizeBuffer(byteArray.allocated = Math.max(len,byteArray.allocated * 2) | 0); else if(byteArray.allocated > len) byteArray.___resizeBuffer(byteArray.allocated = len);
 		byteArray.length = len;
 		len;
 		rect = this.clipRect(rect);
 		if(rect == null) return byteArray;
-		if(!this.nmeLocked) {
-			var ctx = this._nmeTextureBuffer.getContext("2d");
+		if(!this.__locked) {
+			var ctx = this.___textureBuffer.getContext("2d");
 			var imagedata = ctx.getImageData(rect.x,rect.y,rect.width,rect.height);
 			var _g = 0;
 			while(_g < len) {
@@ -3327,14 +3365,14 @@ flash.display.BitmapData.prototype = {
 				byteArray.writeByte(imagedata.data[i]);
 			}
 		} else {
-			var offset = Math.round(4 * this.nmeImageData.width * rect.y + rect.x * 4);
+			var offset = Math.round(4 * this.__imageData.width * rect.y + rect.x * 4);
 			var pos = offset;
 			var boundR = Math.round(4 * (rect.x + rect.width));
 			var _g = 0;
 			while(_g < len) {
 				var i = _g++;
-				if(pos % (this.nmeImageData.width * 4) > boundR - 1) pos += this.nmeImageData.width * 4 - boundR;
-				byteArray.writeByte(this.nmeImageData.data[pos]);
+				if(pos % (this.__imageData.width * 4) > boundR - 1) pos += this.__imageData.width * 4 - boundR;
+				byteArray.writeByte(this.__imageData.data[pos]);
 				pos++;
 			}
 		}
@@ -3342,45 +3380,45 @@ flash.display.BitmapData.prototype = {
 		return byteArray;
 	}
 	,getPixel32: function(x,y) {
-		if(x < 0 || y < 0 || x >= (this._nmeTextureBuffer != null?this._nmeTextureBuffer.width:0) || y >= (this._nmeTextureBuffer != null?this._nmeTextureBuffer.height:0)) return 0;
-		if(!this.nmeLocked) {
-			var ctx = this._nmeTextureBuffer.getContext("2d");
+		if(x < 0 || y < 0 || x >= (this.___textureBuffer != null?this.___textureBuffer.width:0) || y >= (this.___textureBuffer != null?this.___textureBuffer.height:0)) return 0;
+		if(!this.__locked) {
+			var ctx = this.___textureBuffer.getContext("2d");
 			return this.getInt32(0,ctx.getImageData(x,y,1,1).data);
-		} else return this.getInt32(4 * y * this._nmeTextureBuffer.width + x * 4,this.nmeImageData.data);
+		} else return this.getInt32(4 * y * this.___textureBuffer.width + x * 4,this.__imageData.data);
 	}
 	,getPixel: function(x,y) {
-		if(x < 0 || y < 0 || x >= (this._nmeTextureBuffer != null?this._nmeTextureBuffer.width:0) || y >= (this._nmeTextureBuffer != null?this._nmeTextureBuffer.height:0)) return 0;
-		if(!this.nmeLocked) {
-			var ctx = this._nmeTextureBuffer.getContext("2d");
+		if(x < 0 || y < 0 || x >= (this.___textureBuffer != null?this.___textureBuffer.width:0) || y >= (this.___textureBuffer != null?this.___textureBuffer.height:0)) return 0;
+		if(!this.__locked) {
+			var ctx = this.___textureBuffer.getContext("2d");
 			var imagedata = ctx.getImageData(x,y,1,1);
 			return imagedata.data[0] << 16 | imagedata.data[1] << 8 | imagedata.data[2];
 		} else {
-			var offset = 4 * y * (this._nmeTextureBuffer != null?this._nmeTextureBuffer.width:0) + x * 4;
-			return this.nmeImageData.data[offset] << 16 | this.nmeImageData.data[offset + 1] << 8 | this.nmeImageData.data[offset + 2];
+			var offset = 4 * y * (this.___textureBuffer != null?this.___textureBuffer.width:0) + x * 4;
+			return this.__imageData.data[offset] << 16 | this.__imageData.data[offset + 1] << 8 | this.__imageData.data[offset + 2];
 		}
 	}
 	,getInt32: function(offset,data) {
-		return (this.nmeTransparent?data[offset + 3]:255) << 24 | data[offset] << 16 | data[offset + 1] << 8 | data[offset + 2];
+		return (this.__transparent?data[offset + 3]:255) << 24 | data[offset] << 16 | data[offset + 1] << 8 | data[offset + 2];
 	}
 	,getColorBoundsRect: function(mask,color,findColor) {
 		if(findColor == null) findColor = true;
 		var me = this;
 		var doGetColorBoundsRect = function(data) {
-			var minX = me._nmeTextureBuffer != null?me._nmeTextureBuffer.width:0, maxX = 0, minY = me._nmeTextureBuffer != null?me._nmeTextureBuffer.height:0, maxY = 0, i = 0;
+			var minX = me.___textureBuffer != null?me.___textureBuffer.width:0, maxX = 0, minY = me.___textureBuffer != null?me.___textureBuffer.height:0, maxY = 0, i = 0;
 			while(i < data.length) {
 				var value = me.getInt32(i,data);
 				if(findColor) {
 					if((value & mask) == color) {
-						var x = Math.round(i % ((me._nmeTextureBuffer != null?me._nmeTextureBuffer.width:0) * 4) / 4);
-						var y = Math.round(i / ((me._nmeTextureBuffer != null?me._nmeTextureBuffer.width:0) * 4));
+						var x = Math.round(i % ((me.___textureBuffer != null?me.___textureBuffer.width:0) * 4) / 4);
+						var y = Math.round(i / ((me.___textureBuffer != null?me.___textureBuffer.width:0) * 4));
 						if(x < minX) minX = x;
 						if(x > maxX) maxX = x;
 						if(y < minY) minY = y;
 						if(y > maxY) maxY = y;
 					}
 				} else if((value & mask) != color) {
-					var x = Math.round(i % ((me._nmeTextureBuffer != null?me._nmeTextureBuffer.width:0) * 4) / 4);
-					var y = Math.round(i / ((me._nmeTextureBuffer != null?me._nmeTextureBuffer.width:0) * 4));
+					var x = Math.round(i % ((me.___textureBuffer != null?me.___textureBuffer.width:0) * 4) / 4);
+					var y = Math.round(i / ((me.___textureBuffer != null?me.___textureBuffer.width:0) * 4));
 					if(x < minX) minX = x;
 					if(x > maxX) maxX = x;
 					if(y < minY) minY = y;
@@ -3388,27 +3426,27 @@ flash.display.BitmapData.prototype = {
 				}
 				i += 4;
 			}
-			if(minX < maxX && minY < maxY) return new flash.geom.Rectangle(minX,minY,maxX - minX + 1,maxY - minY); else return new flash.geom.Rectangle(0,0,me._nmeTextureBuffer != null?me._nmeTextureBuffer.width:0,me._nmeTextureBuffer != null?me._nmeTextureBuffer.height:0);
+			if(minX < maxX && minY < maxY) return new flash.geom.Rectangle(minX,minY,maxX - minX + 1,maxY - minY); else return new flash.geom.Rectangle(0,0,me.___textureBuffer != null?me.___textureBuffer.width:0,me.___textureBuffer != null?me.___textureBuffer.height:0);
 		};
-		if(!this.nmeLocked) {
-			var ctx = this._nmeTextureBuffer.getContext("2d");
-			var imageData = ctx.getImageData(0,0,this._nmeTextureBuffer != null?this._nmeTextureBuffer.width:0,this._nmeTextureBuffer != null?this._nmeTextureBuffer.height:0);
+		if(!this.__locked) {
+			var ctx = this.___textureBuffer.getContext("2d");
+			var imageData = ctx.getImageData(0,0,this.___textureBuffer != null?this.___textureBuffer.width:0,this.___textureBuffer != null?this.___textureBuffer.height:0);
 			return doGetColorBoundsRect(imageData.data);
-		} else return doGetColorBoundsRect(this.nmeImageData.data);
+		} else return doGetColorBoundsRect(this.__imageData.data);
 	}
 	,floodFill: function(x,y,color) {
-		var wasLocked = this.nmeLocked;
-		if(!this.nmeLocked) this.lock();
+		var wasLocked = this.__locked;
+		if(!this.__locked) this.lock();
 		var queue = new Array();
 		queue.push(new flash.geom.Point(x,y));
 		var old = this.getPixel32(x,y);
 		var iterations = 0;
 		var search = new Array();
-		var _g1 = 0, _g = (this._nmeTextureBuffer != null?this._nmeTextureBuffer.width:0) + 1;
+		var _g1 = 0, _g = (this.___textureBuffer != null?this.___textureBuffer.width:0) + 1;
 		while(_g1 < _g) {
 			var i = _g1++;
 			var column = new Array();
-			var _g3 = 0, _g2 = (this._nmeTextureBuffer != null?this._nmeTextureBuffer.height:0) + 1;
+			var _g3 = 0, _g2 = (this.___textureBuffer != null?this.___textureBuffer.height:0) + 1;
 			while(_g3 < _g2) {
 				var i1 = _g3++;
 				column.push(false);
@@ -3421,8 +3459,8 @@ flash.display.BitmapData.prototype = {
 			++iterations;
 			var x1 = currPoint.x | 0;
 			var y1 = currPoint.y | 0;
-			if(x1 < 0 || x1 >= (this._nmeTextureBuffer != null?this._nmeTextureBuffer.width:0)) continue;
-			if(y1 < 0 || y1 >= (this._nmeTextureBuffer != null?this._nmeTextureBuffer.height:0)) continue;
+			if(x1 < 0 || x1 >= (this.___textureBuffer != null?this.___textureBuffer.width:0)) continue;
+			if(y1 < 0 || y1 >= (this.___textureBuffer != null?this.___textureBuffer.height:0)) continue;
 			search[x1][y1] = true;
 			if(this.getPixel32(x1,y1) == old) {
 				this.setPixel32(x1,y1,color);
@@ -3437,31 +3475,31 @@ flash.display.BitmapData.prototype = {
 	,fillRect: function(rect,color) {
 		if(rect == null) return;
 		if(rect.width <= 0 || rect.height <= 0) return;
-		if(rect.x == 0 && rect.y == 0 && rect.width == this._nmeTextureBuffer.width && rect.height == this._nmeTextureBuffer.height) {
-			if(this.nmeTransparent) {
-				if(color >>> 24 == 0 || color == this.nmeInitColor) return this.nmeClearCanvas();
-			} else if((color | -16777216) == (this.nmeInitColor | -16777216)) return this.nmeClearCanvas();
+		if(rect.x == 0 && rect.y == 0 && rect.width == this.___textureBuffer.width && rect.height == this.___textureBuffer.height) {
+			if(this.__transparent) {
+				if(color >>> 24 == 0 || color == this.__initColor) return this.__clearCanvas();
+			} else if((color | -16777216) == (this.__initColor | -16777216)) return this.__clearCanvas();
 		}
-		return this.nmeFillRect(rect,color);
+		return this.__fillRect(rect,color);
 	}
 	,drawToSurface: function(inSurface,matrix,inColorTransform,blendMode,clipRect,smoothing) {
-		this.nmeLease.set(this.nmeLeaseNum++,new Date().getTime());
+		this.__lease.set(this.__leaseNum++,new Date().getTime());
 		var ctx = inSurface.getContext("2d");
 		if(matrix != null) {
 			ctx.save();
 			if(matrix.a == 1 && matrix.b == 0 && matrix.c == 0 && matrix.d == 1) ctx.translate(matrix.tx,matrix.ty); else {
-				flash.Lib.nmeSetImageSmoothing(ctx,smoothing);
+				flash.Lib.__setImageSmoothing(ctx,smoothing);
 				ctx.setTransform(matrix.a,matrix.b,matrix.c,matrix.d,matrix.tx,matrix.ty);
 			}
-			ctx.drawImage(this._nmeTextureBuffer,0,0);
+			ctx.drawImage(this.___textureBuffer,0,0);
 			ctx.restore();
-		} else ctx.drawImage(this._nmeTextureBuffer,0,0);
-		if(inColorTransform != null) this.colorTransform(new flash.geom.Rectangle(0,0,this._nmeTextureBuffer.width,this._nmeTextureBuffer.height),inColorTransform);
+		} else ctx.drawImage(this.___textureBuffer,0,0);
+		if(inColorTransform != null) this.colorTransform(new flash.geom.Rectangle(0,0,this.___textureBuffer.width,this.___textureBuffer.height),inColorTransform);
 	}
 	,draw: function(source,matrix,inColorTransform,blendMode,clipRect,smoothing) {
 		if(smoothing == null) smoothing = false;
-		this.nmeLease.set(this.nmeLeaseNum++,new Date().getTime());
-		source.drawToSurface(this._nmeTextureBuffer,matrix,inColorTransform,blendMode,clipRect,smoothing);
+		this.__lease.set(this.__leaseNum++,new Date().getTime());
+		source.drawToSurface(this.___textureBuffer,matrix,inColorTransform,blendMode,clipRect,smoothing);
 		if(inColorTransform != null) {
 			var rect = new flash.geom.Rectangle();
 			var object = source;
@@ -3471,56 +3509,56 @@ flash.display.BitmapData.prototype = {
 				rect.width = Reflect.getProperty(source,"width");
 				rect.height = Reflect.getProperty(source,"height");
 			} catch( e ) {
-				rect.width = this._nmeTextureBuffer.width;
-				rect.height = this._nmeTextureBuffer.height;
+				rect.width = this.___textureBuffer.width;
+				rect.height = this.___textureBuffer.height;
 			}
 			this.colorTransform(rect,inColorTransform);
 		}
 	}
 	,dispose: function() {
-		this.nmeClearCanvas();
-		this._nmeTextureBuffer = null;
-		this.nmeLeaseNum = 0;
-		this.nmeLease = null;
-		this.nmeImageData = null;
+		this.__clearCanvas();
+		this.___textureBuffer = null;
+		this.__leaseNum = 0;
+		this.__lease = null;
+		this.__imageData = null;
 	}
 	,destroy: function() {
-		this._nmeTextureBuffer = null;
+		this.___textureBuffer = null;
 	}
 	,copyPixels: function(sourceBitmapData,sourceRect,destPoint,alphaBitmapData,alphaPoint,mergeAlpha) {
 		if(mergeAlpha == null) mergeAlpha = false;
-		if(sourceBitmapData._nmeTextureBuffer == null || this._nmeTextureBuffer == null || sourceBitmapData._nmeTextureBuffer.width == 0 || sourceBitmapData._nmeTextureBuffer.height == 0 || sourceRect.width <= 0 || sourceRect.height <= 0) return;
-		if(sourceRect.x + sourceRect.width > sourceBitmapData._nmeTextureBuffer.width) sourceRect.width = sourceBitmapData._nmeTextureBuffer.width - sourceRect.x;
-		if(sourceRect.y + sourceRect.height > sourceBitmapData._nmeTextureBuffer.height) sourceRect.height = sourceBitmapData._nmeTextureBuffer.height - sourceRect.y;
-		if(alphaBitmapData != null && alphaBitmapData.nmeTransparent) {
+		if(sourceBitmapData.___textureBuffer == null || this.___textureBuffer == null || sourceBitmapData.___textureBuffer.width == 0 || sourceBitmapData.___textureBuffer.height == 0 || sourceRect.width <= 0 || sourceRect.height <= 0) return;
+		if(sourceRect.x + sourceRect.width > sourceBitmapData.___textureBuffer.width) sourceRect.width = sourceBitmapData.___textureBuffer.width - sourceRect.x;
+		if(sourceRect.y + sourceRect.height > sourceBitmapData.___textureBuffer.height) sourceRect.height = sourceBitmapData.___textureBuffer.height - sourceRect.y;
+		if(alphaBitmapData != null && alphaBitmapData.__transparent) {
 			if(alphaPoint == null) alphaPoint = new flash.geom.Point();
-			var bitmapData = new flash.display.BitmapData(sourceBitmapData._nmeTextureBuffer != null?sourceBitmapData._nmeTextureBuffer.width:0,sourceBitmapData._nmeTextureBuffer != null?sourceBitmapData._nmeTextureBuffer.height:0,true);
+			var bitmapData = new flash.display.BitmapData(sourceBitmapData.___textureBuffer != null?sourceBitmapData.___textureBuffer.width:0,sourceBitmapData.___textureBuffer != null?sourceBitmapData.___textureBuffer.height:0,true);
 			bitmapData.copyPixels(sourceBitmapData,sourceRect,new flash.geom.Point(sourceRect.x,sourceRect.y));
 			bitmapData.copyChannel(alphaBitmapData,new flash.geom.Rectangle(alphaPoint.x,alphaPoint.y,sourceRect.width,sourceRect.height),new flash.geom.Point(sourceRect.x,sourceRect.y),8,8);
 			sourceBitmapData = bitmapData;
 		}
-		if(!this.nmeLocked) {
-			this.nmeLease.set(this.nmeLeaseNum++,new Date().getTime());
-			var ctx = this._nmeTextureBuffer.getContext("2d");
+		if(!this.__locked) {
+			this.__lease.set(this.__leaseNum++,new Date().getTime());
+			var ctx = this.___textureBuffer.getContext("2d");
 			if(!mergeAlpha) {
-				if(this.nmeTransparent && sourceBitmapData.nmeTransparent) {
-					var trpCtx = sourceBitmapData.nmeTransparentFiller.getContext("2d");
+				if(this.__transparent && sourceBitmapData.__transparent) {
+					var trpCtx = sourceBitmapData.__transparentFiller.getContext("2d");
 					var trpData = trpCtx.getImageData(sourceRect.x,sourceRect.y,sourceRect.width,sourceRect.height);
 					ctx.putImageData(trpData,destPoint.x,destPoint.y);
 				}
 			}
-			ctx.drawImage(sourceBitmapData._nmeTextureBuffer,sourceRect.x,sourceRect.y,sourceRect.width,sourceRect.height,destPoint.x,destPoint.y,sourceRect.width,sourceRect.height);
-		} else this.nmeCopyPixelList[this.nmeCopyPixelList.length] = { handle : sourceBitmapData._nmeTextureBuffer, transparentFiller : mergeAlpha?null:sourceBitmapData.nmeTransparentFiller, sourceX : sourceRect.x, sourceY : sourceRect.y, sourceWidth : sourceRect.width, sourceHeight : sourceRect.height, destX : destPoint.x, destY : destPoint.y};
+			ctx.drawImage(sourceBitmapData.___textureBuffer,sourceRect.x,sourceRect.y,sourceRect.width,sourceRect.height,destPoint.x,destPoint.y,sourceRect.width,sourceRect.height);
+		} else this.__copyPixelList[this.__copyPixelList.length] = { handle : sourceBitmapData.___textureBuffer, transparentFiller : mergeAlpha?null:sourceBitmapData.__transparentFiller, sourceX : sourceRect.x, sourceY : sourceRect.y, sourceWidth : sourceRect.width, sourceHeight : sourceRect.height, destX : destPoint.x, destY : destPoint.y};
 	}
 	,copyChannel: function(sourceBitmapData,sourceRect,destPoint,sourceChannel,destChannel) {
 		this.rect = this.clipRect(this.rect);
 		if(this.rect == null) return;
-		if(destChannel == 8 && !this.nmeTransparent) return;
-		if(sourceBitmapData._nmeTextureBuffer == null || this._nmeTextureBuffer == null || sourceRect.width <= 0 || sourceRect.height <= 0) return;
-		if(sourceRect.x + sourceRect.width > sourceBitmapData._nmeTextureBuffer.width) sourceRect.width = sourceBitmapData._nmeTextureBuffer.width - sourceRect.x;
-		if(sourceRect.y + sourceRect.height > sourceBitmapData._nmeTextureBuffer.height) sourceRect.height = sourceBitmapData._nmeTextureBuffer.height - sourceRect.y;
+		if(destChannel == 8 && !this.__transparent) return;
+		if(sourceBitmapData.___textureBuffer == null || this.___textureBuffer == null || sourceRect.width <= 0 || sourceRect.height <= 0) return;
+		if(sourceRect.x + sourceRect.width > sourceBitmapData.___textureBuffer.width) sourceRect.width = sourceBitmapData.___textureBuffer.width - sourceRect.x;
+		if(sourceRect.y + sourceRect.height > sourceBitmapData.___textureBuffer.height) sourceRect.height = sourceBitmapData.___textureBuffer.height - sourceRect.y;
 		var doChannelCopy = function(imageData) {
-			var srcCtx = sourceBitmapData._nmeTextureBuffer.getContext("2d");
+			var srcCtx = sourceBitmapData.___textureBuffer.getContext("2d");
 			var srcImageData = srcCtx.getImageData(sourceRect.x,sourceRect.y,sourceRect.width,sourceRect.height);
 			var destIdx = -1;
 			if(destChannel == 8) destIdx = 3; else if(destChannel == 4) destIdx = 2; else if(destChannel == 2) destIdx = 1; else if(destChannel == 1) destIdx = 0; else throw "Invalid destination BitmapDataChannel passed to BitmapData::copyChannel.";
@@ -3538,15 +3576,15 @@ flash.display.BitmapData.prototype = {
 				srcIdx += 4;
 			}
 		};
-		if(!this.nmeLocked) {
-			this.nmeLease.set(this.nmeLeaseNum++,new Date().getTime());
-			var ctx = this._nmeTextureBuffer.getContext("2d");
-			var imageData = ctx.getImageData(0,0,this._nmeTextureBuffer != null?this._nmeTextureBuffer.width:0,this._nmeTextureBuffer != null?this._nmeTextureBuffer.height:0);
+		if(!this.__locked) {
+			this.__lease.set(this.__leaseNum++,new Date().getTime());
+			var ctx = this.___textureBuffer.getContext("2d");
+			var imageData = ctx.getImageData(0,0,this.___textureBuffer != null?this.___textureBuffer.width:0,this.___textureBuffer != null?this.___textureBuffer.height:0);
 			doChannelCopy(imageData);
 			ctx.putImageData(imageData,0,0);
 		} else {
-			doChannelCopy(this.nmeImageData);
-			this.nmeImageDataChanged = true;
+			doChannelCopy(this.__imageData);
+			this.__imageDataChanged = true;
 		}
 	}
 	,compare: function(inBitmapTexture) {
@@ -3556,9 +3594,9 @@ flash.display.BitmapData.prototype = {
 	,colorTransform: function(rect,colorTransform) {
 		if(rect == null) return;
 		rect = this.clipRect(rect);
-		if(!this.nmeLocked) {
-			this.nmeLease.set(this.nmeLeaseNum++,new Date().getTime());
-			var ctx = this._nmeTextureBuffer.getContext("2d");
+		if(!this.__locked) {
+			this.__lease.set(this.__leaseNum++,new Date().getTime());
+			var ctx = this.___textureBuffer.getContext("2d");
 			var imagedata = ctx.getImageData(rect.x,rect.y,rect.width,rect.height);
 			var offsetX;
 			var _g1 = 0, _g = imagedata.data.length >> 2;
@@ -3572,31 +3610,31 @@ flash.display.BitmapData.prototype = {
 			}
 			ctx.putImageData(imagedata,rect.x,rect.y);
 		} else {
-			var s = 4 * (Math.round(rect.x) + Math.round(rect.y) * this.nmeImageData.width);
+			var s = 4 * (Math.round(rect.x) + Math.round(rect.y) * this.__imageData.width);
 			var offsetY;
 			var offsetX;
 			var _g1 = 0, _g = Math.round(rect.height);
 			while(_g1 < _g) {
 				var i = _g1++;
-				offsetY = i * this.nmeImageData.width;
+				offsetY = i * this.__imageData.width;
 				var _g3 = 0, _g2 = Math.round(rect.width);
 				while(_g3 < _g2) {
 					var j = _g3++;
 					offsetX = 4 * (j + offsetY);
-					this.nmeImageData.data[s + offsetX] = this.nmeImageData.data[s + offsetX] * colorTransform.redMultiplier + colorTransform.redOffset | 0;
-					this.nmeImageData.data[s + offsetX + 1] = this.nmeImageData.data[s + offsetX + 1] * colorTransform.greenMultiplier + colorTransform.greenOffset | 0;
-					this.nmeImageData.data[s + offsetX + 2] = this.nmeImageData.data[s + offsetX + 2] * colorTransform.blueMultiplier + colorTransform.blueOffset | 0;
-					this.nmeImageData.data[s + offsetX + 3] = this.nmeImageData.data[s + offsetX + 3] * colorTransform.alphaMultiplier + colorTransform.alphaOffset | 0;
+					this.__imageData.data[s + offsetX] = this.__imageData.data[s + offsetX] * colorTransform.redMultiplier + colorTransform.redOffset | 0;
+					this.__imageData.data[s + offsetX + 1] = this.__imageData.data[s + offsetX + 1] * colorTransform.greenMultiplier + colorTransform.greenOffset | 0;
+					this.__imageData.data[s + offsetX + 2] = this.__imageData.data[s + offsetX + 2] * colorTransform.blueMultiplier + colorTransform.blueOffset | 0;
+					this.__imageData.data[s + offsetX + 3] = this.__imageData.data[s + offsetX + 3] * colorTransform.alphaMultiplier + colorTransform.alphaOffset | 0;
 				}
 			}
-			this.nmeImageDataChanged = true;
+			this.__imageDataChanged = true;
 		}
 	}
 	,clone: function() {
-		var bitmapData = new flash.display.BitmapData(this._nmeTextureBuffer != null?this._nmeTextureBuffer.width:0,this._nmeTextureBuffer != null?this._nmeTextureBuffer.height:0,this.nmeTransparent);
-		var rect = new flash.geom.Rectangle(0,0,this._nmeTextureBuffer != null?this._nmeTextureBuffer.width:0,this._nmeTextureBuffer != null?this._nmeTextureBuffer.height:0);
+		var bitmapData = new flash.display.BitmapData(this.___textureBuffer != null?this.___textureBuffer.width:0,this.___textureBuffer != null?this.___textureBuffer.height:0,this.__transparent);
+		var rect = new flash.geom.Rectangle(0,0,this.___textureBuffer != null?this.___textureBuffer.width:0,this.___textureBuffer != null?this.___textureBuffer.height:0);
 		bitmapData.setPixels(rect,this.getPixels(rect));
-		bitmapData.nmeLease.set(bitmapData.nmeLeaseNum++,new Date().getTime());
+		bitmapData.__lease.set(bitmapData.__leaseNum++,new Date().getTime());
 		return bitmapData;
 	}
 	,clipRect: function(r) {
@@ -3610,12 +3648,12 @@ flash.display.BitmapData.prototype = {
 			r.y = 0;
 			if(r.y + r.height <= 0) return null;
 		}
-		if(r.x + r.width >= (this._nmeTextureBuffer != null?this._nmeTextureBuffer.width:0)) {
-			r.width -= r.x + r.width - (this._nmeTextureBuffer != null?this._nmeTextureBuffer.width:0);
+		if(r.x + r.width >= (this.___textureBuffer != null?this.___textureBuffer.width:0)) {
+			r.width -= r.x + r.width - (this.___textureBuffer != null?this.___textureBuffer.width:0);
 			if(r.width <= 0) return null;
 		}
-		if(r.y + r.height >= (this._nmeTextureBuffer != null?this._nmeTextureBuffer.height:0)) {
-			r.height -= r.y + r.height - (this._nmeTextureBuffer != null?this._nmeTextureBuffer.height:0);
+		if(r.y + r.height >= (this.___textureBuffer != null?this.___textureBuffer.height:0)) {
+			r.height -= r.y + r.height - (this.___textureBuffer != null?this.___textureBuffer.height:0);
 			if(r.height <= 0) return null;
 		}
 		return r;
@@ -3624,30 +3662,30 @@ flash.display.BitmapData.prototype = {
 		this.fillRect(this.rect,color);
 	}
 	,applyFilter: function(sourceBitmapData,sourceRect,destPoint,filter) {
-		if(sourceBitmapData == this && sourceRect.x == destPoint.x && sourceRect.y == destPoint.y) filter.nmeApplyFilter(this._nmeTextureBuffer,sourceRect); else {
+		if(sourceBitmapData == this && sourceRect.x == destPoint.x && sourceRect.y == destPoint.y) filter.__applyFilter(this.___textureBuffer,sourceRect); else {
 			var bitmapData = new flash.display.BitmapData(sourceRect.width | 0,sourceRect.height | 0);
 			bitmapData.copyPixels(sourceBitmapData,sourceRect,new flash.geom.Point());
-			filter.nmeApplyFilter(bitmapData._nmeTextureBuffer);
+			filter.__applyFilter(bitmapData.___textureBuffer);
 			this.copyPixels(bitmapData,bitmapData.rect,destPoint);
 		}
 	}
-	,_nmeTextureBuffer: null
-	,_nmeId: null
-	,nmeTransparentFiller: null
-	,nmeTransparent: null
-	,nmeLocked: null
-	,nmeLeaseNum: null
-	,nmeLease: null
-	,nmeInitColor: null
-	,nmeImageDataChanged: null
-	,nmeCopyPixelList: null
-	,nmeAssignedBitmaps: null
+	,___textureBuffer: null
+	,___id: null
+	,__transparentFiller: null
+	,__transparent: null
+	,__locked: null
+	,__leaseNum: null
+	,__lease: null
+	,__initColor: null
+	,__imageDataChanged: null
+	,__copyPixelList: null
+	,__assignedBitmaps: null
+	,__referenceCount: null
+	,__glTexture: null
+	,__imageData: null
 	,width: null
 	,transparent: null
 	,rect: null
-	,nmeReferenceCount: null
-	,nmeGLTexture: null
-	,nmeImageData: null
 	,height: null
 	,__class__: flash.display.BitmapData
 	,__properties__: {get_height:"get_height",get_transparent:"get_transparent",get_width:"get_width"}
@@ -3760,12 +3798,12 @@ flash.display.GradientType.LINEAR = ["LINEAR",1];
 flash.display.GradientType.LINEAR.toString = $estr;
 flash.display.GradientType.LINEAR.__enum__ = flash.display.GradientType;
 flash.display.Graphics = function(inSurface) {
-	flash.Lib.nmeBootstrap();
+	flash.Lib.__bootstrap();
 	if(inSurface == null) {
-		this.nmeSurface = js.Browser.document.createElement("canvas");
-		this.nmeSurface.width = 0;
-		this.nmeSurface.height = 0;
-	} else this.nmeSurface = inSurface;
+		this.__surface = js.Browser.document.createElement("canvas");
+		this.__surface.width = 0;
+		this.__surface.height = 0;
+	} else this.__surface = inSurface;
 	this.mLastMoveID = 0;
 	this.mPenX = 0.0;
 	this.mPenY = 0.0;
@@ -3778,18 +3816,18 @@ flash.display.Graphics = function(inSurface) {
 	this.mFillAlpha = 0.0;
 	this.mLastMoveID = 0;
 	this.boundsDirty = true;
-	this.nmeClearLine();
+	this.__clearLine();
 	this.mLineJobs = [];
-	this.nmeChanged = true;
+	this.__changed = true;
 	this.nextDrawIndex = 0;
-	this.nmeExtent = new flash.geom.Rectangle();
-	this.nmeExtentWithFilters = new flash.geom.Rectangle();
+	this.__extent = new flash.geom.Rectangle();
+	this.__extentWithFilters = new flash.geom.Rectangle();
 	this._padding = 0.0;
-	this.nmeClearNextCycle = true;
+	this.__clearNextCycle = true;
 };
 $hxClasses["flash.display.Graphics"] = flash.display.Graphics;
 flash.display.Graphics.__name__ = ["flash","display","Graphics"];
-flash.display.Graphics.nmeDetectIsPointInPathMode = function() {
+flash.display.Graphics.__detectIsPointInPathMode = function() {
 	var canvas = js.Browser.document.createElement("canvas");
 	var ctx = canvas.getContext("2d");
 	if(ctx.isPointInPath == null) return flash.display.PointInPathMode.USER_SPACE;
@@ -3802,10 +3840,10 @@ flash.display.Graphics.nmeDetectIsPointInPathMode = function() {
 	return rv;
 }
 flash.display.Graphics.prototype = {
-	nmeRender: function(maskHandle,filters,sx,sy,clip0,clip1,clip2,clip3) {
+	__render: function(maskHandle,filters,sx,sy,clip0,clip1,clip2,clip3) {
 		if(sy == null) sy = 1.0;
 		if(sx == null) sx = 1.0;
-		if(!this.nmeChanged) return false;
+		if(!this.__changed) return false;
 		this.closePolygon(true);
 		var padding = this._padding;
 		if(filters != null) {
@@ -3816,17 +3854,17 @@ flash.display.Graphics.prototype = {
 				if(Reflect.hasField(filter,"blurX")) padding += Math.max(Reflect.field(filter,"blurX"),Reflect.field(filter,"blurY")) * 4;
 			}
 		}
-		this.nmeExpandFilteredExtent(-(padding * sx) / 2,-(padding * sy) / 2);
-		if(this.nmeClearNextCycle) {
+		this.__expandFilteredExtent(-(padding * sx) / 2,-(padding * sy) / 2);
+		if(this.__clearNextCycle) {
 			this.nextDrawIndex = 0;
-			this.nmeClearCanvas();
-			this.nmeClearNextCycle = false;
+			this.__clearCanvas();
+			this.__clearNextCycle = false;
 		}
-		if(this.nmeExtentWithFilters.width - this.nmeExtentWithFilters.x > this.nmeSurface.width || this.nmeExtentWithFilters.height - this.nmeExtentWithFilters.y > this.nmeSurface.height) this.nmeAdjustSurface(sx,sy);
+		if(this.__extentWithFilters.width - this.__extentWithFilters.x > this.__surface.width || this.__extentWithFilters.height - this.__extentWithFilters.y > this.__surface.height) this.__adjustSurface(sx,sy);
 		var ctx = (function($this) {
 			var $r;
 			try {
-				$r = $this.nmeSurface.getContext("2d");
+				$r = $this.__surface.getContext("2d");
 			} catch( e ) {
 				$r = null;
 			}
@@ -3847,19 +3885,19 @@ flash.display.Graphics.prototype = {
 			while(_g < filters.length) {
 				var filter = filters[_g];
 				++_g;
-				if(js.Boot.__instanceof(filter,flash.filters.DropShadowFilter)) filter.nmeApplyFilter(this.nmeSurface,null,true);
+				if(js.Boot.__instanceof(filter,flash.filters.DropShadowFilter)) filter.__applyFilter(this.__surface,null,true);
 			}
 		}
 		var len = this.mDrawList.length;
 		ctx.save();
-		if(this.nmeExtentWithFilters.x != 0 || this.nmeExtentWithFilters.y != 0) ctx.translate(-this.nmeExtentWithFilters.x * sx,-this.nmeExtentWithFilters.y * sy);
+		if(this.__extentWithFilters.x != 0 || this.__extentWithFilters.y != 0) ctx.translate(-this.__extentWithFilters.x * sx,-this.__extentWithFilters.y * sy);
 		if(sx != 1 || sy != 0) ctx.scale(sx,sy);
 		var doStroke = false;
 		var _g = this.nextDrawIndex;
 		while(_g < len) {
 			var i = _g++;
 			var d = this.mDrawList[len - 1 - i];
-			if(d.tileJob != null) this.nmeDrawTiles(d.tileJob.sheet,d.tileJob.drawList,d.tileJob.flags); else {
+			if(d.tileJob != null) this.__drawTiles(d.tileJob.sheet,d.tileJob.drawList,d.tileJob.flags); else {
 				if(d.lineJobs.length > 0) {
 					var _g1 = 0, _g2 = d.lineJobs;
 					while(_g1 < _g2.length) {
@@ -3955,70 +3993,70 @@ flash.display.Graphics.prototype = {
 			}
 		}
 		ctx.restore();
-		this.nmeChanged = false;
-		this.nextDrawIndex = len;
+		this.__changed = false;
+		this.nextDrawIndex = len > 0?len - 1:0;
 		this.mDrawList = [];
 		return true;
 	}
-	,nmeMediaSurface: function(surface) {
-		this.nmeSurface = surface;
+	,__mediaSurface: function(surface) {
+		this.__surface = surface;
 	}
-	,nmeInvalidate: function() {
-		this.nmeChanged = true;
-		this.nmeClearNextCycle = true;
+	,__invalidate: function() {
+		this.__changed = true;
+		this.__clearNextCycle = true;
 	}
-	,nmeHitTest: function(inX,inY) {
+	,__hitTest: function(inX,inY) {
 		var ctx = (function($this) {
 			var $r;
 			try {
-				$r = $this.nmeSurface.getContext("2d");
+				$r = $this.__surface.getContext("2d");
 			} catch( e ) {
 				$r = null;
 			}
 			return $r;
 		}(this));
 		if(ctx == null) return false;
-		if(ctx.isPointInPath(inX,inY)) return true; else if(this.mDrawList.length == 0 && this.nmeExtent.width > 0 && this.nmeExtent.height > 0) return true;
+		if(ctx.isPointInPath(inX,inY)) return true; else if(this.mDrawList.length == 0 && this.__extent.width > 0 && this.__extent.height > 0) return true;
 		return false;
 	}
-	,nmeExpandStandardExtent: function(x,y,thickness) {
+	,__expandStandardExtent: function(x,y,thickness) {
 		if(thickness == null) thickness = 0;
 		if(this._padding > 0) {
-			this.nmeExtent.width -= this._padding;
-			this.nmeExtent.height -= this._padding;
+			this.__extent.width -= this._padding;
+			this.__extent.height -= this._padding;
 		}
 		if(thickness != null && thickness > this._padding) this._padding = thickness;
 		var maxX, minX, maxY, minY;
-		minX = this.nmeExtent.x;
-		minY = this.nmeExtent.y;
-		maxX = this.nmeExtent.width + minX;
-		maxY = this.nmeExtent.height + minY;
+		minX = this.__extent.x;
+		minY = this.__extent.y;
+		maxX = this.__extent.width + minX;
+		maxY = this.__extent.height + minY;
 		maxX = x > maxX?x:maxX;
 		minX = x < minX?x:minX;
 		maxY = y > maxY?y:maxY;
 		minY = y < minY?y:minY;
-		this.nmeExtent.x = minX;
-		this.nmeExtent.y = minY;
-		this.nmeExtent.width = maxX - minX + this._padding;
-		this.nmeExtent.height = maxY - minY + this._padding;
+		this.__extent.x = minX;
+		this.__extent.y = minY;
+		this.__extent.width = maxX - minX + this._padding;
+		this.__extent.height = maxY - minY + this._padding;
 		this.boundsDirty = true;
 	}
-	,nmeExpandFilteredExtent: function(x,y) {
+	,__expandFilteredExtent: function(x,y) {
 		var maxX, minX, maxY, minY;
-		minX = this.nmeExtent.x;
-		minY = this.nmeExtent.y;
-		maxX = this.nmeExtent.width + minX;
-		maxY = this.nmeExtent.height + minY;
+		minX = this.__extent.x;
+		minY = this.__extent.y;
+		maxX = this.__extent.width + minX;
+		maxY = this.__extent.height + minY;
 		maxX = x > maxX?x:maxX;
 		minX = x < minX?x:minX;
 		maxY = y > maxY?y:maxY;
 		minY = y < minY?y:minY;
-		this.nmeExtentWithFilters.x = minX;
-		this.nmeExtentWithFilters.y = minY;
-		this.nmeExtentWithFilters.width = maxX - minX;
-		this.nmeExtentWithFilters.height = maxY - minY;
+		this.__extentWithFilters.x = minX;
+		this.__extentWithFilters.y = minY;
+		this.__extentWithFilters.width = maxX - minX;
+		this.__extentWithFilters.height = maxY - minY;
 	}
-	,nmeDrawTiles: function(sheet,tileData,flags) {
+	,__drawTiles: function(sheet,tileData,flags) {
 		if(flags == null) flags = 0;
 		var useScale = (flags & 1) > 0;
 		var useRotation = (flags & 2) > 0;
@@ -4061,11 +4099,11 @@ flash.display.Graphics.prototype = {
 		var rect = null;
 		var center = null;
 		var previousTileID = -1;
-		var surface = sheet.nmeBitmap._nmeTextureBuffer;
+		var surface = sheet.__bitmap.___textureBuffer;
 		var ctx = (function($this) {
 			var $r;
 			try {
-				$r = $this.nmeSurface.getContext("2d");
+				$r = $this.__surface.getContext("2d");
 			} catch( e ) {
 				$r = null;
 			}
@@ -4074,8 +4112,8 @@ flash.display.Graphics.prototype = {
 		if(ctx != null) while(index < totalCount) {
 			var tileID = tileData[index + 2] | 0;
 			if(tileID != previousTileID) {
-				rect = sheet.nmeTileRects[tileID];
-				center = sheet.nmeCenterPoints[tileID];
+				rect = sheet.__tileRects[tileID];
+				center = sheet.__centerPoints[tileID];
 				previousTileID = tileID;
 			}
 			if(rect != null && center != null) {
@@ -4092,7 +4130,7 @@ flash.display.Graphics.prototype = {
 			index += numValues;
 		}
 	}
-	,nmeDrawEllipse: function(x,y,rx,ry) {
+	,__drawEllipse: function(x,y,rx,ry) {
 		this.moveTo(x + rx,y);
 		this.curveTo(rx + x,-0.4142 * ry + y,0.7071 * rx + x,-0.7071 * ry + y);
 		this.curveTo(0.4142 * rx + x,-ry + y,x,-ry + y);
@@ -4103,49 +4141,49 @@ flash.display.Graphics.prototype = {
 		this.curveTo(0.4142 * rx + x,ry + y,0.7071 * rx + x,0.7071 * ry + y);
 		this.curveTo(rx + x,0.4142 * ry + y,rx + x,y);
 	}
-	,nmeClearLine: function() {
+	,__clearLine: function() {
 		this.mCurrentLine = new flash.display.LineJob(null,-1,-1,0.0,0.0,0,1,0,256,3,3.0);
 	}
-	,nmeClearCanvas: function() {
-		if(this.nmeSurface != null) {
+	,__clearCanvas: function() {
+		if(this.__surface != null) {
 			var ctx = (function($this) {
 				var $r;
 				try {
-					$r = $this.nmeSurface.getContext("2d");
+					$r = $this.__surface.getContext("2d");
 				} catch( e ) {
 					$r = null;
 				}
 				return $r;
 			}(this));
-			if(ctx != null) ctx.clearRect(0,0,this.nmeSurface.width,this.nmeSurface.height);
+			if(ctx != null) ctx.clearRect(0,0,this.__surface.width,this.__surface.height);
 		}
 	}
-	,nmeAdjustSurface: function(sx,sy) {
+	,__adjustSurface: function(sx,sy) {
 		if(sy == null) sy = 1.0;
 		if(sx == null) sx = 1.0;
-		if(Reflect.field(this.nmeSurface,"getContext") != null) {
-			var width = Math.ceil((this.nmeExtentWithFilters.width - this.nmeExtentWithFilters.x) * sx);
-			var height = Math.ceil((this.nmeExtentWithFilters.height - this.nmeExtentWithFilters.y) * sy);
+		if(Reflect.field(this.__surface,"getContext") != null) {
+			var width = Math.ceil((this.__extentWithFilters.width - this.__extentWithFilters.x) * sx);
+			var height = Math.ceil((this.__extentWithFilters.height - this.__extentWithFilters.y) * sy);
 			if(width <= 5000 && height <= 5000) {
 				var dstCanvas = js.Browser.document.createElement("canvas");
 				dstCanvas.width = width;
 				dstCanvas.height = height;
-				flash.Lib.nmeDrawToSurface(this.nmeSurface,dstCanvas);
-				if(flash.Lib.nmeIsOnStage(this.nmeSurface)) {
-					flash.Lib.nmeAppendSurface(dstCanvas);
-					flash.Lib.nmeCopyStyle(this.nmeSurface,dstCanvas);
-					flash.Lib.nmeSwapSurface(this.nmeSurface,dstCanvas);
-					flash.Lib.nmeRemoveSurface(this.nmeSurface);
-					if(this.nmeSurface.id != null) flash.Lib.nmeSetSurfaceId(dstCanvas,this.nmeSurface.id);
+				flash.Lib.__drawToSurface(this.__surface,dstCanvas);
+				if(flash.Lib.__isOnStage(this.__surface)) {
+					flash.Lib.__appendSurface(dstCanvas);
+					flash.Lib.__copyStyle(this.__surface,dstCanvas);
+					flash.Lib.__swapSurface(this.__surface,dstCanvas);
+					flash.Lib.__removeSurface(this.__surface);
+					if(this.__surface.id != null) flash.Lib.__setSurfaceId(dstCanvas,this.__surface.id);
 				}
-				this.nmeSurface = dstCanvas;
+				this.__surface = dstCanvas;
 			}
 		}
 	}
 	,moveTo: function(inX,inY) {
 		this.mPenX = inX;
 		this.mPenY = inY;
-		this.nmeExpandStandardExtent(inX,inY);
+		this.__expandStandardExtent(inX,inY);
 		if(!this.mFilling) this.closePolygon(false); else {
 			this.addLineSegment();
 			this.mLastMoveID = this.mPoints.length;
@@ -4160,7 +4198,7 @@ flash.display.Graphics.prototype = {
 		}
 		this.mPenX = inX;
 		this.mPenY = inY;
-		this.nmeExpandStandardExtent(inX,inY,this.mCurrentLine.thickness);
+		this.__expandStandardExtent(inX,inY,this.mCurrentLine.thickness);
 		this.mPoints.push(new flash.display.GfxPoint(this.mPenX,this.mPenY,0.0,0.0,1));
 		if(this.mCurrentLine.grad != null || this.mCurrentLine.alpha > 0) {
 			if(this.mCurrentLine.point_idx0 < 0) this.mCurrentLine.point_idx0 = pid - 1;
@@ -4171,7 +4209,7 @@ flash.display.Graphics.prototype = {
 	,lineStyle: function(thickness,color,alpha,pixelHinting,scaleMode,caps,joints,miterLimit) {
 		this.addLineSegment();
 		if(thickness == null) {
-			this.nmeClearLine();
+			this.__clearLine();
 			return;
 		} else {
 			this.mCurrentLine.grad = null;
@@ -4231,7 +4269,7 @@ flash.display.Graphics.prototype = {
 	}
 	,getContext: function() {
 		try {
-			return this.nmeSurface.getContext("2d");
+			return this.__surface.getContext("2d");
 		} catch( e ) {
 			return null;
 		}
@@ -4245,11 +4283,13 @@ flash.display.Graphics.prototype = {
 	,drawTiles: function(sheet,tileData,smooth,flags) {
 		if(flags == null) flags = 0;
 		if(smooth == null) smooth = false;
-		this.nmeExpandStandardExtent(flash.Lib.get_current().get_stage().get_stageWidth(),flash.Lib.get_current().get_stage().get_stageHeight());
+		this.__expandStandardExtent(flash.Lib.get_current().get_stage().get_stageWidth(),flash.Lib.get_current().get_stage().get_stageHeight());
 		this.addDrawable(new flash.display.Drawable(null,null,null,null,null,null,new flash.display.TileJob(sheet,tileData,flags)));
-		this.nmeChanged = true;
+		this.__changed = true;
 	}
 	,drawRoundRect: function(x,y,width,height,rx,ry) {
+		if(ry == null) ry = -1;
+		if(ry == -1) ry = rx;
 		rx *= 0.5;
 		ry *= 0.5;
 		var w = width * 0.5;
@@ -4297,10 +4337,10 @@ flash.display.Graphics.prototype = {
 		})(points))();
 		while( $it0.hasNext() ) {
 			var data = $it0.next();
-			if(data == null) this.mFilling = true; else switch(data.nmeGraphicsDataType) {
+			if(data == null) this.mFilling = true; else switch(data.__graphicsDataType) {
 			case flash.display.GraphicsDataType.STROKE:
 				var stroke = data;
-				if(stroke.fill == null) this.lineStyle(stroke.thickness,0,1.,stroke.pixelHinting,stroke.scaleMode,stroke.caps,stroke.joints,stroke.miterLimit); else switch(stroke.fill.nmeGraphicsFillType) {
+				if(stroke.fill == null) this.lineStyle(stroke.thickness,0,1.,stroke.pixelHinting,stroke.scaleMode,stroke.caps,stroke.joints,stroke.miterLimit); else switch(stroke.fill.__graphicsFillType) {
 				case flash.display.GraphicsFillType.SOLID_FILL:
 					var fill = stroke.fill;
 					this.lineStyle(stroke.thickness,fill.color,fill.alpha,stroke.pixelHinting,stroke.scaleMode,stroke.caps,stroke.joints,stroke.miterLimit);
@@ -4349,12 +4389,12 @@ flash.display.Graphics.prototype = {
 		this.closePolygon(false);
 		rx /= 2;
 		ry /= 2;
-		this.nmeDrawEllipse(x + rx,y + ry,rx,ry);
+		this.__drawEllipse(x + rx,y + ry,rx,ry);
 		this.closePolygon(false);
 	}
 	,drawCircle: function(x,y,rad) {
 		this.closePolygon(false);
-		this.nmeDrawEllipse(x,y,rad,rad);
+		this.__drawEllipse(x,y,rad,rad);
 		this.closePolygon(false);
 	}
 	,curveTo: function(inCX,inCY,inX,inY) {
@@ -4365,7 +4405,7 @@ flash.display.Graphics.prototype = {
 		}
 		this.mPenX = inX;
 		this.mPenY = inY;
-		this.nmeExpandStandardExtent(inX,inY,this.mCurrentLine.thickness);
+		this.__expandStandardExtent(inX,inY,this.mCurrentLine.thickness);
 		this.mPoints.push(new flash.display.GfxPoint(inX,inY,inCX,inCY,2));
 		if(this.mCurrentLine.grad != null || this.mCurrentLine.alpha > 0) {
 			if(this.mCurrentLine.point_idx0 < 0) this.mCurrentLine.point_idx0 = pid - 1;
@@ -4437,10 +4477,10 @@ flash.display.Graphics.prototype = {
 			this.mBitmap = null;
 			this.mFilling = false;
 		}
-		this.nmeChanged = true;
+		this.__changed = true;
 	}
 	,clear: function() {
-		this.nmeClearLine();
+		this.__clearLine();
 		this.mPenX = 0.0;
 		this.mPenY = 0.0;
 		this.mDrawList = new Array();
@@ -4451,12 +4491,12 @@ flash.display.Graphics.prototype = {
 		this.mFillColour = 0;
 		this.mFillAlpha = 0.0;
 		this.mLastMoveID = 0;
-		this.nmeClearNextCycle = true;
+		this.__clearNextCycle = true;
 		this.boundsDirty = true;
-		this.nmeExtent.x = 0.0;
-		this.nmeExtent.y = 0.0;
-		this.nmeExtent.width = 0.0;
-		this.nmeExtent.height = 0.0;
+		this.__extent.x = 0.0;
+		this.__extent.y = 0.0;
+		this.__extent.width = 0.0;
+		this.__extent.height = 0.0;
 		this._padding = 0.0;
 		this.mLineJobs = [];
 	}
@@ -4465,13 +4505,13 @@ flash.display.Graphics.prototype = {
 		var ctx = (function($this) {
 			var $r;
 			try {
-				$r = $this.nmeSurface.getContext("2d");
+				$r = $this.__surface.getContext("2d");
 			} catch( e ) {
 				$r = null;
 			}
 			return $r;
 		}(this));
-		if(ctx != null) ctx.drawImage(inTexture._nmeTextureBuffer,this.mPenX,this.mPenY);
+		if(ctx != null) ctx.drawImage(inTexture.___textureBuffer,this.mPenX,this.mPenY);
 	}
 	,beginGradientFill: function(type,colors,alphas,ratios,matrix,spreadMethod,interpolationMethod,focalPointRatio) {
 		this.closePolygon(true);
@@ -4495,8 +4535,8 @@ flash.display.Graphics.prototype = {
 		var smooth = in_smooth == null?false:in_smooth;
 		this.mFilling = true;
 		this.mSolidGradient = null;
-		this.nmeExpandStandardExtent(bitmap._nmeTextureBuffer != null?bitmap._nmeTextureBuffer.width:0,bitmap._nmeTextureBuffer != null?bitmap._nmeTextureBuffer.height:0);
-		this.mBitmap = { texture_buffer : bitmap._nmeTextureBuffer, matrix : matrix == null?matrix:matrix.clone(), flags : (repeat?16:0) | (smooth?65536:0)};
+		this.__expandStandardExtent(bitmap.___textureBuffer != null?bitmap.___textureBuffer.width:0,bitmap.___textureBuffer != null?bitmap.___textureBuffer.height:0);
+		this.mBitmap = { texture_buffer : bitmap.___textureBuffer, matrix : matrix == null?matrix:matrix.clone(), flags : (repeat?16:0) | (smooth?65536:0)};
 	}
 	,addLineSegment: function() {
 		if(this.mCurrentLine.point_idx1 > 0) this.mLineJobs.push(new flash.display.LineJob(this.mCurrentLine.grad,this.mCurrentLine.point_idx0,this.mCurrentLine.point_idx1,this.mCurrentLine.thickness,this.mCurrentLine.alpha,this.mCurrentLine.colour,this.mCurrentLine.pixel_hinting,this.mCurrentLine.joints,this.mCurrentLine.caps,this.mCurrentLine.scale_mode,this.mCurrentLine.miter_limit));
@@ -4507,8 +4547,8 @@ flash.display.Graphics.prototype = {
 		this.mDrawList.unshift(inDrawable);
 	}
 	,_padding: null
-	,nmeClearNextCycle: null
-	,nmeChanged: null
+	,__clearNextCycle: null
+	,__changed: null
 	,nextDrawIndex: null
 	,mSolidGradient: null
 	,mPoints: null
@@ -4523,9 +4563,9 @@ flash.display.Graphics.prototype = {
 	,mDrawList: null
 	,mCurrentLine: null
 	,mBitmap: null
-	,nmeSurface: null
-	,nmeExtentWithFilters: null
-	,nmeExtent: null
+	,__surface: null
+	,__extentWithFilters: null
+	,__extent: null
 	,boundsDirty: null
 	,__class__: flash.display.Graphics
 }
@@ -4648,14 +4688,14 @@ flash.display.IGraphicsFill = function() { }
 $hxClasses["flash.display.IGraphicsFill"] = flash.display.IGraphicsFill;
 flash.display.IGraphicsFill.__name__ = ["flash","display","IGraphicsFill"];
 flash.display.IGraphicsFill.prototype = {
-	nmeGraphicsFillType: null
+	__graphicsFillType: null
 	,__class__: flash.display.IGraphicsFill
 }
 flash.display.IGraphicsData = function() { }
 $hxClasses["flash.display.IGraphicsData"] = flash.display.IGraphicsData;
 flash.display.IGraphicsData.__name__ = ["flash","display","IGraphicsData"];
 flash.display.IGraphicsData.prototype = {
-	nmeGraphicsDataType: null
+	__graphicsDataType: null
 	,__class__: flash.display.IGraphicsData
 }
 flash.display.GraphicsGradientFill = function(type,colors,alphas,ratios,matrix,spreadMethod,interpolationMethod,focalPointRatio) {
@@ -4668,18 +4708,18 @@ flash.display.GraphicsGradientFill = function(type,colors,alphas,ratios,matrix,s
 	this.spreadMethod = spreadMethod;
 	this.interpolationMethod = interpolationMethod;
 	this.focalPointRatio = focalPointRatio;
-	this.nmeGraphicsDataType = flash.display.GraphicsDataType.GRADIENT;
-	this.nmeGraphicsFillType = flash.display.GraphicsFillType.GRADIENT_FILL;
+	this.__graphicsDataType = flash.display.GraphicsDataType.GRADIENT;
+	this.__graphicsFillType = flash.display.GraphicsFillType.GRADIENT_FILL;
 };
 $hxClasses["flash.display.GraphicsGradientFill"] = flash.display.GraphicsGradientFill;
 flash.display.GraphicsGradientFill.__name__ = ["flash","display","GraphicsGradientFill"];
 flash.display.GraphicsGradientFill.__interfaces__ = [flash.display.IGraphicsFill,flash.display.IGraphicsData];
 flash.display.GraphicsGradientFill.prototype = {
-	type: null
+	__graphicsFillType: null
+	,__graphicsDataType: null
+	,type: null
 	,spreadMethod: null
 	,ratios: null
-	,nmeGraphicsFillType: null
-	,nmeGraphicsDataType: null
 	,matrix: null
 	,interpolationMethod: null
 	,focalPointRatio: null
@@ -4694,7 +4734,7 @@ flash.display.GraphicsPath = function(commands,data,winding) {
 	this.commands = commands;
 	this.data = data;
 	this.winding = winding;
-	this.nmeGraphicsDataType = flash.display.GraphicsDataType.PATH;
+	this.__graphicsDataType = flash.display.GraphicsDataType.PATH;
 };
 $hxClasses["flash.display.GraphicsPath"] = flash.display.GraphicsPath;
 flash.display.GraphicsPath.__name__ = ["flash","display","GraphicsPath"];
@@ -4723,8 +4763,8 @@ flash.display.GraphicsPath.prototype = {
 			flash._Vector.Vector_Impl_.push(this.data,controlY);
 		}
 	}
+	,__graphicsDataType: null
 	,winding: null
-	,nmeGraphicsDataType: null
 	,data: null
 	,commands: null
 	,__class__: flash.display.GraphicsPath
@@ -4744,15 +4784,15 @@ flash.display.GraphicsSolidFill = function(color,alpha) {
 	if(color == null) color = 0;
 	this.alpha = alpha;
 	this.color = color;
-	this.nmeGraphicsDataType = flash.display.GraphicsDataType.SOLID;
-	this.nmeGraphicsFillType = flash.display.GraphicsFillType.SOLID_FILL;
+	this.__graphicsDataType = flash.display.GraphicsDataType.SOLID;
+	this.__graphicsFillType = flash.display.GraphicsFillType.SOLID_FILL;
 };
 $hxClasses["flash.display.GraphicsSolidFill"] = flash.display.GraphicsSolidFill;
 flash.display.GraphicsSolidFill.__name__ = ["flash","display","GraphicsSolidFill"];
 flash.display.GraphicsSolidFill.__interfaces__ = [flash.display.IGraphicsFill,flash.display.IGraphicsData];
 flash.display.GraphicsSolidFill.prototype = {
-	nmeGraphicsFillType: null
-	,nmeGraphicsDataType: null
+	__graphicsFillType: null
+	,__graphicsDataType: null
 	,color: null
 	,alpha: null
 	,__class__: flash.display.GraphicsSolidFill
@@ -4771,16 +4811,16 @@ flash.display.GraphicsStroke = function(thickness,pixelHinting,scaleMode,caps,jo
 	this.pixelHinting = pixelHinting;
 	this.scaleMode = scaleMode != null?scaleMode:null;
 	this.thickness = thickness;
-	this.nmeGraphicsDataType = flash.display.GraphicsDataType.STROKE;
+	this.__graphicsDataType = flash.display.GraphicsDataType.STROKE;
 };
 $hxClasses["flash.display.GraphicsStroke"] = flash.display.GraphicsStroke;
 flash.display.GraphicsStroke.__name__ = ["flash","display","GraphicsStroke"];
 flash.display.GraphicsStroke.__interfaces__ = [flash.display.IGraphicsStroke,flash.display.IGraphicsData];
 flash.display.GraphicsStroke.prototype = {
-	thickness: null
+	__graphicsDataType: null
+	,thickness: null
 	,scaleMode: null
 	,pixelHinting: null
-	,nmeGraphicsDataType: null
 	,miterLimit: null
 	,joints: null
 	,fill: null
@@ -4847,8 +4887,8 @@ flash.display.Loader.__super__ = flash.display.Sprite;
 flash.display.Loader.prototype = $extend(flash.display.Sprite.prototype,{
 	handleLoad: function(e) {
 		e.currentTarget = this;
-		this.content.nmeInvalidateBounds();
-		this.content.nmeRender(null,null);
+		this.content.__invalidateBounds();
+		this.content.__render(null,null);
 		this.contentLoaderInfo.removeEventListener(flash.events.Event.COMPLETE,$bind(this,this.handleLoad));
 	}
 	,validateBounds: function() {
@@ -4857,22 +4897,22 @@ flash.display.Loader.prototype = $extend(flash.display.Sprite.prototype,{
 			if(this.mImage != null) {
 				var r = new flash.geom.Rectangle(0,0,this.mImage.get_width(),this.mImage.get_height());
 				if(r.width != 0 || r.height != 0) {
-					if(this.nmeBoundsRect.width == 0 && this.nmeBoundsRect.height == 0) this.nmeBoundsRect = r.clone(); else this.nmeBoundsRect.extendBounds(r);
+					if(this.__boundsRect.width == 0 && this.__boundsRect.height == 0) this.__boundsRect = r.clone(); else this.__boundsRect.extendBounds(r);
 				}
 			}
 			if(this.scale9Grid != null) {
-				this.nmeBoundsRect.width *= this.nmeScaleX;
-				this.nmeBoundsRect.height *= this.nmeScaleY;
-				this.nmeWidth = this.nmeBoundsRect.width;
-				this.nmeHeight = this.nmeBoundsRect.height;
+				this.__boundsRect.width *= this.__scaleX;
+				this.__boundsRect.height *= this.__scaleY;
+				this.__width = this.__boundsRect.width;
+				this.__height = this.__boundsRect.height;
 			} else {
-				this.nmeWidth = this.nmeBoundsRect.width * this.nmeScaleX;
-				this.nmeHeight = this.nmeBoundsRect.height * this.nmeScaleY;
+				this.__width = this.__boundsRect.width * this.__scaleX;
+				this.__height = this.__boundsRect.height * this.__scaleY;
 			}
 		}
 	}
 	,toString: function() {
-		return "[Loader name=" + this.name + " id=" + this._nmeId + "]";
+		return "[Loader name=" + this.name + " id=" + this.___id + "]";
 	}
 	,loadBytes: function(buffer) {
 		var _g = this;
@@ -4899,7 +4939,7 @@ flash.display.Loader.prototype = $extend(flash.display.Sprite.prototype,{
 		if(parts.length > 0) extension = parts[parts.length - 1].toLowerCase();
 		var transparent = true;
 		this.contentLoaderInfo.url = request.url;
-		this.contentLoaderInfo.contentType = (function($this) {
+		if(request.contentType == null && request.contentType != "") this.contentLoaderInfo.contentType = (function($this) {
 			var $r;
 			switch(extension) {
 			case "swf":
@@ -4920,18 +4960,14 @@ flash.display.Loader.prototype = $extend(flash.display.Sprite.prototype,{
 				$r = "image/gif";
 				break;
 			default:
-				$r = (function($this) {
-					var $r;
-					throw "Unrecognized file " + request.url;
-					return $r;
-				}($this));
+				$r = "application/x-www-form-urlencoded";
 			}
 			return $r;
-		}(this));
+		}(this)); else this.contentLoaderInfo.contentType = request.contentType;
 		this.mImage = new flash.display.BitmapData(0,0,transparent);
 		try {
 			this.contentLoaderInfo.addEventListener(flash.events.Event.COMPLETE,$bind(this,this.handleLoad),false,2147483647);
-			this.mImage.nmeLoadFromFile(request.url,this.contentLoaderInfo);
+			this.mImage.__loadFromFile(request.url,this.contentLoaderInfo);
 			this.content = new flash.display.Bitmap(this.mImage);
 			this.contentLoaderInfo.content = this.content;
 			this.addChild(this.content);
@@ -5010,7 +5046,7 @@ flash.display.MovieClip.prototype = $extend(flash.display.Sprite.prototype,{
 		return this.__currentFrame;
 	}
 	,toString: function() {
-		return "[MovieClip name=" + this.name + " id=" + this._nmeId + "]";
+		return "[MovieClip name=" + this.name + " id=" + this.___id + "]";
 	}
 	,stop: function() {
 	}
@@ -5047,26 +5083,26 @@ flash.display.PixelSnapping.ALWAYS.toString = $estr;
 flash.display.PixelSnapping.ALWAYS.__enum__ = flash.display.PixelSnapping;
 flash.display.Shape = function() {
 	flash.display.DisplayObject.call(this);
-	this.nmeGraphics = new flash.display.Graphics();
+	this.__graphics = new flash.display.Graphics();
 };
 $hxClasses["flash.display.Shape"] = flash.display.Shape;
 flash.display.Shape.__name__ = ["flash","display","Shape"];
 flash.display.Shape.__super__ = flash.display.DisplayObject;
 flash.display.Shape.prototype = $extend(flash.display.DisplayObject.prototype,{
 	get_graphics: function() {
-		return this.nmeGraphics;
+		return this.__graphics;
+	}
+	,__getObjectUnderPoint: function(point) {
+		if(this.parent == null) return null;
+		if(this.parent.mouseEnabled && flash.display.DisplayObject.prototype.__getObjectUnderPoint.call(this,point) == this) return this.parent; else return null;
+	}
+	,__getGraphics: function() {
+		return this.__graphics;
 	}
 	,toString: function() {
-		return "[Shape name=" + this.name + " id=" + this._nmeId + "]";
+		return "[Shape name=" + this.name + " id=" + this.___id + "]";
 	}
-	,nmeGetObjectUnderPoint: function(point) {
-		if(this.parent == null) return null;
-		if(this.parent.mouseEnabled && flash.display.DisplayObject.prototype.nmeGetObjectUnderPoint.call(this,point) == this) return this.parent; else return null;
-	}
-	,nmeGetGraphics: function() {
-		return this.nmeGraphics;
-	}
-	,nmeGraphics: null
+	,__graphics: null
 	,__class__: flash.display.Shape
 	,__properties__: $extend(flash.display.DisplayObject.prototype.__properties__,{get_graphics:"get_graphics"})
 });
@@ -5086,8 +5122,8 @@ flash.events.Event = function(inType,inBubbles,inCancelable) {
 	this.type = inType;
 	this.bubbles = inBubbles;
 	this.cancelable = inCancelable;
-	this.nmeIsCancelled = false;
-	this.nmeIsCancelledNow = false;
+	this.__isCancelled = false;
+	this.__isCancelledNow = false;
 	this.target = null;
 	this.currentTarget = null;
 	this.eventPhase = flash.events.EventPhase.AT_TARGET;
@@ -5095,35 +5131,35 @@ flash.events.Event = function(inType,inBubbles,inCancelable) {
 $hxClasses["flash.events.Event"] = flash.events.Event;
 flash.events.Event.__name__ = ["flash","events","Event"];
 flash.events.Event.prototype = {
-	toString: function() {
-		return "[Event type=" + this.type + " bubbles=" + Std.string(this.bubbles) + " cancelable=" + Std.string(this.cancelable) + "]";
-	}
-	,stopPropagation: function() {
-		this.nmeIsCancelled = true;
-	}
-	,stopImmediatePropagation: function() {
-		this.nmeIsCancelled = true;
-		this.nmeIsCancelledNow = true;
-	}
-	,nmeSetPhase: function(phase) {
+	__setPhase: function(phase) {
 		this.eventPhase = phase;
 	}
-	,nmeGetIsCancelledNow: function() {
-		return this.nmeIsCancelledNow;
+	,__getIsCancelledNow: function() {
+		return this.__isCancelledNow;
 	}
-	,nmeGetIsCancelled: function() {
-		return this.nmeIsCancelled;
+	,__getIsCancelled: function() {
+		return this.__isCancelled;
 	}
-	,nmeCreateSimilar: function(type,related,targ) {
+	,__createSimilar: function(type,related,targ) {
 		var result = new flash.events.Event(type,this.bubbles,this.cancelable);
 		if(targ != null) result.target = targ;
 		return result;
 	}
+	,toString: function() {
+		return "[Event type=" + this.type + " bubbles=" + Std.string(this.bubbles) + " cancelable=" + Std.string(this.cancelable) + "]";
+	}
+	,stopPropagation: function() {
+		this.__isCancelled = true;
+	}
+	,stopImmediatePropagation: function() {
+		this.__isCancelled = true;
+		this.__isCancelledNow = true;
+	}
 	,clone: function() {
 		return new flash.events.Event(this.type,this.bubbles,this.cancelable);
 	}
-	,nmeIsCancelledNow: null
-	,nmeIsCancelled: null
+	,__isCancelledNow: null
+	,__isCancelled: null
 	,type: null
 	,target: null
 	,eventPhase: null
@@ -5159,21 +5195,21 @@ flash.events.MouseEvent = function(type,bubbles,cancelable,localX,localY,related
 };
 $hxClasses["flash.events.MouseEvent"] = flash.events.MouseEvent;
 flash.events.MouseEvent.__name__ = ["flash","events","MouseEvent"];
-flash.events.MouseEvent.nmeCreate = function(type,event,local,target) {
-	var nmeMouseDown = false;
+flash.events.MouseEvent.__create = function(type,event,local,target) {
+	var __mouseDown = false;
 	var delta = 2;
 	if(type == flash.events.MouseEvent.MOUSE_WHEEL) {
 		var mouseEvent = event;
 		if(mouseEvent.wheelDelta) delta = mouseEvent.wheelDelta / 120 | 0; else if(mouseEvent.detail) -mouseEvent.detail | 0;
 	}
-	if(type == flash.events.MouseEvent.MOUSE_DOWN) nmeMouseDown = event.which != null?event.which == 1:event.button != null?event.button == 0:false; else if(type == flash.events.MouseEvent.MOUSE_UP) {
+	if(type == flash.events.MouseEvent.MOUSE_DOWN) __mouseDown = event.which != null?event.which == 1:event.button != null?event.button == 0:false; else if(type == flash.events.MouseEvent.MOUSE_UP) {
 		if(event.which != null) {
-			if(event.which == 1) nmeMouseDown = false; else if(event.button != null) {
-				if(event.button == 0) nmeMouseDown = false; else nmeMouseDown = false;
+			if(event.which == 1) __mouseDown = false; else if(event.button != null) {
+				if(event.button == 0) __mouseDown = false; else __mouseDown = false;
 			}
 		}
 	}
-	var pseudoEvent = new flash.events.MouseEvent(type,true,false,local.x,local.y,null,event.ctrlKey,event.altKey,event.shiftKey,nmeMouseDown,delta);
+	var pseudoEvent = new flash.events.MouseEvent(type,true,false,local.x,local.y,null,event.ctrlKey,event.altKey,event.shiftKey,__mouseDown,delta);
 	pseudoEvent.stageX = flash.Lib.get_current().get_stage().get_mouseX();
 	pseudoEvent.stageY = flash.Lib.get_current().get_stage().get_mouseY();
 	pseudoEvent.target = target;
@@ -5183,7 +5219,7 @@ flash.events.MouseEvent.__super__ = flash.events.Event;
 flash.events.MouseEvent.prototype = $extend(flash.events.Event.prototype,{
 	updateAfterEvent: function() {
 	}
-	,nmeCreateSimilar: function(type,related,targ) {
+	,__createSimilar: function(type,related,targ) {
 		var result = new flash.events.MouseEvent(type,this.bubbles,this.cancelable,this.localX,this.localY,related == null?this.relatedObject:related,this.ctrlKey,this.altKey,this.shiftKey,this.buttonDown,this.delta,this.commandKey,this.clickCount);
 		if(targ != null) result.target = targ;
 		return result;
@@ -5204,26 +5240,26 @@ flash.events.MouseEvent.prototype = $extend(flash.events.Event.prototype,{
 });
 flash.display.Stage = function(width,height) {
 	flash.display.DisplayObjectContainer.call(this);
-	this.nmeFocusObject = null;
-	this.nmeWindowWidth = width;
-	this.nmeWindowHeight = height;
+	this.__focusObject = null;
+	this.__focusObjectActivated = false;
+	this.__windowWidth = width;
+	this.__windowHeight = height;
 	this.stageFocusRect = false;
 	this.scaleMode = flash.display.StageScaleMode.SHOW_ALL;
-	this.nmeStageMatrix = new flash.geom.Matrix();
+	this.__stageMatrix = new flash.geom.Matrix();
 	this.tabEnabled = true;
 	this.set_frameRate(0.0);
 	this.set_backgroundColor(16777215);
 	this.name = "Stage";
 	this.loaderInfo = flash.display.LoaderInfo.create(null);
-	this.loaderInfo.parameters.width = Std.string(this.nmeWindowWidth);
-	this.loaderInfo.parameters.height = Std.string(this.nmeWindowHeight);
-	this.nmePointInPathMode = flash.display.Graphics.nmeDetectIsPointInPathMode();
-	this.nmeMouseOverObjects = [];
+	this.loaderInfo.parameters.width = Std.string(this.__windowWidth);
+	this.loaderInfo.parameters.height = Std.string(this.__windowHeight);
+	this.__pointInPathMode = flash.display.Graphics.__detectIsPointInPathMode();
+	this.__mouseOverObjects = [];
 	this.set_showDefaultContextMenu(true);
-	this.nmeTouchInfo = [];
-	this.nmeFocusOverObjects = [];
-	this.nmeUIEventsQueue = new Array(1000);
-	this.nmeUIEventsQueueIndex = 0;
+	this.__touchInfo = [];
+	this.__uIEventsQueue = new Array(1000);
+	this.__uIEventsQueueIndex = 0;
 };
 $hxClasses["flash.display.Stage"] = flash.display.Stage;
 flash.display.Stage.__name__ = ["flash","display","Stage"];
@@ -5248,23 +5284,23 @@ flash.display.Stage.getOrientation = function() {
 flash.display.Stage.__super__ = flash.display.DisplayObjectContainer;
 flash.display.Stage.prototype = $extend(flash.display.DisplayObjectContainer.prototype,{
 	get_stageWidth: function() {
-		return this.nmeWindowWidth;
+		return this.__windowWidth;
 	}
 	,get_stageHeight: function() {
-		return this.nmeWindowHeight;
+		return this.__windowHeight;
 	}
 	,get_stage: function() {
-		return flash.Lib.nmeGetStage();
+		return flash.Lib.__getStage();
 	}
 	,set_showDefaultContextMenu: function(showDefaultContextMenu) {
-		if(showDefaultContextMenu != this.nmeShowDefaultContextMenu && this.nmeShowDefaultContextMenu != null) {
-			if(!showDefaultContextMenu) flash.Lib.nmeDisableRightClick(); else flash.Lib.nmeEnableRightClick();
+		if(showDefaultContextMenu != this.__showDefaultContextMenu && this.__showDefaultContextMenu != null) {
+			if(!showDefaultContextMenu) flash.Lib.__disableRightClick(); else flash.Lib.__enableRightClick();
 		}
-		this.nmeShowDefaultContextMenu = showDefaultContextMenu;
+		this.__showDefaultContextMenu = showDefaultContextMenu;
 		return showDefaultContextMenu;
 	}
 	,get_showDefaultContextMenu: function() {
-		return this.nmeShowDefaultContextMenu;
+		return this.__showDefaultContextMenu;
 	}
 	,set_quality: function(inQuality) {
 		return this.quality = inQuality;
@@ -5287,32 +5323,33 @@ flash.display.Stage.prototype = $extend(flash.display.DisplayObjectContainer.pro
 	,set_frameRate: function(speed) {
 		if(speed == 0) {
 			var window = js.Browser.window;
-			var nmeRequestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame;
-			if(nmeRequestAnimationFrame == null) speed = 60;
+			var __requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame;
+			if(__requestAnimationFrame == null) speed = 60;
 		}
-		if(speed != 0) this.nmeInterval = 1000.0 / speed | 0;
-		this.nmeFrameRate = speed;
-		this.nmeUpdateNextWake();
+		if(speed != 0) this.__interval = 1000.0 / speed | 0;
+		this.__frameRate = speed;
+		this.__updateNextWake();
 		return speed;
 	}
 	,get_frameRate: function() {
-		return this.nmeFrameRate;
+		return this.__frameRate;
 	}
 	,set_focus: function(inObj) {
-		return this.nmeFocusObject = inObj;
+		this.__onFocus(inObj);
+		return this.__focusObject;
 	}
 	,get_focus: function() {
-		return this.nmeFocusObject;
+		return this.__focusObject;
 	}
 	,set_displayState: function(displayState) {
 		if(displayState != this.displayState && this.displayState != null) {
 			switch( (displayState)[1] ) {
 			case 0:
-				flash.Lib.nmeDisableFullScreen();
+				flash.Lib.__disableFullScreen();
 				break;
 			case 1:
 			case 2:
-				flash.Lib.nmeEnableFullScreen();
+				flash.Lib.__enableFullScreen();
 				break;
 			}
 		}
@@ -5323,26 +5360,27 @@ flash.display.Stage.prototype = $extend(flash.display.DisplayObjectContainer.pro
 		return this.displayState;
 	}
 	,set_backgroundColor: function(col) {
-		return this.nmeBackgroundColour = col;
+		return this.__backgroundColour = col;
 	}
 	,get_backgroundColor: function() {
-		return this.nmeBackgroundColour;
+		return this.__backgroundColour;
 	}
-	,nmeOnTouch: function(event,touch,type,touchInfo,isPrimaryTouchPoint) {
-		var point = new flash.geom.Point(touch.pageX - flash.Lib.mMe.__scr.offsetLeft + window.pageXOffset,touch.pageY - flash.Lib.mMe.__scr.offsetTop + window.pageYOffset);
-		var obj = this.nmeGetObjectUnderPoint(point);
+	,__onTouch: function(event,touch,type,touchInfo,isPrimaryTouchPoint) {
+		var rect = flash.Lib.mMe.__scr.getBoundingClientRect();
+		var point = new flash.geom.Point(touch.pageX - rect.left,touch.pageY - rect.top);
+		var obj = this.__getObjectUnderPoint(point);
 		this._mouseX = point.x;
 		this._mouseY = point.y;
 		var stack = new Array();
-		if(obj != null) obj.nmeGetInteractiveObjectStack(stack);
+		if(obj != null) obj.__getInteractiveObjectStack(stack);
 		if(stack.length > 0) {
 			stack.reverse();
 			var local = obj.globalToLocal(point);
-			var evt = flash.events.TouchEvent.nmeCreate(type,event,touch,local,obj);
+			var evt = flash.events.TouchEvent.__create(type,event,touch,local,obj);
 			evt.touchPointID = touch.identifier;
 			evt.isPrimaryTouchPoint = isPrimaryTouchPoint;
-			this.nmeCheckInOuts(evt,stack,touchInfo);
-			obj.nmeFireEvent(evt);
+			this.__checkInOuts(evt,stack,touchInfo);
+			obj.__fireEvent(evt);
 			var mouseType = (function($this) {
 				var $r;
 				switch(type) {
@@ -5355,303 +5393,291 @@ flash.display.Stage.prototype = $extend(flash.display.DisplayObjectContainer.pro
 				default:
 					$r = (function($this) {
 						var $r;
-						if($this.nmeDragObject != null) $this.nmeDrag(point);
+						if($this.__dragObject != null) $this.__drag(point);
 						$r = flash.events.MouseEvent.MOUSE_MOVE;
 						return $r;
 					}($this));
 				}
 				return $r;
 			}(this));
-			obj.nmeFireEvent(flash.events.MouseEvent.nmeCreate(mouseType,evt,local,obj));
+			obj.__fireEvent(flash.events.MouseEvent.__create(mouseType,evt,local,obj));
 		} else {
-			var evt = flash.events.TouchEvent.nmeCreate(type,event,touch,point,null);
+			var evt = flash.events.TouchEvent.__create(type,event,touch,point,null);
 			evt.touchPointID = touch.identifier;
 			evt.isPrimaryTouchPoint = isPrimaryTouchPoint;
-			this.nmeCheckInOuts(evt,stack,touchInfo);
+			this.__checkInOuts(evt,stack,touchInfo);
 		}
 	}
-	,nmeOnResize: function(inW,inH) {
-		this.nmeWindowWidth = inW;
-		this.nmeWindowHeight = inH;
+	,__onResize: function(inW,inH) {
+		this.__windowWidth = inW;
+		this.__windowHeight = inH;
 		var event = new flash.events.Event(flash.events.Event.RESIZE);
 		event.target = this;
-		this.nmeBroadcast(event);
+		this.__broadcast(event);
 	}
-	,nmeOnMouse: function(event,type) {
-		var point = new flash.geom.Point(event.clientX - flash.Lib.mMe.__scr.offsetLeft + window.pageXOffset,event.clientY - flash.Lib.mMe.__scr.offsetTop + window.pageYOffset);
-		if(this.nmeDragObject != null) this.nmeDrag(point);
-		var obj = this.nmeGetObjectUnderPoint(point);
+	,__onMouse: function(event,type) {
+		var rect = flash.Lib.mMe.__scr.getBoundingClientRect();
+		var point = new flash.geom.Point(event.clientX - rect.left,event.clientY - rect.top);
+		if(this.__dragObject != null) this.__drag(point);
+		var obj = this.__getObjectUnderPoint(point);
 		this._mouseX = point.x;
 		this._mouseY = point.y;
 		var stack = new Array();
-		if(obj != null) obj.nmeGetInteractiveObjectStack(stack);
+		if(obj != null) obj.__getInteractiveObjectStack(stack);
 		if(stack.length > 0) {
 			stack.reverse();
 			var local = obj.globalToLocal(point);
-			var evt = flash.events.MouseEvent.nmeCreate(type,event,local,obj);
-			this.nmeCheckInOuts(evt,stack);
-			if(type == flash.events.MouseEvent.MOUSE_DOWN) this.nmeCheckFocusInOuts(evt,stack);
-			obj.nmeFireEvent(evt);
+			var evt = flash.events.MouseEvent.__create(type,event,local,obj);
+			this.__checkInOuts(evt,stack);
+			if(type == flash.events.MouseEvent.MOUSE_DOWN) this.__onFocus(stack[stack.length - 1]);
+			obj.__fireEvent(evt);
 		} else {
-			var evt = flash.events.MouseEvent.nmeCreate(type,event,point,null);
-			this.nmeCheckInOuts(evt,stack);
-			if(type == flash.events.MouseEvent.MOUSE_DOWN) this.nmeCheckFocusInOuts(evt,stack);
+			var evt = flash.events.MouseEvent.__create(type,event,point,null);
+			this.__checkInOuts(evt,stack);
 		}
 	}
-	,nmeOnFocus: function(event,hasFocus) {
-		if(hasFocus) {
-			this.dispatchEvent(new flash.events.FocusEvent(flash.events.FocusEvent.FOCUS_IN));
-			this.nmeBroadcast(new flash.events.Event(flash.events.Event.ACTIVATE));
-		} else {
-			this.dispatchEvent(new flash.events.FocusEvent(flash.events.FocusEvent.FOCUS_OUT));
-			this.nmeBroadcast(new flash.events.Event(flash.events.Event.DEACTIVATE));
+	,__onFocus: function(target) {
+		if(target != this.__focusObject) {
+			if(this.__focusObject != null) this.__focusObject.__fireEvent(new flash.events.FocusEvent(flash.events.FocusEvent.FOCUS_OUT,true,false,this.__focusObject,false,0));
+			target.__fireEvent(new flash.events.FocusEvent(flash.events.FocusEvent.FOCUS_IN,true,false,target,false,0));
+			this.__focusObject = target;
 		}
 	}
-	,nmeOnKey: function(code,pressed,inChar,ctrl,alt,shift,keyLocation) {
-		var event = new flash.events.KeyboardEvent(pressed?flash.events.KeyboardEvent.KEY_DOWN:flash.events.KeyboardEvent.KEY_UP,true,false,inChar,code,keyLocation,ctrl,alt,shift);
-		this.dispatchEvent(event);
-	}
-	,nmeHandleOrientationChange: function() {
-	}
-	,nmeHandleAccelerometer: function(evt) {
-		flash.display.Stage.nmeAcceleration.x = evt.accelerationIncludingGravity.x;
-		flash.display.Stage.nmeAcceleration.y = evt.accelerationIncludingGravity.y;
-		flash.display.Stage.nmeAcceleration.z = evt.accelerationIncludingGravity.z;
-	}
-	,toString: function() {
-		return "[Stage id=" + this._nmeId + "]";
-	}
-	,nmeUpdateNextWake: function() {
-		if(this.nmeFrameRate == 0) {
-			var nmeRequestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame;
-			nmeRequestAnimationFrame($bind(this,this.nmeUpdateNextWake));
-			this.nmeStageRender();
-		} else {
-			js.Browser.window.clearInterval(this.nmeTimer);
-			this.nmeTimer = js.Browser.window.setInterval($bind(this,this.nmeStageRender),this.nmeInterval);
+	,__onKey: function(code,pressed,inChar,ctrl,alt,shift,keyLocation) {
+		var stack = new Array();
+		if(this.__focusObject == null) this.__getInteractiveObjectStack(stack); else this.__focusObject.__getInteractiveObjectStack(stack);
+		if(stack.length > 0) {
+			var obj = stack[0];
+			var evt = new flash.events.KeyboardEvent(pressed?flash.events.KeyboardEvent.KEY_DOWN:flash.events.KeyboardEvent.KEY_UP,true,false,inChar,code,keyLocation,ctrl,alt,shift);
+			obj.__fireEvent(evt);
 		}
 	}
-	,nmeStopDrag: function(sprite) {
-		this.nmeDragBounds = null;
-		this.nmeDragObject = null;
+	,__handleOrientationChange: function() {
 	}
-	,nmeStartDrag: function(sprite,lockCenter,bounds) {
+	,__handleAccelerometer: function(evt) {
+		flash.display.Stage.__acceleration.x = evt.accelerationIncludingGravity.x;
+		flash.display.Stage.__acceleration.y = evt.accelerationIncludingGravity.y;
+		flash.display.Stage.__acceleration.z = evt.accelerationIncludingGravity.z;
+	}
+	,__updateNextWake: function() {
+		if(this.__frameRate == 0) {
+			var __requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame;
+			__requestAnimationFrame($bind(this,this.__updateNextWake));
+			this.__stageRender();
+		} else {
+			js.Browser.window.clearInterval(this.__timer);
+			this.__timer = js.Browser.window.setInterval($bind(this,this.__stageRender),this.__interval);
+		}
+	}
+	,__stopDrag: function(sprite) {
+		this.__dragBounds = null;
+		this.__dragObject = null;
+	}
+	,__startDrag: function(sprite,lockCenter,bounds) {
 		if(lockCenter == null) lockCenter = false;
-		this.nmeDragBounds = bounds == null?null:bounds.clone();
-		this.nmeDragObject = sprite;
-		if(this.nmeDragObject != null) {
+		this.__dragBounds = bounds == null?null:bounds.clone();
+		this.__dragObject = sprite;
+		if(this.__dragObject != null) {
 			var mouse = new flash.geom.Point(this._mouseX,this._mouseY);
-			var p = this.nmeDragObject.parent;
+			var p = this.__dragObject.parent;
 			if(p != null) mouse = p.globalToLocal(mouse);
 			if(lockCenter) {
 				var bounds1 = sprite.getBounds(this);
-				this.nmeDragOffsetX = this.nmeDragObject.get_x() - (bounds1.width / 2 + bounds1.x);
-				this.nmeDragOffsetY = this.nmeDragObject.get_y() - (bounds1.height / 2 + bounds1.y);
+				this.__dragOffsetX = this.__dragObject.get_x() - (bounds1.width / 2 + bounds1.x);
+				this.__dragOffsetY = this.__dragObject.get_y() - (bounds1.height / 2 + bounds1.y);
 			} else {
-				this.nmeDragOffsetX = this.nmeDragObject.get_x() - mouse.x;
-				this.nmeDragOffsetY = this.nmeDragObject.get_y() - mouse.y;
+				this.__dragOffsetX = this.__dragObject.get_x() - mouse.x;
+				this.__dragOffsetY = this.__dragObject.get_y() - mouse.y;
 			}
 		}
 	}
-	,nmeStageRender: function(_) {
-		if(!this.nmeStageActive) {
-			this.nmeOnResize(this.nmeWindowWidth,this.nmeWindowHeight);
+	,__stageRender: function(_) {
+		if(!this.__stageActive) {
+			this.__onResize(this.__windowWidth,this.__windowHeight);
 			var event = new flash.events.Event(flash.events.Event.ACTIVATE);
 			event.target = this;
-			this.nmeBroadcast(event);
-			this.nmeStageActive = true;
+			this.__broadcast(event);
+			this.__stageActive = true;
 		}
-		var _g1 = 0, _g = this.nmeUIEventsQueueIndex;
+		var _g1 = 0, _g = this.__uIEventsQueueIndex;
 		while(_g1 < _g) {
 			var i = _g1++;
-			if(this.nmeUIEventsQueue[i] != null) this.nmeProcessStageEvent(this.nmeUIEventsQueue[i]);
+			if(this.__uIEventsQueue[i] != null) this.__processStageEvent(this.__uIEventsQueue[i]);
 		}
-		this.nmeUIEventsQueueIndex = 0;
+		this.__uIEventsQueueIndex = 0;
 		var event = new flash.events.Event(flash.events.Event.ENTER_FRAME);
-		this.nmeBroadcast(event);
-		if(this.nmeInvalid) {
+		this.__broadcast(event);
+		if(this.__invalid) {
 			var event1 = new flash.events.Event(flash.events.Event.RENDER);
-			this.nmeBroadcast(event1);
+			this.__broadcast(event1);
 		}
-		this.nmeRenderAll();
+		this.__renderAll();
 	}
-	,nmeRenderToCanvas: function(canvas) {
+	,__renderToCanvas: function(canvas) {
 		canvas.width = canvas.width;
-		this.nmeRender(canvas);
+		this.__render(canvas);
 	}
-	,nmeRenderAll: function() {
-		this.nmeRender(null,null);
+	,__renderAll: function() {
+		this.__render(null,null);
 	}
-	,nmeQueueStageEvent: function(evt) {
-		this.nmeUIEventsQueue[this.nmeUIEventsQueueIndex++] = evt;
+	,__queueStageEvent: function(evt) {
+		this.__uIEventsQueue[this.__uIEventsQueueIndex++] = evt;
 	}
-	,nmeProcessStageEvent: function(evt) {
+	,__processStageEvent: function(evt) {
 		evt.stopPropagation();
 		switch(evt.type) {
 		case "resize":
-			this.nmeOnResize(flash.Lib.nmeGetWidth(),flash.Lib.nmeGetHeight());
+			this.__onResize(flash.Lib.__getWidth(),flash.Lib.__getHeight());
 			break;
 		case "focus":
-			this.nmeOnFocus(evt,true);
+			this.__onFocus(this);
+			if(!this.__focusObjectActivated) {
+				this.__focusObjectActivated = true;
+				this.dispatchEvent(new flash.events.Event(flash.events.Event.ACTIVATE));
+			}
 			break;
 		case "blur":
-			this.nmeOnFocus(evt,false);
+			if(this.__focusObjectActivated) {
+				this.__focusObjectActivated = false;
+				this.dispatchEvent(new flash.events.Event(flash.events.Event.DEACTIVATE));
+			}
 			break;
 		case "mousemove":
-			this.nmeOnMouse(evt,flash.events.MouseEvent.MOUSE_MOVE);
+			this.__onMouse(evt,flash.events.MouseEvent.MOUSE_MOVE);
 			break;
 		case "mousedown":
-			this.nmeOnMouse(evt,flash.events.MouseEvent.MOUSE_DOWN);
+			this.__onMouse(evt,flash.events.MouseEvent.MOUSE_DOWN);
 			break;
 		case "mouseup":
-			this.nmeOnMouse(evt,flash.events.MouseEvent.MOUSE_UP);
+			this.__onMouse(evt,flash.events.MouseEvent.MOUSE_UP);
 			break;
 		case "click":
-			this.nmeOnMouse(evt,flash.events.MouseEvent.CLICK);
+			this.__onMouse(evt,flash.events.MouseEvent.CLICK);
 			break;
 		case "mousewheel":
-			this.nmeOnMouse(evt,flash.events.MouseEvent.MOUSE_WHEEL);
+			this.__onMouse(evt,flash.events.MouseEvent.MOUSE_WHEEL);
 			break;
 		case "dblclick":
-			this.nmeOnMouse(evt,flash.events.MouseEvent.DOUBLE_CLICK);
+			this.__onMouse(evt,flash.events.MouseEvent.DOUBLE_CLICK);
 			break;
 		case "keydown":
 			var evt1 = evt;
 			var keyCode = evt1.keyCode != null?evt1.keyCode:evt1.which;
-			keyCode = flash.ui.Keyboard.nmeConvertMozillaCode(keyCode);
-			this.nmeOnKey(keyCode,true,evt1.charCode,evt1.ctrlKey,evt1.altKey,evt1.shiftKey,evt1.keyLocation);
+			keyCode = flash.ui.Keyboard.__convertMozillaCode(keyCode);
+			this.__onKey(keyCode,true,evt1.charCode,evt1.ctrlKey,evt1.altKey,evt1.shiftKey,evt1.keyLocation);
 			break;
 		case "keyup":
 			var evt1 = evt;
 			var keyCode = evt1.keyCode != null?evt1.keyCode:evt1.which;
-			keyCode = flash.ui.Keyboard.nmeConvertMozillaCode(keyCode);
-			this.nmeOnKey(keyCode,false,evt1.charCode,evt1.ctrlKey,evt1.altKey,evt1.shiftKey,evt1.keyLocation);
+			keyCode = flash.ui.Keyboard.__convertMozillaCode(keyCode);
+			this.__onKey(keyCode,false,evt1.charCode,evt1.ctrlKey,evt1.altKey,evt1.shiftKey,evt1.keyLocation);
 			break;
 		case "touchstart":
 			var evt1 = evt;
 			evt1.preventDefault();
 			var touchInfo = new flash.display._Stage.TouchInfo();
-			this.nmeTouchInfo[evt1.changedTouches[0].identifier] = touchInfo;
-			this.nmeOnTouch(evt1,evt1.changedTouches[0],"touchBegin",touchInfo,false);
+			this.__touchInfo[evt1.changedTouches[0].identifier] = touchInfo;
+			this.__onTouch(evt1,evt1.changedTouches[0],"touchBegin",touchInfo,false);
 			break;
 		case "touchmove":
 			var evt1 = evt;
-			var touchInfo = this.nmeTouchInfo[evt1.changedTouches[0].identifier];
-			this.nmeOnTouch(evt1,evt1.changedTouches[0],"touchMove",touchInfo,true);
+			evt1.preventDefault();
+			var touchInfo = this.__touchInfo[evt1.changedTouches[0].identifier];
+			this.__onTouch(evt1,evt1.changedTouches[0],"touchMove",touchInfo,true);
 			break;
 		case "touchend":
 			var evt1 = evt;
-			var touchInfo = this.nmeTouchInfo[evt1.changedTouches[0].identifier];
-			this.nmeOnTouch(evt1,evt1.changedTouches[0],"touchEnd",touchInfo,true);
-			this.nmeTouchInfo[evt1.changedTouches[0].identifier] = null;
+			evt1.preventDefault();
+			var touchInfo = this.__touchInfo[evt1.changedTouches[0].identifier];
+			this.__onTouch(evt1,evt1.changedTouches[0],"touchEnd",touchInfo,true);
+			this.__touchInfo[evt1.changedTouches[0].identifier] = null;
 			break;
 		case "devicemotion":
 			var evt1 = evt;
-			this.nmeHandleAccelerometer(evt1);
+			this.__handleAccelerometer(evt1);
 			break;
 		case "orientationchange":
-			this.nmeHandleOrientationChange();
+			this.__handleOrientationChange();
 			break;
 		default:
 		}
 	}
-	,nmeIsOnStage: function() {
+	,__isOnStage: function() {
 		return true;
 	}
-	,nmeDrag: function(point) {
-		var p = this.nmeDragObject.parent;
+	,__drag: function(point) {
+		var p = this.__dragObject.parent;
 		if(p != null) point = p.globalToLocal(point);
-		var x = point.x + this.nmeDragOffsetX;
-		var y = point.y + this.nmeDragOffsetY;
-		if(this.nmeDragBounds != null) {
-			if(x < this.nmeDragBounds.x) x = this.nmeDragBounds.x; else if(x > this.nmeDragBounds.get_right()) x = this.nmeDragBounds.get_right();
-			if(y < this.nmeDragBounds.y) y = this.nmeDragBounds.y; else if(y > this.nmeDragBounds.get_bottom()) y = this.nmeDragBounds.get_bottom();
+		var x = point.x + this.__dragOffsetX;
+		var y = point.y + this.__dragOffsetY;
+		if(this.__dragBounds != null) {
+			if(x < this.__dragBounds.x) x = this.__dragBounds.x; else if(x > this.__dragBounds.get_right()) x = this.__dragBounds.get_right();
+			if(y < this.__dragBounds.y) y = this.__dragBounds.y; else if(y > this.__dragBounds.get_bottom()) y = this.__dragBounds.get_bottom();
 		}
-		this.nmeDragObject.set_x(x);
-		this.nmeDragObject.set_y(y);
+		this.__dragObject.set_x(x);
+		this.__dragObject.set_y(y);
 	}
-	,nmeCheckInOuts: function(event,stack,touchInfo) {
-		var prev = touchInfo == null?this.nmeMouseOverObjects:touchInfo.touchOverObjects;
-		var changeEvents = touchInfo == null?flash.display.Stage.nmeMouseChanges:flash.display.Stage.nmeTouchChanges;
+	,__checkInOuts: function(event,stack,touchInfo) {
+		var prev = touchInfo == null?this.__mouseOverObjects:touchInfo.touchOverObjects;
+		var changeEvents = touchInfo == null?flash.display.Stage.__mouseChanges:flash.display.Stage.__touchChanges;
 		var new_n = stack.length;
 		var new_obj = new_n > 0?stack[new_n - 1]:null;
 		var old_n = prev.length;
 		var old_obj = old_n > 0?prev[old_n - 1]:null;
 		if(new_obj != old_obj) {
-			if(old_obj != null) old_obj.nmeFireEvent(event.nmeCreateSimilar(changeEvents[0],new_obj,old_obj));
-			if(new_obj != null) new_obj.nmeFireEvent(event.nmeCreateSimilar(changeEvents[1],old_obj,new_obj));
+			if(old_obj != null) old_obj.__fireEvent(event.__createSimilar(changeEvents[0],new_obj,old_obj));
+			if(new_obj != null) new_obj.__fireEvent(event.__createSimilar(changeEvents[1],old_obj,new_obj));
 			var common = 0;
 			while(common < new_n && common < old_n && stack[common] == prev[common]) common++;
-			var rollOut = event.nmeCreateSimilar(changeEvents[2],new_obj,old_obj);
+			var rollOut = event.__createSimilar(changeEvents[2],new_obj,old_obj);
 			var i = old_n - 1;
 			while(i >= common) {
 				prev[i].dispatchEvent(rollOut);
 				i--;
 			}
-			var rollOver = event.nmeCreateSimilar(changeEvents[3],old_obj);
+			var rollOver = event.__createSimilar(changeEvents[3],old_obj);
 			var i1 = new_n - 1;
 			while(i1 >= common) {
 				stack[i1].dispatchEvent(rollOver);
 				i1--;
 			}
-			if(touchInfo == null) this.nmeMouseOverObjects = stack; else touchInfo.touchOverObjects = stack;
+			if(touchInfo == null) this.__mouseOverObjects = stack; else touchInfo.touchOverObjects = stack;
 		}
 	}
-	,nmeCheckFocusInOuts: function(event,inStack) {
-		var new_n = inStack.length;
-		var new_obj = new_n > 0?inStack[new_n - 1]:null;
-		var old_n = this.nmeFocusOverObjects.length;
-		var old_obj = old_n > 0?this.nmeFocusOverObjects[old_n - 1]:null;
-		if(new_obj != old_obj) {
-			var common = 0;
-			while(common < new_n && common < old_n && inStack[common] == this.nmeFocusOverObjects[common]) common++;
-			var focusOut = new flash.events.FocusEvent(flash.events.FocusEvent.FOCUS_OUT,false,false,new_obj,false,0);
-			var i = old_n - 1;
-			while(i >= common) {
-				this.nmeFocusOverObjects[i].dispatchEvent(focusOut);
-				i--;
-			}
-			var focusIn = new flash.events.FocusEvent(flash.events.FocusEvent.FOCUS_IN,false,false,old_obj,false,0);
-			var i1 = new_n - 1;
-			while(i1 >= common) {
-				inStack[i1].dispatchEvent(focusIn);
-				i1--;
-			}
-			this.nmeFocusOverObjects = inStack;
-			this.set_focus(new_obj);
-		}
+	,toString: function() {
+		return "[Stage id=" + this.___id + "]";
 	}
 	,invalidate: function() {
-		this.nmeInvalid = true;
+		this.__invalid = true;
 	}
 	,_mouseY: null
 	,_mouseX: null
-	,nmeWindowHeight: null
-	,nmeWindowWidth: null
-	,nmeUIEventsQueueIndex: null
-	,nmeUIEventsQueue: null
-	,nmeTouchInfo: null
-	,nmeTimer: null
-	,nmeStageMatrix: null
-	,nmeStageActive: null
-	,nmeShowDefaultContextMenu: null
-	,nmeMouseOverObjects: null
-	,nmeInvalid: null
-	,nmeInterval: null
-	,nmeFrameRate: null
-	,nmeFocusOverObjects: null
-	,nmeFocusObject: null
-	,nmeDragOffsetY: null
-	,nmeDragOffsetX: null
-	,nmeDragObject: null
-	,nmeDragBounds: null
-	,nmeBackgroundColour: null
+	,__windowHeight: null
+	,__windowWidth: null
+	,__uIEventsQueueIndex: null
+	,__uIEventsQueue: null
+	,__touchInfo: null
+	,__timer: null
+	,__stageMatrix: null
+	,__stageActive: null
+	,__showDefaultContextMenu: null
+	,__mouseOverObjects: null
+	,__invalid: null
+	,__interval: null
+	,__frameRate: null
+	,__focusObjectActivated: null
+	,__focusObject: null
+	,__dragOffsetY: null
+	,__dragOffsetX: null
+	,__dragObject: null
+	,__dragBounds: null
+	,__backgroundColour: null
 	,stageWidth: null
 	,stageHeight: null
 	,stageFocusRect: null
 	,scaleMode: null
 	,quality: null
-	,nmePointInPathMode: null
+	,__pointInPathMode: null
 	,fullScreenWidth: null
 	,fullScreenHeight: null
 	,displayState: null
@@ -5848,7 +5874,9 @@ flash.events.IOErrorEvent.prototype = $extend(flash.events.Event.prototype,{
 	text: null
 	,__class__: flash.events.IOErrorEvent
 });
-flash.events.KeyboardEvent = function(type,bubbles,cancelable,inCharCode,inKeyCode,inKeyLocation,inCtrlKey,inAltKey,inShiftKey) {
+flash.events.KeyboardEvent = function(type,bubbles,cancelable,inCharCode,inKeyCode,inKeyLocation,inCtrlKey,inAltKey,inShiftKey,controlKeyValue,commandKeyValue) {
+	if(commandKeyValue == null) commandKeyValue = false;
+	if(controlKeyValue == null) controlKeyValue = false;
 	if(inShiftKey == null) inShiftKey = false;
 	if(inAltKey == null) inAltKey = false;
 	if(inCtrlKey == null) inCtrlKey = false;
@@ -5858,22 +5886,26 @@ flash.events.KeyboardEvent = function(type,bubbles,cancelable,inCharCode,inKeyCo
 	if(cancelable == null) cancelable = false;
 	if(bubbles == null) bubbles = false;
 	flash.events.Event.call(this,type,bubbles,cancelable);
+	this.altKey = inAltKey == null?false:inAltKey;
+	this.charCode = inCharCode == null?0:inCharCode;
+	this.ctrlKey = inCtrlKey == null?false:inCtrlKey;
+	this.commandKey = commandKeyValue;
+	this.controlKey = controlKeyValue;
 	this.keyCode = inKeyCode;
 	this.keyLocation = inKeyLocation == null?0:inKeyLocation;
-	this.charCode = inCharCode == null?0:inCharCode;
 	this.shiftKey = inShiftKey == null?false:inShiftKey;
-	this.altKey = inAltKey == null?false:inAltKey;
-	this.ctrlKey = inCtrlKey == null?false:inCtrlKey;
 };
 $hxClasses["flash.events.KeyboardEvent"] = flash.events.KeyboardEvent;
 flash.events.KeyboardEvent.__name__ = ["flash","events","KeyboardEvent"];
 flash.events.KeyboardEvent.__super__ = flash.events.Event;
 flash.events.KeyboardEvent.prototype = $extend(flash.events.Event.prototype,{
-	keyLocation: null
-	,shiftKey: null
+	shiftKey: null
+	,keyLocation: null
+	,keyCode: null
+	,controlKey: null
+	,commandKey: null
 	,ctrlKey: null
 	,charCode: null
-	,keyCode: null
 	,altKey: null
 	,__class__: flash.events.KeyboardEvent
 });
@@ -5935,7 +5967,7 @@ flash.events.TouchEvent = function(type,bubbles,cancelable,localX,localY,related
 };
 $hxClasses["flash.events.TouchEvent"] = flash.events.TouchEvent;
 flash.events.TouchEvent.__name__ = ["flash","events","TouchEvent"];
-flash.events.TouchEvent.nmeCreate = function(type,event,touch,local,target) {
+flash.events.TouchEvent.__create = function(type,event,touch,local,target) {
 	var evt = new flash.events.TouchEvent(type,true,false,local.x,local.y,null,event.ctrlKey,event.altKey,event.shiftKey,false,0,null,0);
 	evt.stageX = flash.Lib.get_current().get_stage().get_mouseX();
 	evt.stageY = flash.Lib.get_current().get_stage().get_mouseY();
@@ -5944,7 +5976,7 @@ flash.events.TouchEvent.nmeCreate = function(type,event,touch,local,target) {
 }
 flash.events.TouchEvent.__super__ = flash.events.Event;
 flash.events.TouchEvent.prototype = $extend(flash.events.Event.prototype,{
-	nmeCreateSimilar: function(type,related,targ) {
+	__createSimilar: function(type,related,targ) {
 		var result = new flash.events.TouchEvent(type,this.bubbles,this.cancelable,this.localX,this.localY,related == null?this.relatedObject:related,this.ctrlKey,this.altKey,this.shiftKey,this.buttonDown,this.delta,this.commandKey);
 		result.touchPointID = this.touchPointID;
 		result.isPrimaryTouchPoint = this.isPrimaryTouchPoint;
@@ -5973,16 +6005,15 @@ flash.filters.BitmapFilter = function(inType) {
 $hxClasses["flash.filters.BitmapFilter"] = flash.filters.BitmapFilter;
 flash.filters.BitmapFilter.__name__ = ["flash","filters","BitmapFilter"];
 flash.filters.BitmapFilter.prototype = {
-	nmeApplyFilter: function(surface,rect,refreshCache) {
+	__applyFilter: function(surface,rect,refreshCache) {
 		if(refreshCache == null) refreshCache = false;
 	}
-	,nmePreFilter: function(surface) {
+	,__preFilter: function(surface) {
 	}
 	,clone: function() {
-		throw "Implement in subclass. BitmapFilter::clone";
-		return null;
+		return new flash.filters.BitmapFilter(this._mType);
 	}
-	,_nmeCached: null
+	,___cached: null
 	,_mType: null
 	,__class__: flash.filters.BitmapFilter
 }
@@ -6010,15 +6041,15 @@ flash.filters.DropShadowFilter = function(in_distance,in_angle,in_color,in_alpha
 	this.inner = in_inner;
 	this.knockout = in_knockout;
 	this.hideObject = in_hideObject;
-	this._nmeCached = false;
+	this.___cached = false;
 };
 $hxClasses["flash.filters.DropShadowFilter"] = flash.filters.DropShadowFilter;
 flash.filters.DropShadowFilter.__name__ = ["flash","filters","DropShadowFilter"];
 flash.filters.DropShadowFilter.__super__ = flash.filters.BitmapFilter;
 flash.filters.DropShadowFilter.prototype = $extend(flash.filters.BitmapFilter.prototype,{
-	nmeApplyFilter: function(surface,rect,refreshCache) {
+	__applyFilter: function(surface,rect,refreshCache) {
 		if(refreshCache == null) refreshCache = false;
-		if(!this._nmeCached || refreshCache) {
+		if(!this.___cached || refreshCache) {
 			var distanceX = this.distance * Math.sin(2 * Math.PI * this.angle / 360.0);
 			var distanceY = this.distance * Math.cos(2 * Math.PI * this.angle / 360.0);
 			var blurRadius = Math.max(this.blurX,this.blurY);
@@ -6027,7 +6058,7 @@ flash.filters.DropShadowFilter.prototype = $extend(flash.filters.BitmapFilter.pr
 			context.shadowOffsetY = distanceY;
 			context.shadowBlur = blurRadius;
 			context.shadowColor = "rgba(" + (this.color >> 16 & 255) + "," + (this.color >> 8 & 255) + "," + (this.color & 255) + "," + this.alpha + ")";
-			this._nmeCached = true;
+			this.___cached = true;
 		}
 	}
 	,clone: function() {
@@ -6124,6 +6155,22 @@ flash.geom.Matrix.prototype = {
 		this.tx = inValue;
 		return this.tx;
 	}
+	,__translateTransformed: function(inPos) {
+		this.set_tx(inPos.x * this.a + inPos.y * this.c + this.tx);
+		this.set_ty(inPos.x * this.b + inPos.y * this.d + this.ty);
+		this.a = Math.round(this.a * 1000) / 1000;
+		this.b = Math.round(this.b * 1000) / 1000;
+		this.c = Math.round(this.c * 1000) / 1000;
+		this.d = Math.round(this.d * 1000) / 1000;
+		this.set_tx(Math.round(this.tx * 10) / 10);
+		this.set_ty(Math.round(this.ty * 10) / 10);
+	}
+	,__transformY: function(inPos) {
+		return inPos.x * this.b + inPos.y * this.d + this.ty;
+	}
+	,__transformX: function(inPos) {
+		return inPos.x * this.a + inPos.y * this.c + this.tx;
+	}
 	,translate: function(inDX,inDY) {
 		var m = new flash.geom.Matrix();
 		m.set_tx(inDX);
@@ -6192,22 +6239,6 @@ flash.geom.Matrix.prototype = {
 		this.d = Math.round(this.d * 1000) / 1000;
 		this.set_tx(Math.round(this.tx * 10) / 10);
 		this.set_ty(Math.round(this.ty * 10) / 10);
-	}
-	,nmeTranslateTransformed: function(inPos) {
-		this.set_tx(inPos.x * this.a + inPos.y * this.c + this.tx);
-		this.set_ty(inPos.x * this.b + inPos.y * this.d + this.ty);
-		this.a = Math.round(this.a * 1000) / 1000;
-		this.b = Math.round(this.b * 1000) / 1000;
-		this.c = Math.round(this.c * 1000) / 1000;
-		this.d = Math.round(this.d * 1000) / 1000;
-		this.set_tx(Math.round(this.tx * 10) / 10);
-		this.set_ty(Math.round(this.ty * 10) / 10);
-	}
-	,nmeTransformY: function(inPos) {
-		return inPos.x * this.b + inPos.y * this.d + this.ty;
-	}
-	,nmeTransformX: function(inPos) {
-		return inPos.x * this.a + inPos.y * this.c + this.tx;
 	}
 	,mult: function(m) {
 		var result = this.clone();
@@ -6350,6 +6381,10 @@ flash.geom.Point.prototype = {
 	}
 	,subtract: function(v) {
 		return new flash.geom.Point(this.x - v.x,this.y - v.y);
+	}
+	,setTo: function(xa,ya) {
+		this.x = xa;
+		this.y = ya;
 	}
 	,offset: function(dx,dy) {
 		this.x += dx;
@@ -6567,27 +6602,27 @@ flash.geom.Transform.prototype = {
 	}
 	,set_matrix: function(inValue) {
 		this._matrix.copy(inValue);
-		this._displayObject.nmeMatrixOverridden();
+		this._displayObject.__matrixOverridden();
 		return this._matrix;
 	}
 	,get_matrix: function() {
 		return this._matrix.clone();
 	}
 	,get_concatenatedMatrix: function() {
-		return this.nmeGetFullMatrix(this._matrix);
+		return this.__getFullMatrix(this._matrix);
 	}
 	,set_colorTransform: function(inValue) {
 		this.colorTransform = inValue;
 		return inValue;
 	}
-	,nmeSetMatrix: function(inValue) {
+	,__setMatrix: function(inValue) {
 		this._matrix.copy(inValue);
 	}
-	,nmeSetFullMatrix: function(inValue) {
+	,__setFullMatrix: function(inValue) {
 		this._fullMatrix.copy(inValue);
 		return this._fullMatrix;
 	}
-	,nmeGetFullMatrix: function(localMatrix) {
+	,__getFullMatrix: function(localMatrix) {
 		var m;
 		if(localMatrix != null) m = localMatrix.mult(this._fullMatrix); else m = this._fullMatrix.clone();
 		return m;
@@ -6609,25 +6644,25 @@ flash.media.Sound = function(stream,context) {
 	this.isBuffering = false;
 	this.length = 0;
 	this.url = null;
-	this.nmeSoundChannels = new haxe.ds.IntMap();
-	this.nmeSoundIdx = 0;
+	this.__soundChannels = new haxe.ds.IntMap();
+	this.__soundIdx = 0;
 	if(stream != null) this.load(stream,context);
 };
 $hxClasses["flash.media.Sound"] = flash.media.Sound;
 flash.media.Sound.__name__ = ["flash","media","Sound"];
-flash.media.Sound.nmeCanPlayMime = function(mime) {
+flash.media.Sound.__canPlayMime = function(mime) {
 	var audio = js.Browser.document.createElement("audio");
 	var playable = function(ok) {
 		if(ok != "" && ok != "no") return true; else return false;
 	};
 	return playable(audio.canPlayType(mime,null));
 }
-flash.media.Sound.nmeCanPlayType = function(extension) {
-	var mime = flash.media.Sound.nmeMimeForExtension(extension);
+flash.media.Sound.__canPlayType = function(extension) {
+	var mime = flash.media.Sound.__mimeForExtension(extension);
 	if(mime == null) return false;
-	return flash.media.Sound.nmeCanPlayMime(mime);
+	return flash.media.Sound.__canPlayMime(mime);
 }
-flash.media.Sound.nmeMimeForExtension = function(extension) {
+flash.media.Sound.__mimeForExtension = function(extension) {
 	var mime = null;
 	switch(extension) {
 	case "mp3":
@@ -6649,58 +6684,66 @@ flash.media.Sound.nmeMimeForExtension = function(extension) {
 }
 flash.media.Sound.__super__ = flash.events.EventDispatcher;
 flash.media.Sound.prototype = $extend(flash.events.EventDispatcher.prototype,{
-	nmeOnSoundLoaded: function(evt) {
-		this.nmeRemoveEventListeners();
+	__onSoundLoaded: function(evt) {
+		this.__removeEventListeners();
 		var evt1 = new flash.events.Event(flash.events.Event.COMPLETE);
 		this.dispatchEvent(evt1);
 	}
-	,nmeOnSoundLoadError: function(evt) {
-		this.nmeRemoveEventListeners();
+	,__onSoundLoadError: function(evt) {
+		this.__removeEventListeners();
+		console.log("Error loading sound '" + this.__streamUrl + "'");
 		var evt1 = new flash.events.IOErrorEvent(flash.events.IOErrorEvent.IO_ERROR);
 		this.dispatchEvent(evt1);
+	}
+	,__removeEventListeners: function() {
+		this.__soundCache.removeEventListener(flash.events.Event.COMPLETE,$bind(this,this.__onSoundLoaded),false);
+		this.__soundCache.removeEventListener(flash.events.IOErrorEvent.IO_ERROR,$bind(this,this.__onSoundLoadError),false);
+	}
+	,__load: function(stream,context,mime) {
+		if(mime == null) mime = "";
+		if(mime == null) {
+			var url = stream.url.split("?");
+			var extension = HxOverrides.substr(url[0],url[0].lastIndexOf(".") + 1,null);
+			mime = flash.media.Sound.__mimeForExtension(extension);
+		}
+		if(mime == null || !flash.media.Sound.__canPlayMime(mime)) console.log("Warning: '" + stream.url + "' with type '" + mime + "' may not play on this browser.");
+		this.__streamUrl = stream.url;
+		try {
+			this.__soundCache = new flash.net.URLLoader();
+			this.__addEventListeners();
+			this.__soundCache.load(stream);
+		} catch( e ) {
+			console.log("Warning: Could not preload '" + stream.url + "'");
+		}
+	}
+	,__addEventListeners: function() {
+		this.__soundCache.addEventListener(flash.events.Event.COMPLETE,$bind(this,this.__onSoundLoaded));
+		this.__soundCache.addEventListener(flash.events.IOErrorEvent.IO_ERROR,$bind(this,this.__onSoundLoadError));
 	}
 	,play: function(startTime,loops,sndTransform) {
 		if(loops == null) loops = 0;
 		if(startTime == null) startTime = 0.0;
-		if(this.nmeStreamUrl == null) return null;
+		if(this.__streamUrl == null) return null;
 		var self = this;
-		var curIdx = this.nmeSoundIdx;
+		var curIdx = this.__soundIdx;
 		var removeRef = function() {
-			self.nmeSoundChannels.remove(curIdx);
+			self.__soundChannels.remove(curIdx);
 		};
-		var channel = flash.media.SoundChannel.nmeCreate(this.nmeStreamUrl,startTime,loops,sndTransform,removeRef);
-		this.nmeSoundChannels.set(curIdx,channel);
-		this.nmeSoundIdx++;
-		var audio = channel.nmeAudio;
+		var channel = flash.media.SoundChannel.__create(this.__streamUrl,startTime,loops,sndTransform,removeRef);
+		this.__soundChannels.set(curIdx,channel);
+		this.__soundIdx++;
+		var audio = channel.__audio;
 		return channel;
 	}
-	,nmeRemoveEventListeners: function() {
-		this.nmeSoundCache.removeEventListener(flash.events.Event.COMPLETE,$bind(this,this.nmeOnSoundLoaded),false);
-		this.nmeSoundCache.removeEventListener(flash.events.IOErrorEvent.IO_ERROR,$bind(this,this.nmeOnSoundLoadError),false);
-	}
-	,nmeLoad: function(stream,context,mime) {
-		if(mime == null) mime = "";
-		this.nmeStreamUrl = stream.url;
-		try {
-			this.nmeSoundCache = new flash.net.URLLoader();
-			this.nmeAddEventListeners();
-			this.nmeSoundCache.load(stream);
-		} catch( e ) {
-		}
-	}
-	,nmeAddEventListeners: function() {
-		this.nmeSoundCache.addEventListener(flash.events.Event.COMPLETE,$bind(this,this.nmeOnSoundLoaded));
-		this.nmeSoundCache.addEventListener(flash.events.IOErrorEvent.IO_ERROR,$bind(this,this.nmeOnSoundLoadError));
-	}
 	,load: function(stream,context) {
-		this.nmeLoad(stream,context);
+		this.__load(stream,context);
 	}
 	,close: function() {
 	}
-	,nmeStreamUrl: null
-	,nmeSoundIdx: null
-	,nmeSoundChannels: null
-	,nmeSoundCache: null
+	,__streamUrl: null
+	,__soundIdx: null
+	,__soundChannels: null
+	,__soundCache: null
 	,url: null
 	,length: null
 	,isBuffering: null
@@ -6715,86 +6758,88 @@ flash.media.SoundChannel = function() {
 	this.leftPeak = 0.;
 	this.position = 0.;
 	this.rightPeak = 0.;
-	this.nmeAudioCurrentLoop = 1;
-	this.nmeAudioTotalLoops = 1;
+	this.__audioCurrentLoop = 1;
+	this.__audioTotalLoops = 1;
 };
 $hxClasses["flash.media.SoundChannel"] = flash.media.SoundChannel;
 flash.media.SoundChannel.__name__ = ["flash","media","SoundChannel"];
-flash.media.SoundChannel.nmeCreate = function(src,startTime,loops,sndTransform,removeRef) {
+flash.media.SoundChannel.__create = function(src,startTime,loops,sndTransform,removeRef) {
 	if(loops == null) loops = 0;
 	if(startTime == null) startTime = 0.0;
 	var channel = new flash.media.SoundChannel();
-	channel.nmeAudio = js.Browser.document.createElement("audio");
-	channel.nmeRemoveRef = removeRef;
-	channel.nmeAudio.addEventListener("ended",$bind(channel,channel.__onSoundChannelFinished),false);
-	channel.nmeAudio.addEventListener("seeked",$bind(channel,channel.__onSoundSeeked),false);
-	channel.nmeAudio.addEventListener("stalled",$bind(channel,channel.__onStalled),false);
-	channel.nmeAudio.addEventListener("progress",$bind(channel,channel.__onProgress),false);
+	channel.__audio = js.Browser.document.createElement("audio");
+	channel.__removeRef = removeRef;
+	channel.__audio.addEventListener("ended",$bind(channel,channel.__onSoundChannelFinished),false);
+	channel.__audio.addEventListener("seeked",$bind(channel,channel.__onSoundSeeked),false);
+	channel.__audio.addEventListener("stalled",$bind(channel,channel.__onStalled),false);
+	channel.__audio.addEventListener("progress",$bind(channel,channel.__onProgress),false);
 	if(loops > 0) {
-		channel.nmeAudioTotalLoops = loops;
-		channel.nmeAudio.loop = true;
+		channel.__audioTotalLoops = loops;
+		channel.__audio.loop = true;
 	}
-	channel.nmeStartTime = startTime;
+	channel.__startTime = startTime;
 	if(startTime > 0.) {
 		var onLoad = null;
 		onLoad = function(_) {
-			channel.nmeAudio.currentTime = channel.nmeStartTime;
-			channel.nmeAudio.play();
-			channel.nmeAudio.removeEventListener("canplaythrough",onLoad,false);
+			channel.__audio.currentTime = channel.__startTime;
+			channel.__audio.play();
+			channel.__audio.removeEventListener("canplaythrough",onLoad,false);
 		};
-		channel.nmeAudio.addEventListener("canplaythrough",onLoad,false);
-	} else channel.nmeAudio.autoplay = true;
-	channel.nmeAudio.src = src;
+		channel.__audio.addEventListener("canplaythrough",onLoad,false);
+	} else channel.__audio.autoplay = true;
+	channel.__audio.src = src;
 	return channel;
 }
 flash.media.SoundChannel.__super__ = flash.events.EventDispatcher;
 flash.media.SoundChannel.prototype = $extend(flash.events.EventDispatcher.prototype,{
 	set_soundTransform: function(v) {
-		this.nmeAudio.volume = v.volume;
+		this.__audio.volume = v.volume;
 		return this.soundTransform = v;
 	}
 	,__onStalled: function(evt) {
-		if(this.nmeAudio != null) this.nmeAudio.load();
+		console.log("sound stalled");
+		if(this.__audio != null) this.__audio.load();
 	}
 	,__onSoundSeeked: function(evt) {
-		if(this.nmeAudioCurrentLoop >= this.nmeAudioTotalLoops) {
-			this.nmeAudio.loop = false;
+		if(this.__audioCurrentLoop >= this.__audioTotalLoops) {
+			this.__audio.loop = false;
 			this.stop();
-		} else this.nmeAudioCurrentLoop++;
+		} else this.__audioCurrentLoop++;
 	}
 	,__onSoundChannelFinished: function(evt) {
-		if(this.nmeAudioCurrentLoop >= this.nmeAudioTotalLoops) {
-			this.nmeAudio.removeEventListener("ended",$bind(this,this.__onSoundChannelFinished),false);
-			this.nmeAudio.removeEventListener("seeked",$bind(this,this.__onSoundSeeked),false);
-			this.nmeAudio.removeEventListener("stalled",$bind(this,this.__onStalled),false);
-			this.nmeAudio.removeEventListener("progress",$bind(this,this.__onProgress),false);
-			this.nmeAudio = null;
-			var evt1 = new flash.events.Event(flash.events.Event.COMPLETE);
+		if(this.__audioCurrentLoop >= this.__audioTotalLoops) {
+			this.__audio.removeEventListener("ended",$bind(this,this.__onSoundChannelFinished),false);
+			this.__audio.removeEventListener("seeked",$bind(this,this.__onSoundSeeked),false);
+			this.__audio.removeEventListener("stalled",$bind(this,this.__onStalled),false);
+			this.__audio.removeEventListener("progress",$bind(this,this.__onProgress),false);
+			this.__audio = null;
+			var evt1 = new flash.events.Event(flash.events.Event.SOUND_COMPLETE);
 			evt1.target = this;
 			this.dispatchEvent(evt1);
-			if(this.nmeRemoveRef != null) this.nmeRemoveRef();
+			if(this.__removeRef != null) this.__removeRef();
 		} else {
-			this.nmeAudio.currentTime = this.nmeStartTime;
-			this.nmeAudio.play();
+			this.__audio.currentTime = this.__startTime;
+			this.__audio.play();
 		}
 	}
 	,__onProgress: function(evt) {
+		console.log("sound progress: " + Std.string(evt));
 	}
 	,stop: function() {
-		if(this.nmeAudio != null) {
-			this.nmeAudio.pause();
-			this.nmeAudio = null;
-			if(this.nmeRemoveRef != null) this.nmeRemoveRef();
+		if(this.__audio != null) {
+			this.__audio.pause();
+			this.__audio = null;
+			if(this.__removeRef != null) this.__removeRef();
 		}
 	}
-	,nmeStartTime: null
-	,nmeRemoveRef: null
-	,nmeAudioTotalLoops: null
-	,nmeAudioCurrentLoop: null
+	,__startTime: null
+	,__removeRef: null
+	,__audioTotalLoops: null
+	,__audioCurrentLoop: null
 	,soundTransform: null
 	,rightPeak: null
 	,position: null
-	,nmeAudio: null
+	,__audio: null
 	,leftPeak: null
 	,ChannelId: null
 	,__class__: flash.media.SoundChannel
@@ -6816,6 +6861,12 @@ flash.media.SoundLoaderContext.prototype = {
 flash.media.SoundTransform = function(vol,panning) {
 	if(panning == null) panning = 0;
 	if(vol == null) vol = 1;
+	this.volume = vol;
+	this.pan = panning;
+	this.leftToLeft = 0;
+	this.leftToRight = 0;
+	this.rightToLeft = 0;
+	this.rightToRight = 0;
 };
 $hxClasses["flash.media.SoundTransform"] = flash.media.SoundTransform;
 flash.media.SoundTransform.__name__ = ["flash","media","SoundTransform"];
@@ -6840,7 +6891,11 @@ $hxClasses["flash.net.URLLoader"] = flash.net.URLLoader;
 flash.net.URLLoader.__name__ = ["flash","net","URLLoader"];
 flash.net.URLLoader.__super__ = flash.events.EventDispatcher;
 flash.net.URLLoader.prototype = $extend(flash.events.EventDispatcher.prototype,{
-	onStatus: function(status) {
+	set_dataFormat: function(inputVal) {
+		if(inputVal == flash.net.URLLoaderDataFormat.BINARY && !Reflect.hasField(js.Browser.window,"ArrayBuffer")) this.dataFormat = flash.net.URLLoaderDataFormat.TEXT; else this.dataFormat = inputVal;
+		return this.dataFormat;
+	}
+	,onStatus: function(status) {
 		var evt = new flash.events.HTTPStatusEvent(flash.events.HTTPStatusEvent.HTTP_STATUS,false,false,status);
 		evt.currentTarget = this;
 		this.dispatchEvent(evt);
@@ -6874,7 +6929,7 @@ flash.net.URLLoader.prototype = $extend(flash.events.EventDispatcher.prototype,{
 		var _g = this;
 		switch( (_g.dataFormat)[1] ) {
 		case 0:
-			this.data = flash.utils.ByteArray.nmeOfBuffer(content);
+			this.data = flash.utils.ByteArray.__ofBuffer(content);
 			break;
 		default:
 			this.data = Std.string(content);
@@ -6965,10 +7020,6 @@ flash.net.URLLoader.prototype = $extend(flash.events.EventDispatcher.prototype,{
 		return null;
 	}
 	,close: function() {
-	}
-	,set_dataFormat: function(inputVal) {
-		if(inputVal == flash.net.URLLoaderDataFormat.BINARY && !Reflect.hasField(js.Browser.window,"ArrayBuffer")) this.dataFormat = flash.net.URLLoaderDataFormat.TEXT; else this.dataFormat = inputVal;
-		return this.dataFormat;
 	}
 	,dataFormat: null
 	,data: null
@@ -7111,7 +7162,7 @@ flash.ui.Keyboard.__name__ = ["flash","ui","Keyboard"];
 flash.ui.Keyboard.isAccessible = function() {
 	return false;
 }
-flash.ui.Keyboard.nmeConvertMozillaCode = function(code) {
+flash.ui.Keyboard.__convertMozillaCode = function(code) {
 	switch(code) {
 	case 8:
 		return 8;
@@ -7157,7 +7208,7 @@ flash.ui.Keyboard.nmeConvertMozillaCode = function(code) {
 		return code;
 	}
 }
-flash.ui.Keyboard.nmeConvertWebkitCode = function(code) {
+flash.ui.Keyboard.__convertWebkitCode = function(code) {
 	var _g = code.toLowerCase();
 	switch(_g) {
 	case "backspace":
@@ -7211,7 +7262,7 @@ flash.utils.ByteArray = function() {
 	this.allocated = 0;
 	this.position = 0;
 	this.length = 0;
-	this._nmeResizeBuffer(this.allocated);
+	this.___resizeBuffer(this.allocated);
 };
 $hxClasses["flash.utils.ByteArray"] = flash.utils.ByteArray;
 flash.utils.ByteArray.__name__ = ["flash","utils","ByteArray"];
@@ -7222,7 +7273,7 @@ flash.utils.ByteArray.fromBytes = function(inBytes) {
 	result.allocated = result.length;
 	return result;
 }
-flash.utils.ByteArray.nmeOfBuffer = function(buffer) {
+flash.utils.ByteArray.__ofBuffer = function(buffer) {
 	var bytes = new flash.utils.ByteArray();
 	bytes.set_length(bytes.allocated = buffer.byteLength);
 	bytes.data = new DataView(buffer);
@@ -7231,7 +7282,7 @@ flash.utils.ByteArray.nmeOfBuffer = function(buffer) {
 }
 flash.utils.ByteArray.prototype = {
 	set_length: function(value) {
-		if(this.allocated < value) this._nmeResizeBuffer(this.allocated = Math.max(value,this.allocated * 2) | 0); else if(this.allocated > value) this._nmeResizeBuffer(this.allocated = value);
+		if(this.allocated < value) this.___resizeBuffer(this.allocated = Math.max(value,this.allocated * 2) | 0); else if(this.allocated > value) this.___resizeBuffer(this.allocated = value);
 		this.length = value;
 		return value;
 	}
@@ -7244,6 +7295,39 @@ flash.utils.ByteArray.prototype = {
 	}
 	,get_bytesAvailable: function() {
 		return this.length - this.position;
+	}
+	,__set: function(pos,v) {
+		this.data.setUint8(pos,v);
+	}
+	,__getBuffer: function() {
+		return this.data.buffer;
+	}
+	,___resizeBuffer: function(len) {
+		var oldByteView = this.byteView;
+		var newByteView = new Uint8Array(len);
+		if(oldByteView != null) {
+			if(oldByteView.length <= len) newByteView.set(oldByteView); else newByteView.set(oldByteView.subarray(0,len));
+		}
+		this.byteView = newByteView;
+		this.data = new DataView(newByteView.buffer);
+	}
+	,_getUTFBytesCount: function(value) {
+		var count = 0;
+		var _g1 = 0, _g = value.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			var c = value.charCodeAt(i);
+			if(c <= 127) count += 1; else if(c <= 2047) count += 2; else if(c <= 65535) count += 3; else count += 4;
+		}
+		return count;
+	}
+	,__get: function(pos) {
+		return this.data.getUint8(pos);
+	}
+	,__fromBytes: function(inBytes) {
+		this.byteView = new Uint8Array(inBytes.b);
+		this.set_length(this.byteView.length);
+		this.allocated = this.length;
 	}
 	,writeUTFBytes: function(value) {
 		var _g1 = 0, _g = value.length;
@@ -7272,7 +7356,7 @@ flash.utils.ByteArray.prototype = {
 	,writeUnsignedShort: function(value) {
 		var lengthToEnsure = this.position + 2;
 		if(this.length < lengthToEnsure) {
-			if(this.allocated < lengthToEnsure) this._nmeResizeBuffer(this.allocated = Math.max(lengthToEnsure,this.allocated * 2) | 0); else if(this.allocated > lengthToEnsure) this._nmeResizeBuffer(this.allocated = lengthToEnsure);
+			if(this.allocated < lengthToEnsure) this.___resizeBuffer(this.allocated = Math.max(lengthToEnsure,this.allocated * 2) | 0); else if(this.allocated > lengthToEnsure) this.___resizeBuffer(this.allocated = lengthToEnsure);
 			this.length = lengthToEnsure;
 			lengthToEnsure;
 		}
@@ -7282,7 +7366,7 @@ flash.utils.ByteArray.prototype = {
 	,writeUnsignedInt: function(value) {
 		var lengthToEnsure = this.position + 4;
 		if(this.length < lengthToEnsure) {
-			if(this.allocated < lengthToEnsure) this._nmeResizeBuffer(this.allocated = Math.max(lengthToEnsure,this.allocated * 2) | 0); else if(this.allocated > lengthToEnsure) this._nmeResizeBuffer(this.allocated = lengthToEnsure);
+			if(this.allocated < lengthToEnsure) this.___resizeBuffer(this.allocated = Math.max(lengthToEnsure,this.allocated * 2) | 0); else if(this.allocated > lengthToEnsure) this.___resizeBuffer(this.allocated = lengthToEnsure);
 			this.length = lengthToEnsure;
 			lengthToEnsure;
 		}
@@ -7292,7 +7376,7 @@ flash.utils.ByteArray.prototype = {
 	,writeShort: function(value) {
 		var lengthToEnsure = this.position + 2;
 		if(this.length < lengthToEnsure) {
-			if(this.allocated < lengthToEnsure) this._nmeResizeBuffer(this.allocated = Math.max(lengthToEnsure,this.allocated * 2) | 0); else if(this.allocated > lengthToEnsure) this._nmeResizeBuffer(this.allocated = lengthToEnsure);
+			if(this.allocated < lengthToEnsure) this.___resizeBuffer(this.allocated = Math.max(lengthToEnsure,this.allocated * 2) | 0); else if(this.allocated > lengthToEnsure) this.___resizeBuffer(this.allocated = lengthToEnsure);
 			this.length = lengthToEnsure;
 			lengthToEnsure;
 		}
@@ -7302,7 +7386,7 @@ flash.utils.ByteArray.prototype = {
 	,writeInt: function(value) {
 		var lengthToEnsure = this.position + 4;
 		if(this.length < lengthToEnsure) {
-			if(this.allocated < lengthToEnsure) this._nmeResizeBuffer(this.allocated = Math.max(lengthToEnsure,this.allocated * 2) | 0); else if(this.allocated > lengthToEnsure) this._nmeResizeBuffer(this.allocated = lengthToEnsure);
+			if(this.allocated < lengthToEnsure) this.___resizeBuffer(this.allocated = Math.max(lengthToEnsure,this.allocated * 2) | 0); else if(this.allocated > lengthToEnsure) this.___resizeBuffer(this.allocated = lengthToEnsure);
 			this.length = lengthToEnsure;
 			lengthToEnsure;
 		}
@@ -7312,7 +7396,7 @@ flash.utils.ByteArray.prototype = {
 	,writeFloat: function(x) {
 		var lengthToEnsure = this.position + 4;
 		if(this.length < lengthToEnsure) {
-			if(this.allocated < lengthToEnsure) this._nmeResizeBuffer(this.allocated = Math.max(lengthToEnsure,this.allocated * 2) | 0); else if(this.allocated > lengthToEnsure) this._nmeResizeBuffer(this.allocated = lengthToEnsure);
+			if(this.allocated < lengthToEnsure) this.___resizeBuffer(this.allocated = Math.max(lengthToEnsure,this.allocated * 2) | 0); else if(this.allocated > lengthToEnsure) this.___resizeBuffer(this.allocated = lengthToEnsure);
 			this.length = lengthToEnsure;
 			lengthToEnsure;
 		}
@@ -7322,7 +7406,7 @@ flash.utils.ByteArray.prototype = {
 	,writeDouble: function(x) {
 		var lengthToEnsure = this.position + 8;
 		if(this.length < lengthToEnsure) {
-			if(this.allocated < lengthToEnsure) this._nmeResizeBuffer(this.allocated = Math.max(lengthToEnsure,this.allocated * 2) | 0); else if(this.allocated > lengthToEnsure) this._nmeResizeBuffer(this.allocated = lengthToEnsure);
+			if(this.allocated < lengthToEnsure) this.___resizeBuffer(this.allocated = Math.max(lengthToEnsure,this.allocated * 2) | 0); else if(this.allocated > lengthToEnsure) this.___resizeBuffer(this.allocated = lengthToEnsure);
 			this.length = lengthToEnsure;
 			lengthToEnsure;
 		}
@@ -7333,7 +7417,7 @@ flash.utils.ByteArray.prototype = {
 		if(offset < 0 || length < 0) throw new flash.errors.IOError("Write error - Out of bounds");
 		var lengthToEnsure = this.position + length;
 		if(this.length < lengthToEnsure) {
-			if(this.allocated < lengthToEnsure) this._nmeResizeBuffer(this.allocated = Math.max(lengthToEnsure,this.allocated * 2) | 0); else if(this.allocated > lengthToEnsure) this._nmeResizeBuffer(this.allocated = lengthToEnsure);
+			if(this.allocated < lengthToEnsure) this.___resizeBuffer(this.allocated = Math.max(lengthToEnsure,this.allocated * 2) | 0); else if(this.allocated > lengthToEnsure) this.___resizeBuffer(this.allocated = lengthToEnsure);
 			this.length = lengthToEnsure;
 			lengthToEnsure;
 		}
@@ -7343,7 +7427,7 @@ flash.utils.ByteArray.prototype = {
 	,writeByte: function(value) {
 		var lengthToEnsure = this.position + 1;
 		if(this.length < lengthToEnsure) {
-			if(this.allocated < lengthToEnsure) this._nmeResizeBuffer(this.allocated = Math.max(lengthToEnsure,this.allocated * 2) | 0); else if(this.allocated > lengthToEnsure) this._nmeResizeBuffer(this.allocated = lengthToEnsure);
+			if(this.allocated < lengthToEnsure) this.___resizeBuffer(this.allocated = Math.max(lengthToEnsure,this.allocated * 2) | 0); else if(this.allocated > lengthToEnsure) this.___resizeBuffer(this.allocated = lengthToEnsure);
 			this.length = lengthToEnsure;
 			lengthToEnsure;
 		}
@@ -7411,7 +7495,7 @@ flash.utils.ByteArray.prototype = {
 	}
 	,readFullBytes: function(bytes,pos,len) {
 		if(this.length < len) {
-			if(this.allocated < len) this._nmeResizeBuffer(this.allocated = Math.max(len,this.allocated * 2) | 0); else if(this.allocated > len) this._nmeResizeBuffer(this.allocated = len);
+			if(this.allocated < len) this.___resizeBuffer(this.allocated = Math.max(len,this.allocated * 2) | 0); else if(this.allocated > len) this.___resizeBuffer(this.allocated = len);
 			this.length = len;
 			len;
 		}
@@ -7438,7 +7522,7 @@ flash.utils.ByteArray.prototype = {
 		if(length == null) length = this.length;
 		var lengthToEnsure = offset + length;
 		if(bytes.length < lengthToEnsure) {
-			if(bytes.allocated < lengthToEnsure) bytes._nmeResizeBuffer(bytes.allocated = Math.max(lengthToEnsure,bytes.allocated * 2) | 0); else if(bytes.allocated > lengthToEnsure) bytes._nmeResizeBuffer(bytes.allocated = lengthToEnsure);
+			if(bytes.allocated < lengthToEnsure) bytes.___resizeBuffer(bytes.allocated = Math.max(lengthToEnsure,bytes.allocated * 2) | 0); else if(bytes.allocated > lengthToEnsure) bytes.___resizeBuffer(bytes.allocated = lengthToEnsure);
 			bytes.length = lengthToEnsure;
 			lengthToEnsure;
 		}
@@ -7454,51 +7538,10 @@ flash.utils.ByteArray.prototype = {
 	,readBoolean: function() {
 		return this.readByte() != 0;
 	}
-	,nmeSet: function(pos,v) {
-		var data = this.data;
-		data.setUint8(pos,v);
-	}
-	,nmeGetBuffer: function() {
-		return this.data.buffer;
-	}
-	,nmeGet: function(pos) {
-		var data = this.data;
-		return data.getUint8(pos);
-	}
-	,nmeFromBytes: function(inBytes) {
-		this.byteView = new Uint8Array(inBytes.b);
-		this.set_length(this.byteView.length);
-		this.allocated = this.length;
-	}
 	,clear: function() {
-		if(this.allocated < 0) this._nmeResizeBuffer(this.allocated = Math.max(0,this.allocated * 2) | 0); else if(this.allocated > 0) this._nmeResizeBuffer(this.allocated = 0);
+		if(this.allocated < 0) this.___resizeBuffer(this.allocated = Math.max(0,this.allocated * 2) | 0); else if(this.allocated > 0) this.___resizeBuffer(this.allocated = 0);
 		this.length = 0;
 		0;
-	}
-	,_nmeResizeBuffer: function(len) {
-		var oldByteView = this.byteView;
-		var newByteView = new Uint8Array(len);
-		if(oldByteView != null) {
-			if(oldByteView.length <= len) newByteView.set(oldByteView); else newByteView.set(oldByteView.subarray(0,len));
-		}
-		this.byteView = newByteView;
-		this.data = new DataView(newByteView.buffer);
-	}
-	,_getUTFBytesCount: function(value) {
-		var count = 0;
-		var _g1 = 0, _g = value.length;
-		while(_g1 < _g) {
-			var i = _g1++;
-			var c = value.charCodeAt(i);
-			if(c <= 127) count += 1; else if(c <= 2047) count += 2; else if(c <= 65535) count += 3; else count += 4;
-		}
-		return count;
-	}
-	,__set: function(pos,v) {
-		this.data.setUint8(pos,v);
-	}
-	,__get: function(pos) {
-		return this.data.getUint8(pos);
 	}
 	,littleEndian: null
 	,data: null
@@ -11103,7 +11146,13 @@ $hxClasses["nx3.render.FontRenderer"] = nx3.render.FontRenderer;
 nx3.render.FontRenderer.__name__ = ["nx3","render","FontRenderer"];
 nx3.render.FontRenderer.__interfaces__ = [nx3.render.IRenderer];
 nx3.render.FontRenderer.prototype = {
-	signs: function(x,y,dcomplex) {
+	drawShape: function(shape,x,y,rect) {
+		if(shape == null) return;
+		shape.set_x(x + rect.x * this.scaling.halfNoteWidth + this.scaling.svgX);
+		shape.set_y(y + rect.y * this.scaling.halfSpace + this.scaling.svgY);
+		this.target.addChild(shape);
+	}
+	,signs: function(x,y,dcomplex) {
 		if(dcomplex.get_signRects() == null) return;
 		var signsX = x + dcomplex.get_signsFrame().x * this.scaling.halfNoteWidth;
 		var _g1 = 0, _g = dcomplex.get_signRects().length;
@@ -11115,13 +11164,10 @@ nx3.render.FontRenderer.prototype = {
 			var xmlStr = nx3.render.svg.ShapeTools.getElementStr(signStr);
 			if(xmlStr == null) continue;
 			var shape = nx3.render.svg.ShapeTools.getShape(xmlStr,this.scaling);
-			if(shape == null) return;
 			var r = signRect;
-			var shapeX = signsX + (r.x + nx3.elements.tools.SignsTools.adjustSignFontX(sign)) * this.scaling.halfNoteWidth + this.scaling.svgX;
-			var shapeY = y + (r.y + 2) * this.scaling.halfSpace + this.scaling.svgY;
-			shape.set_x(shapeX);
-			shape.set_y(shapeY);
-			this.target.addChild(shape);
+			var sx = signsX + nx3.elements.tools.SignsTools.adjustSignFontX(sign) * this.scaling.halfNoteWidth;
+			var sy = y + 2 * this.scaling.halfSpace;
+			this.drawShape(shape,sx,sy,r);
 		}
 	}
 	,complex: function(x,y,dcomplex) {
@@ -11138,29 +11184,24 @@ nx3.render.FontRenderer.prototype = {
 		this.heads(x,y,dnote);
 	}
 	,heads: function(x,y,dnote) {
-		var _g = 0, _g1 = dnote.get_headRects();
-		while(_g < _g1.length) {
-			var r = _g1[_g];
-			++_g;
-			var xmlStr = null;
-			var _g2 = dnote.get_value();
-			switch( (_g2.head)[1] ) {
-			case 2:
-				xmlStr = nx3.render.svg.Elements.noteWhole;
-				break;
-			case 1:
-				xmlStr = nx3.render.svg.Elements.noteWhite;
-				break;
-			default:
-				xmlStr = nx3.render.svg.Elements.noteBlack;
-			}
+		var xmlStr = null;
+		var _g = dnote.get_value();
+		switch( (_g.head)[1] ) {
+		case 2:
+			xmlStr = nx3.render.svg.Elements.noteWhole;
+			break;
+		case 1:
+			xmlStr = nx3.render.svg.Elements.noteWhite;
+			break;
+		default:
+			xmlStr = nx3.render.svg.Elements.noteBlack;
+		}
+		var _g1 = 0, _g2 = dnote.get_headRects();
+		while(_g1 < _g2.length) {
+			var rect = _g2[_g1];
+			++_g1;
 			var shape = nx3.render.svg.ShapeTools.getShape(xmlStr,this.scaling);
-			if(shape == null) return;
-			var shapeX = x + r.x * this.scaling.halfNoteWidth + this.scaling.svgX;
-			var shapeY = y + r.y * this.scaling.halfSpace + this.scaling.svgY;
-			shape.set_x(shapeX);
-			shape.set_y(shapeY);
-			this.target.addChild(shape);
+			this.drawShape(shape,x,y,rect);
 		}
 	}
 	,stave: function(x,y,dnote) {
@@ -11216,37 +11257,40 @@ $hxClasses["nx3.render.FrameRenderer"] = nx3.render.FrameRenderer;
 nx3.render.FrameRenderer.__name__ = ["nx3","render","FrameRenderer"];
 nx3.render.FrameRenderer.__interfaces__ = [nx3.render.ISpriteRenderer,nx3.render.IRenderer];
 nx3.render.FrameRenderer.prototype = {
-	signs: function(x,y,dcomplex) {
-		if(dcomplex.get_signsFrame() != null) {
-			this.target.get_graphics().lineStyle(1,16711680);
-			var r = dcomplex.get_signsFrame();
-			var signsX = x + r.x * this.scaling.halfNoteWidth;
-			var r2 = new flash.geom.Rectangle(signsX,y + r.y * this.scaling.halfSpace,r.width * this.scaling.halfNoteWidth,r.height * this.scaling.halfSpace);
-			r2.inflate(2,2);
-			this.target.get_graphics().drawRect(r2.x,r2.y,r2.width,r2.height);
+	drawRect: function(rect,x,y,lineColor,inflate) {
+		if(inflate == null) inflate = 0;
+		if(lineColor == null) lineColor = 0;
+		this.target.get_graphics().lineStyle(1,lineColor);
+		var r = nx3.render.scaling.Scaling.scaleRect(this.scaling,rect);
+		r.offset(x,y);
+		if(inflate != 0) r.inflate(inflate,inflate);
+		this.target.get_graphics().drawRect(r.x,r.y,r.width,r.height);
+	}
+	,rects: function(x,y,rects) {
+		var _g = 0;
+		while(_g < rects.length) {
+			var item = rects[_g];
+			++_g;
 		}
+	}
+	,signs: function(x,y,dcomplex) {
+		if(dcomplex.get_signsFrame() != null) this.drawRect(dcomplex.get_signsFrame(),x,y,16711680,2);
+		var signsX = x + dcomplex.get_signsFrame().x * this.scaling.halfNoteWidth;
 		if(dcomplex.get_signRects() != null) {
-			this.target.get_graphics().lineStyle(1,0);
-			var signsX = x + dcomplex.get_signsFrame().x * this.scaling.halfNoteWidth;
 			var _g = 0, _g1 = dcomplex.get_signRects();
 			while(_g < _g1.length) {
 				var signRect = _g1[_g];
 				++_g;
-				var r = signRect;
-				var r2 = new flash.geom.Rectangle(signsX + r.x * this.scaling.halfNoteWidth,y + r.y * this.scaling.halfSpace,r.width * this.scaling.halfNoteWidth,r.height * this.scaling.halfSpace);
-				this.target.get_graphics().drawRect(r2.x,r2.y,r2.width,r2.height);
+				this.drawRect(signRect,signsX,y,0);
 			}
 		}
 	}
 	,heads: function(x,y,dnote) {
-		var headsX = x;
-		this.target.get_graphics().lineStyle(1,11184895);
 		var _g = 0, _g1 = dnote.get_headRects();
 		while(_g < _g1.length) {
-			var r = _g1[_g];
+			var rect = _g1[_g];
 			++_g;
-			var rx = headsX + r.x * this.scaling.halfNoteWidth;
-			this.target.get_graphics().drawRect(rx,y + r.y * this.scaling.halfSpace,r.width * this.scaling.halfNoteWidth,r.height * this.scaling.halfSpace);
+			this.drawRect(rect,x,y,255);
 		}
 	}
 	,stave: function(x,y,dnote) {
@@ -11269,20 +11313,12 @@ nx3.render.FrameRenderer.prototype = {
 			this.note(x,y,dnote);
 		}
 		this.signs(x,y,dcomplex);
-		this.target.get_graphics().lineStyle(1,255);
-		var r = dcomplex.get_headsRect();
-		var r2 = new flash.geom.Rectangle(x + r.x * this.scaling.halfNoteWidth,y + r.y * this.scaling.halfSpace,r.width * this.scaling.halfNoteWidth,r.height * this.scaling.halfSpace);
-		r2.inflate(2,2);
-		this.target.get_graphics().drawRect(r2.x,r2.y,r2.width,r2.height);
+		this.drawRect(dcomplex.get_headsRect(),x,y,16711680,2);
 	}
 	,note: function(x,y,dnote) {
 		this.heads(x,y,dnote);
 		this.stave(x,y,dnote);
-		this.target.get_graphics().lineStyle(1,16755370);
-		var r = dnote.get_headsRect();
-		var r2 = new flash.geom.Rectangle(x + r.x * this.scaling.halfNoteWidth,y + r.y * this.scaling.halfSpace,r.width * this.scaling.halfNoteWidth,r.height * this.scaling.halfSpace);
-		r2.inflate(2,2);
-		this.target.get_graphics().drawRect(r2.x,r2.y,r2.width,r2.height);
+		this.drawRect(dnote.get_headsRect(),x,y,16755370,2);
 		this.target.get_graphics().lineStyle(1,11184810);
 		this.target.get_graphics().moveTo(x,y + this.scaling.space * 6);
 		this.target.get_graphics().lineTo(x,y - this.scaling.space * 6);
@@ -11368,6 +11404,9 @@ nx3.render.scaling = {}
 nx3.render.scaling.Scaling = function() { }
 $hxClasses["nx3.render.scaling.Scaling"] = nx3.render.scaling.Scaling;
 nx3.render.scaling.Scaling.__name__ = ["nx3","render","scaling","Scaling"];
+nx3.render.scaling.Scaling.scaleRect = function(scaling,rect) {
+	return new flash.geom.Rectangle(rect.x * scaling.halfNoteWidth,rect.y * scaling.halfSpace,rect.width * scaling.halfNoteWidth,rect.height * scaling.halfSpace);
+}
 nx3.render.svg = {}
 nx3.render.svg.Elements = function() { }
 $hxClasses["nx3.render.svg.Elements"] = nx3.render.svg.Elements;
@@ -11486,27 +11525,39 @@ nx3.xamples.Examples.basic2 = function(target) {
 var openfl = {}
 openfl.display = {}
 openfl.display.Tilesheet = function(image) {
-	this.nmeBitmap = image;
-	this.nmeCenterPoints = new Array();
-	this.nmeTileRects = new Array();
+	this.__bitmap = image;
+	this.__centerPoints = new Array();
+	this.__tileRects = new Array();
+	this.__tileUVs = new Array();
 };
 $hxClasses["openfl.display.Tilesheet"] = openfl.display.Tilesheet;
 openfl.display.Tilesheet.__name__ = ["openfl","display","Tilesheet"];
 openfl.display.Tilesheet.prototype = {
-	drawTiles: function(graphics,tileData,smooth,flags) {
+	getTileUVs: function(index) {
+		return this.__tileUVs[index];
+	}
+	,getTileRect: function(index) {
+		return this.__tileRects[index];
+	}
+	,getTileCenter: function(index) {
+		return this.__centerPoints[index];
+	}
+	,drawTiles: function(graphics,tileData,smooth,flags) {
 		if(flags == null) flags = 0;
 		if(smooth == null) smooth = false;
 		graphics.drawTiles(this,tileData,smooth,flags);
 	}
 	,addTileRect: function(rectangle,centerPoint) {
-		this.nmeTileRects.push(rectangle);
+		this.__tileRects.push(rectangle);
 		if(centerPoint == null) centerPoint = new flash.geom.Point();
-		this.nmeCenterPoints.push(centerPoint);
-		return this.nmeTileRects.length - 1;
+		this.__centerPoints.push(centerPoint);
+		this.__tileUVs.push(new flash.geom.Rectangle(rectangle.get_left() / this.__bitmap.get_width(),rectangle.get_top() / this.__bitmap.get_height(),rectangle.get_right() / this.__bitmap.get_width(),rectangle.get_bottom() / this.__bitmap.get_height()));
+		return this.__tileRects.length - 1;
 	}
-	,nmeTileRects: null
-	,nmeCenterPoints: null
-	,nmeBitmap: null
+	,__tileUVs: null
+	,__tileRects: null
+	,__centerPoints: null
+	,__bitmap: null
 	,__class__: openfl.display.Tilesheet
 }
 var tink = {}
@@ -11577,7 +11628,7 @@ flash.Lib.HTML_DIV_EVENT_TYPES = ["resize","mouseover","mouseout","mousewheel","
 flash.Lib.HTML_TOUCH_EVENT_TYPES = ["touchstart","touchmove","touchend"];
 flash.Lib.HTML_TOUCH_ALT_EVENT_TYPES = ["mousedown","mousemove","mouseup"];
 flash.Lib.HTML_WINDOW_EVENT_TYPES = ["keyup","keypress","keydown","resize","blur","focus"];
-flash.Lib.NME_IDENTIFIER = "haxe:jeash";
+flash.Lib.NME_IDENTIFIER = "haxe:openfl";
 flash.Lib.VENDOR_HTML_TAG = "data-";
 flash.Lib.starttime = haxe.Timer.stamp();
 flash.display._BitmapData.MinstdGenerator.a = 16807;
@@ -11604,7 +11655,7 @@ flash.display.Graphics.END_ROUND = 256;
 flash.display.Graphics.END_SQUARE = 512;
 flash.display.Graphics.LINE = 1;
 flash.display.Graphics.MOVE = 0;
-flash.display.Graphics.NME_MAX_DIM = 5000;
+flash.display.Graphics.__MAX_DIM = 5000;
 flash.display.Graphics.PIXEL_HINTING = 16384;
 flash.display.Graphics.RADIAL = 1;
 flash.display.Graphics.SCALE_HORIZONTAL = 2;
@@ -11660,15 +11711,15 @@ flash.events.MouseEvent.RIGHT_MOUSE_UP = "rightMouseUp";
 flash.events.MouseEvent.ROLL_OUT = "rollOut";
 flash.events.MouseEvent.ROLL_OVER = "rollOver";
 flash.display.Stage.NAME = "Stage";
-flash.display.Stage.nmeAcceleration = { x : 0.0, y : 1.0, z : 0.0};
 flash.display.Stage.OrientationPortrait = 1;
 flash.display.Stage.OrientationPortraitUpsideDown = 2;
 flash.display.Stage.OrientationLandscapeRight = 3;
 flash.display.Stage.OrientationLandscapeLeft = 4;
+flash.display.Stage.__acceleration = { x : 0.0, y : 1.0, z : 0.0};
 flash.display.Stage.DEFAULT_FRAMERATE = 0.0;
 flash.display.Stage.UI_EVENTS_QUEUE_MAX = 1000;
-flash.display.Stage.nmeMouseChanges = [flash.events.MouseEvent.MOUSE_OUT,flash.events.MouseEvent.MOUSE_OVER,flash.events.MouseEvent.ROLL_OUT,flash.events.MouseEvent.ROLL_OVER];
-flash.display.Stage.nmeTouchChanges = ["touchOut","touchOver","touchRollOut","touchRollOver"];
+flash.display.Stage.__mouseChanges = [flash.events.MouseEvent.MOUSE_OUT,flash.events.MouseEvent.MOUSE_OVER,flash.events.MouseEvent.ROLL_OUT,flash.events.MouseEvent.ROLL_OVER];
+flash.display.Stage.__touchChanges = ["touchOut","touchOver","touchRollOut","touchRollOver"];
 flash.display.StageQuality.BEST = "best";
 flash.display.StageQuality.HIGH = "high";
 flash.display.StageQuality.MEDIUM = "medium";
@@ -11806,6 +11857,16 @@ flash.ui.Keyboard.INSERT = 45;
 flash.ui.Keyboard.DELETE = 46;
 flash.ui.Keyboard.NUMLOCK = 144;
 flash.ui.Keyboard.BREAK = 19;
+flash.ui.Keyboard.SEMICOLON = 186;
+flash.ui.Keyboard.EQUAL = 187;
+flash.ui.Keyboard.COMMA = 188;
+flash.ui.Keyboard.MINUS = 189;
+flash.ui.Keyboard.PERIOD = 190;
+flash.ui.Keyboard.SLASH = 191;
+flash.ui.Keyboard.BACKQUOTE = 192;
+flash.ui.Keyboard.LEFTBRACKET = 219;
+flash.ui.Keyboard.BACKSLASH = 220;
+flash.ui.Keyboard.RIGHTBRACKET = 221;
 flash.ui.Keyboard.DOM_VK_CANCEL = 3;
 flash.ui.Keyboard.DOM_VK_HELP = 6;
 flash.ui.Keyboard.DOM_VK_BACK_SPACE = 8;
@@ -12159,3 +12220,5 @@ openfl.display.Tilesheet.TILE_BLEND_SCREEN = 262144;
 tink.macro.tools.MacroTools.idCounter = 0;
 ApplicationMain.main();
 })();
+
+//@ sourceMappingURL=Nx3OpenFl.js.map

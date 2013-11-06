@@ -55,6 +55,7 @@ class Examples
 	{
 		
 		if (target == null) target = new Sprite();
+		
 		var note1:NNote = new NNote([
 			new NHead( -4, ESign.Flat), 			
 			new NHead(0, ESign.Flat),  
@@ -62,15 +63,23 @@ class Examples
 			], ENoteValue.Nv4, EDirectionUD.Up);
 			
 		var note2:NNote = new NNote([
-			new NHead(-2, ESign.Flat)
+			new NHead(-2, ESign.Sharp)
 			], ENoteValue.Nv2, EDirectionUD.Down);
 			
 		//------------------------------------------------------------------------------------------------
-		
+
+		var dnote1:DNote = new DNote(note1);
+		var dnote2:DNote = new DNote(note2);
+		var dcomplex:DComplex = new DComplex([
+			dnote1, 
+			dnote2,
+			]);
 		var render:MultiRenderer = new MultiRenderer(target, Scaling.MID, [
 			FrameRenderer,			
 			FontRenderer,
-			]);
+			]);			
+		render.notelines(0, 100, 700);		
+		render.complex(200, 100, dcomplex);		
 
 		var dnote1:DNote = new DNote(note1);
 		var dnote2:DNote = new DNote(note2);
@@ -78,24 +87,16 @@ class Examples
 			dnote1, 
 			dnote2,
 			]);
-		render.notelines(0, 100, 700);		
-		render.complex(200, 100, dcomplex);		
-		
 		var render:MultiRenderer = new MultiRenderer(target, Scaling.PRINT1, [
 			FrameRenderer,			
 			FontRenderer,
-			]);
-
-		var dnote1:DNote = new DNote(note1);
-		var dnote2:DNote = new DNote(note2);
-		var dcomplex:DComplex = new DComplex([
-			dnote1, 
-			dnote2,
-			]);
+			]);			
 		render.notelines(0, 300, 700);		
 		render.complex(200, 300, dcomplex);				
 		
 		//-----------------------------------------------------------------------------------------------
+		
+		trace(NoteXML.toXml(note1).toString());
 		
 		return target;
 	}

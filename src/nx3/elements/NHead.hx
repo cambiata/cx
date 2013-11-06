@@ -21,7 +21,7 @@ class NHead
 	{
 		this.type = (type != null)			? type			: EHeadType.Normal; 
 		this.sign = (sign != null) 			? sign 			: ESign.None;
-		this.tie = (tie != null) 				? tie			: null; 		
+		this.tie = (tie != null) 			? tie			: null; 		
 		this.tieTo = (tieTo != null) 		? tieTo			: null; 		
 		this.level = level;
 	}	

@@ -13,7 +13,6 @@
 	<window orientation="landscape" vsync="false" antialiasing="0" if="cpp" />
 	
 	<!-- classpath, haxe libs -->
-	<source path="src" /> 
 	<source path="../../src/" /> 
 	<haxelib name="openfl" />
 	<haxelib name="actuate" />

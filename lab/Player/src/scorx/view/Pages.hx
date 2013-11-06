@@ -120,14 +120,14 @@ class PagesMediator extends mmvc.impl.Mediator<PagesView>
 			switch(result)
 			{
 				case GridResult.success(xmlString):
-					try 
-					{
+					//try 
+					//{
 						gridProc.init(xmlString);						
-					}
-					catch (e:Dynamic)
-					{
-						errors.addError('Grid error - ' + xmlString);
-					}
+					//}
+					//catch (e:Dynamic)
+					//{
+					//	errors.addError('Grid error - ' + xmlString);
+					//}
 					
 				case GridResult.error(message, url):
 					errors.addError(message + ' Url: ' + url);

@@ -7,7 +7,7 @@ package ;
  */
 class Config
 {
-	static public var host:String =  "http://localhost:8080"; // http://scorxdev.azurewebsites.net"; // "localhost:26446"; // "http://scorxdev.azurewebsites.net/";
+	static public var host:String =  "http://localhost:2000/"; // http://scorxdev.azurewebsites.net"; // "localhost:26446"; // "http://scorxdev.azurewebsites.net/";
 	static public var productId:Int = 1;
 	static public var userId:Int = 1;
 	
@@ -15,7 +15,7 @@ class Config
 	static public var viewLevel:String = 'OrganizationView';
 	static public var printVersion:String = "0.402";
 	
-	static public var drawGrid:Bool = false;
+	static public var drawGrid:Bool = true;
 	
 	//----------------------------------------------------------------------------------------------------------------------
 	

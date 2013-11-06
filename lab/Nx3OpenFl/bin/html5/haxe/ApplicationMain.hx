@@ -1,5 +1,5 @@
 #if !macro
-#if (openfl_html5 && !flambe)
+#if (openfl_html5_dom && !flambe)
 
 import nx3.xamples.main.openfl.Main;
 import haxe.Resource;
@@ -24,6 +24,7 @@ class ApplicationMain {
 	public static var urlLoaders:Map <String, URLLoader>;
 
 	public static function main() {
+		
 		completed = 0;
 		loaders = new Map <String, Loader>();
 		urlLoaders = new Map <String, URLLoader>();
@@ -31,6 +32,18 @@ class ApplicationMain {
 		
 		//flash.Lib.setPackage("", "Nx3OpenFl", "nx3.xamples.main.openfl.Nx3OpenFl", "1.0.0");
 		flash.Lib.current.loaderInfo = flash.display.LoaderInfo.create (null);
+		
+		try {
+			
+			if (Reflect.hasField (js.Browser.window, "winParameters")) {
+				
+				Reflect.setField (flash.Lib.current.loaderInfo, "parameters", Reflect.field (js.Browser.window, "winParameters")());
+				
+			}
+			
+			flash.Lib.current.stage.loaderInfo = flash.Lib.current.loaderInfo;
+			
+		} catch (e:Dynamic) {}
 
 		
 
@@ -42,7 +55,7 @@ class ApplicationMain {
 
 		
 		
-		var resourcePrefix = "NME_:bitmap_";
+		var resourcePrefix = "__ASSET__:bitmap_";
 		for (resourceName in Resource.listNames()) {
 			if (StringTools.startsWith (resourceName, resourcePrefix)) {
 				var type = Type.resolveClass(StringTools.replace (resourceName.substring(resourcePrefix.length), "_", "."));
@@ -52,6 +65,8 @@ class ApplicationMain {
 				}
 			}
 		}
+		
+		
 		
 		if (total == 0) {
 			begin();
