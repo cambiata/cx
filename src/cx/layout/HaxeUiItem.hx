@@ -1,22 +1,21 @@
 package cx.layout;
 import cx.layout.LayoutManager;
-import flash.display.DisplayObject;
-import flash.display.Sprite;
+import haxe.ui.toolkit.core.Component;
 
 /**
  * ...
- * @author 
+ * @author Jonas Nyström
  */
-class SpriteItem implements ILayoutItem
+class HaxeUiItem implements ILayoutItem
 {
 	public var manager:LayoutManager;
-	public var target:Sprite;
+	public var target:Component;
 	public var horizontal:Horizontal;
 	public var vertical:Vertical;
 
 
 	
-	public function new(/*manager:LayoutManager, */target:Sprite, horizontal:Horizontal=null, vertical:Vertical=null) 
+	public function new(/*manager:LayoutManager, */target:Component, horizontal:Horizontal=null, vertical:Vertical=null) 
 	{
 		//this.manager = manager; 
 		this.target = target;

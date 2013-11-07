@@ -1,6 +1,13 @@
 package test;
 
 import cx.ConfigTools;
+import cx.layout.HaxeUiItem;
+import cx.layout.Horizontal;
+import cx.layout.LayoutManager;
+import cx.layout.SpriteItem;
+import cx.layout.Vertical;
+import flash.display.DisplayObject;
+import haxe.ui.toolkit.containers.VBox;
 
 import flash.display.Sprite;
 import flash.events.Event;
@@ -61,7 +68,35 @@ class AppMediator extends AppBaseMediator
 		Toolkit.openFullscreen(function(root:Root) {
 			this.root = root; 
 			var viewTestView:TestView = new TestView();
-			this.root.addChild(viewTestView);	
+			this.root.addChild(viewTestView);
+			
+			
+			var hbox:HBox = new HBox();
+			root.addChild(hbox);
+
+			var but:Button = new Button();
+			but.width = 50;
+			but.height = 50;
+			hbox.addChild(but);
+			
+			var but:Button = new Button();
+			but.width = 50;
+			but.percentWidth = 100;
+			but.height = 50;
+			hbox.addChild(but);
+			
+			var but:Button = new Button();
+			but.width = 50;
+			but.height = 50;
+			hbox.addChild(but);		
+				
+			var layout = new LayoutManager();
+			
+			var item = new HaxeUiItem(hbox, Horizontal.STRETCH_MARGIN(20, 40), Vertical.TOP_MARGIN(10));
+			layout.add(item);
+			layout.resize();
+			
+			
 		});
 
 		

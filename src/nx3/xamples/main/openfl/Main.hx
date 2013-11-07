@@ -26,13 +26,13 @@ import nx3.elements.DNote;
 import nx3.elements.EDirectionUD;
 import nx3.elements.ENoteType;
 import nx3.io.NoteXML;
+import nx3.io.VoiceXML;
+
 
 /**
  * ...
  * @author Jonas Nyström
  */
-import nx3.io.NoteXML;
-import nx3.io.VoiceXML;
 
 class Main extends OpenFlMain 
 {

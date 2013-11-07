@@ -9,6 +9,7 @@
 -cp F:\_lib/haxeui/1,0,5/styles
 -D tools=1.1.6
 -D openfl=1.1
+-D fdb
 -D web
 -swf-version 11.2
 -swf bin/flash/bin/NewMMVC.swf
