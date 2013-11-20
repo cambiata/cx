@@ -40,28 +40,42 @@ class DefaultAssetLibrary extends AssetLibrary {
 		type.set ("styles/gradient/arrow_down.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		className.set ("styles/gradient/arrow_down_dark.png", __ASSET__styles_gradient_arrow_down_dark_png);
 		type.set ("styles/gradient/arrow_down_dark.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		className.set ("styles/gradient/arrow_down_disabled.png", __ASSET__styles_gradient_arrow_down_disabled_png);
+		type.set ("styles/gradient/arrow_down_disabled.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		className.set ("styles/gradient/arrow_left.png", __ASSET__styles_gradient_arrow_left_png);
 		type.set ("styles/gradient/arrow_left.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		className.set ("styles/gradient/arrow_left_disabled.png", __ASSET__styles_gradient_arrow_left_disabled_png);
+		type.set ("styles/gradient/arrow_left_disabled.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		className.set ("styles/gradient/arrow_right.png", __ASSET__styles_gradient_arrow_right_png);
 		type.set ("styles/gradient/arrow_right.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		className.set ("styles/gradient/arrow_right2.png", __ASSET__styles_gradient_arrow_right2_png);
 		type.set ("styles/gradient/arrow_right2.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		className.set ("styles/gradient/arrow_right_dark.png", __ASSET__styles_gradient_arrow_right_dark_png);
 		type.set ("styles/gradient/arrow_right_dark.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		className.set ("styles/gradient/arrow_right_disabled.png", __ASSET__styles_gradient_arrow_right_disabled_png);
+		type.set ("styles/gradient/arrow_right_disabled.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		className.set ("styles/gradient/arrow_up.png", __ASSET__styles_gradient_arrow_up_png);
 		type.set ("styles/gradient/arrow_up.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		className.set ("styles/gradient/arrow_up_disabled.png", __ASSET__styles_gradient_arrow_up_disabled_png);
+		type.set ("styles/gradient/arrow_up_disabled.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		className.set ("styles/gradient/circle_dark.png", __ASSET__styles_gradient_circle_dark_png);
 		type.set ("styles/gradient/circle_dark.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		className.set ("styles/gradient/cross_dark.png", __ASSET__styles_gradient_cross_dark_png);
 		type.set ("styles/gradient/cross_dark.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		className.set ("styles/gradient/cross_dark_disabled.png", __ASSET__styles_gradient_cross_dark_disabled_png);
+		type.set ("styles/gradient/cross_dark_disabled.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		className.set ("styles/gradient/gradient.css", __ASSET__styles_gradient_gradient_css);
 		type.set ("styles/gradient/gradient.css", Reflect.field (AssetType, "text".toUpperCase ()));
 		className.set ("styles/gradient/gradient_mobile.css", __ASSET__styles_gradient_gradient_mobile_css);
 		type.set ("styles/gradient/gradient_mobile.css", Reflect.field (AssetType, "text".toUpperCase ()));
 		className.set ("styles/gradient/gripper_horizontal.png", __ASSET__styles_gradient_gripper_horizontal_png);
 		type.set ("styles/gradient/gripper_horizontal.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		className.set ("styles/gradient/gripper_horizontal_disabled.png", __ASSET__styles_gradient_gripper_horizontal_disabled_png);
+		type.set ("styles/gradient/gripper_horizontal_disabled.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		className.set ("styles/gradient/gripper_vertical.png", __ASSET__styles_gradient_gripper_vertical_png);
 		type.set ("styles/gradient/gripper_vertical.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		className.set ("styles/gradient/gripper_vertical_disabled.png", __ASSET__styles_gradient_gripper_vertical_disabled_png);
+		type.set ("styles/gradient/gripper_vertical_disabled.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		className.set ("styles/windows/accordion.css", __ASSET__styles_windows_accordion_css);
 		type.set ("styles/windows/accordion.css", Reflect.field (AssetType, "text".toUpperCase ()));
 		className.set ("styles/windows/button.png", __ASSET__styles_windows_button_png);
@@ -152,28 +166,42 @@ class DefaultAssetLibrary extends AssetLibrary {
 		type.set ("styles/gradient/arrow_down.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		path.set ("styles/gradient/arrow_down_dark.png", "styles/gradient/arrow_down_dark.png");
 		type.set ("styles/gradient/arrow_down_dark.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		path.set ("styles/gradient/arrow_down_disabled.png", "styles/gradient/arrow_down_disabled.png");
+		type.set ("styles/gradient/arrow_down_disabled.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		path.set ("styles/gradient/arrow_left.png", "styles/gradient/arrow_left.png");
 		type.set ("styles/gradient/arrow_left.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		path.set ("styles/gradient/arrow_left_disabled.png", "styles/gradient/arrow_left_disabled.png");
+		type.set ("styles/gradient/arrow_left_disabled.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		path.set ("styles/gradient/arrow_right.png", "styles/gradient/arrow_right.png");
 		type.set ("styles/gradient/arrow_right.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		path.set ("styles/gradient/arrow_right2.png", "styles/gradient/arrow_right2.png");
 		type.set ("styles/gradient/arrow_right2.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		path.set ("styles/gradient/arrow_right_dark.png", "styles/gradient/arrow_right_dark.png");
 		type.set ("styles/gradient/arrow_right_dark.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		path.set ("styles/gradient/arrow_right_disabled.png", "styles/gradient/arrow_right_disabled.png");
+		type.set ("styles/gradient/arrow_right_disabled.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		path.set ("styles/gradient/arrow_up.png", "styles/gradient/arrow_up.png");
 		type.set ("styles/gradient/arrow_up.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		path.set ("styles/gradient/arrow_up_disabled.png", "styles/gradient/arrow_up_disabled.png");
+		type.set ("styles/gradient/arrow_up_disabled.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		path.set ("styles/gradient/circle_dark.png", "styles/gradient/circle_dark.png");
 		type.set ("styles/gradient/circle_dark.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		path.set ("styles/gradient/cross_dark.png", "styles/gradient/cross_dark.png");
 		type.set ("styles/gradient/cross_dark.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		path.set ("styles/gradient/cross_dark_disabled.png", "styles/gradient/cross_dark_disabled.png");
+		type.set ("styles/gradient/cross_dark_disabled.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		path.set ("styles/gradient/gradient.css", "styles/gradient/gradient.css");
 		type.set ("styles/gradient/gradient.css", Reflect.field (AssetType, "text".toUpperCase ()));
 		path.set ("styles/gradient/gradient_mobile.css", "styles/gradient/gradient_mobile.css");
 		type.set ("styles/gradient/gradient_mobile.css", Reflect.field (AssetType, "text".toUpperCase ()));
 		path.set ("styles/gradient/gripper_horizontal.png", "styles/gradient/gripper_horizontal.png");
 		type.set ("styles/gradient/gripper_horizontal.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		path.set ("styles/gradient/gripper_horizontal_disabled.png", "styles/gradient/gripper_horizontal_disabled.png");
+		type.set ("styles/gradient/gripper_horizontal_disabled.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		path.set ("styles/gradient/gripper_vertical.png", "styles/gradient/gripper_vertical.png");
 		type.set ("styles/gradient/gripper_vertical.png", Reflect.field (AssetType, "image".toUpperCase ()));
+		path.set ("styles/gradient/gripper_vertical_disabled.png", "styles/gradient/gripper_vertical_disabled.png");
+		type.set ("styles/gradient/gripper_vertical_disabled.png", Reflect.field (AssetType, "image".toUpperCase ()));
 		path.set ("styles/windows/accordion.css", "styles/windows/accordion.css");
 		type.set ("styles/windows/accordion.css", Reflect.field (AssetType, "text".toUpperCase ()));
 		path.set ("styles/windows/button.png", "styles/windows/button.png");
@@ -632,17 +660,24 @@ class DefaultAssetLibrary extends AssetLibrary {
 
 class __ASSET__styles_gradient_arrow_down_png extends flash.display.BitmapData { public function new () { super (0, 0); } }
 class __ASSET__styles_gradient_arrow_down_dark_png extends flash.display.BitmapData { public function new () { super (0, 0); } }
+class __ASSET__styles_gradient_arrow_down_disabled_png extends flash.display.BitmapData { public function new () { super (0, 0); } }
 class __ASSET__styles_gradient_arrow_left_png extends flash.display.BitmapData { public function new () { super (0, 0); } }
+class __ASSET__styles_gradient_arrow_left_disabled_png extends flash.display.BitmapData { public function new () { super (0, 0); } }
 class __ASSET__styles_gradient_arrow_right_png extends flash.display.BitmapData { public function new () { super (0, 0); } }
 class __ASSET__styles_gradient_arrow_right2_png extends flash.display.BitmapData { public function new () { super (0, 0); } }
 class __ASSET__styles_gradient_arrow_right_dark_png extends flash.display.BitmapData { public function new () { super (0, 0); } }
+class __ASSET__styles_gradient_arrow_right_disabled_png extends flash.display.BitmapData { public function new () { super (0, 0); } }
 class __ASSET__styles_gradient_arrow_up_png extends flash.display.BitmapData { public function new () { super (0, 0); } }
+class __ASSET__styles_gradient_arrow_up_disabled_png extends flash.display.BitmapData { public function new () { super (0, 0); } }
 class __ASSET__styles_gradient_circle_dark_png extends flash.display.BitmapData { public function new () { super (0, 0); } }
 class __ASSET__styles_gradient_cross_dark_png extends flash.display.BitmapData { public function new () { super (0, 0); } }
+class __ASSET__styles_gradient_cross_dark_disabled_png extends flash.display.BitmapData { public function new () { super (0, 0); } }
 class __ASSET__styles_gradient_gradient_css extends flash.utils.ByteArray { }
 class __ASSET__styles_gradient_gradient_mobile_css extends flash.utils.ByteArray { }
 class __ASSET__styles_gradient_gripper_horizontal_png extends flash.display.BitmapData { public function new () { super (0, 0); } }
+class __ASSET__styles_gradient_gripper_horizontal_disabled_png extends flash.display.BitmapData { public function new () { super (0, 0); } }
 class __ASSET__styles_gradient_gripper_vertical_png extends flash.display.BitmapData { public function new () { super (0, 0); } }
+class __ASSET__styles_gradient_gripper_vertical_disabled_png extends flash.display.BitmapData { public function new () { super (0, 0); } }
 class __ASSET__styles_windows_accordion_css extends flash.utils.ByteArray { }
 class __ASSET__styles_windows_button_png extends flash.display.BitmapData { public function new () { super (0, 0); } }
 class __ASSET__styles_windows_buttons_css extends flash.utils.ByteArray { }
@@ -687,6 +722,13 @@ class __ASSET__img_rtfview_edit_underline_png extends flash.display.BitmapData {
 
 
 #elseif html5
+
+
+
+
+
+
+
 
 
 

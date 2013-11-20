@@ -19,6 +19,8 @@ class HBoxView extends HBox
 	
 	private function createChildren()
 	{
+		throw "Should be overridden";
+		
 		var button:Button = new Button();
 		button.text = "HBoxView button - should be overridden";
 		this.addChild(button);
