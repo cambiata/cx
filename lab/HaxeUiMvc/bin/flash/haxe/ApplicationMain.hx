@@ -1,7 +1,7 @@
 #if (!macro || !haxe3)
 #if (nme || openfl)
 
-import test.Main;
+import ex.Main;
 import flash.display.DisplayObject;
 import openfl.Assets;
 import flash.events.Event;
@@ -16,7 +16,7 @@ class ApplicationMain {
 		
 		var call_real = true;
 		
-		//nme.Lib.setPackage("Jonas Nyström", "NewMMVC", "test.NewMMVC", "1.0.0");
+		//nme.Lib.setPackage("Jonas Nyström", "NewMMVC", "ex.NewMMVC", "1.0.0");
 		
 		
 		var loaded:Int = flash.Lib.current.loaderInfo.bytesLoaded;
@@ -42,7 +42,7 @@ class ApplicationMain {
 	private static function begin() {
 		var hasMain = false;
 		
-		for (methodName in Type.getClassFields(test.Main))
+		for (methodName in Type.getClassFields(ex.Main))
 		{
 			if (methodName == "main")
 			{
@@ -53,7 +53,7 @@ class ApplicationMain {
 		
 		if (hasMain)
 		{
-			Reflect.callMethod(test.Main, Reflect.field (test.Main, "main"), []);
+			Reflect.callMethod(ex.Main, Reflect.field (ex.Main, "main"), []);
 		}
 		else
 		{
@@ -86,7 +86,7 @@ class ApplicationMain {
 
 #else
 
-import test.Main;
+import ex.Main;
 
 class ApplicationMain {
 	
@@ -94,7 +94,7 @@ class ApplicationMain {
 		
 		var hasMain = false;
 		
-		for (methodName in Type.getClassFields(test.Main))
+		for (methodName in Type.getClassFields(ex.Main))
 		{
 			if (methodName == "main")
 			{
@@ -105,7 +105,7 @@ class ApplicationMain {
 		
 		if (hasMain)
 		{
-			Reflect.callMethod(test.Main, Reflect.field (test.Main, "main"), []);
+			Reflect.callMethod(ex.Main, Reflect.field (ex.Main, "main"), []);
 		}
 		else
 		{
@@ -120,7 +120,7 @@ class ApplicationMain {
 #end
 
 #if haxe3 @:build(DocumentClass.build()) #end
-class DocumentClass extends test.Main { }
+class DocumentClass extends ex.Main { }
 
 #else
 

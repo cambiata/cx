@@ -12,7 +12,7 @@ class HBoxView extends HBox
 	public function new() 
 	{		
 		super();
-		this.style.padding = 12;
+		this.style.padding = 8;
 		createChildren();		
 		this.addEventListener(Event.ADDED, function(e)  { sx.mvc.app.AppView.REGISTER.dispatch(this);} );
 	}

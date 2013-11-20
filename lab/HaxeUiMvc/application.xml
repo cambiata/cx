@@ -3,10 +3,10 @@
 	<!-- NMML reference: https://gist.github.com/1763850 -->
 	
 	<!-- metadata, make sure 'package' is at least 3 segments (ie. com.mycompany.myproject) -->
-	<meta title="NewMMVC" package="test.NewMMVC" version="1.0.0" company="Jonas Nyström" />
+	<meta title="NewMMVC" package="ex.NewMMVC" version="1.0.0" company="Jonas Nyström" />
 	
 	<!-- output -->
-	<app main="test.Main" file="NewMMVC" path="bin" />
+	<app main="ex.Main" file="NewMMVC" path="bin" />
 	
 	<window background="#ffffff" fps="60" />
 	<window width="800" height="480" unless="mobile" />
