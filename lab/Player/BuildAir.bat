@@ -1,2 +1,0 @@
-haxe -cp src -cp ../../src -lib air3 -lib mmvc -lib mloader -lib stablexui -swf F:/_cx/lab/Player/bin/PrintManager.swf -swf-header 800:600:30:FFFFFF -swf-version 11.7 -main print.mgr.Main -debug --no-inline -D fdb
-Run.bat

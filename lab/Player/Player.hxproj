@@ -17,12 +17,11 @@
   <!-- Other classes to be compiled into your SWF -->
   <classpaths>
     <class path="src" />
-    <class path="..\..\src" />
     <class path="bin\content\player\flash\haxe" />
   </classpaths>
   <!-- Build options -->
   <build>
-    <option directives="tools=1.1.6&#xA;openfl=1.1&#xA;display&#xA;web" />
+    <option directives="tools=1.2.1&#xA;openfl=1.2&#xA;display&#xA;web" />
     <option flashStrict="False" />
     <option noInlineOnDebug="False" />
     <option mainClass="ApplicationMain" />

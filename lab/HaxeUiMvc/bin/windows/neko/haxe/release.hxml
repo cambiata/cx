@@ -15,4 +15,4 @@
 -cp bin/windows/neko/haxe
 -neko bin/windows/neko/obj/ApplicationMain.n
 --macro allowPackage("flash")
---macro keep("test.Main")
+--macro keep("ex.Main")

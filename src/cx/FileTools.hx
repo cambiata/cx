@@ -97,16 +97,20 @@ class FileTools
 		return filenames;
 	}
 	
-	static public function getDirectories(dir:String, includeFiles:Bool=false, dirs:Array<String>=null) {
+	static public function getDirectories(dir:String, includeFiles:Bool=false, dirs:Array<String>=null, giveDirsExt:String='') {
 		var items = FileSystem.readDirectory(dir);
 		for (item in items) {
-			var testdir = dir + '/' + item;
+			var testdir = dir + '/' + item;			
 			if (FileSystem.isDirectory(testdir)) {
 				if (dirs == null) dirs = new Array<String>();
-				dirs.push(testdir);
-				getDirectories(testdir, includeFiles, dirs);
+				
+				var dirname = (giveDirsExt != '') ? testdir + giveDirsExt: testdir;
+				dirs.push(dirname);
+				
+				getDirectories(testdir, includeFiles, dirs, giveDirsExt);
 			} else {
 				if (includeFiles) {
+					if (dirs == null) dirs = new Array<String>();
 					dirs.push(testdir);
 				}
 			}
@@ -242,8 +246,8 @@ class FileTools
 	}
 	
 	static public function getFilename(fullfilename:String, includeExt:Bool = true) {
-		var filename = Tools.stringAfterLast(FileTools.safeSlashes(fullfilename), '/');
-		if (! includeExt) filename = Tools.stringBeforeLast(filename, '.');
+		var filename = StrTools.afterLast(FileTools.safeSlashes(fullfilename), '/');		
+		if (! includeExt) filename = PathTools.excludeExtension(filename);
 		return filename;
 	}
 	
@@ -262,6 +266,10 @@ class FileTools
 	
 	static public function getExtension(filename:String) {
 		return PathTools.getExtension(filename); // filename.substr(filename.lastIndexOf('.') + 1);
+	}
+	
+	static public function excludeExtension(filename:String) {
+		return PathTools.excludeExtension(filename);
 	}
 	
 	static public function rename(path:String, newpath:String) {

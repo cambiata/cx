@@ -1,4 +1,5 @@
 package cx.docs;
+import haxe.ds.StringMap.StringMap;
 
 /**
  * ...
@@ -36,8 +37,8 @@ class IndexTools {
 		trace(this.index);
 	}	
 	
-	public function getKeywordIndex():Hash<Index> {
-		var ret = new Hash<Index>();
+	public function getKeywordIndex():StringMap<Index> {
+		var ret = new StringMap<Index>();
 		for (indexItem in this.index) {			
 			if (!ret.exists(indexItem.keyword)) ret.set(indexItem.keyword, new Index());
 			ret.get(indexItem.keyword).push(indexItem);
@@ -45,8 +46,8 @@ class IndexTools {
 		return ret;
 	}
 
-	public function getTextwordIndex():Hash<Index> {
-		var ret = new Hash<Index>();
+	public function getTextwordIndex():StringMap<Index> {
+		var ret = new StringMap<Index>();
 		for (indexItem in this.index) {			
 			if (!ret.exists(indexItem.text)) ret.set(indexItem.text, new Index());
 			ret.get(indexItem.text).push(indexItem);
@@ -54,8 +55,8 @@ class IndexTools {
 		return ret;
 	}
 	
-	public function getFilenameIndex():Hash<Index> {
-		var ret = new Hash<Index>();
+	public function getFilenameIndex():StringMap<Index> {
+		var ret = new StringMap<Index>();
 		for (indexItem in this.index) {			
 			if (!ret.exists(indexItem.filename)) ret.set(indexItem.filename, new Index());
 			ret.get(indexItem.filename).push(indexItem);

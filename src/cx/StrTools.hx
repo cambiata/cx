@@ -8,12 +8,26 @@ import haxe.Utf8;
 using StringTools;
 class StrTools 
 {
-	
-	static public function until(str:String, until:String):String
+	static public function countSub(str:String, lookForStr:String): Int
 	{
-		return str.substring(0, str.indexOf(until));
-		
+		return str.split(lookForStr).length - 1;
 	}
+	
+	
+	static public function until(str:String, untilStr:String, includeUntilStr:Bool = false):String
+	{
+		var pos = str.indexOf(untilStr);
+		if (includeUntilStr) pos++;
+		return str.substring(0, pos);		
+	}
+	
+	static public function untilLast(str:String, untilStr:String, includeUntilStr:Bool = false):String
+	{
+		var pos = str.lastIndexOf(untilStr);
+		if (includeUntilStr) pos++;
+		return str.substring(0, pos);		
+	}
+	
 	
 	static public function tab(str:String) {
 		return str + '\t';
@@ -64,6 +78,7 @@ class StrTools
 	
 	static public function afterLast(str:String, char:String, includeChar:Bool=false):String {
 		var idx = str.lastIndexOf(char);
+		if (idx == -1) return str;
 		if (!includeChar) idx += char.length;
 		return str.substr(idx);
 	}		
@@ -239,6 +254,12 @@ class StrTools
 		}
 		return str.lastIndexOf(search);
 	}
+	
+	static public function toInt(str:String):Int return Std.parseInt(str);
+	static public function toFloat(str:String):Float return Std.parseFloat(str);		
+	
+	
+	
 	
 }
 

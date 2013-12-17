@@ -4,9 +4,12 @@ import format.zip.Reader;
 import format.zip.Data;
 import format.zip.Data.Entry;
 import format.zip.Writer;
+import haxe.crypto.Crc32;
 import haxe.io.Bytes;
 import haxe.io.BytesInput;
 import haxe.io.BytesOutput;
+
+
 
 #if (neko || windows || cpp)
 import sys.io.File;
@@ -59,7 +62,8 @@ class ZipTools {
 	static public function saveZipEntries(filename:String, entries:List<Entry>) {
 		var zipBytesOutput = new BytesOutput();
         var zipWriter = new Writer(zipBytesOutput);
-        zipWriter.writeData(entries);
+        zipWriter.write(entries);
+		
 		
         var zipBytes = zipBytesOutput.getBytes();
         var file = File.write(filename, true);
@@ -77,6 +81,7 @@ class ZipTools {
 	}	
 
 	static public function createDataEntry(filename:String, data:Bytes):Entry {
+		
 		var entry:Entry = {
 			fileName : filename,
 			fileSize : data.length,
@@ -84,7 +89,7 @@ class ZipTools {
 			compressed : false,
 			dataSize : data.length,
 			data : data,
-			crc32 : CRC32.encode(data),
+			crc32 : Crc32.make(data),
 			extraFields : new List(),			
 		};
 		return entry;			

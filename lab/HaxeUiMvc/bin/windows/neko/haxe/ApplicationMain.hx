@@ -16,7 +16,7 @@ class ApplicationMain {
 	
 	public static function main () {
 		
-		flash.Lib.setPackage ("Jonas Nyström", "NewMMVC", "test.NewMMVC", "1.0.0");
+		flash.Lib.setPackage ("Jonas Nyström", "NewMMVC", "ex.NewMMVC", "1.0.0");
 		
 		
 		#if ios
@@ -65,7 +65,7 @@ class ApplicationMain {
 				
 				var hasMain = false;
 				
-				for (methodName in Type.getClassFields (test.Main)) {
+				for (methodName in Type.getClassFields (ex.Main)) {
 					
 					if (methodName == "main") {
 						
@@ -78,7 +78,7 @@ class ApplicationMain {
 					
 				if (hasMain) {
 					
-					Reflect.callMethod (test.Main, Reflect.field (test.Main, "main"), []);
+					Reflect.callMethod (ex.Main, Reflect.field (ex.Main, "main"), []);
 					
 				} else {
 					
@@ -178,7 +178,7 @@ class ApplicationMain {
 
 
 @:build(DocumentClass.build())
-@:keep class DocumentClass extends test.Main {}
+@:keep class DocumentClass extends ex.Main {}
 
 
 #if mobile
@@ -282,7 +282,7 @@ class ApplicationMain {
 	public static function main () {
 		
 		#if openfl
-		flash.Lib.setPackage ("Jonas Nyström", "NewMMVC", "test.NewMMVC", "1.0.0");
+		flash.Lib.setPackage ("Jonas Nyström", "NewMMVC", "ex.NewMMVC", "1.0.0");
 		
 		#end
 		
@@ -297,7 +297,7 @@ class ApplicationMain {
 			#end
 			
 			var hasMain = false;
-			for (methodName in Type.getClassFields (test.Main)) {
+			for (methodName in Type.getClassFields (ex.Main)) {
 				if (methodName == "main") {
 					hasMain = true;
 					break;
@@ -305,9 +305,9 @@ class ApplicationMain {
 			}
 			
 			if (hasMain) {
-				Reflect.callMethod (test.Main, Reflect.field (test.Main, "main"), []);
+				Reflect.callMethod (ex.Main, Reflect.field (ex.Main, "main"), []);
 			}else {
-				var instance = Type.createInstance (test.Main, []);
+				var instance = Type.createInstance (ex.Main, []);
 			}
 			
 			if (autoShowFrame) {
@@ -336,7 +336,7 @@ class ApplicationMain {
 #else
 
 
-import test.Main;
+import ex.Main;
 
 class ApplicationMain {
 	

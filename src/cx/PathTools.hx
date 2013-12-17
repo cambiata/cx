@@ -36,7 +36,15 @@ class PathTools
 	}
 	
 	static public function getExtension(filename:String) {
+		if (filename.indexOf('.') == -1) return '';
 		return filename.substr(filename.lastIndexOf('.')+1);
+	}	
+	
+	static public function excludeExtension(filename:String) {
+		var ext = PathTools.getExtension(filename);
+		if (ext.length == 0) return filename;
+		if (filename.endsWith(ext)) return filename.substr(0, filename.length - ext.length - 1);
+		return '';
 	}	
 	
 	static public function addHttp(path:String, http = 'http://') {

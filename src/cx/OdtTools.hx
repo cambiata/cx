@@ -3,6 +3,7 @@ import cx.docs.IndexTools;
 import cx.docs.IndexTools.Index;
 import cx.docs.IndexTools.IndexItem;
 import cx.docs.IndexTools.IndexParser;
+import haxe.ds.StringMap.StringMap;
 
 /**
  * ...
@@ -414,7 +415,7 @@ class OdtTools
 }
 
 
-typedef OdtStyles = Hash<OdtStyle>;
+typedef OdtStyles = StringMap<OdtStyle>;
 
 typedef OdtStyle = {
 	name:String,

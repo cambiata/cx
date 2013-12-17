@@ -1,5 +1,5 @@
 package cx;
-import haxe.BaseCode;
+import haxe.crypto.BaseCode;
 
 import haxe.Utf8;
 
@@ -7,14 +7,14 @@ import haxe.Utf8;
  * ...
  * @author Jonas Nyström
  */
-
+using StringTools;
 
 class EncodeTools {
 	
 	static var BASE64SEED = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 	
 	static public function base64Encode(str:String) {
-		return haxe.BaseCode.encode(str, BASE64SEED);		
+		return BaseCode.encode(str, BASE64SEED);		
 	}
 	
 	static public function base64Decode(encodedStr:String) {
@@ -111,6 +111,26 @@ class EncodeTools {
 		return r;
 	}		
 	
-	
+	static public function pathsafe(str:String):String {
+		if (Utf8.validate(str)) str = Utf8.decode(str);
+		str = str.toLowerCase();
+		str = str.replace(' ', '-').replace('--', '-');
+		
+		var r:String = Utf8.encode('');
+		for (i in 0...str.length) {
+			
+			var cc = str.charCodeAt(i);
+			var c = str.charAt(i);
+			
+			switch(cc) {				
+				case 228: r += 'a'; // å
+				case 229: r += 'a'; // ä
+				case 246: r += 'o'; // ö
+				
+				default: r += c;
+			}			
+		}
+		return r;		
+	}
 	
 }

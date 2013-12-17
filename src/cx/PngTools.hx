@@ -9,7 +9,7 @@ package cx;
 class PngTools {	
 	
 	static public function toHtmlImg(pngFile:String) {
-		var bytes = neko.io.File.getBytes(pngFile);		
+		var bytes = sys.io.File.getBytes(pngFile);		
 		return pngBytesToHtmlImg(bytes);
 	}
 	

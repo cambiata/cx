@@ -6,6 +6,7 @@ package cx;
  * @author Jonas Nyström
  */
 using StringTools;
+using cx.StrTools;
 class ValidationTools {
 	
 	static public function isValidEmail( email : String ) : Bool {
@@ -24,6 +25,27 @@ class ValidationTools {
 		if (Std.parseInt(segments[1]) == null) return false;
 		return true;
 	}
+	
+	static public function toPersonnrLong(str:String): String
+	{		
+		str = str.replace("-", "").trim();
+		var a = str.split("");
+		var str = "";
+		for (char in a) str += char;
+		
+		switch (str.length) {
+			case 10:
+				var year = str.substr(0, 2).toInt();
+				str = (year < 15) ? "20" + str : "19" + str;
+			case 12:
+				//
+			default : throw "Personnummer lenght: " + str.length;
+		}
+		
+		return str;
+	}
+	
+	
 	
 	static public function isValidFornamn(namn:String):Bool {
 		if (namn == null) return false;
