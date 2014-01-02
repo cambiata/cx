@@ -1,13 +1,21 @@
 ## nx3 readme
 
+Starting point: a tree of notation objects (N* classes, the "raw data")
+ * a NScore consisting of one or many NBar(s)
+ * each NBar consisting of one or many NPart(s)
+ * each NPart consisting of one or two NVoice(s)
+ * each NVoice consisting of one or many NNote(s)
+ * each NNote consisting of one or many NHead(s)
 
-DVoice - using DNotes to create DComplexes
+This single data tree is copied into a one or many tree(s) of corresponding display objects (D* classes).
 
-DVoice - calculate DComplexes min distances
+DVoice - Apply BeamingRule and and connect its DNotes to the resulting BeamGroups. Calcuate up/down directions for each beamgroup, and use that info to set each DNote up/down direction
+
+DPart - assemble its Dvoice(s)'s DNotes into DComplexes
+
+Dpart - calculate DComplexes min distances
 
 DBar - calculate DColumns min distances (watch out for lyric parts!)
-
-DVoice - Apply BeamingRule
 
 DVoice - Calculate Beaming coordinates
 
@@ -35,4 +43,4 @@ DSystem - draw iterations
 
 
 
-
+ 
