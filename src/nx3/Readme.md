@@ -1,11 +1,24 @@
 ## nx3 readme
 
+### 1. Data/persistence layer
+
 Starting point: a tree of notation objects (N* classes, the "raw data")
  * a NScore consisting of one or many NBar(s)
  * each NBar consisting of one or many NPart(s)
  * each NPart consisting of one or two NVoice(s)
  * each NVoice consisting of one or many NNote(s)
  * each NNote consisting of one or many NHead(s)
+
+
+### 2. Display information layer
+
+
+### 3. Rendering layer
+
+
+
+
+
 
 This single data tree is copied into a one or many tree(s) of corresponding display objects (D* classes).
 
