@@ -1,5 +1,5 @@
 // Harfang - A Web development framework
-// Copyright (C) 2011-2013  Nicolas Juneau <n.juneau@gmail.com>
+// Copyright (C) 2011-2012  Nicolas Juneau <n.juneau@gmail.com>
 // Full copyright notice can be found in the project root's "COPYRIGHT" file
 //
 // This file is part of Harfang.
@@ -24,8 +24,9 @@ import harfang.controller.Controller;
 import harfang.configuration.ServerConfiguration;
 import harfang.exception.NotFoundException;
 import harfang.exception.ServerErrorException;
-import harfang.result.ActionResult;
 import harfang.server.event.ServerEventListener;
+import harfang.controller.result.ActionResult;
+import neko.Lib;
 
 /**
  * This class handles the request made to your application. The dispatcher
@@ -108,9 +109,38 @@ class URLDispatcher {
 
         // Call the controller
         if(foundURL) {
+            // Call the dispatch event on all listeners
+            for(listener in serverEventListeners) {
+                listener.onDispatch(currentMapping);
+            }
+
             // Create the controller instance and find its function
             controller = Type.createEmptyInstance(currentMapping.getControllerClass());
-            controllerMethod = Reflect.field(controller, currentMapping.getControllerMethodName());
+			
+			//----------------------------------------------------------------
+			// controller before method
+			var beforeMethod = Reflect.field(controller, 'handleBefore');
+			if (Reflect.isFunction(beforeMethod)) Reflect.callMethod(controller, beforeMethod, []);
+			
+			
+			//----------------------------------------------------------------
+			// controller method name
+			var controllerMethodName = currentMapping.getControllerMethodName();
+
+			//----------------------------------------------------------------
+			// use access control method?			
+			var accessControlMethod = Reflect.field(controller, 'accessControl');
+			if (Reflect.isFunction(accessControlMethod)) {
+				var accessTag = Reflect.callMethod(controller, accessControlMethod, []);	
+				var accessMethodName = controllerMethodName + accessTag;
+				//trace(accessMethodName);
+				var accessMethod = Reflect.field(controller, accessMethodName);
+				if (Reflect.isFunction(accessMethod)) controllerMethodName = accessMethodName;
+			}
+						
+			//----------------------------------------------------------------
+			// finally set controller method
+			controllerMethod = Reflect.field(controller, controllerMethodName);
 
             // Make the call with the correct parameters
             if(Reflect.isFunction(controllerMethod)) {
@@ -119,13 +149,6 @@ class URLDispatcher {
 
                 // Handle request
                 if(controller.handleRequest(currentMapping.getControllerMethodName())) {
-                    // Call the dispatch event on all listeners
-                    for(listener in serverEventListeners) {
-                        listener.onDispatch(currentMapping);
-                    }
-
-					
-					// MODIFIED by Jonas ----------------------------------
                     var result = Reflect.callMethod(
                             controller,
                             controllerMethod,
@@ -133,20 +156,14 @@ class URLDispatcher {
                     );
 					
 					if (Std.is(result, ActionResult)) {
-						Sys.println(cast(result, ActionResult).execute());						
+						Lib.println(cast(result, ActionResult).execute());						
 					} else if (result != null) {
-						Sys.println(result);
-					}						
-					// END MODIFIED by Jonas ---------------------------------
-					
-
-                    // Post request
-                    controller.handlePostRequest(currentMapping.getControllerMethodName());
-                } else {
-                    for(listener in serverEventListeners) {
-                        listener.onDispatchInterrupted(currentMapping);
-                    }
+						Lib.println(result);
+					}					
                 }
+
+                // Post request
+                controller.handlePostRequest();
             } else {
                 // Controller function was not found - this should not be
                 // happening. Throw an error!
