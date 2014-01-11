@@ -1,13 +1,11 @@
-package nx.enums;
+package nx3.elements;
 
 /**
  * ...
  * @author Jonas Nyström
  */
-
 enum ETime
 {
-
 	Time2_2;
 	Time3_2;
 	Time4_2;
@@ -84,7 +82,7 @@ class ETimeUtils {
 			case '6/8':		return ETime.Time6_8;
 			case '7/8':		return ETime.Time7_8;
 			case '9/8':		return ETime.Time9_8;
-			case '12/8':		return ETime.Time12_8;
+			case '12/8':	return ETime.Time12_8;
 			
 			case 'Common': return ETime.TimeCommon;
 			case 'Allabreve': return ETime.TimeAllabreve;
