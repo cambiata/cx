@@ -8,10 +8,10 @@ As a starting point, the data is structured in a hierarchial tree representing t
 These data classes are named with beginning N*: 
 
  * a root level **NScore** that holds an array of **NBar**(s)
- * each **NBar** holds an array of **NPart**(s)
- * each **NPart** holds an array of NPart **NVoice**(s)
- * each **NVoice** holds an array of NPart **NNote**(s)
- * each **NNote** holds an array of NPart **NHead**(s)
+ * each [**NBar**](https://github.com/cambiata/cx/blob/master/src/nx3/elements/NBar.hx) holds an array of **NPart**(s)
+ * each [**NPart**](https://github.com/cambiata/cx/blob/master/src/nx3/elements/NPart.hx) holds an array of **NVoice**(s)
+ * each [**NVoice**](https://github.com/cambiata/cx/blob/master/src/nx3/elements/NVoice.hx) holds an array of **NNote**(s)
+ * each [**NNote**](https://github.com/cambiata/cx/blob/master/src/nx3/elements/NNote.hx) holds an array of [**NHead**](https://github.com/cambiata/cx/blob/master/src/nx3/elements/NHead.hx)(s)
  
 The relation between the elements is illustrated in the following overview, together with some example properties associated with each class:
 
@@ -35,10 +35,10 @@ This single dotted half note in the upper part's upper voice is created like the
 var note0 = new NNote([new NHead(-1)], ENoteValue.Nv2dot);
 ```
 
-One NNote is created with an array of one NHead passed into the constructor as the first parameter. The NHead is passed an integer value reperesenting the note level relative to the middle line - in this case -1 wich translates to one position above the middle line.
+The [**NNote**](https://github.com/cambiata/cx/blob/master/src/nx3/elements/NNote.hx) is created with an array of one [**NHead**](https://github.com/cambiata/cx/blob/master/src/nx3/elements/NHead.hx)(s) passed into the constructor as the first parameter. The NHead is passed an integer value reperesenting the note level relative to the middle line - in this case -1 wich translates to one position above the middle line.
 The second parameter passed into NNote represents the note value, in this case ENoteValue.Nv2dot.
 
-Having created this single note we can pass it into an instace of NVoice:
+Having created this single note we can pass it into an instace of [**NVoice**](https://github.com/cambiata/cx/blob/master/src/nx3/elements/NVoice.hx):
 
 ```
 var voice0 = new NVoice([note0], EDirectionUD.Up);
@@ -61,7 +61,7 @@ Now we can create voice1, passing an array of above notes into the constructor:
 ```
 var voice1 = new NVoice([note0, note1, note2], EDirectionUD.Down);
 ```
-Now, when we have the two voices for the upper part, it's time to create the NPart itself. In the same manner as above, we pass the children (here the two voices) as an array into the NPart constructor:
+Now, when we have the two voices for the upper part, it's time to create the [**NPart**](https://github.com/cambiata/cx/blob/master/src/nx3/elements/NPart.hx) itself. In the same manner as above, we pass the children (here the two voices) as an array into the NPart constructor:
 
 ```
 var part0 = new NPart([voice0, voice1], EClef.ClefG, EKey.Flat1);
@@ -84,7 +84,7 @@ Here's the code for creating the lower NPart. Note the F-clef:
 ```
 var part1 = new NPart([voice0], EClef.ClefF, EKey.Flat1);	
 ```
-Finally, we can create the NBar by passing the two NPars. We also set the time signature for the bar to 3/4:
+Finally, we can create the [**NBar**](https://github.com/cambiata/cx/blob/master/src/nx3/elements/NBar.hx) by passing the two NParts. We also set the time signature for the bar to 3/4:
 
 ```
 var bar = new NBar([part0, part1], ETime.Time3_4);
