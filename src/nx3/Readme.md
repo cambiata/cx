@@ -3,17 +3,24 @@
 ### 1. Data/persistence layer
 
 Starting point: a tree of notation objects (N* classes, the "raw data")
- * a NScore consisting of one or many NBar(s)
- * each NBar consisting of one or many NPart(s)
- * each NPart consisting of one or two NVoice(s)
- * each NVoice consisting of one or many NNote(s)
- * each NNote consisting of one or many NHead(s)
+ * a **NScore** wraps an array of **NBar**(s)
+ * each **NBar** wraps an array of **NPart**(s)
+ * each **NPart** wraps an array of NPart **NVoice**(s)
+ * each **NVoice** wraps an array of NPart **NNote**(s)
+ * each **NNote** wraps an array of NPart **NHead**(s)
  
- The relation between the elements is illustrated here:
+The relation between the elements is illustrated in the following diagram:
+
+![My image](https://raw2.github.com/cambiata/cx/master/src/nx3/img/NHierarchy.png)
+
 	 
-<img src="https://raw.github.com/cambiata/cx/blob/master/src/nx3/img/NHierarchy.png" />	 
+![My image](https://raw2.github.com/cambiata/cx/master/src/nx3/img/RelationNPartNVoice.png)
+
+
+
+
 	 
- ![My image](https://github.com/cambiata/cx/blob/master/src/nx3/img/RelationNPartNVoice.png)
+ 
  
  
 
