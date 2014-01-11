@@ -40,6 +40,8 @@ class Main extends OpenFlMain
 	override function start()
 	{
 		this.addChild(Examples.basic2()); 
+		
+		Examples.illustration1();
 	}
 }
 

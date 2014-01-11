@@ -6,5 +6,6 @@ package nx3.elements;
  */
 enum EBarType
 {
-	Normal;	
+	Normal;
+	Weird; // :-)
 }

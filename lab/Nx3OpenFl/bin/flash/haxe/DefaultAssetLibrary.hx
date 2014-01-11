@@ -46,25 +46,42 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		try {
 			
+			#if blackberry
+			var bytes = ByteArray.readFile ("app/native/manifest");
+			#elseif tizen
+			var bytes = ByteArray.readFile ("../res/manifest");
+			#elseif emscripten
+			var bytes = ByteArray.readFile ("assets/manifest");
+			#else
 			var bytes = ByteArray.readFile ("manifest");
-			bytes.position = 0;
+			#end
 			
-			if (bytes.length > 0) {
+			if (bytes != null) {
 				
-				var data = bytes.readUTFBytes (bytes.length);
+				bytes.position = 0;
 				
-				if (data != null && data.length > 0) {
+				if (bytes.length > 0) {
 					
-					var manifest:Array<AssetData> = Unserializer.run (data);
+					var data = bytes.readUTFBytes (bytes.length);
 					
-					for (asset in manifest) {
+					if (data != null && data.length > 0) {
 						
-						path.set (asset.id, asset.path);
-						type.set (asset.id, asset.type);
+						var manifest:Array<AssetData> = Unserializer.run (data);
+						
+						for (asset in manifest) {
+							
+							path.set (asset.id, asset.path);
+							type.set (asset.id, asset.type);
+							
+						}
 						
 					}
 					
 				}
+				
+			} else {
+				
+				trace ("Warning: Could not load asset manifest");
 				
 			}
 			
@@ -99,7 +116,7 @@ class DefaultAssetLibrary extends AssetLibrary {
 		
 		if (assetType != null) {
 			
-			if (assetType == type || type == SOUND && (assetType == MUSIC || assetType == SOUND)) {
+			if (assetType == type || ((type == SOUND || type == MUSIC) && (assetType == MUSIC || assetType == SOUND))) {
 				
 				return true;
 				
@@ -219,6 +236,29 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#else
 		
 		return new Font (path.get (id));
+		
+		#end
+		
+	}
+	
+	
+	public override function getMusic (id:String):Sound {
+		
+		#if pixi
+		
+		//return null;		
+		
+		#elseif flash
+		
+		return cast (Type.createInstance (className.get (id), []), Sound);
+		
+		#elseif js
+		
+		return new Sound (new URLRequest (path.get (id)));
+		
+		#else
+		
+		return new Sound (new URLRequest (path.get (id)), null, true);
 		
 		#end
 		
@@ -373,6 +413,35 @@ class DefaultAssetLibrary extends AssetLibrary {
 		#else
 		
 		handler (getFont (id));
+		
+		#end
+		
+	}
+	
+	
+	public override function loadMusic (id:String, handler:Sound -> Void):Void {
+		
+		#if (flash || js)
+		
+		/*if (path.exists (id)) {
+			
+			var loader = new Loader ();
+			loader.contentLoaderInfo.addEventListener (Event.COMPLETE, function (event) {
+				
+				handler (cast (event.currentTarget.content, Bitmap).bitmapData);
+				
+			});
+			loader.load (new URLRequest (path.get (id)));
+			
+		} else {*/
+			
+			handler (getMusic (id));
+			
+		//}
+		
+		#else
+		
+		handler (getMusic (id));
 		
 		#end
 		

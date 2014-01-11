@@ -4,7 +4,7 @@ package nx.enums;
  * ...
  * @author Jonas Nyström
  */
-
+using nx.enums.ETime.ETimeUtils;
 enum ETime
 {
 

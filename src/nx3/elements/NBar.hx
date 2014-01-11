@@ -11,8 +11,8 @@ class NBar
 	{		
 		this.parts = parts;
 		this.type = (type == null) ? EBarType.Normal : type;
-		this.time = time;
-		this.timeDisplay = timeDisplay;
+		this.time = (time == null) ? ETime.Time4_4 : time;
+		this.timeDisplay = (timeDisplay == null) ? EDisplayALN.Layout :  timeDisplay;
 	}
 
 	public var parts(default, null):Array<NPart>;

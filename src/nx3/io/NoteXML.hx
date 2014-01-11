@@ -21,26 +21,26 @@ using nx3.io.HeadXML;
  */
 class NoteXML
 {
-	static public inline var XNOTE:String = "note";
-	static public inline var XPAUSE:String = "pause";
-	static public inline var XPAUSE_LEVEL:String = "level";
+	static public inline var XNOTE								:String = "note";
+	static public inline var XPAUSE								:String = "pause";
+	static public inline var XPAUSE_LEVEL						:String = "level";
 
-	static public inline var XLYRIC:String = "lyric";
-	static public inline var XLYRIC_TEXT:String = "text";
-	static public inline var XUNDEFINED:String = "undefined";
+	static public inline var XLYRIC								:String = "lyric";
+	static public inline var XLYRIC_TEXT						:String = "text";
+	static public inline var XUNDEFINED							:String = "undefined";
 	
-	static public inline var XNOTE_TYPE:String = "type";
-	static public inline var XNOTE_TYPE_NOTE:String = "note";
-	static public inline var XNOTE_TYPE_NOTE_VARIANT:String = "variant";
-	static public inline var XNOTE_VALUE:String = "value";
-	static public inline var XNOTE_DIRECTION:String = "direction";
-	static public inline var XNOTE_TYPE_PAUSE:String = "pause";
-	static public inline var XNOTE_TYPE_NOTE_ARTICULATIONS:String = "articulations";
-	static public inline var LIST_DELIMITER:String = ";";
-	static public inline var XNOTE_TYPE_NOTE_ATTRIBUTES:String = "attributes";
-	static public inline var XOFFSET:String = "offset";
-	static public inline var XLYRIC_CONTINUATION:String = "continuation";
-	static public inline var XLYRIC_FORMAT:String = "format";
+	static public inline var XNOTE_TYPE							:String = "type";
+	static public inline var XNOTE_TYPE_NOTE					:String = "note";
+	static public inline var XNOTE_TYPE_NOTE_VARIANT			:String = "variant";
+	static public inline var XNOTE_VALUE						:String = "value";
+	static public inline var XNOTE_DIRECTION					:String = "direction";
+	static public inline var XNOTE_TYPE_PAUSE					:String = "pause";
+	static public inline var XNOTE_TYPE_NOTE_ARTICULATIONS		:String = "articulations";
+	static public inline var LIST_DELIMITER						:String = ";";
+	static public inline var XNOTE_TYPE_NOTE_ATTRIBUTES			:String = "attributes";
+	static public inline var XOFFSET							:String = "offset";
+	static public inline var XLYRIC_CONTINUATION				:String = "continuation";
+	static public inline var XLYRIC_FORMAT						:String = "format";
 
 	static public function toXml(note:NNote):Xml
 	{
@@ -98,7 +98,10 @@ class NoteXML
 		}
 		
 		// value
-		xml.set(XNOTE_VALUE, Std.string(note.value.value));
+		if (note.value.value != ENoteValue.Nv4.value)
+		{
+			xml.set(XNOTE_VALUE, Std.string(note.value.value));
+		}
 		
 		// direction
 		if (note.direction != null) xml.set(XNOTE_DIRECTION, Std.string(note.direction));
@@ -173,7 +176,8 @@ class NoteXML
 		}
 		
 		// value
-		var val:Int = Std.parseInt(xml.get(XNOTE_VALUE));
+		var valStr = xml.get(XNOTE_VALUE);
+		var val:Int = (valStr == null) ? ENoteValue.Nv4.value : Std.parseInt(xml.get(XNOTE_VALUE));
 		var value:ENoteValue = ENoteValue.getFromValue(val);
 		
 		// direction		

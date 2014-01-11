@@ -3,8 +3,8 @@
 -lib actuate
 -lib svg
 -cp ../../src/
--D tools=1.1.6
--D openfl=1.1
+-D tools=1.2.6
+-D fdb
 -D web
 -dce std
 -swf-version 11.2
