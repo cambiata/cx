@@ -20,11 +20,70 @@ The relation between NBar, NPart, NVoice and NNote is illustrated here:
 
 ![My image](https://raw2.github.com/cambiata/cx/master/src/nx3/img/RelationNPartNVoice.png)
 
+Let's examine the following example to see how it's described in code:
+
+![My image](https://raw2.github.com/cambiata/cx/master/src/nx3/img/Example1.png)
+
+The upper part has two voices where the upper voice (NVoice0) has a single NNote with the note value of a dotted half note:
+
+![My image](https://raw2.github.com/cambiata/cx/master/src/nx3/img/Example1b.png)
+
+This single dotted half note in the upper part's upper voice is created like the following:
+
+```
+var note0 = new NNote([new NHead(-1)], ENoteValue.Nv2dot);
+
+```
+One NNote is created with an array of one NHead passed into the constructor as the first parameter. The NHead is passed an integer value reperesenting the note level relative to the middle line - in this case -1 wich translates to one position above the middle line.
+The second parameter passed into NNote represents the note value, in this case ENoteValue.Nv2dot.
+
+Having created this single note we can pass it into an instace of NVoice:
+
+```
+var voice0 = new NVoice([note0], EDirectionUD.Up);
+
+```
+
+On to the lower voice of upper part:
+![My image](https://raw2.github.com/cambiata/cx/master/src/nx3/img/Example1c.png)
+
+It has three notes with note values of a dotted quarter note, an eight note and a quarter note respectively. The third of the notes has a sharp accidental, passed as second parameter into NHead:
+
+```
+var note0 = new NNote([new NHead(1)], ENoteValue.Nv4dot);
+var note1 = new NNote([new NHead(2)], ENoteValue.Nv8);
+var note2 = new NNote([new NHead(3, ESign.Sharp)], /* ENoteValue.NV4 */); 
+```
+Please note the note value of quarter note is default, so we don't need to pass that into the third note above.
+
+Now we can create voice1, passing an array of above notes into the constructor:
+```
+var voice1 = new NVoice([note0, note1, note2], EDirectionUD.Down);
+```
+Now, when we have the two voices for the upper part, it's time to create the NPart itself. In the same manner as above, we pass the children (here the two voices) as an array into the NPart constructor:
+
+```
+var part0 = new NPart([voice0, voice1], EClef.ClefG, EKey.Flat1);
+```
+We also set the clef to EClef.ClefG (actually not needed as G-clef is default) and the key to EKey.Flat1.
 
 
 
-	 
- 
+
+
+
+Please note the following:
+ * It's one single bar, set in 3/4 time signature.
+ * It has two parts, both of them set to key signature with 2 sharps. The upper part (NPart0) is set to G-clef, and the lower part (NPart1) is set to F-clef.
+ * The upper part has two voices: 
+* the upper voice (NVoice0) has a single NNote with the note value of a dotted half note. 
+* The lower voice has three notes with note values of a dotted quarter note, an eight note and a quarter note respectively. The third of the notes has a sharp accidental.
+ * The lower part has one single voice, where the first note has two noteheads.
+
+Let's see how this is described in code:
+
+
+
  
  
 
