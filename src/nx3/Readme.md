@@ -12,7 +12,7 @@ These data classes are named with beginning N*:
  * each **NVoice** holds an array of NPart **NNote**(s)
  * each **NNote** holds an array of NPart **NHead**(s)
  
-The relation between the elements is illustrated in the following overview:
+The relation between the elements is illustrated in the following overview, together with some example properties associated with each class:
 
 ![My image](https://raw2.github.com/cambiata/cx/master/src/nx3/img/NHierarchy.png)
 
