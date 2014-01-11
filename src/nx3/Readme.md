@@ -1,6 +1,7 @@
-## nx3 readme
+nx3 readme
+==========
 
-### 1. Data/persistence layer - N* classes
+## 1. Data/persistence object tree - N* classes
 
 As a starting point, the data is structured in a hierarchial tree representing the information neccessary for describing the enteties of the score - its the bars with its time signatures, the parts with their clefs and key signatures, the notes with their noteheads and accidentals etc.
 
@@ -32,8 +33,8 @@ This single dotted half note in the upper part's upper voice is created like the
 
 ```
 var note0 = new NNote([new NHead(-1)], ENoteValue.Nv2dot);
-
 ```
+
 One NNote is created with an array of one NHead passed into the constructor as the first parameter. The NHead is passed an integer value reperesenting the note level relative to the middle line - in this case -1 wich translates to one position above the middle line.
 The second parameter passed into NNote represents the note value, in this case ENoteValue.Nv2dot.
 
@@ -41,10 +42,10 @@ Having created this single note we can pass it into an instace of NVoice:
 
 ```
 var voice0 = new NVoice([note0], EDirectionUD.Up);
-
 ```
 
-On to the lower voice of upper part:
+On to the lower voice of the upper part:
+
 ![My image](https://raw2.github.com/cambiata/cx/master/src/nx3/img/Example1c.png)
 
 It has three notes with note values of a dotted quarter note, an eight note and a quarter note respectively. The third of the notes has a sharp accidental, passed as second parameter into NHead:
@@ -67,35 +68,81 @@ var part0 = new NPart([voice0, voice1], EClef.ClefG, EKey.Flat1);
 ```
 We also set the clef to EClef.ClefG (actually not needed as G-clef is default) and the key to EKey.Flat1.
 
+Now for the lower part and its single voice:
 
+![My image](https://raw2.github.com/cambiata/cx/master/src/nx3/img/Example1d.png)
 
+Please note that the first NNote has two noteheads, wich means that two NHead instances are passed into the NNote constructor:
 
+```
+var note0 = new NNote([new NHead(-2), new Head(5)], ENoteValue.Nv2);
+var note1 = new NNote([new NHead(0)]); // No note value passed as quarter note is default
+var voice0 = new NVoice([note0]);
+```
+Here's the code for creating the lower NPart. Note the F-clef:
 
+```
+var part1 = new NPart([voice0], EClef.ClefF, EKey.Flat1);	
+```
+Finally, we can create the NBar by passing the two NPars. We also set the time signature for the bar to 3/4:
 
-Please note the following:
- * It's one single bar, set in 3/4 time signature.
- * It has two parts, both of them set to key signature with 2 sharps. The upper part (NPart0) is set to G-clef, and the lower part (NPart1) is set to F-clef.
- * The upper part has two voices: 
-* the upper voice (NVoice0) has a single NNote with the note value of a dotted half note. 
-* The lower voice has three notes with note values of a dotted quarter note, an eight note and a quarter note respectively. The third of the notes has a sharp accidental.
- * The lower part has one single voice, where the first note has two noteheads.
+```
+var bar = new NBar([part0, part1], ETime.Time3_4);
+```
+Done!
 
-Let's see how this is described in code:
+#### XML Serialisation
 
+The N* tree can be saved to and rebuilt from XML. As an example, the bar created above can be serialized to an xml string like this:
 
+```
+var barXmlStr = nx3.io.BarXML.toXml(bar);
+```
+Here's the result:
 
- 
- 
+```
+<bar time="3/4">
+	<part key="-1">
+		<voice direction="Up">
+			<note value="9072">
+				<head level="-2" />
+			</note>
+		</voice>
+		<voice direction="Down">
+			<note value="4536">
+				<head level="1" />
+			</note>
+			<note value="1512">
+				<head level="2" />
+			</note>
+			<note>
+				<head level="3" sign="Sharp" />
+			</note>
+		</voice>
+	</part>
+	<part clef="ClefF"
+		  key="-1">
+		<voice>
+			<note>
+				<head level="0" />
+			</note>
+		</voice>
+		<voice direction="Down">
+			<note value="4536">
+				<head level="1" />
+			</note>
+			<note value="1512">
+				<head level="2" />
+			</note>
+			<note>
+				<head level="3" sign="Sharp" />
+			</note>
+		</voice>
+	</part>
+</bar>
+```
 
-### 2. Display information layer
-
-
-### 3. Rendering layer
-
-
-
-
-
+## 2. Display object tree(s) (TODO!)
 
 This single data tree is copied into a one or many tree(s) of corresponding display objects (D* classes).
 
@@ -130,6 +177,15 @@ DSystem - draw iterations
 	draw DSystem inter-bar content
 	draw inter-system objects
 }
+
+
+## 3. Rendering solutions (TODO!)
+
+
+
+
+
+
 
 
 
