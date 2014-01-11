@@ -1,6 +1,7 @@
 package nx3.xamples;
 
 import flash.display.Sprite;
+import nx.element.Head;
 import nx3.elements.DComplex;
 import nx3.elements.EClef;
 import nx3.elements.EKey;
@@ -113,39 +114,39 @@ class Examples
 	{
 		if (target == null) target = new Sprite();
 		
-		//--------------------------------------------------
-		// NPart0
-		
-		// Create NVoice0 for NPart0
-		var note0 = new NNote([new NHead(-2)], ENoteValue.Nv2dot);
-		var voice0 = new NVoice([note0], EDirectionUD.Up);
+//--------------------------------------------------
+// NPart0
 
-		// Create NVoice1 for NPart0
-		var note0 = new NNote([new NHead(1)], ENoteValue.Nv4dot);
-		var note1 = new NNote([new NHead(2)], ENoteValue.Nv8);
-		var note2 = new NNote([new NHead(3, ESign.Sharp)], ENoteValue.Nv4);
-		var voice1 = new NVoice([note0, note1, note2], EDirectionUD.Down);
+// Create NVoice0 for NPart0
+var note0 = new NNote([new NHead(-1)], ENoteValue.Nv2dot);
+var voice0 = new NVoice([note0], EDirectionUD.Up);
+
+// Create NVoice1 for NPart0
+var note0 = new NNote([new NHead(1)], ENoteValue.Nv4dot);
+var note1 = new NNote([new NHead(2)], ENoteValue.Nv8);
+var note2 = new NNote([new NHead(3, ESign.Sharp)], ENoteValue.Nv4);
+var voice1 = new NVoice([note0, note1, note2], EDirectionUD.Down);
+
+// Create NPart0
+var part0 = new NPart([voice0, voice1], EClef.ClefG, EKey.Flat1);
+
+//--------------------------------------------------
+// NPart 1
+
+// Create NVoice0 for NPart1
+var note0 = new NNote([new NHead(-2), new Head(5)], ENoteValue.Nv2);
+var note0 = new NNote([new NHead(0)], ENoteValue.Nv4);
+var voice0 = new NVoice([note0]);
+
+// Create NPart1
+var part1 = new NPart([voice0], EClef.ClefF, EKey.Flat1);		
+
+//--------------------------------------------------
+// NBar
+
+var bar = new NBar([part0, part1], ETime.Time3_4);
 		
-		// Create NPart0
-		var part0 = new NPart([voice0, voice1], EClef.ClefG, EKey.Flat1);
-		
-		//--------------------------------------------------
-		// NPart 1
-		
-		// Create NVoice0 for NPart1
-		var note0 = new NNote([new NHead(-2)], ENoteValue.Nv2);
-		var note0 = new NNote([new NHead(0)], ENoteValue.Nv4);
-		var voice0 = new NVoice([note0]);
-		
-		// Create NPart1
-		var part1 = new NPart([voice0, voice1], EClef.ClefF, EKey.Flat1);		
-		
-		//--------------------------------------------------
-		// NBar
-		
-		var bar = new NBar([part0, part1], ETime.Time3_4);
-		
-		BarXML.test(bar);
+		var xmlStr = nx3.io.BarXML.test(bar);
 		
 		return target;
 	}
