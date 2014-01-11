@@ -21,6 +21,17 @@ class EncodeTools {
 		return BaseCode.decode(encodedStr, BASE64SEED);
 	}
 	
+	static public function utf8(str:String)
+	{
+		if (! Utf8.validate(str))
+		{
+			str = Utf8.encode(str);
+		}
+		return str;
+	}
+	
+	
+	
 	
 	static public function cliDecode(str:String):String {
 		if (str == null) return null;
@@ -113,8 +124,8 @@ class EncodeTools {
 	
 	static public function pathsafe(str:String):String {
 		if (Utf8.validate(str)) str = Utf8.decode(str);
-		str = str.toLowerCase();
-		str = str.replace(' ', '-').replace('--', '-');
+		str = str.toLowerCase();		
+		str = str.replace('.', '-').replace(' ', '-').replace('--', '-');
 		
 		var r:String = Utf8.encode('');
 		for (i in 0...str.length) {
@@ -122,10 +133,13 @@ class EncodeTools {
 			var cc = str.charCodeAt(i);
 			var c = str.charAt(i);
 			
+			//trace([c, cc]);
+			
 			switch(cc) {				
-				case 228: r += 'a'; // å
-				case 229: r += 'a'; // ä
-				case 246: r += 'o'; // ö
+				case 228, 197: r += 'a'; // å
+				case 229, 196: r += 'a'; // ä
+				case 246, 214: r += 'o'; // ö
+				case 252, 220: r += 'u'; // ü
 				
 				default: r += c;
 			}			

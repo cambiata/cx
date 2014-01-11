@@ -67,7 +67,11 @@ class URLDispatcher {
      * @param url The URL to process
      */
     public function dispatch(url : String) : Void {
-        this.currentURL = this.appendSlash(url);
+		
+		if (StringTools.startsWith(url, '/index.n')) url = url.substr(8);
+		
+        this.currentURL = this.appendSlash(url);		
+		
         var dispatched : Bool = false;
         var moduleIterator : Iterator<Module> = this.serverConfiguration.getModules().iterator();
 
@@ -126,17 +130,25 @@ class URLDispatcher {
 
 					
 					// MODIFIED by Jonas ----------------------------------
+					
+					Reflect.callMethod(controller, Reflect.field(controller, 'doBefore'), []);
+					
                     var result = Reflect.callMethod(
                             controller,
                             controllerMethod,
                             currentMapping.extractParameters(this.currentURL)
                     );
 					
+					Reflect.callMethod(controller, Reflect.field(controller, 'doAfter'), []);
+					
 					if (Std.is(result, ActionResult)) {
 						Sys.println(cast(result, ActionResult).execute());						
 					} else if (result != null) {
 						Sys.println(result);
 					}						
+					
+					
+					
 					// END MODIFIED by Jonas ---------------------------------
 					
 
