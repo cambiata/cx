@@ -9,9 +9,9 @@ Starting point: a tree of notation objects (N* classes, the "raw data")
  * each NVoice consisting of one or many NNote(s)
  * each NNote consisting of one or many NHead(s)
  
- The relation between 
- ![My image](https://raw.github.com/cambiata/cx/blob/master/src/nx3/img/NHierarchy.png)
+ The relation between the elements is illustrated here:
 	 
+<img src="https://raw.github.com/cambiata/cx/blob/master/src/nx3/img/NHierarchy.png" />	 
 	 
  ![My image](https://github.com/cambiata/cx/blob/master/src/nx3/img/RelationNPartNVoice.png)
  
