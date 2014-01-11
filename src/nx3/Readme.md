@@ -1,19 +1,30 @@
 ## nx3 readme
 
-### 1. Data/persistence layer
+### 1. Data/persistence layer - N* classes
 
-Starting point: a tree of notation objects (N* classes, the "raw data")
- * a NScore consisting of one or many NBar(s)
- * each NBar consisting of one or many NPart(s)
- * each NPart consisting of one or two NVoice(s)
- * each NVoice consisting of one or many NNote(s)
- * each NNote consisting of one or many NHead(s)
+As a starting point, the data is structured in a hierarchial tree representing the information neccessary for describing the enteties of the score - its the bars with its time signatures, the parts with their clefs and key signatures, the notes with their noteheads and accidentals etc.
+
+These data classes are named with beginning N*: 
+
+ * a root level **NScore** that holds an array of **NBar**(s)
+ * each **NBar** holds an array of **NPart**(s)
+ * each **NPart** holds an array of NPart **NVoice**(s)
+ * each **NVoice** holds an array of NPart **NNote**(s)
+ * each **NNote** holds an array of NPart **NHead**(s)
  
- The relation between the elements is illustrated here:
+The relation between the elements is illustrated in the following overview, together with some example properties associated with each class:
+
+![My image](https://raw2.github.com/cambiata/cx/master/src/nx3/img/NHierarchy.png)
+
+The relation between NBar, NPart, NVoice and NNote is illustrated here:
+
+![My image](https://raw2.github.com/cambiata/cx/master/src/nx3/img/RelationNPartNVoice.png)
+
+
+
+
 	 
-<img src="https://raw.github.com/cambiata/cx/blob/master/src/nx3/img/NHierarchy.png" />	 
-	 
- ![My image](https://github.com/cambiata/cx/blob/master/src/nx3/img/RelationNPartNVoice.png)
+ 
  
  
 
