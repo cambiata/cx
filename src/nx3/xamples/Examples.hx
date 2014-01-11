@@ -146,7 +146,7 @@ var part1 = new NPart([voice0], EClef.ClefF, EKey.Flat1);
 
 var bar = new NBar([part0, part1], ETime.Time3_4);
 		
-		var xmlStr = nx3.io.BarXML.test(bar);
+		var barXmlStr = nx3.io.BarXML.toXml(bar);
 		
 		return target;
 	}
