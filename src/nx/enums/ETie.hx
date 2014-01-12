@@ -1,4 +1,4 @@
-package nx3.enums;
+package nx.enums;
 
 /**
  * ...

@@ -7,6 +7,7 @@ import nx3.elements.EVoiceType;
  * ...
  * @author 
  */
+
 class NVoice
 {
 	

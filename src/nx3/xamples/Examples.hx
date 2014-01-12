@@ -119,27 +119,27 @@ class Examples
 
 // Create NVoice0 for NPart0
 var note0 = new NNote([new NHead(-1)], ENoteValue.Nv2dot);
-var voice0 = new NVoice([note0], EDirectionUD.Up);
+var voiceUpper = new NVoice([note0], EDirectionUD.Up);
 
 // Create NVoice1 for NPart0
 var note0 = new NNote([new NHead(1)], ENoteValue.Nv4dot);
 var note1 = new NNote([new NHead(2)], ENoteValue.Nv8);
 var note2 = new NNote([new NHead(3, ESign.Sharp)], ENoteValue.Nv4);
-var voice1 = new NVoice([note0, note1, note2], EDirectionUD.Down);
+var voiceLower = new NVoice([note0, note1, note2], EDirectionUD.Down);
 
 // Create NPart0
-var part0 = new NPart([voice0, voice1], EClef.ClefG, EKey.Flat1);
+var part0 = new NPart([voiceUpper, voiceLower], EClef.ClefG, EKey.Flat1);
 
 //--------------------------------------------------
 // NPart 1
 
 // Create NVoice0 for NPart1
-var note0 = new NNote([new NHead(-2), new Head(5)], ENoteValue.Nv2);
-var note0 = new NNote([new NHead(0)], ENoteValue.Nv4);
-var voice0 = new NVoice([note0]);
+var note0 = new NNote([new NHead(-2), new NHead(5)], ENoteValue.Nv2);
+var note1 = new NNote([new NHead(0)], ENoteValue.Nv4);
+var voice = new NVoice([note0, note1]);
 
 // Create NPart1
-var part1 = new NPart([voice0], EClef.ClefF, EKey.Flat1);		
+var part1 = new NPart([voice], EClef.ClefF, EKey.Flat1);		
 
 //--------------------------------------------------
 // NBar
@@ -147,6 +147,7 @@ var part1 = new NPart([voice0], EClef.ClefF, EKey.Flat1);
 var bar = new NBar([part0, part1], ETime.Time3_4);
 		
 		var barXmlStr = nx3.io.BarXML.toXml(bar);
+		trace(barXmlStr);
 		
 		return target;
 	}

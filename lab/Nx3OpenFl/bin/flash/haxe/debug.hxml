@@ -9,7 +9,7 @@
 -dce std
 -swf-version 11.2
 -swf bin/flash/bin/Nx3OpenFl.swf
--swf-header 800:480:60:FFFFFF
+-swf-header 1000:600:60:FFFFFF
 -cp bin/flash/haxe
 #--remap nme:flash
 --no-inline
