@@ -53,7 +53,7 @@ It has three notes with note values of a dotted quarter note, an eight note and 
 ```
 var note0 = new NNote([new NHead(1)], ENoteValue.Nv4dot);
 var note1 = new NNote([new NHead(2)], ENoteValue.Nv8);
-var note2 = new NNote([new NHead(3, ESign.Sharp)], /* ENoteValue.NV4 */); 
+var note2 = new NNote([new NHead(3, ESign.Sharp)] /*, ENoteValue.NV4 */); 
 ```
 Please note the note value of quarter note is default, so we don't need to pass that into the third note above.
 
