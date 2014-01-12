@@ -3,7 +3,7 @@ nx3 readme
 
 ## 1. Data/persistence object tree - N* classes
 
-As a starting point, the data is structured in a hierarchial tree representing the information neccessary for describing the enteties of the score - its the bars with its time signatures, the parts with their clefs and key signatures, the notes with their noteheads and accidentals etc.
+As a starting point, the notation data is structured in a hierarchial tree representing the information neccessary to describe the enteties needed to build the score - the bars with its parts, the parts with their clefs and key signatures, the notes with their noteheads and accidentals etc.
 
 These data classes are named with beginning N*: 
 
@@ -41,7 +41,7 @@ The second parameter passed into NNote represents the note value, in this case E
 Having created this single note we can pass it into an instace of [**NVoice**](https://github.com/cambiata/cx/blob/master/src/nx3/elements/NVoice.hx):
 
 ```
-var voice0 = new NVoice([note0], EDirectionUD.Up);
+var voiceUpper = new NVoice([note0], EDirectionUD.Up);
 ```
 
 On to the lower voice of the upper part:
@@ -57,14 +57,14 @@ var note2 = new NNote([new NHead(3, ESign.Sharp)], /* ENoteValue.NV4 */);
 ```
 Please note the note value of quarter note is default, so we don't need to pass that into the third note above.
 
-Now we can create voice1, passing an array of above notes into the constructor:
+Now we can create the lower voice, passing an array of above notes into the constructor:
 ```
-var voice1 = new NVoice([note0, note1, note2], EDirectionUD.Down);
+var voiceLower = new NVoice([note0, note1, note2], EDirectionUD.Down);
 ```
 Now, when we have the two voices for the upper part, it's time to create the [**NPart**](https://github.com/cambiata/cx/blob/master/src/nx3/elements/NPart.hx) itself. In the same manner as above, we pass the children (here the two voices) as an array into the NPart constructor:
 
 ```
-var part0 = new NPart([voice0, voice1], EClef.ClefG, EKey.Flat1);
+var partUpper = new NPart([voiceUpper, voiceLower], EClef.ClefG, EKey.Flat1);
 ```
 We also set the clef to EClef.ClefG (actually not needed as G-clef is default) and the key to EKey.Flat1.
 
@@ -77,17 +77,17 @@ Please note that the first NNote has two noteheads, wich means that two NHead in
 ```
 var note0 = new NNote([new NHead(-2), new Head(5)], ENoteValue.Nv2);
 var note1 = new NNote([new NHead(0)]); // No note value passed as quarter note is default
-var voice0 = new NVoice([note0]);
+var voice = new NVoice([note0, note1]);
 ```
 Here's the code for creating the lower NPart. Note the F-clef:
 
 ```
-var part1 = new NPart([voice0], EClef.ClefF, EKey.Flat1);	
+var partLower = new NPart([voice], EClef.ClefF, EKey.Flat1);	
 ```
 Finally, we can create the [**NBar**](https://github.com/cambiata/cx/blob/master/src/nx3/elements/NBar.hx) by passing the two NParts. We also set the time signature for the bar to 3/4:
 
 ```
-var bar = new NBar([part0, part1], ETime.Time3_4);
+var bar = new NBar([partUpper, partLower], ETime.Time3_4);
 ```
 Done!
 
@@ -105,7 +105,7 @@ Here's the result:
 	<part key="-1">
 		<voice direction="Up">
 			<note value="9072">
-				<head level="-2" />
+				<head level="-1" />
 			</note>
 		</voice>
 		<voice direction="Down">
@@ -120,26 +120,24 @@ Here's the result:
 			</note>
 		</voice>
 	</part>
-	<part clef="ClefF"
-		  key="-1">
+	<part clef="ClefF" key="-1">
 		<voice>
+			<note value="6048">
+				<head level="-2" />
+				<head level="5" />
+			</note>
 			<note>
 				<head level="0" />
 			</note>
 		</voice>
-		<voice direction="Down">
-			<note value="4536">
-				<head level="1" />
-			</note>
-			<note value="1512">
-				<head level="2" />
-			</note>
-			<note>
-				<head level="3" sign="Sharp" />
-			</note>
-		</voice>
 	</part>
 </bar>
+```
+
+Recreating a bar tree is just as simple:
+
+```
+var recreatedBar = nx3.io.BarXML.fromXmlStr(barXmlStr);
 ```
 
 ## 2. Display object tree(s) (TODO!)
