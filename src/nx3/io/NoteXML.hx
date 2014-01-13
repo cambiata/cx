@@ -1,5 +1,6 @@
 package nx3.io;
 import cx.EnumTools;
+import nx3.elements.EDirectionUAD;
 import nx3.elements.EDirectionUD;
 import nx3.elements.ELyricContinuation;
 import nx3.elements.ELyricFormat;
@@ -179,9 +180,9 @@ class NoteXML
 		var valStr = xml.get(XNOTE_VALUE);
 		var val:Int = (valStr == null) ? ENoteValue.Nv4.value : Std.parseInt(xml.get(XNOTE_VALUE));
 		var value:ENoteValue = ENoteValue.getFromValue(val);
-		
+
 		// direction		
-		var direction:EDirectionUD = EnumTools.createFromString(EDirectionUD, xml.get(XNOTE_DIRECTION));
+		var direction:EDirectionUAD = EnumTools.createFromString(EDirectionUAD, xml.get(XNOTE_DIRECTION));
 		
 		return new  NNote(type, value, direction);
 	}

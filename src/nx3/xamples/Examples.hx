@@ -23,6 +23,7 @@ import nx3.elements.NHead;
 import nx3.elements.NNote;
 import nx3.elements.DNote;
 import nx3.elements.EDirectionUD;
+import nx3.elements.EDirectionUAD;
 import nx3.elements.ENoteType;
 
 import nx3.io.NoteXML;
@@ -69,11 +70,11 @@ class Examples
 			new NHead( -4, ESign.Flat), 			
 			new NHead(0, ESign.Flat),  
 			new NHead(2, ESign.Flat)
-			], ENoteValue.Nv4, EDirectionUD.Up);
+			], ENoteValue.Nv4, EDirectionUAD.Up);
 			
 		var note2:NNote = new NNote([
 			new NHead(-2, ESign.Sharp)
-			], ENoteValue.Nv2, EDirectionUD.Down);
+			], ENoteValue.Nv2, EDirectionUAD.Down);
 			
 		//------------------------------------------------------------------------------------------------
 

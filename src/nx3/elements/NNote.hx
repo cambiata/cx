@@ -15,21 +15,19 @@ class NNote
 	
 	public var type(default, null):ENoteType;
 	public var value(default, null): ENoteValue;
-	public var direction(default, null):EDirectionUD;
+	public var direction(default, null):EDirectionUAD;
 	public var heads(get, null):Array<NHead>;	
 	
-	public function new(?type:ENoteType=null, ?heads:Array<NHead>=null, ?value:ENoteValue=null , ?direction:EDirectionUD=null) 
+	public function new(?type:ENoteType=null, ?heads:Array<NHead>=null, ?value:ENoteValue=null , ?direction:EDirectionUAD=null) 
 	{
 		if (type == null) 
 		{
 			type = (heads != null) ? ENoteType.Note(heads) :  ENoteType.Note([new NHead()]);
 		}
 		
-		if (value == null) value = ENoteValue.Nv4;		
-		
-		this.type = type;
-		this.value = value;
-		this.direction = direction;
+		this.type = (type == null) ? ENoteType.Note(heads) : type;
+		this.value = (value == null) ? ENoteValue.Nv4 : value;
+		this.direction = (direction == null) ? EDirectionUAD.Auto : direction;
 	}
 	
 	var heads_:Array<NHead>;

@@ -7,6 +7,7 @@ import nx3.elements.tools.HeadTool;
 import nx3.elements.NHead;
 import nx3.elements.NNote;
 import nx3.elements.EDirectionUD;
+import nx3.elements.EDirectionUAD;
 import nx3.elements.ENoteArticulation;
 import nx3.elements.ENoteAttributes;
 import nx3.elements.ENoteValue;
@@ -18,6 +19,9 @@ import nx3.units.Level;
  * ...
  * @author 
  */
+
+ using nx3.elements.EDirectionUD.EDirectionUDTools;
+ using nx3.elements.EDirectionUAD.EDirectionUADTools;
 class DNoteCalc 
 {
 	var note:NNote;
@@ -45,11 +49,11 @@ class DNoteCalc
 		if (direction_ != null) return direction_;
 		if (forceDirection != null)
 		{
-			direction_ = forceDirection;			
+			direction_ =  forceDirection;			
 		}
 		else
 		{
-			direction_ = (note.direction != null) ? note.direction : HeadsTool.getDirection(note.heads);
+			direction_ = (note.direction != null) ? note.direction.toUD() : HeadsTool.getDirection(note.heads);
 		}		
 		return direction_;
 	}
