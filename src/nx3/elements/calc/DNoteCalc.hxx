@@ -11,7 +11,7 @@ import nx3.elements.EDirectionUAD;
 import nx3.elements.ENoteArticulation;
 import nx3.elements.ENoteAttributes;
 import nx3.elements.ENoteValue;
-import nx3.elements.ENoteVariant;
+import nx3.elements.ENotationVariant;
 import nx3.Constants;
 import nx3.units.Level;
 
@@ -20,27 +20,36 @@ import nx3.units.Level;
  * @author 
  */
 
- using nx3.elements.EDirectionUD.EDirectionUDTools;
- using nx3.elements.EDirectionUAD.EDirectionUADTools;
+using nx3.elements.EDirectionUD.EDirectionUDTools;
+using nx3.elements.EDirectionUAD.EDirectionUADTools;
+ 
 class DNoteCalc 
 {
 	var note:NNote;
 	//public var heads(default, null):Array<Head>;
-	public var variant(default, null):ENoteVariant;
+	public var variant(default, null):ENotationVariant;
 	public var articulations(default, null):Array<ENoteArticulation>;
 	public var attributes(default, null):Array<ENoteAttributes>;
 	
 	private var forceDirection:EDirectionUD;
 	public var direction(get, null):EDirectionUD;
-	public  var value(get, null):ENoteValue;
+
+	public var levelTop(default, null):Int;
+	public var levelBottom(default, null):Int;	
+	public var value(default, null):ENoteValue;	
 	
-	public function new(note:NNote, variant:ENoteVariant, articulations: Array<ENoteArticulation>, attributes:Array<ENoteAttributes>, forceDirection:EDirectionUD)
+	public function new(note:NNote, variant:ENotationVariant, articulations: Array<ENoteArticulation>, attributes:Array<ENoteAttributes>, forceDirection:EDirectionUD)
 	{
 		this.note = note;		
 		this.variant = variant;
 		this.articulations = articulations;
 		this.attributes = attributes;
 		this.forceDirection = forceDirection;
+
+		this.levelTop = this.note.heads[0].level;
+		this.levelBottom = this.note.heads[this.note.heads.length - 1].level;		
+		this.value = this.note.value;		
+		
 	}
 	
 	private var direction_:EDirectionUD;
@@ -162,9 +171,14 @@ class DNoteCalc
 	{
 		return this.xAdjust_ = val;
 	}
+
 	
-	private function get_value():ENoteValue
+	//------------------------------------------------------
+	
+	public function reset()
 	{
-		return this.note.value;
-	}
+		this.headRects_ = null;
+		this.headsRect_ = null;
+	}	
+	
 }

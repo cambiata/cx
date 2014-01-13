@@ -1,16 +1,18 @@
-package nx.display.beam;
-import nx.display.DNote;
-import nx.enums.EDirectionUD;
-import nx.enums.ENoteType;
-import nx.enums.ENoteValue;
-import nx.display.beam.BeamGroupFrame.ESubBeam;
+package nx3.elements.beams;
+import nx3.elements.DNote;
+import nx3.elements.EDirectionUD;
+import nx3.elements.ENoteType;
+import nx3.elements.ENoteValue;
+//import nx.display.beam.BeamGroupFrame.ESubBeam;
 /**
  * ...
  * @author Jonas Nyström
  */
 using cx.ArrayTools;
-class BeamGroupMulti implements IBeamGroup {	
-	public function new(dNotes:Array<DNote>=null) {		
+class BeamGroupMulti implements IBeamGroup 
+{	
+	public function new(dNotes:Array<DNote> = null) 
+	{		
 		this.dNotes = (dNotes != null) ? dNotes : new Array<DNote>();
 	}
 	public var dNotes:Array<DNote>;
@@ -35,7 +37,6 @@ class BeamGroupMulti implements IBeamGroup {
 	public function getDirection():EDirectionUD {
 		return this.direction;
 	}
-	
 	public function setDirection(value:EDirectionUD):EDirectionUD {
 		return this.direction = value;
 	}
@@ -75,6 +76,8 @@ class BeamGroupMulti implements IBeamGroup {
 	
 	private var _beams16:Array<ESubBeam>;
 	
+	
+	/*
 	public function getBeams16():Array<ESubBeam> {
 		if (this._beams16 != null) return this._beams16;
 		
@@ -106,6 +109,8 @@ class BeamGroupMulti implements IBeamGroup {
 		this._beams16 = beams;
 		return this._beams16;
 	}
+	*/
+	
 
 	private var value = 0;
 	private var valuePositions: Array<Int>;

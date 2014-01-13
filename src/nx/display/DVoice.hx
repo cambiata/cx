@@ -1,5 +1,5 @@
 package nx.display;
-import nme.geom.Rectangle;
+import flash.geom.Rectangle;
 import nx.display.beam.BeamingProcessor_4dot;
 import nx.element.Head;
 import nx.element.Note;
@@ -26,7 +26,7 @@ class DVoice
 {
 	public var voice(default, null):Voice;
 	public var dnotes(default, null):Array<DNote>;
-	public function dnote(idx:Int) return this.dnotes[idx]
+	public function dnote(idx:Int) return this.dnotes[idx];
 	public var direction(default, null):EDirectionUAD;
 	public var value(default, null):Int;
 	
@@ -64,6 +64,7 @@ class DVoice
 		this.dnotePosition = new ObjectHash<DNote, Int>();
 		this.dnotePositionEnd = new ObjectHash<DNote, Int>();
 		this.dnoteBeamgroup = new ObjectHash<DNote, IBeamGroup>();
+		
 		this.value = 0;
 		for (dnote in this.dnotes) {				
 			this.dnotePosition.set(dnote, value);

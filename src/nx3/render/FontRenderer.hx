@@ -9,7 +9,7 @@ import nx3.elements.tools.SignsTools;
 import nx3.elements.EDirectionUD;
 import nx3.elements.EHeadValuetype;
 import nx3.elements.ENoteType;
-import nx3.elements.ENoteVariant;
+import nx3.elements.ENotationVariant;
 import nx3.elements.ESign;
 import nx3.elements.EVoiceType;
 import nx3.render.scaling.TScaling;

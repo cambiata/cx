@@ -8,7 +8,7 @@ import nx.enums.ENoteValue;
  * @author Jonas Nyström
  */
 
-class BeamingProcessor_4dot extends BeamingProcessorBase implements IBeamingProcessor {	
+class BeamingProcessor_4dot extends BeamingProcessorBase, implements IBeamingProcessor {	
 	
 	public function doBeaming(dVoice:DVoice, ?forceDirection:EDirectionUAD=null) {
 		this.beam(dVoice, this.valuePattern, forceDirection);		

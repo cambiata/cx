@@ -7,7 +7,7 @@ import nx3.units.Level;
  * @author Jonas Nyström
  */
 enum ENoteType {
-	Note(heads:Array<NHead>, ?variant:ENoteVariant, ?articulations: Array<ENoteArticulation>, ?attributes:Array<ENoteAttributes>);
+	Note(heads:Array<NHead>, ?variant:ENotationVariant, ?articulations: Array<ENoteArticulation>, ?attributes:Array<ENoteAttributes>);
 	Pause(level:Level); 
 	BarPause;
 	Tpl;

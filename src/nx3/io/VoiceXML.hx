@@ -1,5 +1,6 @@
 package nx3.io;
 import cx.EnumTools;
+import nx3.elements.EDirectionUAD;
 import nx3.elements.NNote;
 import nx3.elements.NVoice;
 import nx3.elements.EDirectionUD;
@@ -30,7 +31,7 @@ class VoiceXML
 			default:
 		}		
 		
-		if (voice.direction != null)  xml.set(XVOICE_DIRECTION, Std.string(voice.direction));
+		if (voice.direction != EDirectionUAD.Auto)  xml.set(XVOICE_DIRECTION, Std.string(voice.direction));
 		
 		if (voice.notes != null)
 		{
@@ -51,8 +52,10 @@ class VoiceXML
 		var typeStr = xml.get(XVOICE_TYPE);
 		var type:EVoiceType = EnumTools.createFromString(EVoiceType, typeStr);		
 		
-		var direction:EDirectionUD = null;
-		direction = EnumTools.createFromString(EDirectionUD, xml.get(XVOICE_DIRECTION));			
+		var directionStr = xml.get(XVOICE_DIRECTION);
+		var direction:EDirectionUAD = null;
+		direction = (directionStr == null) ? EDirectionUAD.Auto : EnumTools.createFromString(EDirectionUAD, directionStr);	
+	
 		
 		var notes:Array<NNote> = [];
 		//for (n in xml.elementsNamed(NoteXML.XNOTE)) 

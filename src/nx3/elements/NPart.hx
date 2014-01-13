@@ -13,7 +13,7 @@ class NPart
 		this.voices = voices;
 		if (this.voices.length > 2)
 		{
-			throw "NPart can't have more than two voices";
+			throw "For now, NPart can't have more than two voices";
 		}
 		this.type = (type == null) ? EPartType.Normal : type;
 		this.clef = (clef == null) ? EClef.ClefG : clef;

@@ -11,11 +11,11 @@ import nx3.elements.EVoiceType;
 class NVoice
 {
 	
-	public var direction(default, null):EDirectionUD;
+	public var direction(default, null):EDirectionUAD;
 	public var notes(default, null):Array<NNote>;
 	public var type(default, null):EVoiceType;
 
-	public function new(notes:Array<NNote>=null, ?type:EVoiceType, ?direction:EDirectionUD) 
+	public function new(notes:Array<NNote>=null, ?type:EVoiceType, ?direction:EDirectionUAD) 
 	{
 		if (notes == null || notes == []) 
 		{

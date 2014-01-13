@@ -1,7 +1,9 @@
 package nx3.xamples;
 
 import flash.display.Sprite;
-import nx.element.Head;
+import nx3.elements.DVoice;
+
+import nx3.elements.beams.BeamGroupSingle;
 import nx3.elements.DComplex;
 import nx3.elements.EClef;
 import nx3.elements.EKey;
@@ -120,13 +122,13 @@ class Examples
 
 // Create NVoice0 for NPart0
 var note0 = new NNote([new NHead(-1)], ENoteValue.Nv2dot);
-var voiceUpper = new NVoice([note0], EDirectionUD.Up);
+var voiceUpper = new NVoice([note0], EDirectionUAD.Up);
 
 // Create NVoice1 for NPart0
 var note0 = new NNote([new NHead(1)], ENoteValue.Nv4dot);
 var note1 = new NNote([new NHead(2)], ENoteValue.Nv8);
 var note2 = new NNote([new NHead(3, ESign.Sharp)], ENoteValue.Nv4);
-var voiceLower = new NVoice([note0, note1, note2], EDirectionUD.Down);
+var voiceLower = new NVoice([note0, note1, note2], EDirectionUAD.Down);
 
 // Create NPart0
 var part0 = new NPart([voiceUpper, voiceLower], EClef.ClefG, EKey.Flat1);
@@ -149,6 +151,10 @@ var bar = new NBar([part0, part1], ETime.Time3_4);
 		
 		var barXmlStr = nx3.io.BarXML.toXml(bar);
 		trace(barXmlStr);
+		
+		//new BeamGroupSingle(null);
+		
+		
 		
 		return target;
 	}

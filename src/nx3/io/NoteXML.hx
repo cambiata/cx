@@ -10,7 +10,7 @@ import nx3.elements.ENoteValue;
 import nx3.elements.NHead;
 import nx3.elements.NNote;
 import nx3.elements.ENoteType;
-import nx3.elements.ENoteVariant;
+import nx3.elements.ENotationVariant;
 import nx3.elements.EPosition;
 import nx3.units.Level;
 
@@ -32,7 +32,7 @@ class NoteXML
 	
 	static public inline var XNOTE_TYPE							:String = "type";
 	static public inline var XNOTE_TYPE_NOTE					:String = "note";
-	static public inline var XNOTE_TYPE_NOTE_VARIANT			:String = "variant";
+	static public inline var XNOTE_TYPE_NOTATION_VARIANT		:String = "variant";
 	static public inline var XNOTE_VALUE						:String = "value";
 	static public inline var XNOTE_DIRECTION					:String = "direction";
 	static public inline var XNOTE_TYPE_PAUSE					:String = "pause";
@@ -59,7 +59,7 @@ class NoteXML
 					xml.addChild(headXml);
 				}				
 				
-				if (variant != null) xml.set(XNOTE_TYPE_NOTE_VARIANT, Std.string(variant));
+				if (variant != null) xml.set(XNOTE_TYPE_NOTATION_VARIANT, Std.string(variant));
 				
 				if (articulations != null)
 				{
@@ -129,7 +129,7 @@ class NoteXML
 					heads.push(head);
 				}				
 				
-				var variant:ENoteVariant = EnumTools.createFromString(ENoteVariant, xml.get(XNOTE_TYPE_NOTE_VARIANT));			
+				var variant:ENotationVariant = EnumTools.createFromString(ENotationVariant, xml.get(XNOTE_TYPE_NOTATION_VARIANT));			
 				//if (variant == null) variant = ENoteVariant.Normal;
 				
 				var articulations:Array<ENoteArticulation> = [];

@@ -4,7 +4,7 @@ package nx3.elements;
  * ...
  * @author Jonas Nyström
  */
-enum ENoteVariant
+enum ENotationVariant
 {
 	Normal;
 	Rythmic;
