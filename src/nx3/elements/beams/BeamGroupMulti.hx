@@ -45,13 +45,13 @@ class BeamGroupMulti implements IBeamGroup
 	public function setLevelTop(value:Int):Int {
 		return levelTop = value;
 	}
-	public function getLevelTop():Int return levelTop
+	public function getLevelTop():Int return levelTop;
 	
 	public var levelBottom:Int;
 	public function setLevelBottom(value:Int):Int {
 		return levelBottom = value;
 	}
-	public function getLevelBottom():Int return levelBottom
+	public function getLevelBottom():Int return levelBottom;
 	
 	public  function getTopHeadsLevels():Array<Int> {
 		var ret = new Array<Int>();
@@ -74,7 +74,7 @@ class BeamGroupMulti implements IBeamGroup
 	
 	public var firstNotevalue:ENoteValue;
 	
-	private var _beams16:Array<ESubBeam>;
+	//private var _beams16:Array<ESubBeam>;
 	
 	
 	/*
@@ -121,7 +121,7 @@ class BeamGroupMulti implements IBeamGroup
 		var idx = 0;
 		for (dnote in this.dNotes) {
 			valuePositions[idx] = this.value;
-			this.value += dnote.notevalue.value;
+			this.value += dnote.value.value;
 			idx++;
 		}
 		return this.value;

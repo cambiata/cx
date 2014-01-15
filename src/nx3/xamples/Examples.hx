@@ -153,7 +153,7 @@ var bar = new NBar([part0, part1], ETime.Time3_4);
 		trace(barXmlStr);
 		
 		//new BeamGroupSingle(null);
-		
+		var dvoice:DVoice = new DVoice(voice);
 		
 		
 		return target;

@@ -18,13 +18,11 @@ class DVoice
 	{
 		this.voice = voice;		
 		this.direction = (direction == null) ? EDirectionUAD.Auto : direction;
-		this._beamingProcessor = (beamingProcessor == null) ? new BeamingProcessor_4() : beamingProcessor ;
+		this.beamingProcessor = (beamingProcessor == null) ? new BeamingProcessor_4() : beamingProcessor ;
+		this.dnotes = [];
 		
 		switch(this.voice.type) {
 			case EVoiceType.Normal:
-				for (note in this.voice.notes) {
-					this.dnotes.push(new DNote(note, this.direction.toUD()));
-				}	
 			//case EVoiceType.Barpause:
 				//var emptyNoteLevel = this.voice.notes.first().heads.first().level;
 				//var emptyNote:Note = new Note([new Head(emptyNoteLevel)], ENoteValue.Nv1, null, ENoteType.BarPause);
@@ -33,16 +31,14 @@ class DVoice
 				throw "Unimplemented Voicetype";
 		}		
 		
-		this.dnotePosition = new Map<DNote, Int>();
-		this.dnotePositionEnd = new Map<DNote, Int>();
-		this.dnoteBeamgroup = new Map<DNote, IBeamGroup>();		
 		
-		this._adjustBeaming();
-		this._setConnectionPoints();		
+		this.prepareClassHelperStuff();
+		this.doBeaming();
+		//this._setConnectionPoints();		
 		
 	}
 	
-	var voice:NVoice;
+	public var voice(default, null):NVoice;
 	public var direction(default, null):EDirectionUAD;
 	public var dnotes(default, null):Array<DNote>;	
 	public function dnote(idx:Int) return this.dnotes[idx];
@@ -53,20 +49,50 @@ class DVoice
 	public var dnoteBeamgroup(default, null):Map<DNote, IBeamGroup>;	
 	
 	
+	private function prepareClassHelperStuff()
+	{
+		this.dnotePosition = new Map<DNote, Int>();
+		this.dnotePositionEnd = new Map<DNote, Int>();
+		this.dnoteBeamgroup = new Map<DNote, IBeamGroup>();		
+
+			var sum = 0;
+		for (note in this.voice.notes) 
+		{
+			this.dnotes.push(new DNote(note, this.direction.toUD()));
+			sum += note.value.value;
+		}	
+		this.sumNoteValue = sum;
+
+		var pos = 0;
+		for (dnote in this.dnotes)
+		{
+			this.dnotePosition.set(dnote, pos);
+			this.dnotePositionEnd.set(dnote, pos + dnote.value.value);
+			pos += dnote.value.value;
+			
+		}	
+	}
+	
+	
+	
 	//---------------------------------------------------------------------------------------------------------------
 	//---------------------------------------------------------------------------------------------------------------
 	// beaming stuff...
 	
-	private var _beamingProcessor:IBeamingProcessor;
-	private function _adjustBeaming()  {
-		if (this._beamingProcessor != null) {			
-			this._beamingProcessor.doBeaming(this, this.direction);
+	private var beamingProcessor:IBeamingProcessor;
+	private function doBeaming()  
+	{
+		if (this.beamingProcessor != null) 
+		{			
+			this.beamingProcessor.doBeaming(this, this.direction);
 		}		
 	}	
 	
-	public function beamGroupsClear() {
+	public function beamGroupsClear() 
+	{
 		this._beamGroups = [];
 	}
+	
 	public function beamGroupsAdd(beamGroup:IBeamGroup) {
 		this._beamGroups.push(beamGroup);
 	}

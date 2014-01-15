@@ -16,13 +16,13 @@ class DNote
 {
 	var note:NNote;
 	//public var heads(default, null):Array<Head>;
-	
+	public var type(default, null):ENoteType;
 	public var variant(default, null):ENotationVariant;
 	public var articulations(default, null):Array<ENoteArticulation>;
 	public var attributes(default, null):Array<ENoteAttributes>;
 	
 	private var forceDirection:EDirectionUD;
-	public var direction(get, null):EDirectionUD;
+	public var direction(get, set):EDirectionUD;
 
 	public var levelTop(default, null):Int;
 	public var levelBottom(default, null):Int;	
@@ -39,7 +39,7 @@ class DNote
 		this.levelTop = this.note.heads[0].level;
 		this.levelBottom = this.note.heads[this.note.heads.length - 1].level;		
 		this.value = this.note.value;		
-		
+		this.type = this.note.type;
 	}
 	
 	private var direction_:EDirectionUD;
@@ -55,6 +55,13 @@ class DNote
 			direction_ = (note.direction != null) ? note.direction.toUD() : HeadsTool.getDirection(note.heads);
 		}		
 		return direction_;
+	}
+	
+	private function set_direction(val:EDirectionUD):EDirectionUD
+	{
+		this.direction_ = val;
+		//trace('set dnote direction to ' + Std.string(val));
+		return this.direction_;
 	}
 	
 	public var stemX(get, null):Null<Float>;

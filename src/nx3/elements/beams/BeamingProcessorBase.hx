@@ -20,12 +20,12 @@ class BeamingProcessorBase {
 	private var patternValuePos:Array<Int>;
 	private var patternValueEnd: Array<Int>;	
 	
-	public function beam(dVoice:DVoice, valuePattern:Array<ENoteValue>, ?forceDirection:EDirectionUAD=null) {
+	public function beam(dVoice:DVoice, valuePattern:Array<ENoteValue>, ?forceDirection:EDirectionUAD = null) 
+	{
 		this.valuePattern = valuePattern;
 		this.dVoice = dVoice;
 		this.forceDirection = forceDirection;
 		
-		/*
 		this.clearBeamlist()
 		.adjustPatternLength()
 		.preparePatternCalculation()
@@ -34,12 +34,12 @@ class BeamingProcessorBase {
 		.setGroupDirection()
 		.setDisplayNoteDirections()		
 		.setFlagCorrections()
+		/*
 		//.trBeamGroups()
-		;
 		*/
+		;		
 	}	
 	
-	/*
 	private function clearBeamlist():BeamingProcessorBase { 
 		//trace('clearBeamlist');
 		//this.dVoice.setBeamGroups([]);
@@ -47,12 +47,14 @@ class BeamingProcessorBase {
 		return this;
 	}	
 	
-	private function adjustPatternLength():BeamingProcessorBase { //(dVoice:DisplayVoice) {
+	private function adjustPatternLength():BeamingProcessorBase 
+	{  
 		//trace('adjustPatternLength');
 		var vpValue:Int = 0;
 		for (value in valuePattern) vpValue += value.value;
 		
-		while (vpValue <= dVoice.value) {
+		while (vpValue <= dVoice.sumNoteValue) 
+		{
 			this.valuePattern = Lambda.array(Lambda.concat(this.valuePattern, this.valuePattern));
 			vpValue = 0;
 			for (value in valuePattern) vpValue += value.value;
@@ -61,7 +63,8 @@ class BeamingProcessorBase {
 		return this;
 	}	
 	
-	private function preparePatternCalculation() {
+	private function preparePatternCalculation() 
+	{
 		
 		patternValuePos = [];
 		patternValueEnd = [];		
@@ -75,28 +78,42 @@ class BeamingProcessorBase {
 			patternValueEnd.push(vEnd);			
 			vPos = vEnd;
 			i++;
-		}
-		
+		}		
 		return this;
 	}	
 	
-	private function createBeamGroups() {
+	private function createBeamGroups() 
+	{
 		
-		var dnoteGroupIdx = new ObjectHash<DNote, Int>();
+		var dnoteGroupIdx = new Map<DNote, Int>();
 		
-		for (dnote in dVoice.dnotes) {
+		//var i= 0;
+		for (dnote in dVoice.dnotes) 
+		{
 			var dnotePos = dVoice.dnotePosition.get(dnote);
 			var dnoteEnd = dVoice.dnotePositionEnd.get(dnote);
 			
 			var groupIdx = -111;
-			if (dnote.notetype != ENoteType.Normal) {
-				groupIdx = -2;
-			} else if (dnote.notevalue.beamingLevel < 1) {
-				groupIdx = -1;
-			} else {
-				groupIdx = _findBeamGroupIndex(dnotePos, dnoteEnd);				
-			}			
+
+			switch (dnote.type)
+			{
+				case ENoteType.Note(heads, variant, articulations, attributes):
+						if (dnote.value.beamingLevel < 1) 
+						{
+							groupIdx = -1;
+						}
+						else 
+						{
+							groupIdx = _findBeamGroupIndex(dnotePos, dnoteEnd);
+						}
+				default:
+					groupIdx = -2;
+			}
+			
+			//trace([groupIdx, i]);
+			//i++;
 			dnoteGroupIdx.set(dnote, groupIdx);			
+			
 		}
 
 		var count = 0;
@@ -204,8 +221,17 @@ class BeamingProcessorBase {
 			if (bg.getDirection() != EDirectionUD.Up) continue;
 			
 			var dNote:DNote = bg.getFirstNote();			
-			if (dNote.notetype != ENoteType.Normal) continue;
-			if (dNote.notevalue.beamingLevel < 1) continue;
+			//if (dNote.type != ENoteType.Normal) continue;
+			switch(dNote.type)
+			{
+				case ENoteType.Note(heads, variant, articulations, attributes):
+					continue;
+				default: 
+					//
+			}
+			
+			
+			if (dNote.value.beamingLevel < 1) continue;
 			
 			// Do the flag rect correction!
 			
@@ -236,13 +262,13 @@ class BeamingProcessorBase {
 		var beamGroup:IBeamGroup = null;
 		if (dnotes.length == 1) {
 			beamGroup = new BeamGroupSingle(dnotes.first());			
-			beamGroup.firstType = dnotes.first().notetype;
-			beamGroup.firstNotevalue =  dnotes.first().notevalue;
+			beamGroup.firstType = dnotes.first().type;
+			beamGroup.firstNotevalue =  dnotes.first().value;
 			
 		} else {
 			beamGroup = new BeamGroupMulti(dnotes);			
-			beamGroup.firstType = dnotes.first().notetype;
-			beamGroup.firstNotevalue =  dnotes.first().notevalue;
+			beamGroup.firstType = dnotes.first().type;
+			beamGroup.firstNotevalue =  dnotes.first().value;
 		}		
 		
 		return beamGroup;
@@ -267,7 +293,7 @@ class BeamingProcessorBase {
 		return this;
 	}	
 	
-	*/
+	
 	
 
 }
