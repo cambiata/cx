@@ -36,7 +36,7 @@ class DVoice
 
 	
 
-	public function new(voice:Voice=null, direction:EDirectionUAD=null, beamingProcessor:IBeamingProcessor=null) 
+	public function new(voice:Voice=null, direction:EDirectionUAD=null, beamingProcessor:BProcessor=null) 
 	{
 		this.voice = (voice != null) ? voice : new Voice([new Note([new Head(0)])]);
 		this._beamingProcessor = (beamingProcessor != null) ? beamingProcessor : new BeamingProcessor_4();
@@ -95,7 +95,7 @@ class DVoice
 		}
 	}
 	
-	private var _beamingProcessor:IBeamingProcessor;
+	private var _beamingProcessor:BProcessor;
 	private function _adjustBeaming()  {
 		if (this._beamingProcessor != null) {			
 			this._beamingProcessor.doBeaming(this, this.direction);

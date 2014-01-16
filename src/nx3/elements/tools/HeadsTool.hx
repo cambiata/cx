@@ -1,7 +1,7 @@
 package nx3.elements.tools;
 import nx3.elements.NHead;
 import nx3.elements.EDirectionUD;
-import nx3.units.Level;
+import nx3.elements.ULevel;
 
 /**
  * ...
@@ -9,8 +9,8 @@ import nx3.units.Level;
  */
 class HeadsTool
 {
-	static public function topLevel(heads:Array < NHead>):Level return heads[0].level;
-	static public function bottomLevel(heads:Array<NHead>):Level return heads[heads.length - 1].level;
+	static public function topLevel(heads:Array < NHead>):ULevel return heads[0].level;
+	static public function bottomLevel(heads:Array<NHead>):ULevel return heads[heads.length - 1].level;
 	static public function midLevel(heads:Array<NHead>):Float
 	{
 		var bottom:Int = HeadsTool.bottomLevel(heads);

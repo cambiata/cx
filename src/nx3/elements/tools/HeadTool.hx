@@ -1,11 +1,11 @@
 package nx3.elements.tools;
-import flash.geom.Rectangle;
+import nx3.geom.Rectangle;
 import nx3.elements.ENoteValue;
 import nx3.elements.NHead;
 import nx3.elements.EDirectionUD;
 import nx3.elements.EHeadType;
 import nx3.elements.EHeadValuetype;
-import nx3.units.Level;
+import nx3.elements.ULevel;
 
 /**
  * ...

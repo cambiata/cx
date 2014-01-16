@@ -1,6 +1,6 @@
 package nx3.elements;
 
-import nx3.units.Level;
+import nx3.units.ULevel;
 
 /**
  * ...
@@ -8,7 +8,7 @@ import nx3.units.Level;
  */
 class DPause extends IDNoteRects
 {
-	public var level(default, null):Level;
+	public var level(default, null):ULevel;
 
 	public function new(note:Note) 
 	{

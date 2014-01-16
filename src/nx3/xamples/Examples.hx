@@ -3,7 +3,7 @@ package nx3.xamples;
 import flash.display.Sprite;
 import nx3.elements.DVoice;
 
-import nx3.elements.beams.BeamGroupSingle;
+import nx3.elements.BSingle;
 import nx3.elements.DComplex;
 import nx3.elements.EClef;
 import nx3.elements.EKey;

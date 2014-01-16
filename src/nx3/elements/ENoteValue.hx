@@ -19,35 +19,35 @@ import nx3.Constants;
 	 static var N16 = .25;
 	 static var N32 = .125;
 	 
-	static public var Nv1 			= new ENoteValue(N1 * Constants.BASE_NOTE_VALUE,				EHeadValuetype.HVT1);
-	static public var Nv1dot 		= new ENoteValue(N1 * Constants.BASE_NOTE_VALUE * DOT, 		EHeadValuetype.HVT1, 0, 0, 1);
-	static public var Nv1ddot 	= new ENoteValue(N1 * Constants.BASE_NOTE_VALUE * DOTDOT, 	EHeadValuetype.HVT1, 0, 0, 2);
-	static public var Nv1tri 		= new ENoteValue(N1 * Constants.BASE_NOTE_VALUE * TRI, 		EHeadValuetype.HVT1);	 
+	static public var Nv1 				= new ENoteValue(N1 * Constants.BASE_NOTE_VALUE,							EHeadValuetype.HVT1);
+	static public var Nv1dot 		= new ENoteValue(N1 * Constants.BASE_NOTE_VALUE * DOT, 				EHeadValuetype.HVT1, 0, 0, 1);
+	static public var Nv1ddot 	= new ENoteValue(N1 * Constants.BASE_NOTE_VALUE * DOTDOT, 		EHeadValuetype.HVT1, 0, 0, 2);
+	static public var Nv1tri 		= new ENoteValue(N1 * Constants.BASE_NOTE_VALUE * TRI, 				EHeadValuetype.HVT1);	 
 	 
-	static public var Nv2 			= new ENoteValue(N2 * Constants.BASE_NOTE_VALUE,				EHeadValuetype.HVT2, 1);
-	static public var Nv2dot 		= new ENoteValue(N2 * Constants.BASE_NOTE_VALUE * DOT,		EHeadValuetype.HVT2, 1, 0, 1);
-	static public var Nv2ddot 	= new ENoteValue(N2 * Constants.BASE_NOTE_VALUE * DOTDOT,	EHeadValuetype.HVT2, 1, 0, 2);
-	static public var Nv2tri 		= new ENoteValue(N2 * Constants.BASE_NOTE_VALUE * TRI,			EHeadValuetype.HVT2, 1);	 
+	static public var Nv2 			 	= new ENoteValue(N2 * Constants.BASE_NOTE_VALUE,							EHeadValuetype.HVT2, 1);
+	static public var Nv2dot 		= new ENoteValue(N2 * Constants.BASE_NOTE_VALUE * DOT,				EHeadValuetype.HVT2, 1, 0, 1);
+	static public var Nv2ddot 	= new ENoteValue(N2 * Constants.BASE_NOTE_VALUE * DOTDOT,		EHeadValuetype.HVT2, 1, 0, 2);
+	static public var Nv2tri 		= new ENoteValue(N2 * Constants.BASE_NOTE_VALUE * TRI,					EHeadValuetype.HVT2, 1);	 
 	 
-	static public var Nv4 			= new ENoteValue(Constants.BASE_NOTE_VALUE,					EHeadValuetype.HVT4, 1);
-	static public var Nv4dot 		= new ENoteValue(Constants.BASE_NOTE_VALUE * DOT,				EHeadValuetype.HVT4, 1, 0, 1);
-	static public var Nv4ddot 	= new ENoteValue(Constants.BASE_NOTE_VALUE * DOTDOT,		EHeadValuetype.HVT4, 1, 0, 2);
-	static public var Nv4tri 		= new ENoteValue(Constants.BASE_NOTE_VALUE * TRI,				EHeadValuetype.HVT4, 1, 0, 0);
+	static public var Nv4 				= new ENoteValue(Constants.BASE_NOTE_VALUE,										EHeadValuetype.HVT4, 1, 0, 0);
+	static public var Nv4dot 		= new ENoteValue(Constants.BASE_NOTE_VALUE * DOT,						EHeadValuetype.HVT4, 1, 0, 1);
+	static public var Nv4ddot 	= new ENoteValue(Constants.BASE_NOTE_VALUE * DOTDOT,				EHeadValuetype.HVT4, 1, 0, 2);
+	static public var Nv4tri 		= new ENoteValue(Constants.BASE_NOTE_VALUE * TRI,							EHeadValuetype.HVT4, 1, 0, 0);
 
-	static public var Nv8 			= new ENoteValue(N8 * Constants.BASE_NOTE_VALUE,				EHeadValuetype.HVT4, 1, 1, 0);
-	static public var Nv8dot 		= new ENoteValue(N8 * Constants.BASE_NOTE_VALUE * DOT,		EHeadValuetype.HVT4, 1, 1, 1);
-	static public var Nv8ddot 	= new ENoteValue(N8 * Constants.BASE_NOTE_VALUE * DOTDOT,	EHeadValuetype.HVT4, 1, 1, 2);
-	static public var Nv8tri 		= new ENoteValue(N8 * Constants.BASE_NOTE_VALUE * TRI,			EHeadValuetype.HVT4, 1, 1, 0);
+	static public var Nv8 				= new ENoteValue(N8 * Constants.BASE_NOTE_VALUE,							EHeadValuetype.HVT4, 1, 1, 0);
+	static public var Nv8dot 		= new ENoteValue(N8 * Constants.BASE_NOTE_VALUE * DOT,				EHeadValuetype.HVT4, 1, 1, 1);
+	static public var Nv8ddot 	= new ENoteValue(N8 * Constants.BASE_NOTE_VALUE * DOTDOT,		EHeadValuetype.HVT4, 1, 1, 2);
+	static public var Nv8tri 		= new ENoteValue(N8 * Constants.BASE_NOTE_VALUE * TRI,					EHeadValuetype.HVT4, 1, 1, 0);
 	
-	static public var Nv16			= new ENoteValue(N16 * Constants.BASE_NOTE_VALUE,				EHeadValuetype.HVT4, 1, 2);
-	static public var Nv16dot 	= new ENoteValue(N16 * Constants.BASE_NOTE_VALUE * DOT,		EHeadValuetype.HVT4, 1, 2, 1);
-	static public var Nv16ddot 	= new ENoteValue(N16 * Constants.BASE_NOTE_VALUE * DOTDOT,	EHeadValuetype.HVT4, 1, 2, 2);
-	static public var Nv16tri 		= new ENoteValue(N16 * Constants.BASE_NOTE_VALUE * TRI,		EHeadValuetype.HVT4, 1, 2, 0);
+	static public var Nv16			= new ENoteValue(N16 * Constants.BASE_NOTE_VALUE,							EHeadValuetype.HVT4, 1, 2, 0);
+	static public var Nv16dot 	= new ENoteValue(N16 * Constants.BASE_NOTE_VALUE * DOT,			EHeadValuetype.HVT4, 1, 2, 1);
+	static public var Nv16ddot = new ENoteValue(N16 * Constants.BASE_NOTE_VALUE * DOTDOT,	EHeadValuetype.HVT4, 1, 2, 2);
+	static public var Nv16tri 		= new ENoteValue(N16 * Constants.BASE_NOTE_VALUE * TRI,				EHeadValuetype.HVT4, 1, 2, 0);
 	
-	static public var Nv32			= new ENoteValue(N32 * Constants.BASE_NOTE_VALUE,				EHeadValuetype.HVT4);
-	static public var Nv32dot 	= new ENoteValue(N32 * Constants.BASE_NOTE_VALUE * DOT,		EHeadValuetype.HVT4);
-	static public var Nv32ddot 	= new ENoteValue(N32 * Constants.BASE_NOTE_VALUE * DOTDOT,	EHeadValuetype.HVT4);
-	static public var Nv32tri 		= new ENoteValue(N32 * Constants.BASE_NOTE_VALUE * TRI,		EHeadValuetype.HVT4);
+	static public var Nv32			= new ENoteValue(N32 * Constants.BASE_NOTE_VALUE,							EHeadValuetype.HVT4, 1, 3, 0);
+	static public var Nv32dot 	= new ENoteValue(N32 * Constants.BASE_NOTE_VALUE * DOT,			EHeadValuetype.HVT4, 1, 3, 1);
+	static public var Nv32ddot = new ENoteValue(N32 * Constants.BASE_NOTE_VALUE * DOTDOT,	EHeadValuetype.HVT4, 1, 3, 2);
+	static public var Nv32tri 		= new ENoteValue(N32 * Constants.BASE_NOTE_VALUE * TRI,				EHeadValuetype.HVT4, 1, 3, 0);
 	
 	
 	public var value(default, null):Int;

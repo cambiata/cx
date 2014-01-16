@@ -12,7 +12,7 @@ import nx3.elements.NNote;
 import nx3.elements.ENoteType;
 import nx3.elements.ENotationVariant;
 import nx3.elements.EPosition;
-import nx3.units.Level;
+import nx3.elements.ULevel;
 
 using nx3.io.HeadXML;
 

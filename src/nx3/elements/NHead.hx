@@ -1,6 +1,5 @@
 package nx3.elements;
 
-import nx3.units.Level;
 
 
 /**
@@ -11,13 +10,13 @@ import nx3.units.Level;
 class NHead
 {
 	
-	public var level(default, default):Level;
+	public var level(default, default):ULevel;
 	public var type(default, default):EHeadType;
 	public var sign(default, default): ESign;
 	public var tie(default, default): ETie;
 	public var tieTo(default, default): ETie;
 	
-	public function new(?type:EHeadType, ?level: Level=0, ?sign:ESign, ?tie:ETie, ?tieTo:ETie) 
+	public function new(?type:EHeadType, ?level: ULevel=0, ?sign:ESign, ?tie:ETie, ?tieTo:ETie) 
 	{
 		this.type = (type != null)			? type			: EHeadType.Normal; 
 		this.sign = (sign != null) 			? sign 			: ESign.None;

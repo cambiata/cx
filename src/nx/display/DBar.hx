@@ -60,7 +60,7 @@ class DBar
 	//private var beamingProcessor		(default, null)	:	IBeamingProcessor;
 	
 	
-	public function new(bar:Bar=null, barDisplaySettings:TBarDisplaySettings=null, beamingProcessor:IBeamingProcessor=null) {				
+	public function new(bar:Bar=null, barDisplaySettings:TBarDisplaySettings=null, beamingProcessor:BProcessor=null) {				
 		this.bar 					= (bar != null) ? bar : new Bar();				
 		this.allotment 		= EAllotment.Logaritmic;
 		this._value 			= 0;

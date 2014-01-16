@@ -13,10 +13,10 @@ import nx.enums.ETime;
 class DBarUtil 
 {
 
-	static public var beamProcessor4:IBeamingProcessor;
-	static public var beamProcessor4dot:IBeamingProcessor;
+	static public var beamProcessor4:BProcessor;
+	static public var beamProcessor4dot:BProcessor;
 
-	static public function getDefaultBeamProcessor(dbar:DBar):IBeamingProcessor {
+	static public function getDefaultBeamProcessor(dbar:DBar):BProcessor {
 		var time:ETime = dbar.bar.time;
 		
 		if (time == null) {

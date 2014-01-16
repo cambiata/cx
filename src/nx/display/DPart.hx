@@ -37,7 +37,7 @@ class DPart
 	
 	public function dplex(idx:Int)  return this.complexes[idx]
 	
-	public function new(part:Part=null, partDisplaySettings:TPartDisplaySettings=null, beamingProcessor:IBeamingProcessor=null) {		
+	public function new(part:Part=null, partDisplaySettings:TPartDisplaySettings=null, beamingProcessor:BProcessor=null) {		
 		this.part = (part != null) ? part : new Part();		
 		this._value = 0;
 		

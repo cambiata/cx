@@ -1,5 +1,5 @@
 package nx3.elements.tools;
-import flash.geom.Rectangle;
+import nx3.geom.Rectangle;
 import nx3.elements.TSigns;
 import nx3.elements.TSign;
 import nx3.elements.ESign;

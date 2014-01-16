@@ -1,6 +1,6 @@
 package nx3.elements;
 
-import flash.geom.Rectangle;
+import nx3.geom.Rectangle;
 import nx3.elements.interfaces.IDistanceRects;
 import nx3.elements.tools.HeadsTool;
 import nx3.Constants;

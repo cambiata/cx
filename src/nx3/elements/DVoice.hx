@@ -1,8 +1,4 @@
 package nx3.elements;
-import nx3.elements.beams.BeamGroups;
-import nx3.elements.beams.BeamingProcessor_4;
-import nx3.elements.beams.IBeamGroup;
-import nx3.elements.beams.IBeamingProcessor;
 
 /**
  * ...
@@ -13,12 +9,11 @@ import nx3.elements.beams.IBeamingProcessor;
  
 class DVoice
 {
-
-	public function new(voice:NVoice, ?direction:EDirectionUAD=null, ?beamingProcessor:IBeamingProcessor=null) 
+	public function new(voice:NVoice, ?direction:EDirectionUAD=null, ?beamingProcessor:BProcessor=null) 
 	{
 		this.voice = voice;		
 		this.direction = (direction == null) ? EDirectionUAD.Auto : direction;
-		this.beamingProcessor = (beamingProcessor == null) ? new BeamingProcessor_4() : beamingProcessor ;
+		this.beamingProcessor = (beamingProcessor == null) ? new BProcessor_2Eights() : beamingProcessor ;
 		this.dnotes = [];
 		
 		switch(this.voice.type) {
@@ -46,16 +41,16 @@ class DVoice
 
 	public var dnotePosition(default, null):Map<DNote, Int>;
 	public var dnotePositionEnd(default, null):Map<DNote, Int>;
-	public var dnoteBeamgroup(default, null):Map<DNote, IBeamGroup>;	
+	public var dnoteBeamgroup(default, null):Map<DNote, BItem>;	
 	
 	
 	private function prepareClassHelperStuff()
 	{
 		this.dnotePosition = new Map<DNote, Int>();
 		this.dnotePositionEnd = new Map<DNote, Int>();
-		this.dnoteBeamgroup = new Map<DNote, IBeamGroup>();		
+		this.dnoteBeamgroup = new Map<DNote, BItem>();		
 
-			var sum = 0;
+		var sum = 0;
 		for (note in this.voice.notes) 
 		{
 			this.dnotes.push(new DNote(note, this.direction.toUD()));
@@ -69,17 +64,14 @@ class DVoice
 			this.dnotePosition.set(dnote, pos);
 			this.dnotePositionEnd.set(dnote, pos + dnote.value.value);
 			pos += dnote.value.value;
-			
 		}	
 	}
-	
-	
 	
 	//---------------------------------------------------------------------------------------------------------------
 	//---------------------------------------------------------------------------------------------------------------
 	// beaming stuff...
 	
-	private var beamingProcessor:IBeamingProcessor;
+	private var beamingProcessor:BProcessor;
 	private function doBeaming()  
 	{
 		if (this.beamingProcessor != null) 
@@ -93,15 +85,15 @@ class DVoice
 		this._beamGroups = [];
 	}
 	
-	public function beamGroupsAdd(beamGroup:IBeamGroup) {
+	public function beamGroupsAdd(beamGroup:BItem) {
 		this._beamGroups.push(beamGroup);
 	}
 	
-	private var _beamGroups:BeamGroups;
-	private function get_beamGroups():BeamGroups {
+	private var _beamGroups:BItems;
+	private function get_beamGroups():BItems {
 		return _beamGroups;
 	}
-	public var beamGroups(get_beamGroups, null):BeamGroups;	
+	public var beamGroups(get_beamGroups, null):BItems;	
 	
 	private function _setConnectionPoints() 	{
 		trace('_setConnectionPoints');
@@ -120,8 +112,6 @@ class DVoice
 			}
 		}
 	}	
-	
-	
 }
 
 
