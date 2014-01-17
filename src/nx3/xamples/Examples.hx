@@ -70,12 +70,13 @@ class Examples
 		
 		var note1:NNote = new NNote([
 			new NHead( -4, ESign.Flat), 			
-			new NHead(0, ESign.Flat),  
-			new NHead(2, ESign.Flat)
+			new NHead(3, ESign.Flat),  
+			new NHead(5, ESign.Flat)
 			], ENoteValue.Nv4, EDirectionUAD.Up);
 			
 		var note2:NNote = new NNote([
-			new NHead(-2, ESign.Sharp)
+			new NHead(0, ESign.Sharp),
+			//new NHead(1, ESign.Sharp)
 			], ENoteValue.Nv2, EDirectionUAD.Down);
 			
 		//------------------------------------------------------------------------------------------------
