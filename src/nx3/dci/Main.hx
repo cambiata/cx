@@ -5,6 +5,7 @@ import nx3.elements.BItem;
 import nx3.elements.DNote;
 import nx3.elements.ENoteValue;
 import dci.Context;
+import nx3.elements.NBar;
 import nx3.test.QNote;
 
 /**
@@ -17,6 +18,10 @@ class Main
 	
 	static function main() 
 	{
+		
+		var nbar = new NBar(null);
+		new GenerateDBar(nbar);
+		
 		new CalculateBeamgroups( { valuePattern: [ENoteValue.Nv4] }, [
 			new DNote(new QNote2()), 
 			new DNote(new QNote()),

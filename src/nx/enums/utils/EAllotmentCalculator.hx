@@ -54,7 +54,6 @@ class EAllotmentCalculator
 			default:
 					return 1;
 		}			
-		
 	}
 	
 

@@ -31,11 +31,11 @@ class TestDPart extends TestCase
 	{
 		var dpart:DPart = new DPart(new NPart([new QVoiceUp(2, [ -1], 2), new QVoiceDown(4, [1], 4)]));
 		
-		this.assertEquals(dpart.complexes.length, 4);
-		this.assertEquals(dpart.complexes[0].dnotes.length, 2);
-		this.assertEquals(dpart.complexes[1].dnotes.length, 1);
-		this.assertEquals(dpart.complexes[2].dnotes.length, 2);
-		this.assertEquals(dpart.complexes[3].dnotes.length, 1);
+		this.assertEquals(dpart.dcomplexes.length, 4);
+		this.assertEquals(dpart.dcomplexes[0].dnotes.length, 2);
+		this.assertEquals(dpart.dcomplexes[1].dnotes.length, 1);
+		this.assertEquals(dpart.dcomplexes[2].dnotes.length, 2);
+		this.assertEquals(dpart.dcomplexes[3].dnotes.length, 1);
 	}
 		
 }

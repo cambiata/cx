@@ -17,6 +17,8 @@ class DComplex implements IDistanceRects
 	public var dnotes(default, null):Array<DNote>;
 	public var signs(default, null):TSigns;
 	
+	public var position(default, default): Int;
+	
 	public var dnotesXAdjust(get, null):Array<Float>;
 
 	public function new(dnotes:Array<DNote>) 

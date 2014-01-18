@@ -14,7 +14,6 @@ class DPart
 	public var sumNoteValue(default,null):Int;
 	public var dvoices(default,null):Array<DVoice>;
 	
-	
 	public function new(part:NPart, beamingProcessor:BProcessor=null) 
 	{
 		this.part = part;
@@ -30,7 +29,7 @@ class DPart
 		calcDComplexs();
 	}
 
-	public var complexes(default,null):Array<DComplex>;
+	public var dcomplexes(default,null):Array<DComplex>;
 	public var positions		(default, null)			:Array<Int>;	
 	public var complexPosition(default, null):Map<DComplex, Int>;
 	public var complexDistance(default, null):Map<DComplex, Float>;
@@ -54,14 +53,14 @@ class DPart
 	}
 	
 	private function calcDComplexs() {
-		this.complexes = [];
+		this.dcomplexes = [];
 		this.complexPosition = new Map<DComplex, Int>();
 		this.positionComplex = new IntMap <DComplex>();
 		
 		for (pos in this.positions) {
 			var dnotes = this._posDNotes.get(pos);
 			var dplex = new DComplex(dnotes);
-			this.complexes.push(dplex);			
+			this.dcomplexes.push(dplex);			
 			this.complexPosition.set(dplex, pos);
 			this.positionComplex.set(pos, dplex);
 		}								
@@ -82,7 +81,7 @@ class DPart
 	}
 	*/
 		
-	public function dplex(idx:Int)  return this.complexes[idx];
+	public function dplex(idx:Int)  return this.dcomplexes[idx];
 	
 	
 }

@@ -34,7 +34,7 @@ class CalcDPart
 		for (pos in this.positions) {
 			var dnotes = this._posDNotes.get(pos);
 			var dplex = new Complex(dnotes, this);
-			dpart.complexes.push(dplex);			
+			dpart.dcomplexes.push(dplex);			
 			dpart.complexPosition.set(dplex, pos);
 			dpart.positionComplex.set(pos, dplex);
 		}								
