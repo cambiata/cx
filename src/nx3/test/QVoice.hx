@@ -12,7 +12,7 @@ import nx3.elements.NVoice;
  */
 class QVoiceDown extends QVoice
  {
-	 public function new(?notevalues:Array<Float>=null, ?notevalue:Float=null, ?headlevels:Array<Int> = null, ?levelrepeats:Int=null, ?signs:String = null)
+	 public function new(?notevalues:Array<Float>=null, ?notevalue:Float=null,?headlevels:Array<Int>=null, ?levelrepeats:Int=null, ?signs:String = null)
 	 {
 		 super(notevalues, notevalue, headlevels, levelrepeats, signs, EDirectionUAD.Down);
 	 }
@@ -20,7 +20,7 @@ class QVoiceDown extends QVoice
  
  class QVoiceUp extends QVoice
  {
-	 public function new(?notevalues:Array<Float>=null, ?notevalue:Float=null, ?headlevels:Array<Int> = null, ?levelrepeats:Int=null, ?signs:String = null)
+	 public function new(?notevalues:Array<Float>=null, ?notevalue:Float=null,?headlevels:Array<Int>=null, ?levelrepeats:Int=null, ?signs:String = null)
 	 {
 		 super(notevalues, notevalue, headlevels, levelrepeats, signs, EDirectionUAD.Up);
 	 }
@@ -31,29 +31,45 @@ class QVoice extends NVoice
 
 	public function new(?notevalues:Array<Float>=null, ?notevalue:Float=null,  ?headlevels:Array<Int>=null, ?levelrepeats:Int=1, ?signs:String=null, ?direction:EDirectionUAD=null) 
 	{
+		var _notevalues = notevalues;
+		if (_notevalues == null) _notevalues = [notevalue];
+		if (_notevalues == null) _notevalues = [4];
+	
+		/*
+		if (notevalues != null)
+			switch notevalues.type 
+			{
+					case Left(item): _notevalues = [item];
+					case Right(items): items;
+			}
+		*/	
+		/*
 		if (notevalues == null) if (notevalue != null) notevalues = [notevalue];
 		if (notevalues == null) notevalues = [4.0];
+		*/
 		
+		var _headlevels = (headlevels != null) ? headlevels : [0];
+			
 		var r = 1;
-		var copy = headlevels.copy();
+		var copy = _headlevels.copy();
 		while (r < levelrepeats) 
 		{
-			headlevels = headlevels.concat(copy); 
+			_headlevels = _headlevels.concat(copy); 
 			r++;
 		}
-		while (headlevels.length > notevalues.length) notevalues = notevalues.concat(notevalues);
+		while (_headlevels.length > _notevalues.length) _notevalues = _notevalues.concat(_notevalues);		
 		
 		var notes:Array<NNote> = [];
 		if (signs == null) signs = '-';
 		var asigns = signs.split('');
-		while (headlevels.length > asigns.length) asigns = asigns.concat(asigns);
+		while (_headlevels.length > asigns.length) asigns = asigns.concat(asigns);
 		
 		var i = 0;
-		for (level in headlevels)
+		for (level in _headlevels)
 		{
 			var sign = getSign(asigns[i]);
 			var head = new QHead(level, sign);
-			var note = new QNote(head, getNotevalue(notevalues[i]));
+			var note = new QNote(head, getNotevalue(_notevalues[i]));
 			notes.push(note);
 			i++;
 		}
@@ -92,3 +108,6 @@ class QVoice extends NVoice
 	}
 	
 }
+
+
+	

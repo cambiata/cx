@@ -20,6 +20,9 @@ class TestDVoice extends TestCase
 	
 	public function testBeamGroupsLength()
 	{
+
+		new QNote(1);
+		
 		var dvoice:DVoice = new DVoice(new QVoice(8, [0], 3), new BProcessor_2Eights());
 		this.assertEquals(dvoice.beamGroups.length, 2);
 	
