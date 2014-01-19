@@ -10,14 +10,14 @@ import nx3.elements.ConfigDVoice;
 class DVoice
 {
 	
-	public var nvoice			(default, null)			: NVoice;
-	public var config 		(default, null) 			: ConfigDVoice;
-	public var dnotes		(default, null)			: Array<DNote>;
-	public var beamgroups(default, null)			: Array<BItem>;
+	public var nvoice				(default, null)			: NVoice;
+	public var config 			(default, null) 			: ConfigDVoice;
+	public var dnotes			(default, null)			: Array<DNote>;
+	public var beamgroups	(default, null)			: Array<BItem>;
 	
 	
-	public var direction		(default, null)			: EDirectionUAD;
-	public var beaming		(default, null)			: BProcessor;
+	public var direction			(default, null)			: EDirectionUAD;
+	public var beaming			(default, null)			: BProcessor;
 	
 	public function new(voice:NVoice, config:ConfigDVoice) 
 	{

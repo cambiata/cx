@@ -36,7 +36,8 @@ class DBar
 		this.ackolade = config.ackolade;
 		this.indentLeft = config.IndentLeft;
 		this.indentRight = config. IndentRight;
-		this.allotment = config.
+		this.allotment = config.allotment; 
+		
 		this.createChildren();
 	}
 	
