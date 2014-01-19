@@ -2,7 +2,6 @@ package nx3.dci;
 import cx.ArrayTools;
 import dci.Context;
 import haxe.ds.IntMap.IntMap;
-import nx3.dci.new;
 import nx3.elements.DPart;
 import nx3.elements.DComplex;
 

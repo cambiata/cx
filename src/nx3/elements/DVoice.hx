@@ -1,5 +1,5 @@
 package nx3.elements;
-
+import nx3.elements.ConfigDVoice;
 /**
  * ...
  * @author Jonas Nyström
@@ -9,9 +9,30 @@ package nx3.elements;
  
 class DVoice
 {
-	public function new(voice:NVoice, ?direction:EDirectionUAD=null, ?beamingProcessor:BProcessor=null) 
+	
+	public var nvoice			(default, null)			: NVoice;
+	public var config 		(default, null) 			: ConfigDVoice;
+	public var dnotes		(default, null)			: Array<DNote>;
+	public var beamgroups(default, null)			: Array<BItem>;
+	
+	
+	public var direction		(default, null)			: EDirectionUAD;
+	public var beaming		(default, null)			: BProcessor;
+	
+	public function new(voice:NVoice, config:ConfigDVoice) 
 	{
-		this.voice = voice;		
+		this.nvoice = voice;	
+		
+		this.config = (config == null) ? ConfigDVoiceDefaults.getDefaults();
+		
+		this.type = config.type;
+		this.direction = config.direction;
+		this.beaming = config.beaming;
+		
+		this.createChildren();
+		
+		
+		/*
 		this.direction = (direction == null) ? EDirectionUAD.Auto : direction;
 		this.beamingProcessor = (beamingProcessor == null) ? new BProcessor_2Eights() : beamingProcessor ;
 		this.dnotes = [];
@@ -30,12 +51,24 @@ class DVoice
 		this.prepareClassHelperStuff();
 		this.doBeaming();
 		//this._setConnectionPoints();		
+		*/
+	}
+	
+	public function createChildren()
+	{
+		this.dnotes = [];
+		for (nnote in this.nvoice.notes)
+		{
+			this.dnotes.push(new DNote(nnote));
+		}
+		
+		this.beamgroups = new GenerateBeaming(this.dnotes, [ENoteValue.Nv4]).execute();
 		
 	}
 	
-	public var voice(default, null):NVoice;
-	public var direction(default, null):EDirectionUAD;
-	public var dnotes(default, null):Array<DNote>;	
+	
+	
+	
 	public function dnote(idx:Int) return this.dnotes[idx];
 	public var sumNoteValue(default, null):Int;
 
@@ -51,7 +84,7 @@ class DVoice
 		this.dnoteBeamgroup = new Map<DNote, BItem>();		
 
 		var sum = 0;
-		for (note in this.voice.notes) 
+		for (note in this.nvoice.notes) 
 		{
 			this.dnotes.push(new DNote(note, this.direction.toUD()));
 			sum += note.value.value;

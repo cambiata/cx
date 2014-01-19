@@ -10,7 +10,7 @@ class DColumn
 	
 	public var position(default, default):			Int;
 	
-	public var distance(default, default);			Float;
+	public var distance(default, default):			Float;
 	
 	public var value(default, null): 					Int;
 	public var allotedValue(default, default): 	Int;

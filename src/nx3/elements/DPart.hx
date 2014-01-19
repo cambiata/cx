@@ -1,7 +1,8 @@
 package nx3.elements;
 import cx.ArrayTools;
 import haxe.ds.IntMap.IntMap;
-
+import nx3.elements.ConfigDPart.ConfigDPartDefaults;
+import nx3.elements.ConfigDVoice.ConfigDVoiceDefaults;
 /**
  * ...
  * @author Jonas Nyström
@@ -10,14 +11,36 @@ import haxe.ds.IntMap.IntMap;
 
 class DPart
 {
-	public var part(default,null):NPart;
-	public var sumNoteValue(default,null):Int;
-	public var dvoices(default,null):Array<DVoice>;
 	
-	public function new(part:NPart, beamingProcessor:BProcessor=null) 
+	
+	public var npart					(default,null)		: NPart;
+	public var config					(default, null) 		: ConfigDPart,
+	public var dvoices				(default,null)		: Array<DVoice>;
+	public var dcomplexes			(default,null)		: Array<DComplex>;	
+	
+	public var type					(default, null)		: EPartType;
+	public var key						(default, null)		: EKey;
+	public var clef						(default, null)		: EClef;
+	public var label					(default, null)		: Null<String>;
+	public var beaming				(default, null)		: BProcessor;
+	
+	
+	public var sumNoteValue(default,null):Int;
+	
+	public function new(part:NPart, config:ConfigDPart) 
 	{
-		this.part = part;
+		this.npart = part;
+		this.config = (config == null) ? ConfigDPartDefaults.getDefaults() : config;
 		
+		this.type = config.type; 
+		this.key = config.key;
+		this.clef = config.clef;
+		this.label = config.label;
+		this.beaming = config.beaming;
+		
+		this.createChildren();
+		
+		/*
 		this.dvoices = [];
 		for (nvoice in this.part.voices) 
 		{
@@ -27,7 +50,33 @@ class DPart
 		
 		calcPositions();
 		calcDComplexs();
+		*/
 	}
+	
+	public function createChildren()
+	{
+		var configVoices:Array<ConfigDVoice> = this.config.configVoices;
+		if (configVoices == null) configVoices = [];
+		var configLength = configVoices.length;
+		
+		if (this.npart.voices.length > configLength)
+			for (i in configLength...this.npart.voices.length)
+				configVoices.push(ConfigDVoiceDefaults.getDefaults());
+		
+		this.dvoices = [];
+		
+		var i = 0;
+		for (nvoice in this.npart.voices)
+		{
+			this.dvoices.push(new DVoice(nvoice, configVoices[i]));
+			i++;
+		}
+		
+		this.dcomplexes = new GenerateComplexes(this).execute();
+		
+	}
+	
+	
 
 	public var dcomplexes(default,null):Array<DComplex>;
 	public var positions		(default, null)			:Array<Int>;	

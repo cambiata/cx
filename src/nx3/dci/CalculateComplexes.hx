@@ -17,7 +17,7 @@ class CalculateComplexes implements Context
 	
 	public function execute()
 	{
-		this.createVoiceBeams();
+		this.part.createVoiceBeams();
 	}
 	
 	@role var part = {

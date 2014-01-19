@@ -4,10 +4,10 @@ package nx3.elements;
  * ...
  * @author Jonas Nyström
  */
-enum EBarType
+enum EAckolade 
 {
-	Normal;
-	Repeat;
-	Ignore;
-	Folded;
+	Line;
+	None;
+	Curly;
+	Bracket;
 }

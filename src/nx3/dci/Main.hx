@@ -15,10 +15,9 @@ import nx3.test.QNote;
 
 class Main 
 {
-	
+		
 	static function main() 
 	{
-		
 		var nbar = new NBar(null);
 		new GenerateDBar(nbar);
 		

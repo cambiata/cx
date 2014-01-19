@@ -18,9 +18,9 @@ class GenerateDBar implements Context
 			
 			function generate():DBar
 			{
-				var dbar =  new DBar(self);
-				
-				new GenerateColumns(dbar).execute();
+				var dbar =  new DBar(self, null);
+				dbar.createChildren(null);
+				new CalculateColumns(dbar).execute();
 				return dbar;
 			}
 	}

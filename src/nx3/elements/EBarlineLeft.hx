@@ -4,10 +4,11 @@ package nx3.elements;
  * ...
  * @author Jonas Nyström
  */
-enum EBarType
+enum EBarlineLeft 
 {
-	Normal;
-	Repeat;
-	Ignore;
-	Folded;
+	None;
+	Single;
+	Double;
+	StartRepeat;
+
 }

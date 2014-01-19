@@ -12,4 +12,6 @@ enum EPartType
 	Tplchain;
 	Dynamics;
 	Chords;
+	Ignore;
+	Hidden;
 }
