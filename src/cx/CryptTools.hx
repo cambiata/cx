@@ -19,7 +19,7 @@ class CryptTools
 		var keyLeft = StrTools.numToStr(key.substr(0, 2), 97);		
 		var keyRight = StrTools.numToStr(key.substr(2, 2), 97);
 		setTeaKey(Std.parseInt(key));
-		return keyLeft + TEA.crypt(str) + keyRight;
+		return keyLeft + TEA.crypt(str) + keyRight; 
 	}
 	
 	static public function decrypt(str:String):String {
@@ -29,6 +29,7 @@ class CryptTools
 		var str = str.substr(2,  str.length - 4);
 		setTeaKey(Std.parseInt(key));
 		return TEA.uncrypt(str);
+		
 	}
 	
 	static private function setTeaKey(keyInt:Int) {
@@ -38,13 +39,14 @@ class CryptTools
 }
 
 
-
+/*
 class TEA
 {
     static public var base = haxe.io.Bytes.ofString("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ=.");
-    static public var key = [Int32.ofInt(1), Int32.ofInt(2), Int32.ofInt(3), Int32.ofInt(4)];
+    //static public var key = [Int32.ofInt(1), Int32.ofInt(2), Int32.ofInt(3), Int32.ofInt(4)];
+    static public var key = [1, 2, 3, 4]; // Int32.ofInt(2), Int32.ofInt(3), Int32.ofInt(4)];
 
-    static private function encrypt (v:Array<Int32>, k:Array<Int32>):Array<Int32>
+    static private function encrypt (v:Array<Int32>, k:Array<Int>):Array<Int>
     {
         var v0 = v[0];
         var v1 = v[1];
@@ -64,12 +66,13 @@ class TEA
         return v;
     }
 
-    static private function decrypt (v:Array<Int32>, k:Array<Int32>):Array<Int32>
+    static private function decrypt (v:Array<Int32>, k:Array<Int>):Array<Int>
     {
         var v0 = v[0];
         var v1 = v[1];
 
         var sum = Int32.ofInt(0xC6EF).shl(16).add(Int32.ofInt(0x3720));
+		
         var delta:Int32 = Int32.ofInt(0x9e37).shl(16).add(Int32.ofInt(0x79b9));
         var k0 = k[0], k1 = k[1], k2 = k[2], k3 = k[3];
 
@@ -193,4 +196,4 @@ class TEA
         trace("Crypted and decrypted "+toCrypt+" successfully.");
     }
 }
-
+*/

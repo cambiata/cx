@@ -163,7 +163,7 @@ class OdtTools
 					case Xml.Element: 
 						switch (child.nodeName) {
 							case 'office:text':
-								html += '<div>';							
+								html += '<div class="office-text">';							
 								recursive(child, level);								
 								html += '</div>';								
 							
@@ -257,7 +257,7 @@ class OdtTools
 								*/
 
 							case 'table:table':
-								html += '<table cellpadding="8">';							
+								html += '<table>';							
 								recursive(child, level);								
 								html += '</table>';									
 							case 'table:table-row':
@@ -268,6 +268,9 @@ class OdtTools
 								html += '<td valign="top">';							
 								recursive(child, level);								
 								html += '</td>';								
+								
+						
+								
 								
 							default: 
 								html += '<tag name="' + child.nodeName + '">';

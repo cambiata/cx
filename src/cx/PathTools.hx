@@ -51,5 +51,14 @@ class PathTools
 		if (! path.startsWith(http)) return http + path;
 		return path;
 	}
+
+	static public function getUpperLevel(path:String):String
+	{	
+		path = removeSlash(path);
+		path = StrTools.untilLast(path, '/');		
+		if (path == '') path = '/';
+		return path;
+	}	
+	
 	
 }

@@ -51,7 +51,7 @@ class User extends UserBase
 	{
 		var u = new User();
 		u.login	= "deltagare";
-		u.pass	= "36d72c6a679b5992c42238425d2632cd"; // MD5 for "kak"
+		u.pass	= "d7d18cfb3a0d8293e2f5d94ea30e04d2"; // MD5 for "plus"
 		u.level	= 5;
 		u.firstname = 'Kursdeltagare';
 		u.lastname = 'Körakademin';

@@ -1,8 +1,10 @@
 package kx.data;
 import cx.ArrayTools;
+import cx.CryptTools;
 import cx.EncodeTools;
 import cx.FileTools;
 import cx.OdtTools;
+import cx.PathTools;
 import cx.StrTools;
 import harfang.SessionManager;
 import harfang.UserBase.User;
@@ -277,14 +279,26 @@ class TreeUtils
 		var segments = url.split('/');
 		var crumbs:Array<String> = [];
 		var path = '/';
-		for (segment in segments)
+		
+		
+		try
 		{
-			path = path + segment + '/';
-			crumbs.push(segment + '|' + path);
+			var fileSegments = pageElements.filename.substr(Config.DOCPATH.length).split('/');
+			var i = 0;
+			for (segment in segments)
+			{
+				path = path + segment;
+				var fileSegment = fileSegments[i];
+				crumbs.push(segment + '|' + path + '|' + fileSegment);
+				i++;
+			}
+			//trace(crumbs);
 		}
-		//trace(crumbs);
+		catch (e:Dynamic)
+		{
+			
+		}
 		var breadcrumbs = new Breadcrumbs(crumbs);
-
 		
 		var content:PageContent = null;		
 		if (pageElements.pageContent != null) 
@@ -300,8 +314,10 @@ class TreeUtils
 		mainContainerInner.appendChild(mainContent);
 
 		body.appendChild(new EScript().attr(Attr.Type, "text/javascript").attr(Attr.Src, "http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"));
-		body.appendChild(new EScript().attr(Attr.Type, "text/javascript").attr(Attr.Src, "assets/js/bootstrap.min.js"));
-		body.appendChild(new EScript().attr(Attr.Type, "text/javascript").attr(Attr.Src, "assets/js/ace.min.js"));		
+		body.appendChild(new EScript().attr(Attr.Type, "text/javascript").attr(Attr.Src, "/assets/js/bootstrap.min.js"));
+		body.appendChild(new EScript().attr(Attr.Type, "text/javascript").attr(Attr.Src, "/assets/js/ace.min.js"));
+		body.appendChild(new EScript().attr(Attr.Type, "text/javascript").attr(Attr.Src, "/assets/video/swfobject.js"));
+		body.appendChild(new EScript().attr(Attr.Type, "text/javascript").attr(Attr.Src, "/assets/video/flowplayer.min.js"));
 		
 		return body;
 	}
@@ -385,6 +401,7 @@ class TreeUtils
 		body.appendChild(new EScript().attr(Attr.Type, "text/javascript").attr(Attr.Src, "http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"));
 		body.appendChild(new EScript().attr(Attr.Type, "text/javascript").attr(Attr.Src, "assets/js/bootstrap.min.js"));
 		body.appendChild(new EScript().attr(Attr.Type, "text/javascript").attr(Attr.Src, "assets/js/ace.min.js"));
+		body.appendChild(new EScript().attr(Attr.Type, "text/javascript").attr(Attr.Src, "assets/video/jwplayer.js"));
 		
 		
 		html.appendChild(head);
@@ -427,6 +444,8 @@ class TreeUtils
 		return format.format(xml).toString();
 	}
 	
+
+	
 }
 
 
@@ -434,6 +453,7 @@ typedef PageElements = {
 	bigmenuItems:Array<BigmenuItem>,
 	sidemenuItems:Array<SidemenuItem>,	
 	pageContent: PageContent,
+	filename: String,
 	
 }
 
@@ -450,20 +470,57 @@ class BigMenuUl extends EUnorderedList {
 
 class BigMenuLi extends EListItem {
 	
-	public function new(title:String, link:String, imgClass:String = 'btn-success') 
+	public function new(title:String, link:String, clss:String = 'btn-success', icon:String=null, iconRight:String=null, imgClss:String=null) 
 	{
 		super();
 		
-		var a = new EAnchor();
-		a.attr(Attr.Href, link);
-		this.appendChild(a);
+		/*this.attr(Attr.ClassName);*/
+	
 		
+		var a = new EAnchor();
+		
+		a.attr(Attr.Href, link).attr(Attr.ClassName, 'btn $clss $imgClss');
+		
+		/*
+		*/
+		
+		
+		if (icon != null)
+		{
+			var span = new ESpan().attr(Attr.ClassName, icon);
+			a.appendChild(span);
+		}	
+		
+		
+		a.addText(title);
+		
+		if (iconRight != null)
+		{
+			var span = new ESpan().attr(Attr.ClassName, '$iconRight' ); 
+			a.appendChild(span);
+		}		
+		
+		if (imgClss != null)
+		{
+			var span = new ESpan();
+			span.attr(Attr.ClassName, 'span-right $imgClss');
+			a.appendChild(span);
+		}
+		
+		this.appendChild(a);
+
+
+		
+		
+
+		/*
 		var div = new EDiv();
 		div.classes(imgClass);
 		div.addText(title);
 		a.appendChild(div);
+		*/
 		
-		this.classes('btn $imgClass');
+		//this.classes('btn $imgClass');
 		
 	}
 	
@@ -513,7 +570,7 @@ class NavlistLi extends EListItem {
 			
 		} else {
 			
-			i.classes('icon-edit');
+			//i.classes('icon-edit');
 		}
 		
 	}
@@ -543,7 +600,7 @@ class NavbarUser extends Navbar
 		{
 			divUser.addText('Välkommen, ${user.firstname} ${user.lastname}!');
 			form = new EForm().classes('navbar-form form-inline pull-right').attr(Attr.Action, '/logout').attr(Attr.Method, 'post');			
-			var submit = new EInput(InputType.Submit).classes('btn').attr(Attr.Value, 'Logga ut');			
+			var submit = new EInput(InputType.Submit).classes('btn btn-primary btn-sm').attr(Attr.Value, 'Logga ut');			
 			form.appendChild(submit);				
 		}
 		else
@@ -551,8 +608,8 @@ class NavbarUser extends Navbar
 			divUser.addText('Gäst');
 			form = new EForm().classes('navbar-form form-inline pull-right').attr(Attr.Action, '/loginform').attr(Attr.Method, 'post');
 			var login = new EInput(InputType.IText).classes('span2').attr(Attr.Placeholder, 'Användarnamn').attr(Attr.Id, 'login').attr(Attr.Name, 'login');
-			var pass = new EInput(InputType.Password).classes('span3').attr(Attr.Placeholder, 'Lösenord').attr(Attr.Id, 'pass').attr(Attr.Name, 'pass');
-			var submit = new EInput(InputType.Submit).classes('btn').attr(Attr.Value, 'Logga in');
+			var pass = new EInput(InputType.Password).classes('input-small').attr(Attr.Placeholder, 'Lösenord').attr(Attr.Id, 'pass').attr(Attr.Name, 'pass');
+			var submit = new EInput(InputType.Submit).classes('btn btn-success btn-sm').attr(Attr.Value, 'Logga in');
 			form.appendChild(login);
 			form.appendChild(pass);
 			form.appendChild(submit);			
@@ -616,8 +673,10 @@ class Breadcrumbs extends EDiv {
 		
 		for (crumb in crumbs)
 		{
+			//trace(crumb);
 			var a = crumb.split('|');
-			var title = a[0];
+			//var title = a[0];
+			var title = EncodeTools.utf8(a[2]);
 			var url = a[1];
 			var cr = new EListItem();
 			if (ArrayTools.isLast(crumbs, crumb))
@@ -656,6 +715,53 @@ class PageStringContent extends PageContent {
 	}
 }
 
+class PageFlvContent extends PageContent {
+	var filename:String;
+	
+	public function new (filename:String)
+	{
+		super();
+		this.filename = filename;
+		
+	
+		//trace(cryptFilename);
+		
+		
+		this.addContent();
+	}
+	
+	public function addContent()
+	{
+	
+		var cryptFilename = CryptTools.crypt(filename);
+		//trace(cryptFilename);
+		var html = ''
+		+'<link rel="stylesheet" type="text/css" href="/assets/video/skin/functional.css"></link>'
+		+'<style type="text/css">   '
+		+'	.flowplayer { width: 640px; height: 480px;}'
+		+'</style>'
+		+'<div class="flowplayer" data-swf="/assets/video/flowplayer.swf" data-ratio="0.4167">'
+		+'	<video>'
+		+'		<source type="video/flv" src="/video/$cryptFilename"></source>'
+		+'	</video>'
+		+'</div>'
+		;
+		//this.addText(html);
+		this.addHtml(html);
+				
+		var filenamePng = FileTools.getDirectory(filename) + FileTools.getFilename(filename, false) + '.png';
+		//trace(filenamePng);
+		if (FileTools.exists(filenamePng))
+		{
+			var cryptFilename = CryptTools.crypt(filenamePng);			
+			var img = new EImage().attr(Attr.Src, '/file/$cryptFilename').attr(Attr.ClassName, 'videoimage');
+			
+			this.appendChild(img);			
+		}
+		
+	}
+
+}
 
 class PageOdtContent extends PageContent {
 	var filename:String;
@@ -671,6 +777,12 @@ class PageOdtContent extends PageContent {
 			this.filename = (FileTools.exists(Config.DOCPATH_REMOTE + filename)) ? Config.DOCPATH_REMOTE + filename : Config.DOCPATH_LOCAL + filename;				
 		}
 		*/
+		
+		var copyfile = this.filename + '.copy.txt';
+		if (FileTools.exists(copyfile)) {
+			addCopyright(FileTools.getContent(copyfile));
+		}
+		
 		
 		this.attr(Attr.ClassName, "page-content content-max");
 		
@@ -693,6 +805,15 @@ class PageOdtContent extends PageContent {
 			div.addText(Std.string(e));
 		}
 	}
+	
+	public function addCopyright(html:String)	
+	{
+		var div:EDiv = new EDiv();
+		div.attr(Attr.ClassName, 'alert alert-warning');
+		div.addHtml(EncodeTools.utf8(html));
+		this.appendChild(div);		
+	}
+	
 }
 
 
@@ -754,6 +875,9 @@ typedef BigmenuItem = {
 	title: String,
 	url: String,
 	clss: String,
+	?icon: String,
+	?iconRight:String,
+	?imgClss:String,
 }
 
 
@@ -764,7 +888,7 @@ class Bigmenu extends EUnorderedList {
 		this.classes('bigmenu');
 		
 		for (item in items)
-		this.appendChild(new BigMenuLi(item.title, item.url, item.clss));
+		this.appendChild(new BigMenuLi(item.title, item.url, item.clss, item.icon, item.iconRight, item.imgClss));
 		
 		/*
 		this.appendChild(new BigMenuLi('Rösten', 'rosten.html', 'bigmenu-rosten'));
