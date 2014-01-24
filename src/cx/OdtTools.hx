@@ -1,18 +1,99 @@
 package cx;
 import cx.docs.IndexTools;
 import cx.docs.IndexTools.Index;
-import cx.docs.IndexTools.IndexItem;
+import cx.docs.IndexTools.IndexItem ;
 import cx.docs.IndexTools.IndexParser;
+import cx.OdtTools.OdtListStyle;
 import haxe.ds.StringMap.StringMap;
-
+import hxdom.Attr;
+import hxdom.Elements.EAnchor;
+import hxdom.Elements.EBase;
+import hxdom.Elements.EBody;
+import hxdom.Elements.EBold;
+import hxdom.Elements.EDiv;
+import hxdom.Elements.EHeader1;
+import hxdom.Elements.EHeader2;
+import hxdom.Elements.EHeader3;
+import hxdom.Elements.EHeader4;
+import hxdom.Elements.EHtml;
+import hxdom.Elements.EItalics;
+import hxdom.Elements.EListItem;
+import hxdom.Elements.EObject;
+import hxdom.Elements.EOrderedList;
+import hxdom.Elements.EParagraph;
+import hxdom.Elements.EParam;
+import hxdom.Elements.ESpan;
+import hxdom.Elements.ETable;
+import hxdom.Elements.ETableCell;
+import hxdom.Elements.ETableRow;
+import hxdom.Elements.EUnorderedList;
+import hxdom.Elements.VirtualElement;
+import hxdom.Elements.VirtualNode;
+import hxdom.html.Element;
+import hxdom.html.Node;
+import hxdom.HtmlSerializer;
 /**
  * ...
  * @author Jonas Nyström
  */
 
+ using StringTools;
+using hxdom.DomTools;
+
+ 
 class OdtTools
 {
+	public function new() { };
+	
+	var html:EHtml;
+	var body: EBody;
+	var node:VirtualElement<Dynamic>;
+	var styles:StringMap<OdtStyle>;	
+	var listStyles:StringMap<OdtListStyle>;
 
+	var imgscale:Float;
+	var zipEntries:List<format.zip.Data.Entry>;
+	
+	public function getHtmlFromContent2(xmlParts:OdtXmlParts, ?zipEntries:List<format.zip.Data.Entry>, ?imgScale:Float = 40):String 
+	{		
+		return 'x';
+	}
+	
+	public function html2(odtFileName:String)
+	{
+		var html = getMeta() + getHtmlFromOdt2(odtFileName);
+		return html;
+	}
+
+	public function getHtmlFromOdt2(odtFileName:String, meta:Bool=true, ?imgScale:Float=40.0, stripOuterLevels=0): String {
+		var zipEntries = getZipEntries(odtFileName);
+		
+		this.zipEntries = zipEntries;
+		this.imgscale = imgScale;
+		
+		var parts = getXmlParts(zipEntries);
+		//var html = '';
+		//if (meta) html += OdtTools.getMeta();
+		this.styles = getStyles(parts.style);
+		this.listStyles = getListStyles(parts.style);
+		
+		this.html = new EHtml();
+		this.body = new EBody();
+		this.html.appendChild(this.body);
+		this.node = new EDiv();
+		this.body.appendChild(this.node);
+		
+		recursiveParser(parts.text);
+		
+		var html = HxdomTools.ehtmlToHtml(this.html, true, true, stripOuterLevels);
+		if (meta) html = getMeta() + html;
+		return html;
+	}
+	
+	
+	
+	
+	
 	static public function test(odtFileName:String) {
 		
 		var html = getMeta() + getHtmlFromOdt(odtFileName);
@@ -27,6 +108,7 @@ class OdtTools
 		var parts: OdtXmlParts = {			
 			fontdecl: null,
 			styles: _getStyles(styleXml),
+			style: xml.firstElement().elementsNamed('office:automatic-styles').next(),
 			text: xml.firstElement().elementsNamed('office:body').next().firstElement(),			
 		}		
 		return parts;
@@ -412,8 +494,193 @@ class OdtTools
 		}
 		return ret;		
 	}
-}
+	
+	static private function _getListStyles(styleXml:Xml):OdtStyles {
+		var ret = new OdtStyles();
+		for (e in styleXml.elements()) {			
+			var styleName = e.get('style:name');
+			var style:OdtStyle = { name:styleName, bold:false, italic:false };
+			if (e.firstElement() != null) {
+				if (e.firstElement().get("fo:font-weight") == 'bold') style.bold = true;
+				if (e.firstElement().get("fo:font-style") == 'italic') style.italic = true;				
+			}
+			ret.set(styleName, style);
+		}
+		return ret;		
+	}
 
+
+	
+	
+	public function getStyles(xml:Xml) 
+	{
+		
+		var result = new StringMap<OdtStyle>();
+		
+		for (e in xml)
+		{
+			if (Std.string(e.nodeType) != 'element') continue;
+			if (e.nodeName != 'style:style') continue;
+			var styleName = e.get('style:name');
+			var styleFamily = e.get('style:family');
+			if (styleFamily != 'text') continue;
+			var bold = (e.firstElement().get('fo:font-weight') =='bold');
+			var italic= (e.firstElement().get('fo:font-style') == 'italic');
+			var style:OdtStyle = { name:styleName, italic:italic, bold:bold };
+			result.set(styleName, style );
+			
+		}
+		return result;
+		
+	}
+
+	public function getListStyles(xml:Xml) 
+	{
+		var result = new StringMap<OdtListStyle>();
+		
+		for (e in xml)
+		{
+			if (Std.string(e.nodeType) != 'element') continue;
+			if (e.nodeName != 'text:list-style') continue;
+			var styleName = e.get('style:name');
+			var listType = e.firstChild().nodeName;
+			var number = (listType == 'text:list-level-style-number' );
+			var style:OdtListStyle = { name:styleName, number : number };
+			result.set(styleName, style);
+		}
+		return result;
+	}	
+	
+	
+	public function recursiveParser(xml:Xml)
+	{
+		for (e in xml)
+		{
+			var nodeType = Std.string(e.nodeType);
+			switch (nodeType) 
+			{
+				case 'element':
+					//var nodeName = e.nodeName;
+					//var styleName = e.get('text:style-name');
+					
+					var childnode = getNewNode(e, this.node/*, nodeName, styleName*/);
+					if (childnode == null) continue;
+					var currentnode = this.node;
+					this.node.appendChild(childnode);
+					this.node = childnode;
+					recursiveParser(e);
+					this.node = currentnode;
+					
+				case 'pcdata':
+					var text = e.toString();
+					this.node.addText(text);
+			}						
+		}
+	}		
+	
+	function getNewNode(e:Xml, n:VirtualElement<Dynamic>):VirtualElement<Dynamic> 
+	{
+		var nodeName = e.nodeName;
+		var styleName = e.get('text:style-name');
+		
+		
+		var node:VirtualElement<Dynamic> = null;
+		
+		switch nodeName 
+		{
+			case 'text:p': node = new EParagraph();
+			case 'text:h':  {
+				switch styleName
+				{
+					case 'Heading_20_1': node = new EHeader1();
+					case 'Heading_20_2': node = new EHeader2();
+					case 'Heading_20_3': node = new EHeader3();
+					case 'Heading_20_4': node = new EHeader4();
+					default: node = new EHeader1();
+				}
+			}
+			case 'text:span':
+				if (this.styles.exists(styleName))
+				{
+					var style:OdtStyle = this.styles.get(styleName);
+					node = new ESpan();
+					if (style.bold && !style.italic) node = new EBold();
+					if (!style.bold && style.italic) node = new EItalics();
+					node.attr(hxdom.Attr.ClassName, styleName);
+				}
+				else
+				{
+					node = new ESpan();					
+				}
+				
+			case 'table:table' : node = new ETable();
+			case 'table:table-row' : node = new ETableRow();
+			case 'table:table-cell' : node = new ETableCell();
+			case 'draw:frame': 
+					var width = Std.int(Std.parseFloat(StringTools.replace(e.get('svg:width'), 'cm', '')) * this.imgscale);
+					var height = Std.int(Std.parseFloat(StringTools.replace(e.get('svg:height'), 'cm', '')) * this.imgscale);
+					var imgstyle = 'width:${width}px; height:${height}px;';
+					
+					node = new EDiv();
+					var i = e.firstChild();
+					var link = i.get('xlink:href');
+				
+					try  
+					{
+						if (this.zipEntries == null) throw "png zip entry error";
+						var imgBytes = ZipTools.getEntryData(this.zipEntries, link);
+						var imgHtml = PngTools.pngBytesToHtmlImg(imgBytes, imgstyle);
+						node.addHtml(imgHtml);
+					}
+					catch (e:Dynamic)
+					{
+						node.addText('Image error: ' + Std.string(e) + ' - link: $link');
+						
+					}
+			case 'draw:image':
+				node = null;
+				
+			case 'text:a':
+				var target = e.get('office:target-frame-name');
+				var href = e.get('xlink:href');
+
+				var hrefClass = StrTools.until(href, ':\\');
+				
+				switch hrefClass 
+				{
+					case 'player': node = new EObject();
+					default: node = new EAnchor();
+				}
+				
+				//node = new EAnchor();
+				node.attr(Attr.Target, target);
+				node.attr(Attr.Href, href);
+				
+				var hrefClass = StrTools.until(href, ':\\');
+				node.attr(Attr.ClassName, '$hrefClass hidden' );
+				
+				
+			case 'text:list':
+					var styleName = e.get('text:style-name');
+					var listStyle:OdtListStyle = this.listStyles.get(styleName);
+					node =  (listStyle.number) ? new EOrderedList() : new EUnorderedList();
+			case 'text:list-item':
+					node = new EListItem();
+				
+			case 'text:bookmark':
+				
+				//trace(e);
+				
+			case 'text:sequence-decls':
+				node = null;
+			default : 
+				node = new EDiv();
+				node.attr(hxdom.Attr.ClassName, '$nodeName $styleName');
+		}
+		return node;
+	}
+	
+}
 
 typedef OdtStyles = StringMap<OdtStyle>;
 
@@ -423,10 +690,15 @@ typedef OdtStyle = {
 	italic:Bool,	
 }
 
+typedef OdtListStyle = {
+	name:String,
+	number:Bool,
+}
 
 typedef OdtXmlParts = {
 	fontdecl:Xml,
 	text:Xml,
+	style:Xml,
 	styles:OdtStyles,
 }
 
@@ -482,5 +754,15 @@ class OdtIndexTool {
 	}
 	
 	
+}
+*/
+
+
+
+/*
+typedef Style = {
+	name:String,
+	italic:Bool,
+	bold:Bool,
 }
 */

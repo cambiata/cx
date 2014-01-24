@@ -10,23 +10,27 @@ import nx3.test.QVoice;
  */
 class TestDPart extends TestCase
 {
+	/*
 	public function testPartNew() 
 	{
 		var dpart:DPart = new DPart(new NPart([new QVoiceUp(2, [-1], 2), new QVoiceDown(4, [1], 4)]));
 		this.assertTrue(Std.is(dpart, DPart));
 		this.assertEquals(dpart.dvoices.length, 2);
 	}
-
+	*/
+	
+	/*
 	public function testPositions()
 	{
 		var dpart:DPart = new DPart(new NPart([new QVoiceUp(2, [-1], 2), new QVoiceDown(4, [1], 4)]));
 		this.assertEquals(dpart.positions.toString(), [0, 3024, 6048, 9072].toString());
-		var dpart:DPart = new DPart(new NPart([new QVoiceUp(2, [-1], 2), /* new QVoiceDown(4, [1], 4)*/]));
+		var dpart:DPart = new DPart(new NPart([new QVoiceUp(2, [-1], 2), ]));
 		this.assertEquals(dpart.positions.toString(), [0,  6048].toString());
 		var dpart:DPart = new DPart(new NPart([new QVoiceDown(4, [1], 4)]));
 		this.assertEquals(dpart.positions.toString(), [0, 3024, 6048, 9072].toString());
 	}
-	
+	*/
+	/*
 	public function testComplexes()
 	{
 		var dpart:DPart = new DPart(new NPart([new QVoiceUp(2, [ -1], 2), new QVoiceDown(4, [1], 4)]));
@@ -37,5 +41,5 @@ class TestDPart extends TestCase
 		this.assertEquals(dpart.dcomplexes[2].dnotes.length, 2);
 		this.assertEquals(dpart.dcomplexes[3].dnotes.length, 1);
 	}
-		
+		*/
 }

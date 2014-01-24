@@ -13,24 +13,19 @@ class DVoice
 	public var nvoice				(default, null)			: NVoice;
 	public var config 			(default, null) 			: ConfigDVoice;
 	public var dnotes			(default, null)			: Array<DNote>;
-	public var beamgroups	(default, null)			: Array<BItem>;
+	//public var beamgroups	(default, default)			: Array<BItem>;
 	
 	
+	public var type				(default, null)			: EVoiceType;
 	public var direction			(default, null)			: EDirectionUAD;
-	public var beaming			(default, null)			: BProcessor;
+	public var beaming			(default, null)			: Array<ENoteValue>;
 	
-	public function new(voice:NVoice, config:ConfigDVoice) 
+	public function new(nvoice:NVoice, config:ConfigDVoice=null) 
 	{
-		this.nvoice = voice;	
-		
-		this.config = (config == null) ? ConfigDVoiceDefaults.getDefaults();
-		
-		this.type = config.type;
-		this.direction = config.direction;
-		this.beaming = config.beaming;
-		
+		this.nvoice = nvoice;	
+		this.config = (config == null) ? ConfigDVoiceDefaults.getDefaults(): config;
+		this.beaming = (this.config.beaming != null) ? this.config.beaming : [ENoteValue.Nv4];
 		this.createChildren();
-		
 		
 		/*
 		this.direction = (direction == null) ? EDirectionUAD.Auto : direction;
@@ -61,35 +56,25 @@ class DVoice
 		{
 			this.dnotes.push(new DNote(nnote));
 		}
-		
-		this.beamgroups = new GenerateBeaming(this.dnotes, [ENoteValue.Nv4]).execute();
-		
+		new GenerateBeaming(this,  this.beaming).execute();
 	}
 	
 	
 	
 	
 	public function dnote(idx:Int) return this.dnotes[idx];
-	public var sumNoteValue(default, null):Int;
 
-	public var dnotePosition(default, null):Map<DNote, Int>;
-	public var dnotePositionEnd(default, null):Map<DNote, Int>;
+
+	//public var dnotePosition(default, null):Map<DNote, Int>;
+	//public var dnotePositionEnd(default, null):Map<DNote, Int>;
 	public var dnoteBeamgroup(default, null):Map<DNote, BItem>;	
+	//this.dnoteBeamgroup = new Map<DNote, BItem>();
 	
-	
+	/*
 	private function prepareClassHelperStuff()
 	{
 		this.dnotePosition = new Map<DNote, Int>();
 		this.dnotePositionEnd = new Map<DNote, Int>();
-		this.dnoteBeamgroup = new Map<DNote, BItem>();		
-
-		var sum = 0;
-		for (note in this.nvoice.notes) 
-		{
-			this.dnotes.push(new DNote(note, this.direction.toUD()));
-			sum += note.value.value;
-		}	
-		this.sumNoteValue = sum;
 
 		var pos = 0;
 		for (dnote in this.dnotes)
@@ -99,23 +84,56 @@ class DVoice
 			pos += dnote.value.value;
 		}	
 	}
+	*/
+
+	private var _dnotePosition : Map<DNote, Int>;
+	private var _dnotePositionEnd: Map<DNote, Int>;
+	public function getDNotePosition(dnote:DNote):Int
+	{
+		if (_dnotePosition != null ) return _dnotePosition.get(dnote);
+		calcDnotePositions();
+		return _dnotePosition.get(dnote);
+	}
+	
+	public function getDNotePositionEnd(dnote:DNote):Int
+	{
+		if (_dnotePositionEnd != null ) return _dnotePositionEnd.get(dnote);
+		calcDnotePositions();
+		return _dnotePositionEnd.get(dnote);
+	}
+	
+	private function calcDnotePositions()
+	{
+		this._dnotePosition = new Map<DNote, Int>();
+		this._dnotePositionEnd = new Map<DNote, Int>();
+		var pos = 0;
+		for (dnote in this.dnotes)
+		{
+			this._dnotePosition.set(dnote, pos);
+			this._dnotePositionEnd.set(dnote, pos + dnote.value.value);
+			pos += dnote.value.value;
+		}			
+	}
+	
+	
+	private var _value:Int = 0;
+	public function getValue():Int
+	{
+		if (this._value > 0) return this._value;
+		for (note in this.nvoice.notes) this._value += note.value.value;
+		return this._value;
+	}
+	
+	
 	
 	//---------------------------------------------------------------------------------------------------------------
 	//---------------------------------------------------------------------------------------------------------------
 	// beaming stuff...
 	
-	private var beamingProcessor:BProcessor;
-	private function doBeaming()  
-	{
-		if (this.beamingProcessor != null) 
-		{			
-			this.beamingProcessor.doBeaming(this, this.direction);
-		}		
-	}	
-	
+	/*
 	public function beamGroupsClear() 
 	{
-		this._beamGroups = [];
+		this.beamGroups = [];
 	}
 	
 	public function beamGroupsAdd(beamGroup:BItem) {
@@ -126,7 +144,9 @@ class DVoice
 	private function get_beamGroups():BItems {
 		return _beamGroups;
 	}
-	public var beamGroups(get_beamGroups, null):BItems;	
+	*/
+	public var beamGroups(default, default):BItems;	
+	
 	
 	private function _setConnectionPoints() 	{
 		trace('_setConnectionPoints');

@@ -1,6 +1,7 @@
 package nx3.dci;
 
 import neko.Lib;
+import nx3.dci.Main.Tex;
 import nx3.elements.BItem;
 import nx3.elements.DNote;
 import nx3.elements.ENoteValue;
@@ -13,11 +14,16 @@ import nx3.test.QNote;
  * @author Jonas Nyström
  */
 
+
 class Main 
 {
 		
 	static function main() 
 	{
+
+		
+		
+		/*
 		var nbar = new NBar(null);
 		new GenerateDBar(nbar);
 		
@@ -28,6 +34,7 @@ class Main
 			new DNote(new QNote8()),
 			new DNote(new QNote8()),
 		]).execute();
+		*/
 	}
 	
 }

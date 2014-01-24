@@ -3,6 +3,7 @@ import cx.ArrayTools;
 import haxe.ds.IntMap.IntMap;
 import nx3.elements.ConfigDPart.ConfigDPartDefaults;
 import nx3.elements.ConfigDVoice.ConfigDVoiceDefaults;
+
 /**
  * ...
  * @author Jonas Nyström
@@ -14,9 +15,11 @@ class DPart
 	
 	
 	public var npart					(default,null)		: NPart;
-	public var config					(default, null) 		: ConfigDPart,
+	public var config					(default, null) 		: ConfigDPart;
 	public var dvoices				(default,null)		: Array<DVoice>;
 	public var dcomplexes			(default,null)		: Array<DComplex>;	
+	public var value					(default, null)		: Int;	
+
 	
 	public var type					(default, null)		: EPartType;
 	public var key						(default, null)		: EKey;
@@ -27,7 +30,7 @@ class DPart
 	
 	public var sumNoteValue(default,null):Int;
 	
-	public function new(part:NPart, config:ConfigDPart) 
+	public function new(part:NPart, config:ConfigDPart=null) 
 	{
 		this.npart = part;
 		this.config = (config == null) ? ConfigDPartDefaults.getDefaults() : config;
@@ -72,13 +75,16 @@ class DPart
 			i++;
 		}
 		
+		this.value = 0;
+		for (dvoice in this.dvoices) this.value  = Std.int(Math.max(this.value, dvoice.getValue()));
+		
 		this.dcomplexes = new GenerateComplexes(this).execute();
 		
 	}
 	
 	
 
-	public var dcomplexes(default,null):Array<DComplex>;
+	//public var dcomplexes(default,null):Array<DComplex>;
 	public var positions		(default, null)			:Array<Int>;	
 	public var complexPosition(default, null):Map<DComplex, Int>;
 	public var complexDistance(default, null):Map<DComplex, Float>;

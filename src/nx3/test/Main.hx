@@ -10,16 +10,21 @@ import haxe.unit.TestRunner;
  */
 
  using cx.ArrayTools;
+ 
+ 
+ 
 class Main
 {
 
 	static public function main() 
 	{
+	
 		
 		var runner = new TestRunner();
 		runner.add(new TestDVoice());
 		runner.add(new TestDPart());
 		var success = runner.run();
+		
 	}
 }
 

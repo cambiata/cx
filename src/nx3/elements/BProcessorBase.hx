@@ -36,7 +36,7 @@ class BProcessorBase {
 	private function clearBeamlist():BProcessorBase { 
 		//trace('clearBeamlist');
 		//this.dVoice.setBeamGroups([]);
-		this.dVoice.beamGroupsClear();
+		this.dVoice.beamGroups = [];
 		return this;
 	}	
 	
@@ -46,7 +46,7 @@ class BProcessorBase {
 		var vpValue:Int = 0;
 		for (value in valuePattern) vpValue += value.value;
 		
-		while (vpValue <= dVoice.sumNoteValue) 
+		while (vpValue <= dVoice.getValue()) 
 		{
 			this.valuePattern = Lambda.array(Lambda.concat(this.valuePattern, this.valuePattern));
 			vpValue = 0;
@@ -83,8 +83,8 @@ class BProcessorBase {
 		//var i= 0;
 		for (dnote in dVoice.dnotes) 
 		{
-			var dnotePos = dVoice.dnotePosition.get(dnote);
-			var dnoteEnd = dVoice.dnotePositionEnd.get(dnote);
+			var dnotePos = dVoice.getDNotePosition(dnote);
+			var dnoteEnd = dVoice.getDNotePositionEnd(dnote);
 			
 			var groupIdx = -111;
 

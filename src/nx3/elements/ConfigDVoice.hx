@@ -7,9 +7,9 @@ import nx.display.beam.BeamGroupFrame;
  */
 typedef ConfigDVoice =
 {
-	?type			: EVoiceType,
+	?type				: EVoiceType ,
 	?direction		: EDirectionUAD,
-	?beaming		: BProcessor,
+	?beaming		: Array<ENoteValue>,
 }
 
 class ConfigDVoiceDefaults 
@@ -17,10 +17,19 @@ class ConfigDVoiceDefaults
 	static public function getDefaults():ConfigDVoice
 	{
 		return {
-			type: EVoiceType.Normal;
+			type: EVoiceType.Normal,
 			direction: EDirectionUAD.Auto,
-			beaming: new BProcessor_2Eights(),
+			beaming: [ENoteValue.Nv4],
 		}
 	}
 	
+}
+
+class ConfigDVoiceTools {
+	
+	static public function normalize()
+	{
+		
+		
+	}
 }

@@ -24,7 +24,7 @@ class DBar
 	public var allotment			(default, null)	:	EAllotment;
 	
 	
-	public function new(nbar:NBar, config:ConfigDBar) 
+	public function new(nbar:NBar, config:ConfigDBar=null) 
 	{
 		this.nbar = nbar;
 		this.config = (config == null)? ConfigDBarDefaults.getDefaults() : config;
