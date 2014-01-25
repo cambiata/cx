@@ -16,7 +16,7 @@ class NHead
 	public var tie(default, default): ETie;
 	public var tieTo(default, default): ETie;
 	
-	public function new(?type:EHeadType, ?level: ULevel=0, ?sign:ESign, ?tie:ETie, ?tieTo:ETie) 
+	public function new(?type:EHeadType, ?level: ULevel=0, ?sign:ESign=null, ?tie:ETie=null, ?tieTo:ETie=null) 
 	{
 		this.type = (type != null)			? type			: EHeadType.Normal; 
 		this.sign = (sign != null) 			? sign 			: ESign.None;

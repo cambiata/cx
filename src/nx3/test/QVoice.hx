@@ -49,7 +49,13 @@ class QVoice extends NVoice
 		*/
 		
 		var _headlevels = (headlevels != null) ? headlevels : [0];
-			
+
+		while (_notevalues.length > _headlevels.length)
+			_headlevels.push(0);
+		
+		
+		
+		
 		var r = 1;
 		var copy = _headlevels.copy();
 		while (r < levelrepeats) 
