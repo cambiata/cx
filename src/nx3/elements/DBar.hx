@@ -47,14 +47,14 @@ class DBar
 		if (configParts == null) configParts = [];
 		var configLength = configParts.length;
 		
-		if (this.nbar.parts.length > configLength)
-			for (i in configLength...this.nbar.parts.length)
+		if (this.nbar.nparts.length > configLength)
+			for (i in configLength...this.nbar.nparts.length)
 				configParts.push(ConfigDPartDefaults.getDefaults());
 		
 		this.dparts = [];
 		
 		var i = 0;
-		for (npart in this.nbar.parts)
+		for (npart in this.nbar.nparts)
 		{
 			this.dparts.push(new DPart(npart, configParts[i]));
 			i++;

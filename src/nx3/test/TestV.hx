@@ -24,7 +24,7 @@ class TestV extends TestCase
 	public function test1() 
 	{
 		var vnote = new VNote(new QNote([ 1, -2]));
-		this.assertEquals(2, vnote.nnote.heads.length);
+		this.assertEquals(2, vnote.nnote.nheads.length);
 		this.assertEquals([ -2, 1].toString(), vnote.nnote.getHeadLevels().toString());
 		this.assertEquals(ENoteValue.Nv4, vnote.nnote.value);
 	}
@@ -33,7 +33,7 @@ class TestV extends TestCase
 	{
 		var qvoice = new QVoice([4, 8, 8, 2]);
 		var vvoice = new VVoice(qvoice);
-		this.assertEquals(4, vvoice.nvoice.notes.length);
+		this.assertEquals(4, vvoice.nvoice.nnotes.length);
 		this.assertEquals(4, vvoice.getVNotes().length);
 		this.assertEquals(ENoteValue.Nv8, vvoice.getVNotes()[1].nnote.value);
 		this.assertEquals(ENoteValue.Nv2, vvoice.getVNotes()[3].nnote.value);

@@ -28,7 +28,7 @@ class PartXML
 		var xml:Xml = Xml.createElement(XPART);		
 		
 		// voices
-		for (voice in part.voices)
+		for (voice in part.nvoices)
 		{
 			var voiceXml = voice.toXml();
 			xml.addChild(voiceXml);			

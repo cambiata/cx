@@ -36,8 +36,8 @@ class DNote
 		this.attributes = (attributes == null) ? [] : attributes;
 		this.forceDirection = forceDirection; // Can be null!?
 
-		this.levelTop = this.note.heads[0].level;
-		this.levelBottom = this.note.heads[this.note.heads.length - 1].level;		
+		this.levelTop = this.note.nheads[0].level;
+		this.levelBottom = this.note.nheads[this.note.nheads.length - 1].level;		
 		this.value = this.note.value;		
 		this.type = this.note.type;
 	}
@@ -52,7 +52,7 @@ class DNote
 		}
 		else
 		{
-			direction_ = (note.direction != null) ? note.direction.toUD() : HeadsTool.getDirection(note.heads);
+			direction_ = (note.direction != null) ? note.direction.toUD() : HeadsTool.getDirection(note.nheads);
 		}		
 		return direction_;
 	}
@@ -88,9 +88,9 @@ class DNote
 	{		
 		if (this.headRects_ != null) return this.headRects_;
 		this.headRects_ = [];
-		var headPositions:Array<Int> = HeadsTool.getHeadPositions(this.note.heads, this.direction);
+		var headPositions:Array<Int> = HeadsTool.getHeadPositions(this.note.nheads, this.direction);
 		var i = 0;
-		for (head in note.heads)
+		for (head in note.nheads)
 		{			
 			var rect:Rectangle = HeadTool.getHeadRect(head, this.note.value);
 			rect.offset(rect.width * headPositions[i], 0);
@@ -105,7 +105,7 @@ class DNote
 	private function get_midLevel():Float
 	{
 		if (this.midLevel_ != null) return this.midLevel_;
-		this.midLevel_ =  HeadsTool.midLevel(this.note.heads);		
+		this.midLevel_ =  HeadsTool.midLevel(this.note.nheads);		
 		return this.midLevel_;
 	}
 	
@@ -116,7 +116,7 @@ class DNote
 	private function get_heads():Array<NHead>
 	{
 		if (this.heads_ != null) return this.heads_;		
-		this.heads_ = this.note.heads;
+		this.heads_ = this.note.nheads;
 		return this.heads_;
 	}
 	

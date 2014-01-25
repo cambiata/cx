@@ -62,14 +62,14 @@ class DPart
 		if (configVoices == null) configVoices = [];
 		var configLength = configVoices.length;
 		
-		if (this.npart.voices.length > configLength)
-			for (i in configLength...this.npart.voices.length)
+		if (this.npart.nvoices.length > configLength)
+			for (i in configLength...this.npart.nvoices.length)
 				configVoices.push(ConfigDVoiceDefaults.getDefaults());
 		
 		this.dvoices = [];
 		
 		var i = 0;
-		for (nvoice in this.npart.voices)
+		for (nvoice in this.npart.nvoices)
 		{
 			this.dvoices.push(new DVoice(nvoice, configVoices[i]));
 			i++;

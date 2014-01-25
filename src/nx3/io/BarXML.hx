@@ -24,10 +24,10 @@ class BarXML
 	{
 		var xml:Xml = Xml.createElement(XBAR);		
 		
-		trace(bar.parts.length);
+		trace(bar.nparts.length);
 		
 		// parts
-		for (part in bar.parts)
+		for (part in bar.nparts)
 		{
 			var partXml = part.toXml();
 			xml.addChild(partXml);			

@@ -23,7 +23,7 @@ class VTree { } // Just the module name...
 	 {
 		 if (this.vparts != null) return this.vparts;
 		 this.vparts = [];
-		 for (npart in this.nbar.parts)  this.vparts.push(new VPart(npart));
+		 for (npart in this.nbar.nparts)  this.vparts.push(new VPart(npart));
 		 return this.vparts;
 	 }	 
  }
@@ -38,7 +38,7 @@ class VPart
 	{
 		if (this.vvoices != null) return this.vvoices;
 		this.vvoices = [];
-		for (nvoice in this.npart.voices) this.vvoices.push(new VVoice(nvoice));
+		for (nvoice in this.npart.nvoices) this.vvoices.push(new VVoice(nvoice));
 		return this.vvoices;
 	}
 }
@@ -53,7 +53,7 @@ class VVoice
 	{
 		if (this.vnotes != null) return this.vnotes;
 		this.vnotes = [];
-		for (nnote in this.nvoice.notes) 
+		for (nnote in this.nvoice.nnotes) 
 		{
 			this.vnotes.push(new VNote(nnote));
 		}
@@ -112,7 +112,7 @@ class VNote
 	{
 		if (this.vheads != null) return this.vheads;
 		this.vheads = [];
-		for (nhead in this.nnote.heads) this.vheads.push(new VHead(nhead));
+		for (nhead in this.nnote.nheads) this.vheads.push(new VHead(nhead));
 		return this.vheads;
 	}
 }

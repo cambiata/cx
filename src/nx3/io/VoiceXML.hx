@@ -33,9 +33,9 @@ class VoiceXML
 		
 		if (voice.direction != EDirectionUAD.Auto)  xml.set(XVOICE_DIRECTION, Std.string(voice.direction));
 		
-		if (voice.notes != null)
+		if (voice.nnotes != null)
 		{
-			for (note in voice.notes) {
+			for (note in voice.nnotes) {
 				var noteXml = note.toXml();
 				xml.addChild(noteXml);
 			}				

@@ -10,8 +10,8 @@ class NPart
 
 	public function new(voices:Array<NVoice>=null, ?type:EPartType=null, clef:EClef=null, clefDisplay:EDisplayALN=null, key:EKey=null, keyDisplay:EDisplayALN=null) 
 	{
-		this.voices = voices;
-		if (this.voices.length > 2)
+		this.nvoices = voices;
+		if (this.nvoices.length > 2)
 		{
 			throw "For now, NPart can't have more than two voices";
 		}
@@ -23,7 +23,7 @@ class NPart
 	}
 
 	public var type(default, default):EPartType;
-	public var voices(default, default):Array<NVoice>;
+	public var nvoices(default, default):Array<NVoice>;
 	public var clef(default, default):EClef;
 	public var clefDisplay(default, default):EDisplayALN;
 	public var key(default, default):EKey;

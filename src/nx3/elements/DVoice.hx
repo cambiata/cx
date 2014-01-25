@@ -52,7 +52,7 @@ class DVoice
 	public function createChildren()
 	{
 		this.dnotes = [];
-		for (nnote in this.nvoice.notes)
+		for (nnote in this.nvoice.nnotes)
 		{
 			this.dnotes.push(new DNote(nnote));
 		}
@@ -120,7 +120,7 @@ class DVoice
 	public function getValue():Int
 	{
 		if (this._value > 0) return this._value;
-		for (note in this.nvoice.notes) this._value += note.value.value;
+		for (note in this.nvoice.nnotes) this._value += note.value.value;
 		return this._value;
 	}
 	

@@ -16,7 +16,7 @@ class NNote
 	public var type(default, null):ENoteType;
 	public var value(default, null): ENoteValue;
 	public var direction(default, null):EDirectionUAD;
-	public var heads(get, null):Array<NHead>;	
+	public var nheads(get, null):Array<NHead>;	
 	
 	public function new(?type:ENoteType=null, ?heads:Array<NHead>=null, ?value:ENoteValue=null , ?direction:EDirectionUAD=null) 
 	{
@@ -30,16 +30,16 @@ class NNote
 		this.direction = (direction == null) ? EDirectionUAD.Auto : direction;
 	}
 	
-	var heads_:Array<NHead>;
-	function get_heads():Array<NHead> 
+	var nheads_:Array<NHead>;
+	function get_nheads():Array<NHead> 
 	{
-		if (this.heads_ != null) return this.heads_;		
+		if (this.nheads_ != null) return this.nheads_;		
 		switch(this.type) 
 		{
-			case ENoteType.Note(heads, variant, articulations, attributes):
-				heads.cleverSort(_.level);
-				this.heads_ = heads;
-				return this.heads_;
+			case ENoteType.Note(nheads, variant, articulations, attributes):
+				nheads.cleverSort(_.level);
+				this.nheads_ = nheads;
+				return this.nheads_;
 			default:
 		}
 		return null;
@@ -50,18 +50,18 @@ class NNote
 	{
 		if (headLevels != null) return this.headLevels;
 		this.headLevels = [];
-		for (head in this.heads) this.headLevels.push(head.level);
+		for (head in this.nheads) this.headLevels.push(head.level);
 		return this.headLevels;
 	}
 	
 	
 	public function getTopLevel():Int
 	{
-		return this.heads[0].level;
+		return this.nheads[0].level;
 	}
 	
 	public function getBottomLevel():Int
 	{
-		return this.heads[this.heads.length-1].level;
+		return this.nheads[this.nheads.length-1].level;
 	}
 }
