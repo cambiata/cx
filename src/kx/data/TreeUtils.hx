@@ -241,9 +241,9 @@ class TreeUtils
 		body.appendChild(navbar);
 		
 		var mainContainer = new EDiv().attr(Attr.ClassName, "main-container").attr(Attr.Id, "main-container");
-		var script = new EScript().attr(Attr.Type, "text/javascript");
-		script.addText("try{ace.settings.check('main-container' , 'fixed')}catch(e){}");
-		mainContainer.add(script);
+		//var script = new EScript().attr(Attr.Type, "text/javascript");
+		//script.addText("try{ace.settings.check('main-container' , 'fixed')}catch(e){}");
+		//mainContainer.add(script);
 		
 		body.appendChild(mainContainer);
 		
@@ -289,6 +289,11 @@ class TreeUtils
 			{
 				path = path + segment;
 				var fileSegment = fileSegments[i];
+				
+				fileSegment = FileTools.excludeExtension(fileSegment);
+				var orderval = Std.parseInt(fileSegment.substring(0, 3));
+				if (orderval != null) fileSegment = fileSegment.substr(4);
+				
 				crumbs.push(segment + '|' + path + '|' + fileSegment);
 				i++;
 			}
@@ -653,11 +658,13 @@ class Breadcrumbs extends EDiv {
 		this.attr(Attr.ClassName, "breadcrumbs");
 		this.attr(Attr.Id, "breadcrumbs");	
 		
-		
+		/*
 		var script = new EScript().attr(Attr.Type, "text/javascript");
 		script.addText("try{ace.settings.check('breadcrumbs' , 'fixed')}catch(e){}");
 		this.appendChild(script);				
-
+		*/
+		
+		
 		var breadcrumb = new EUnorderedList().attr(Attr.ClassName, "breadcrumb");
 		this.appendChild(breadcrumb);	
 		
@@ -770,25 +777,14 @@ class PageOdtContent extends PageContent {
 		super();
 		
 		this.filename = filename;
-		//trace(this.filename);
-		/*
-		if (!FileTools.exists(filename)) 
-		{
-			this.filename = (FileTools.exists(Config.DOCPATH_REMOTE + filename)) ? Config.DOCPATH_REMOTE + filename : Config.DOCPATH_LOCAL + filename;				
-		}
-		*/
 		
 		var copyfile = this.filename + '.copy.txt';
 		if (FileTools.exists(copyfile)) {
 			addCopyright(FileTools.getContent(copyfile));
 		}
 		
-		
 		this.attr(Attr.ClassName, "page-content content-max");
-		
 		if (title != null || subtitle != null) this.appendChild(new PageHeader(EncodeTools.utf8(title), EncodeTools.utf8(subtitle)));	
-		
-		
 		this.addContent();		
 	}
 	
@@ -798,7 +794,17 @@ class PageOdtContent extends PageContent {
 		this.appendChild(div);
 		try {
 			
-			var html = OdtTools.getHtmlFromOdt(this.filename);
+			var html = new OdtTools().getHtmlFromOdt2(this.filename, false, 40, 2);
+			
+			
+			if (html.toLowerCase().indexOf('href="player:') != -1)
+			{
+				//trace('replace player');
+				html = this.replacePlayerTags(html);
+			}
+			
+			
+			//var html = OdtTools.getHtmlFromOdt(this.filename);
 			div.addHtml(html);
 		} catch (e:Dynamic)
 		{
@@ -813,6 +819,54 @@ class PageOdtContent extends PageContent {
 		div.addHtml(EncodeTools.utf8(html));
 		this.appendChild(div);		
 	}
+	
+	public function replacePlayerTags(html:String):String
+	{
+		var r = ~/<object[ .:a-zA-Z0-9="-_\/><\r\t\n]+object>/im;
+		var compare = html;
+		var rebuiltHtml = html;
+		
+		//trace(r.match(compare));
+		while (r.match(compare))
+		{
+			r.match(compare);
+			var match = r.matched(0);
+			
+			var pos = r.matchedPos();
+			var beforeMatch = compare.substr(0, pos.pos);
+			var afterMatch = compare.substr(pos.len + pos.pos);
+			var r2 = ~/"player:([.a-zA-Z0-9\/_-]*)"/;
+			r2.match(match);
+			var fileAddress = r2.matched(1);
+			var newTag = '<newtag src="$fileAddress" >testNewTag</newtag>';
+			var newTag = playerTag(fileAddress);
+			rebuiltHtml = StringTools.replace(rebuiltHtml, match, newTag);
+			compare = compare.substr(pos.len + pos.pos);			
+		}
+		return rebuiltHtml;
+	}	
+	
+	
+	private function playerTag(file:String)
+	{
+		//trace(this.filename);
+		var path = FileTools.getDirectory(this.filename);
+		var filename = '$path$file';
+		var cryptAdr = CryptTools.crypt(filename);
+		var url = '/audio/$cryptAdr';
+		
+	return '
+			<object id="wp-as-40_1-flash" type="application/x-shockwave-flash" data="/assets/audio/player.swf" width="290" height="24">
+								<param name="movie" value="http://s0.wp.com/wp-content/plugins/audio-player/player.swf?m=1365086195g" />
+								<param name="FlashVars" value="bg=0xF8F8F8&amp;leftbg=0xEEEEEE&amp;lefticon=0x666666&amp;rightbg=0xCCCCCC&amp;rightbghover=0x999999&amp;righticon=0x666666&amp;righticonhover=0xFFFFFF&amp;text=0x666666&amp;slider=0x666666&amp;track=0xFFFFFF&amp;border=0x666666&amp;loader=0x9FFFB8&amp;soundFile=$url" />
+								<param name="quality" value="high" />
+								<param name="menu" value="false" />
+								<param name="bgcolor" value="#FFFFFF" />
+								<param name="wmode" value="opaque" />
+			</object>
+			';
+	}
+	
 	
 }
 

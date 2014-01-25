@@ -85,7 +85,7 @@ class OdtTools
 		
 		recursiveParser(parts.text);
 		
-		var html = HxdomTools.ehtmlToHtml(this.html, true, true, stripOuterLevels);
+		var html = HxdomTools.ehtmlToHtml(this.html, true, false , stripOuterLevels);
 		if (meta) html = getMeta() + html;
 		return html;
 	}
@@ -647,20 +647,24 @@ class OdtTools
 				var target = e.get('office:target-frame-name');
 				var href = e.get('xlink:href');
 
-				var hrefClass = StrTools.until(href, ':\\');
-				
+				var hrefClass = StrTools.until(href, ':');
+
+				//trace(hrefClass);
 				switch hrefClass 
 				{
-					case 'player': node = new EObject();
-					default: node = new EAnchor();
+					case 'player': {
+						node = new EObject();
+						
+					}
+					default: 
+					{
+						node = new EAnchor();
+						node.attr(Attr.Target, target);
+						node.attr(Attr.ClassName, '$hrefClass' );
+						
+					}
 				}
-				
-				//node = new EAnchor();
-				node.attr(Attr.Target, target);
 				node.attr(Attr.Href, href);
-				
-				var hrefClass = StrTools.until(href, ':\\');
-				node.attr(Attr.ClassName, '$hrefClass hidden' );
 				
 				
 			case 'text:list':
@@ -673,6 +677,9 @@ class OdtTools
 			case 'text:bookmark':
 				
 				//trace(e);
+				
+			case 'text:soft-page-break':
+				node = new ESpan();
 				
 			case 'text:sequence-decls':
 				node = null;

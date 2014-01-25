@@ -14,6 +14,7 @@ class MimeTools
 			case 'jpeg', 'jpg': return 'image/jpeg';
 			case 'png': return 'image/png';
 			case 'flv': return 'video/x-flv';			
+			case 'mp3' : return 'audio/mpeg';
 			default: throw 'Mime type for $filename unknown!'; return 'unknown';
 		}
 	}
