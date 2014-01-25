@@ -45,4 +45,23 @@ class NNote
 		return null;
 	}
 	
+	var headLevels:Array<Int>;
+	public function getHeadLevels():Array<Int>
+	{
+		if (headLevels != null) return this.headLevels;
+		this.headLevels = [];
+		for (head in this.heads) this.headLevels.push(head.level);
+		return this.headLevels;
+	}
+	
+	
+	public function getTopLevel():Int
+	{
+		return this.heads[0].level;
+	}
+	
+	public function getBottomLevel():Int
+	{
+		return this.heads[this.heads.length-1].level;
+	}
 }

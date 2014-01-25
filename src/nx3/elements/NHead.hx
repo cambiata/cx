@@ -25,5 +25,6 @@ class NHead
 		this.level = level;
 	}	
 	
+	
 }
 

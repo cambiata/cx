@@ -22,7 +22,8 @@ class Main
 		
 		var runner = new TestRunner();
 		runner.add(new TestQ());
-		runner.add(new TestVTree());
+		runner.add(new TestN());
+		runner.add(new TestV());
 		runner.add(new TestDVoice());
 		//runner.add(new TestDPart());
 		var success = runner.run();

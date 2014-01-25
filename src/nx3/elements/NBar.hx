@@ -20,5 +20,7 @@ class NBar
 	public var time(default, null):ETime;
 	public var timeDisplay(default, null):EDisplayALN;
 	
+	public function toString() return Std.string(this);
+	
 }
 

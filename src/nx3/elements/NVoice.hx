@@ -30,4 +30,6 @@ class NVoice
 		this.direction = direction;
 	}
 	
+	public function toString() return Std.string(this);
+	
 }
