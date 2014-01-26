@@ -15,11 +15,11 @@ class QNote extends NNote
 	public function new(?headLevel:Int=null, ?headLevels:Array<Int>=null, ?head:NHead=null, ?heads:Array<NHead>=null, ?value : ENoteValue=null, ?signs:String='') 
 	{
 		//var heads:Array<NHead> = null;
-		if (headLevel != null) heads = [new NHead(headLevel)];
 		
 		signs += '...........';
 		var aSigns = signs.split('');
 		
+		if (headLevel != null)  headLevels = [headLevel];
 		if (headLevels != null) 
 		{
 			heads = [];
@@ -56,7 +56,7 @@ class QNote4 extends QNote
 {
 	public function new(?headLevel:Int=null, ?headLevels:Array<Int>=null, ?signs:String='') 
 	{
-		super(headLevel, headLevels, ENoteValue.Nv4);
+		super(headLevel, headLevels, ENoteValue.Nv4, signs);
 	}
 }
 

@@ -1,11 +1,16 @@
 package nx3.elements;
+import haxe.ds.IntMap.IntMap;
 import nx3.elements.VTree.VBeamframe;
 import nx3.elements.VTree.VBeamgroup;
 import nx3.elements.VTree.VBeamgroupDirectionCalculator;
 import nx3.elements.VTree.VBeamgroupFrameCalculator;
+import nx3.elements.VTree.VColumns;
+import nx3.elements.VTree.VComplex;
+import nx3.elements.VTree.VComplexes;
+import nx3.elements.VTree.VComplexSignsCalculator;
 import nx3.elements.VTree.VCreateBeamgroups;
-import nx3.test.TestV;
 
+using nx3.elements.VTree.VMapTools;
 /**
  * ...
  * @author Jonas Nyström
@@ -13,43 +18,141 @@ import nx3.test.TestV;
 
 class VTree { } // Just the module name...
 
+typedef VBars = Array<VBar>;
+
  class VBar
  {
 	 public var nbar(default, null):NBar;
 	 public function new(nbar:NBar) this.nbar = nbar;
 	 
-	 var vparts:Array<VPart>;
-	 public function getVParts():Array<VPart>
+	 var vparts:VParts;
+	 public function getVParts():VParts
 	 {
 		 if (this.vparts != null) return this.vparts;
 		 this.vparts = [];
 		 for (npart in this.nbar.nparts)  this.vparts.push(new VPart(npart));
 		 return this.vparts;
 	 }	 
+	 
+	 public function getVColumns():VColumns
+	 {
+		 return null;
+	 }
  }
+ 
+ class VBarColumnsGenerator 
+ {
+	 var vparts:VParts;
+	 public function new(vparts:VParts) 
+	 { 
+		this.vparts = vparts;
+	 }
+	 
+	 var positions:Array<Int>;
+	 var columns:VColumns;
+	 public function getColumns():VColumns
+	 {
+		this.positions =  calcPositions(this.vparts);
+		this.columns = calcColumns(this.positions, this.vparts);
+		return this.columns;
+	 }
+	 
+	 function calcColumns(positions:Array<Int>, vparts:VParts)
+	 {
+		 var partsCount = vparts.length;
+		 var vcolumns:VColumns = [];
+		 for (pos in positions)
+		 {
+			 var vcolumn:VColumns = null;
+			 var vcomplexes:VComplexes = [];
+			 var i = 0;
+			 for (vpart in vparts)
+			 {
+				var complex:VComplex = vpart.getPositionsVComplexes().get(pos);
+				vcomplexes.push(complex);
+				i++;
+			 }
+			 var vcolumn = new VColumn(vcomplexes);
+			vcolumns.push(vcolumn);
+		 }
+		 return vcolumns;
+		 
+	 }
+	 
+	 function calcPositions(vparts:VParts)
+	 {
+		 var positionsMap = new IntMap<Bool>();
+		for (vpart in vparts)
+		{
+			var poss = vpart.getPositionsVComplexes().keys().keysToArray();
+			for (pos in poss) positionsMap.set(pos, true);
+		}
+		var positions:Array<Int> = positionsMap.keys().keysToArray();
+		positions.sort(function(a, b) { return Reflect.compare(a, b); } );
+		return positions;
+	 }
+	 
+ }
+ 
+ typedef VColumns = Array<VColumn>;
+ 
+ class VColumn 
+ {
+	 public var vcomplexes(default, null):VComplexes;
+	 public function new(vcomplexes:VComplexes) 
+	 { 
+		this.vcomplexes = vcomplexes;
+	 }
+ }
+ 
+ 
+ typedef VParts = Array<VPart>;
  
 class VPart
 {
 	public var npart(default, null):NPart;
 	public function new(npart:NPart) this.npart = npart;
 	
-	var vvoices:Array<VVoice>;
-	public function getVVoices(): Array<VVoice>
+	var vvoices:VVoices;
+	public function getVVoices(): VVoices
 	{
 		if (this.vvoices != null) return this.vvoices;
 		this.vvoices = [];
 		for (nvoice in this.npart.nvoices) this.vvoices.push(new VVoice(nvoice));
 		return this.vvoices;
 	}
+	
+	var vcomplexes:VComplexes;
+	var vcomplexesPositions:Map<VComplex,Int>;
+	var positionsVComplexes:IntMap<VComplex>;
+	
+	var generator: VPartComplexesGenerator;
+	public function getComplexes():VComplexes
+	{
+		if (this.vcomplexes != null) return this.vcomplexes;
+		this.generator = new  VPartComplexesGenerator(this.getVVoices());
+		this.vcomplexes = generator.getComplexes();
+		this.vcomplexesPositions = generator.getComplexesPositions();
+		this.positionsVComplexes = generator.getPositionsComplexes();
+		return this.vcomplexes;
+	}
+
+	public function getPositionsVComplexes():IntMap<VComplex>
+	{
+		if (this.vcomplexes == null) this.getComplexes();
+		return this.positionsVComplexes;
+	}
 }
+
+typedef VVoices = Array<VVoice>;
 
 class VVoice 
 {
 	public var nvoice(default, null):NVoice;
 	public function new(nvoice:NVoice) this.nvoice = nvoice;
 
-	var vnotes:Array<VNote> ;	
-	public function getVNotes(): Array<VNote>
+	var vnotes:VNotes ;	
+	public function getVNotes(): VNotes
 	{
 		if (this.vnotes != null) return this.vnotes;
 		this.vnotes = [];
@@ -87,9 +190,9 @@ class VVoice
 		return this.value;
 	}
 	
-	var beamgroups:Array<VBeamgroup>;
-	var beampattern: Array<ENoteValue>;
-	public function getBeamgroups(pattern:Array<ENoteValue>=null):Array<VBeamgroup>
+	var beamgroups:VBeamgroups;
+	var beampattern: ENoteValues;
+	public function getBeamgroups(pattern:ENoteValues=null):VBeamgroups
 	{
 		// if new pattern, recreate beamgroups
 		if (pattern != beampattern) this.beamgroups = null;
@@ -102,13 +205,15 @@ class VVoice
 	}
 }
 
+typedef VNotes = Array<VNote>;
+
 class VNote
 {
 	public var nnote(default, null):NNote;
 	public function new(nnote:NNote) this.nnote = nnote;
 	
-	var vheads:Array<VHead>;
-	public function getVHeads():Array<VHead>
+	var vheads:VHeads;
+	public function getVHeads():VHeads
 	{
 		if (this.vheads != null) return this.vheads;
 		this.vheads = [];
@@ -117,25 +222,138 @@ class VNote
 	}
 }
 
+typedef VHeads = Array<VHead>;
+
 class VHead
  {
 	 public var nhead(default, null):NHead;
 	 public function new (nhead:NHead) this.nhead = nhead;
  }
  
- //------------------------------------------------------------------------------------------------------------
- 
-typedef VBeamframe = {
+//---------------------------------------------------------------------------------------------------
+
+typedef VSigns = Array<VSign>;
+
+typedef VSign = 
+{
+	sign:ESign,
+	level:Int,	
+	position:Int,	
+}
+
+
+class VComplexSignsCalculator 
+{
+	public var vnotes(default, null):VNotes;
+	
+	public function new(vnotes:VNotes) 
+	{ 
+		this.vnotes = vnotes;
+	}
+
+	public function getSigns():VSigns
+	{
+		var signs:VSigns;
+		signs = calcUnsortedSigns(this.vnotes);
+		signs = calcSortSigns(signs);
+		return signs;
+	}
+	
+	var visibleSigns:VSigns;
+	public function getVisibleSigns():VSigns
+	{
+		return calcVisibleSigns(this.getSigns());
+	}
+	
+	//----------------------------------------------------------------------------------
+	
+	function calcVisibleSigns(signs:VSigns)
+	{
+		var visibleSigns:VSigns = [];
+		for (sign in signs)
+		{
+			if (sign.sign == ESign.None) continue;
+			visibleSigns.push(sign);
+		}
+		return visibleSigns;
+	}
+	
+	function calcUnsortedSigns(vnotes:VNotes):VSigns
+	{
+		var vsigns:VSigns = [];
+		for (vnote in vnotes)
+		{
+			for (nhead in vnote.nnote.nheads)
+			{
+				var tsign:VSign = {
+					sign:nhead.sign,
+					level:nhead.level,
+					position:0,
+				}
+				vsigns.push(tsign);
+			}
+		}
+		return vsigns;
+	}	
+	
+	function calcSortSigns(vsigns:VSigns):VSigns
+	{
+		vsigns.sort(function(a:VSign, b:VSign) {
+			return Reflect.compare(a.level, b.level);
+		});
+		return vsigns;
+	}
+	
+}
+
+typedef VComplexes = Array<VComplex>;
+
+class VComplex 
+{
+	public var vnotes(default, null) :VNotes;
+	public function new(vnotes:VNotes)
+	{
+		if (vnotes.length > 2) throw "VComplex nr of VNote(s) limited to max 2 - for now";
+		this.vnotes = vnotes;
+	}
+	
+	
+	var signs:VSigns;
+	var visibleSigns:VSigns;
+	var calculator:VComplexSignsCalculator;
+	
+	public function getSigns():VSigns
+	{
+		if (signs != null) return this.signs;
+		this.calculator = new VComplexSignsCalculator(this.vnotes);
+		this.signs = calculator.getSigns();
+		this.visibleSigns = calculator.getVisibleSigns();
+		return this.signs;
+	}
+	
+	public function getVisibleSigns():VSigns
+	{
+		if (visibleSigns != null) return this.visibleSigns;
+		this.getSigns();
+		return this.visibleSigns;
+	}
+	
+}
+
+typedef VBeamframe = 
+{
 	leftOuterY:Int,
 	leftInnerY:Int,
 	rightOuterY:Int,
 	rightInnerY:Int,
 }
  
+typedef VBeamgroups = Array<VBeamgroup>;
+
  class VBeamgroup
  {
-	 public var vnotes(default, null):Array<VNote>;
-	 public function new(vnotes:Array<VNote>)
+	 public var vnotes(default, null):VNotes;
+	 public function new(vnotes:VNotes)
 	 {
 		 this.vnotes = vnotes;
 	 }
@@ -275,13 +493,14 @@ typedef VBeamframe = {
 	 }
  }
  
+
  
  class VCreateBeamgroups 
  {
-	 var vnotes:Array<VNote>;
-	 var pattern: Array<ENoteValue>;
+	 var vnotes:VNotes;
+	 var pattern: ENoteValues;
 	 
-	 public function new (vnotes:Array<VNote>, pattern:Array<ENoteValue>=null)
+	 public function new (vnotes:VNotes, pattern:ENoteValues=null)
 	 {
 		 if (pattern == null) pattern = [ENoteValue.Nv4];
 
@@ -290,8 +509,8 @@ typedef VBeamframe = {
 		this.adjustPatternLenght();
 	 }
 
-	 var beamgropus:Array<VBeamgroup>;
-	 public function getBeamgroups():Array<VBeamgroup>
+	 var beamgropus:VBeamgroups;
+	 public function getBeamgroups():VBeamgroups
 	 {
 		this.preparePatternCalculation();
 		this.preparePositionMaps();
@@ -385,7 +604,7 @@ typedef VBeamframe = {
 
 		var count = 0;
 		var prevVNote:VNote = null;
-		var arrVNote:Array<VNote> = [];
+		var arrVNote:VNotes = [];
 		
 		for (vnote in vnotes)
 		{
@@ -428,9 +647,79 @@ typedef VBeamframe = {
 		}
 		return -1;			
 	}	
-	
-
-	
-	
-	 
  }
+
+ class VPartComplexesGenerator 
+ {
+	 public var vvoices(default, null) :VVoices;
+	 public function new(vvoices: VVoices) 
+	 { 
+		this.vvoices = vvoices;
+	  }
+	  
+	  
+	  var complexes:VComplexes;
+	  public function getComplexes():VComplexes
+	  {
+		  if (this.complexes != null) return this.complexes;
+		  this.positionsMap = calcPositionsMap();
+		  calcComplexes(this.positionsMap);
+		  return this.complexes;
+	  }
+	  
+	  var positionsComplexes:IntMap<VComplex>;
+	  public function getPositionsComplexes():IntMap<VComplex>
+	  {
+		  if (this.complexes == null) this.getComplexes();
+		  return this.positionsComplexes;
+	  }
+	  
+	  var complexesPositions:Map<VComplex, Int>;
+	  public function getComplexesPositions():Map<VComplex, Int>
+	  {
+		  if (this.complexes == null) this.getComplexes();
+		  return this.complexesPositions;
+	  }
+	  
+	  function calcComplexes(positions:Map < Int, Array<VNote> > )
+	  {
+		  this.complexes = [];
+		  this.positionsComplexes = new IntMap<VComplex>();
+		  this.complexesPositions = new Map<VComplex, Int>();
+		  for (pos in positions.keys())
+		  {
+			  var vnotes = positions.get(pos);
+			  var vcomplex = new VComplex(vnotes);
+			  this.complexes.push(vcomplex);
+			  this.positionsComplexes.set(pos, vcomplex);
+			  this.complexesPositions.set(vcomplex, pos);
+		  }
+	  }
+	  
+	  var positionsMap: Map<Int, VNotes>;
+	  function calcPositionsMap()
+	  {
+		  var positionsMap = new Map<Int, VNotes>();
+		  for (vvoice in this.vvoices)
+		  {
+			  for (vnote in vvoice.getVNotes())
+			  {
+				  var npos = vvoice.getVNotePosition(vnote);
+				  if (!positionsMap.exists(npos)) positionsMap.set(npos, []);
+				  positionsMap.get(npos).push(vnote);
+			  }
+		  }
+		  return positionsMap;
+	  }
+	  
+}
+
+class VMapTools
+{
+	static public function keysToArray<T>(it : Iterator<T>) : Array<T> {
+		var result = [];
+		for (v in it) result.push(v);
+		return result;
+	}	
+
+}
