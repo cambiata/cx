@@ -1,0 +1,14 @@
+-main ApplicationMain 
+-lib openfl
+-lib openfl-html5-dom
+-lib actuate
+-cp ../../src
+-cp src
+-D tools=1.2.8
+-D html5
+-D web
+-js bin/html5/bin/Nx3OpenFLTest.js
+-cp bin/html5/haxe
+-D html5
+-D html
+--remap flash:flash

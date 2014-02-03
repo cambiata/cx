@@ -119,6 +119,14 @@ class ArrayTools
 	}
 
 	//-----------------------------------------------------------------------------------------------------
+	static public function sorta<T>(a:Array<T>):Array<T>
+	{
+		a.sort(function (a, b) { return Reflect.compare(a, b); } );
+		return a;
+	}
+	
+	
+	//-----------------------------------------------------------------------------------------------------
 	
 	public static function range(start : Int, ?stop : Int, step = 1) : Array<Int>
 	{

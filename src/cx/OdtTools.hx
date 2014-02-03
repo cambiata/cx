@@ -16,6 +16,7 @@ import hxdom.Elements.EHeader2;
 import hxdom.Elements.EHeader3;
 import hxdom.Elements.EHeader4;
 import hxdom.Elements.EHtml;
+import hxdom.Elements.EImage;
 import hxdom.Elements.EItalics;
 import hxdom.Elements.EListItem;
 import hxdom.Elements.EObject;
@@ -628,19 +629,38 @@ class OdtTools
 					var i = e.firstChild();
 					var link = i.get('xlink:href');
 				
-					try  
+					if (link.startsWith('Pictures/'))
 					{
-						if (this.zipEntries == null) throw "png zip entry error";
-						var imgBytes = ZipTools.getEntryData(this.zipEntries, link);
-						var imgHtml = PngTools.pngBytesToHtmlImg(imgBytes, imgstyle);
-						node.addHtml(imgHtml);
-					}
-					catch (e:Dynamic)
+						try  
+						{
+							if (this.zipEntries == null) throw "png zip entry error";
+							var imgBytes = ZipTools.getEntryData(this.zipEntries, link);
+							var imgHtml = PngTools.pngBytesToHtmlImg(imgBytes, imgstyle);
+							node.addHtml(imgHtml);
+						}
+						catch (e:Dynamic)
+						{
+							node.addText('Image error: ' + Std.string(e) + ' - link: $link');
+						}
+					} 
+					else if (link.startsWith('http'))
 					{
-						node.addText('Image error: ' + Std.string(e) + ' - link: $link');
+						//trace(link);
+						//var img = new EImage();
+						//img.attr(Attr.Src, link);
+						//node.appendChild(img);
+						
+						var imgTag = '<img src="$link" style="$imgstyle" />';
+						node.addHtml(imgTag);
 						
 					}
+					
+					
 			case 'draw:image':
+				//var src = e.get('src');
+				//trace('draw:Image $src');
+				//trace(e);
+				
 				node = null;
 				
 			case 'text:a':

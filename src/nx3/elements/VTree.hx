@@ -1,5 +1,7 @@
 package nx3.elements;
+import cx.ArrayTools;
 import haxe.ds.IntMap.IntMap;
+import nx3.elements.VTree.VBarColumnsGenerator;
 import nx3.elements.VTree.VBeamframe;
 import nx3.elements.VTree.VBeamgroup;
 import nx3.elements.VTree.VBeamgroupDirectionCalculator;
@@ -9,6 +11,10 @@ import nx3.elements.VTree.VComplex;
 import nx3.elements.VTree.VComplexes;
 import nx3.elements.VTree.VComplexSignsCalculator;
 import nx3.elements.VTree.VCreateBeamgroups;
+import nx3.elements.VTree.VHeadPlacementCalculator;
+import nx3.elements.VTree.VHeadPlacements;
+import nx3.elements.VTree.VNoteConfig;
+import nx3.elements.VTree.VNoteInternalDirectionCalculator;
 
 using nx3.elements.VTree.VMapTools;
 /**
@@ -34,10 +40,37 @@ typedef VBars = Array<VBar>;
 		 return this.vparts;
 	 }	 
 	 
+	 var vcolumns:VColumns;
 	 public function getVColumns():VColumns
 	 {
-		 return null;
+		 if (this.vcolumns != null) return this.vcolumns;
+		 if (this.vparts == null) this.getVParts();
+		 var generator = new VBarColumnsGenerator(this.vparts);
+		 this.vcolumns = generator.getColumns();
+		 this.positionsVColumns = generator.getPositionsColumns();
+		 return this.vcolumns;
 	 }
+	 
+	 var positionsVColumns:IntMap<VColumn>;
+	 public function getPositionsColumns():IntMap<VColumn>
+	 {
+		 if (this.positionsVColumns == null) this.getVColumns();
+		 return this.positionsVColumns;
+	 }
+	 
+	var value:Null<Int>;
+	public function getValue():Int
+	{
+		if (this.value != null) return this.value;
+		var value = .0;
+		for (vpart in this.getVParts())
+		{
+			value = Math.max(value, vpart.getValue());
+		}
+		this.value = Std.int(value);
+		return this.value;
+	}
+	 
  }
  
  class VBarColumnsGenerator 
@@ -50,17 +83,27 @@ typedef VBars = Array<VBar>;
 	 
 	 var positions:Array<Int>;
 	 var columns:VColumns;
+	 var positionsColumns:IntMap<VColumn>;
+	 
 	 public function getColumns():VColumns
 	 {
-		this.positions =  calcPositions(this.vparts);
-		this.columns = calcColumns(this.positions, this.vparts);
+		if (this.columns != null) return this.columns;
+		 this.positions =  calcPositions(this.vparts);
+		calcColumns(this.positions, this.vparts);
 		return this.columns;
+	 }
+	 
+	 public function getPositionsColumns():IntMap<VColumn>
+	 {
+		 if (this.columns == null) this.getColumns();
+		 return this.positionsColumns;
 	 }
 	 
 	 function calcColumns(positions:Array<Int>, vparts:VParts)
 	 {
 		 var partsCount = vparts.length;
-		 var vcolumns:VColumns = [];
+		this.columns = [];
+		this.positionsColumns = new IntMap<VColumn>();
 		 for (pos in positions)
 		 {
 			 var vcolumn:VColumns = null;
@@ -73,20 +116,22 @@ typedef VBars = Array<VBar>;
 				i++;
 			 }
 			 var vcolumn = new VColumn(vcomplexes);
-			vcolumns.push(vcolumn);
+			this.columns.push(vcolumn);
+			this.positionsColumns.set(pos, vcolumn);
 		 }
-		 return vcolumns;
 		 
 	 }
 	 
 	 function calcPositions(vparts:VParts)
 	 {
 		 var positionsMap = new IntMap<Bool>();
+		 
 		for (vpart in vparts)
 		{
 			var poss = vpart.getPositionsVComplexes().keys().keysToArray();
 			for (pos in poss) positionsMap.set(pos, true);
 		}
+		
 		var positions:Array<Int> = positionsMap.keys().keysToArray();
 		positions.sort(function(a, b) { return Reflect.compare(a, b); } );
 		return positions;
@@ -141,6 +186,23 @@ class VPart
 	{
 		if (this.vcomplexes == null) this.getComplexes();
 		return this.positionsVComplexes;
+	}
+	
+	var value:Null<Int>;
+	public function getValue():Int
+	{
+		if (this.value != null) return this.value;
+		if (this.getVVoices().length == 1) 
+		{
+			this.value = this.vvoices[0].getValue();
+		}
+		var value = .0;
+		for (vvoice in this.vvoices)
+		{
+			value = Math.max(value, vvoice.getValue());
+		}
+		this.value = Std.int(value);
+		return this.value;
 	}
 }
 
@@ -205,12 +267,19 @@ class VVoice
 	}
 }
 
+typedef VNoteConfig = { direction:EDirectionUD };
+
+
 typedef VNotes = Array<VNote>;
 
 class VNote
 {
 	public var nnote(default, null):NNote;
-	public function new(nnote:NNote) this.nnote = nnote;
+	public function new(nnote:NNote)
+	{
+		this.nnote = nnote;
+		
+	}
 	
 	var vheads:VHeads;
 	public function getVHeads():VHeads
@@ -220,6 +289,203 @@ class VNote
 		for (nhead in this.nnote.nheads) this.vheads.push(new VHead(nhead));
 		return this.vheads;
 	}
+	
+	var vheadsPlacements:VHeadPlacements;
+	public function getVHeadsPlacements():VHeadPlacements
+	{
+		if (this.vheadsPlacements != null) return this.vheadsPlacements;
+		if (this.vheads == null) this.getVHeads();
+		
+		var calculator:VHeadPlacementCalculator = new VHeadPlacementCalculator(this.vheads, this.getDirection());
+		this.vheadsPlacements = calculator.getHeadsPlacements();
+		return this.vheadsPlacements;
+	}
+	
+	/*
+	var directionNNote:EDirectionUAD;
+	var directionHeads:EDirectionUD;
+	var directionConfig:EDirectionUD;
+	
+	public function getDirectionHeads()
+	{
+		if (this.directionHeads != null) return this.directionHeads;
+		if (this.vheads == null) this.getVHeads();
+		
+		var calculator  = new VNoteInternalDirectionCalculator(this.vheads);
+		this.directionHeads = calculator.getDirection();
+		return this.directionHeads;
+	}
+	*/
+	//var externalDirection:EDirectionUD;
+	/*
+	public function setDirection(val:EDirectionUD)
+	{
+		if (this.externalDirection != val)
+		{
+			this.vheadsPlacements = null;
+		}
+		
+		this.externalDirection = val;
+	}
+	*/
+	
+	var config:VNoteConfig;
+	public function setConfig(newConfig:VNoteConfig)
+	{
+		if (Std.string(config) == Std.string(newConfig))
+		{
+			return;
+		}
+		else
+		{
+			// reset stuff...
+			this.direction = null;
+			this.vheadsPlacements = null;
+		}
+		
+		this.config = newConfig;
+	}
+	
+	var direction:EDirectionUD;
+	public function getDirection():EDirectionUD
+	{
+		if (this.direction != null) return this.direction;
+		var calculator = new VNoteDirectionCalculator(this);
+		
+		var configDirection = (this.config != null) ? config.direction : null;
+		this.direction = calculator.getDirection(configDirection);
+		return this.direction;
+	}
+}
+
+class VNoteDirectionCalculator
+{
+	var vnote:VNote;
+	public function new (vnote:VNote)
+	{
+		this.vnote = vnote;
+	}
+	
+	public function getDirection(directionConfig:EDirectionUD): EDirectionUD
+	{
+		var direction:EDirectionUD;
+		// prio 1: NNote direction
+		if (this.vnote.nnote.direction != null) 
+		{
+			switch (this.vnote.nnote.direction)
+			{
+				case EDirectionUAD.Up: 
+						direction = EDirectionUD.Up; 
+						return direction ;
+				case EDirectionUAD.Down: 
+						direction = EDirectionUD.Down; 
+						return direction ;
+				default: //
+			}
+		}
+		
+		// prio 2: from external configuration
+		if (directionConfig != null) return directionConfig;
+		
+		// prio 3: calculate internal direction from heads
+		var calculator = new VNoteInternalDirectionCalculator(this.vnote.getVHeads());
+		return calculator.getDirection();
+	}
+	
+	
+}
+
+class VNoteInternalDirectionCalculator
+{
+	var vheads:VHeads;
+	public function new(vheads:VHeads)
+	{
+		this.vheads = vheads;
+	}
+	
+	public function getDirection():EDirectionUD
+	{
+		var headsCount = this.vheads.length;
+		if (headsCount == 1)  return this.weightToDirection(this.vheads[0].nhead.level);
+		var weight = this.vheads[0].nhead.level + this.vheads[headsCount - 1].nhead.level;
+		return this.weightToDirection(weight);
+	}
+	
+	function weightToDirection(weight:Int):EDirectionUD
+	{
+		return (weight <= 0) ? EDirectionUD.Down : EDirectionUD.Up;
+	}
+	
+}
+
+
+class VHeadPlacementCalculator
+{
+	var vheads:VHeads;
+	var direction :EDirectionUD;
+	public function new(vheads:VHeads, direction:EDirectionUD)
+	{
+		this.vheads = vheads;
+		this.direction = direction;
+	}
+	
+	public function getHeadsPlacements():VHeadPlacements
+	{
+		
+		if (vheads.length == 1) return [ { level: vheads[0].nhead.level, pos:EHeadPosition.Center } ];
+		
+		var len:Int = this.vheads.length;
+
+		var placements :VHeadPlacements = [];
+		var tempArray:Array<Int> = [];
+
+		for (vhead in this.vheads)
+		{
+			var placement:VHeadPlacement = { level: vhead.nhead.level, pos: EHeadPosition.Center};
+			placements.push(placement);
+			tempArray.push(0); 
+		}
+		
+		if (this.direction == EDirectionUD.Up) {
+			
+			for (j in 0...len - 1) {
+				var i = len - j - 1;				
+				var vhead = this.vheads[i];
+				var vheadNext = this.vheads[i - 1];
+				var lDiff = vhead.nhead.level - vheadNext.nhead.level;				
+				if (lDiff < 2) {
+					if (tempArray[i] == tempArray[i - 1]) {
+						tempArray[i - 1] = 1;
+						placements[i - 1].pos = EHeadPosition.Right;
+					}
+				}								
+			}			
+		} else {
+			for (i in 0...len - 1) {				
+				var vhead = this.vheads[i];
+				var vheadNext = this.vheads[i + 1];
+				var lDiff = vheadNext.nhead.level - vhead.nhead.level;
+				if (lDiff < 2) {
+					if (tempArray[i] == tempArray[i + 1]) {
+						tempArray[i + 1] = -1;
+						placements[i + 1].pos = EHeadPosition.Left;
+					}
+				}
+			}
+
+		}
+		
+		return placements;
+	}
+}
+
+typedef VHeadPlacements = Array<VHeadPlacement>;
+typedef VHeadPlacement = { level:ULevel, pos: EHeadPosition};
+enum  EHeadPosition
+{
+	Left;
+	Center;
+	Right;
 }
 
 typedef VHeads = Array<VHead>;
@@ -462,7 +728,7 @@ typedef VBeamgroups = Array<VBeamgroup>;
 		 this.topLevel = findTopLevel();
 		 this.bottomLevel = findBottomLevel();
 		 if (this.topLevel + this.bottomLevel <= 0) return EDirectionUD.Down;
-		 return return EDirectionUD.Up;
+		 return EDirectionUD.Up;
 	 }
 	 
 	 
@@ -686,7 +952,9 @@ typedef VBeamgroups = Array<VBeamgroup>;
 		  this.complexes = [];
 		  this.positionsComplexes = new IntMap<VComplex>();
 		  this.complexesPositions = new Map<VComplex, Int>();
-		  for (pos in positions.keys())
+		  var poskeys = positions.keys().keysToArray();
+		  poskeys = poskeys.sortarray();
+		  for (pos in poskeys)
 		  {
 			  var vnotes = positions.get(pos);
 			  var vcomplex = new VComplex(vnotes);
@@ -721,5 +989,12 @@ class VMapTools
 		for (v in it) result.push(v);
 		return result;
 	}	
+	
+	static public function sortarray<T>(a:Array<T>):Array<T>
+	{
+		a.sort(function (a, b) { return Reflect.compare(a, b); } );
+		return a;
+	}
+	
 
 }

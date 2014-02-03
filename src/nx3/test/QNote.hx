@@ -2,6 +2,7 @@ package nx3.test;
 import nx3.elements.ESign;
 import nx3.elements.EHeadType;
 import nx3.elements.ENoteValue;
+import nx3.elements.EDirectionUAD;
 import nx3.elements.NHead;
 import nx3.elements.NNote;
 
@@ -12,7 +13,7 @@ import nx3.elements.NNote;
 class QNote extends NNote
 {
 
-	public function new(?headLevel:Int=null, ?headLevels:Array<Int>=null, ?head:NHead=null, ?heads:Array<NHead>=null, ?value : ENoteValue=null, ?signs:String='') 
+	public function new(?headLevel:Int=null, ?headLevels:Array<Int>=null, ?head:NHead=null, ?heads:Array<NHead>=null, ?value : ENoteValue=null, ?signs:String='', ?direction:EDirectionUAD=null) 
 	{
 		//var heads:Array<NHead> = null;
 		
@@ -36,7 +37,7 @@ class QNote extends NNote
 		
 		
 		
-		super(heads, value);
+		super(heads, value, direction);
 	}
 	
 	private function getSign(val:String):ESign
@@ -51,6 +52,9 @@ class QNote extends NNote
 	}	
 
 }
+
+
+
 
 class QNote4 extends QNote
 {

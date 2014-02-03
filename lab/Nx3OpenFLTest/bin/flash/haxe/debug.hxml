@@ -1,0 +1,14 @@
+-main ApplicationMain 
+-lib openfl
+-lib actuate
+-cp ../../src
+-cp src
+-D tools=1.2.8
+-D web
+-swf-version 11.2
+-swf bin/flash/bin/Nx3OpenFLTest.swf
+-swf-header 800:480:60:FFFFFF
+-cp bin/flash/haxe
+#--remap nme:flash
+--no-inline
+-debug

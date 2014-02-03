@@ -1,5 +1,4 @@
 package nx3.test;
-import haxe.unit.TestCase;
 import nx3.elements.EDirectionUAD;
 import nx3.elements.ENoteValue;
 import nx3.elements.ESign;
@@ -12,7 +11,8 @@ import nx3.io.NoteXML;
  * ...
  * @author Jonas Nyström
  */
-class TestN extends TestCase
+//class TestN extends  shohei909.nanotest.NanoTestCase
+class TestN extends   haxe.unit.TestCase  
 {
 	public function test1()
 	{
