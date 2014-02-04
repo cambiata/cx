@@ -22,6 +22,7 @@ using cx.ArrayTools;
  * @author Jonas Nyström
  */
 
+@:access(nx3.elements.VBar)
 @:access(nx3.elements.VNote)
 @:access(nx3.elements.VVoice)
 @:access(nx3.elements.VBeamgroupDirectionCalculator)
@@ -360,13 +361,13 @@ class TestV extends  haxe.unit.TestCase
 	public function testVComplexSigns()
 	{
 		var vcomplex = new VComplex([new VNote(new QNote4(0))]);
-		this.assertEquals(1, vcomplex.vnotes.length);
+		this.assertEquals(1, vcomplex.getVNotes().length);
 		var signs = vcomplex.getSigns();
 		this.assertEquals(signs[0].sign, ESign.None);
 		this.assertEquals(signs[0].level, 0);
 		
 		var vcomplex = new VComplex([new VNote(new QNote4(2, '#')), new VNote(new QNote4(-3, 'n'))]);
-		this.assertEquals(2, vcomplex.vnotes.length);
+		this.assertEquals(2, vcomplex.getVNotes().length);
 		var signs = vcomplex.getSigns();
 		this.assertEquals(signs.length, 2);
 		this.assertEquals(signs[0].level, -3);
@@ -407,7 +408,7 @@ class TestV extends  haxe.unit.TestCase
 		this.assertEquals(0, signs.length);
 		
 		var vcomplex = new VComplex([new VNote(new QNote4(2, '#')), new VNote(new QNote4(-3, '.'))]);
-		this.assertEquals(2, vcomplex.vnotes.length);
+		this.assertEquals(2, vcomplex.getVNotes().length);
 		var signs = vcomplex.getVisibleSigns();
 		this.assertEquals(signs.length, 1);
 		this.assertEquals(signs[0].level, 2);
@@ -441,10 +442,10 @@ class TestV extends  haxe.unit.TestCase
 		var complexes = generator.getComplexes();
 		this.assertEquals(generator.positionsMap.keys().keysToArray().toString(), [0, 3024, 4536, 6048].toString());
 		this.assertEquals(complexes.length, 4);
-		this.assertEquals(complexes[0].vnotes.length, 2);
-		this.assertEquals(complexes[1].vnotes.length, 2);
-		this.assertEquals(complexes[2].vnotes.length, 1);
-		this.assertEquals(complexes[3].vnotes.length, 2);
+		this.assertEquals(complexes[0].getVNotes().length, 2);
+		this.assertEquals(complexes[1].getVNotes().length, 2);
+		this.assertEquals(complexes[2].getVNotes().length, 1);
+		this.assertEquals(complexes[3].getVNotes().length, 2);
 		
 		var vvoice0 = new VVoice(new QVoice([4, 8, 8, 4, 4]));
 		var vvoice1 = new VVoice(new QVoice([.4, .4, 4]));
@@ -453,11 +454,11 @@ class TestV extends  haxe.unit.TestCase
 		
 		this.assertEquals(generator.positionsMap.keys().keysToArray().sorta().toString(), [0, 3024, 4536, 6048, 9072].toString());	
 		this.assertEquals(complexes.length, 5);
-		this.assertEquals(complexes[0].vnotes.length, 2);
-		this.assertEquals(complexes[1].vnotes.length, 1);
-		this.assertEquals(complexes[2].vnotes.length, 2);
-		this.assertEquals(complexes[3].vnotes.length, 1);
-		this.assertEquals(complexes[4].vnotes.length, 2);
+		this.assertEquals(complexes[0].getVNotes().length, 2);
+		this.assertEquals(complexes[1].getVNotes().length, 1);
+		this.assertEquals(complexes[2].getVNotes().length, 2);
+		this.assertEquals(complexes[3].getVNotes().length, 1);
+		this.assertEquals(complexes[4].getVNotes().length, 2);
 		
 		var vvoice0 = new VVoice(new QVoice([4, 8, 8, 2]));
 		var vvoice1 = new VVoice(new QVoice([4, 4, 2]));
@@ -485,6 +486,7 @@ class TestV extends  haxe.unit.TestCase
 		this.assertEquals([0, 3024, 4536, 6048].toString(), positions.toString());
 	}
 	
+	
 	public function testBarColumnsGenerator()
 	{
 		var vpart = new VPart(new NPart([
@@ -510,10 +512,10 @@ class TestV extends  haxe.unit.TestCase
 		
 		var column0:VColumn = columns[0];
 		this.assertEquals(column0.vcomplexes.length, 2);
-		this.assertEquals(vpart0.getVVoices()[0].getVNotes()[0], column0.vcomplexes[0].vnotes[0]);
-		this.assertEquals(vpart1.getVVoices()[0].getVNotes()[0], column0.vcomplexes[1].vnotes[0]);
+		this.assertEquals(vpart0.getVVoices()[0].getVNotes()[0], column0.vcomplexes[0].getVNotes()[0]);
+		this.assertEquals(vpart1.getVVoices()[0].getVNotes()[0], column0.vcomplexes[1].getVNotes()[0]);
 		this.assertTrue(columns[1].vcomplexes[0] == null);
-		this.assertEquals(vpart1.getVVoices()[0].getVNotes()[1], columns[1].vcomplexes[1].vnotes[0]);
+		this.assertEquals(vpart1.getVVoices()[0].getVNotes()[1], columns[1].vcomplexes[1].getVNotes()[0]);
 	}
 
 	public function testVBarValue()
@@ -545,5 +547,39 @@ class TestV extends  haxe.unit.TestCase
 		var positionsColumns : IntMap<VColumn> = vbar.getPositionsColumns();
 		this.assertEquals(positionsColumns.keys().keysToArray().toString(), [0, 1512, 3024, 4536].toString());
 	}
+	
+	
+	public function testVBarVNoteVColumn()
+	{
+		var npart0 = new NPart([
+			new QVoice([2]),
+			new QVoice([.4, 8]),
+		]);
+		var npart1 = new NPart([
+			new QVoice([8, .4]),
+			new QVoice([4, 4])
+		]);
+		var vbar = new VBar(new NBar([npart0, npart1]));
+		var vnotesVColumns = vbar.getVNotesVColumns();
+		
+		var vnote = vbar.getVParts()[0].getVVoices()[0].getVNotes()[0];
+		var vcolumn = vbar.getVColumns()[0];
+		this.assertEquals(vnotesVColumns.get(vnote), vcolumn);
+
+		var vnote = vbar.getVParts()[0].getVVoices()[1].getVNotes()[1];
+		var vcolumn = vbar.getVColumns()[3];
+		this.assertEquals(vnotesVColumns.get(vnote), vcolumn);
+
+		var vnote = vbar.getVParts()[1].getVVoices()[0].getVNotes()[1];
+		var vcolumn = vbar.getVColumns()[1];
+		this.assertEquals(vnotesVColumns.get(vnote), vcolumn);
+		
+		var vnote = vbar.getVParts()[1].getVVoices()[1].getVNotes()[1];
+		var vcolumn = vbar.getVColumns()[2];
+		this.assertEquals(vnotesVColumns.get(vnote), vcolumn);
+		
+		
+	}
+	
 	
 }

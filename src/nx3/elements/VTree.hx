@@ -57,6 +57,23 @@ typedef VBars = Array<VBar>;
 		 if (this.positionsVColumns == null) this.getVColumns();
 		 return this.positionsVColumns;
 	 }
+	
+	 var vcolumnsPositions:Map<VColumn, Int>;
+	 public function getVColumnsPositions():Map<VColumn, Int>
+	 {
+		 if (this.positionsVColumns == null) this.getVColumns();
+		 
+		 this.vcolumnsPositions = new Map<VColumn, Int>();
+		 
+		 for (pos in this.positionsVColumns.keys())
+		 {
+			 var vcolumn = this.positionsVColumns.get(pos);
+			 this.vcolumnsPositions.set(vcolumn, pos);
+		 }
+		 
+		 return this.vcolumnsPositions;
+	 }
+	 
 	 
 	var value:Null<Int>;
 	public function getValue():Int
@@ -70,6 +87,26 @@ typedef VBars = Array<VBar>;
 		this.value = Std.int(value);
 		return this.value;
 	}
+	
+	var vnotesVColumns:Map<VNote, VColumn>;
+	 public function getVNotesVColumns(): Map<VNote, VColumn>
+	 {
+		 if (this.vnotesVColumns != null) return this.vnotesVColumns;
+		 this.vnotesVColumns = new Map<VNote, VColumn>();
+		 for (vpart in this.getVParts())
+		 {
+			 for (vvoice in vpart.getVVoices())
+			 {
+				for (vnote in vvoice.getVNotes())
+				{
+					var pos = vvoice.getVNotePosition(vnote);
+					var vcolumn = this.getPositionsColumns().get(pos);
+					this.vnotesVColumns.set(vnote, vcolumn);
+				}
+			 }
+		 }
+		 return this.vnotesVColumns;
+	 }
 	 
  }
  
@@ -99,23 +136,30 @@ typedef VBars = Array<VBar>;
 		 return this.positionsColumns;
 	 }
 	 
+	 var vcomplexesVColumns: Map<VComplex, VColumn>;
+	 public function getVComplexesVColumns():Map<VComplex, VColumn>
+	 {
+		 if (this.columns == null) this.getColumns();
+		 return this.vcomplexesVColumns;
+	 }
+	 
 	 function calcColumns(positions:Array<Int>, vparts:VParts)
 	 {
 		 var partsCount = vparts.length;
 		this.columns = [];
 		this.positionsColumns = new IntMap<VColumn>();
+		
 		 for (pos in positions)
 		 {
-			 var vcolumn:VColumns = null;
+			// var vcolumn:VColumns = null;
 			 var vcomplexes:VComplexes = [];
-			 var i = 0;
 			 for (vpart in vparts)
 			 {
 				var complex:VComplex = vpart.getPositionsVComplexes().get(pos);
 				vcomplexes.push(complex);
-				i++;
 			 }
-			 var vcolumn = new VColumn(vcomplexes);
+			 
+			var vcolumn = new VColumn(vcomplexes);
 			this.columns.push(vcolumn);
 			this.positionsColumns.set(pos, vcolumn);
 		 }
@@ -136,6 +180,7 @@ typedef VBars = Array<VBar>;
 		positions.sort(function(a, b) { return Reflect.compare(a, b); } );
 		return positions;
 	 }
+	 
 	 
  }
  
@@ -588,9 +633,16 @@ class VComplex
 	var visibleSigns:VSigns;
 	var calculator:VComplexSignsCalculator;
 	
+	
+	
+	public function getVNotes():VNotes
+	{
+		return this.vnotes;
+	}
+	
 	public function getSigns():VSigns
 	{
-		if (signs != null) return this.signs;
+
 		this.calculator = new VComplexSignsCalculator(this.vnotes);
 		this.signs = calculator.getSigns();
 		this.visibleSigns = calculator.getVisibleSigns();
@@ -922,7 +974,6 @@ typedef VBeamgroups = Array<VBeamgroup>;
 	 { 
 		this.vvoices = vvoices;
 	  }
-	  
 	  
 	  var complexes:VComplexes;
 	  public function getComplexes():VComplexes

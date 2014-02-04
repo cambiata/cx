@@ -977,6 +977,7 @@ flash.display.DisplayObjectContainer.prototype = $extend(flash.display.Interacti
 		HxOverrides.remove(this.__children,child);
 		child.__removeFromStage();
 		child.set_parent(null);
+		if(this.getChildIndex(child) >= 0) throw "Not removed properly";
 		return child;
 	}
 	,__invalidateMatrix: function(local) {
@@ -1141,6 +1142,7 @@ flash.display.DisplayObjectContainer.prototype = $extend(flash.display.Interacti
 				HxOverrides.remove($this.__children,child);
 				child.__removeFromStage();
 				child.set_parent(null);
+				if($this.getChildIndex(child) >= 0) throw "Not removed properly";
 				$r = child;
 				return $r;
 			}(this));
@@ -1198,6 +1200,12 @@ flash.display.DisplayObjectContainer.prototype = $extend(flash.display.Interacti
 		if(object.parent == this) {
 			this.setChildIndex(object,this.__children.length - 1);
 			return object;
+		}
+		var _g = 0, _g1 = this.__children;
+		while(_g < _g1.length) {
+			var child = _g1[_g];
+			++_g;
+			if(child == object) throw "Internal error: child already existed at index " + this.getChildIndex(object);
 		}
 		object.set_parent(this);
 		if(this.__isOnStage()) object.__addToStage(this);
@@ -1306,6 +1314,7 @@ nx3.test.openfl.Main.prototype = $extend(flash.display.Sprite.prototype,{
 		runner.add(new nx3.test.TestQ());
 		runner.add(new nx3.test.TestN());
 		runner.add(new nx3.test.TestV());
+		runner.add(new nx3.test.TestVRender());
 		var success = runner.run();
 	}
 	,resize: function(e) {
@@ -1411,6 +1420,15 @@ Lambda.array = function(it) {
 		a.push(i);
 	}
 	return a;
+}
+Lambda.map = function(it,f) {
+	var l = new List();
+	var $it0 = $iterator(it)();
+	while( $it0.hasNext() ) {
+		var x = $it0.next();
+		l.add(f(x));
+	}
+	return l;
 }
 Lambda.has = function(it,elt) {
 	var $it0 = $iterator(it)();
@@ -6743,6 +6761,7 @@ flash.media.Sound.prototype = $extend(flash.events.EventDispatcher.prototype,{
 	}
 	,__onSoundLoadError: function(evt) {
 		this.__removeEventListeners();
+		haxe.Log.trace("Error loading sound '" + this.__streamUrl + "'",{ fileName : "Sound.hx", lineNumber : 206, className : "flash.media.Sound", methodName : "__onSoundLoadError"});
 		var evt1 = new flash.events.IOErrorEvent(flash.events.IOErrorEvent.IO_ERROR);
 		this.dispatchEvent(evt1);
 	}
@@ -6752,12 +6771,19 @@ flash.media.Sound.prototype = $extend(flash.events.EventDispatcher.prototype,{
 	}
 	,__load: function(stream,context,mime) {
 		if(mime == null) mime = "";
+		if(mime == null) {
+			var url = stream.url.split("?");
+			var extension = HxOverrides.substr(url[0],url[0].lastIndexOf(".") + 1,null);
+			mime = flash.media.Sound.__mimeForExtension(extension);
+		}
+		if(mime == null || !flash.media.Sound.__canPlayMime(mime)) haxe.Log.trace("Warning: '" + stream.url + "' with type '" + mime + "' may not play on this browser.",{ fileName : "Sound.hx", lineNumber : 144, className : "flash.media.Sound", methodName : "__load"});
 		this.__streamUrl = stream.url;
 		try {
 			this.__soundCache = new flash.net.URLLoader();
 			this.__addEventListeners();
 			this.__soundCache.load(stream);
 		} catch( e ) {
+			haxe.Log.trace("Warning: Could not preload '" + stream.url + "'",{ fileName : "Sound.hx", lineNumber : 159, className : "flash.media.Sound", methodName : "__load"});
 		}
 	}
 	,__addEventListeners: function() {
@@ -6841,6 +6867,7 @@ flash.media.SoundChannel.prototype = $extend(flash.events.EventDispatcher.protot
 		return this.soundTransform = v;
 	}
 	,__onStalled: function(evt) {
+		haxe.Log.trace("sound stalled",{ fileName : "SoundChannel.hx", lineNumber : 173, className : "flash.media.SoundChannel", methodName : "__onStalled"});
 		if(this.__audio != null) this.__audio.load();
 	}
 	,__onSoundSeeked: function(evt) {
@@ -6866,6 +6893,7 @@ flash.media.SoundChannel.prototype = $extend(flash.events.EventDispatcher.protot
 		}
 	}
 	,__onProgress: function(evt) {
+		haxe.Log.trace("sound progress: " + Std.string(evt),{ fileName : "SoundChannel.hx", lineNumber : 117, className : "flash.media.SoundChannel", methodName : "__onProgress"});
 	}
 	,stop: function() {
 		if(this.__audio != null) {
@@ -8766,6 +8794,270 @@ nx3.Constants = function() { }
 $hxClasses["nx3.Constants"] = nx3.Constants;
 nx3.Constants.__name__ = ["nx3","Constants"];
 nx3.elements = {}
+nx3.elements.interfaces = {}
+nx3.elements.interfaces.IDistanceRects = function() { }
+$hxClasses["nx3.elements.interfaces.IDistanceRects"] = nx3.elements.interfaces.IDistanceRects;
+nx3.elements.interfaces.IDistanceRects.__name__ = ["nx3","elements","interfaces","IDistanceRects"];
+nx3.elements.interfaces.IDistanceRects.prototype = {
+	rectsBack: null
+	,rectCenter: null
+	,rectsFront: null
+	,__class__: nx3.elements.interfaces.IDistanceRects
+}
+nx3.elements.DComplex = function(dnotes) {
+	this.headsRect_ = null;
+	this.dnotes = dnotes;
+	this.signs = this.getSigns_(dnotes);
+	this.avoidCollisions_();
+	this.get_headsRect();
+};
+$hxClasses["nx3.elements.DComplex"] = nx3.elements.DComplex;
+nx3.elements.DComplex.__name__ = ["nx3","elements","DComplex"];
+nx3.elements.DComplex.__interfaces__ = [nx3.elements.interfaces.IDistanceRects];
+nx3.elements.DComplex.prototype = {
+	avoidCollisions_: function() {
+		if(this.dnotes.length > 1) {
+			var diff = this.dnotes[1].get_headTop().level - this.dnotes[0].get_headBottom().level;
+			if(diff == 1) this.dnotes[1].set_xAdjust(3.0); else if(diff == 0) {
+				if(this.dnotes[1].value != this.dnotes[0].value) this.dnotes[1].set_xAdjust(this.dnotes[0].get_headsRect().x + this.dnotes[0].get_headsRect().width - this.dnotes[1].get_headsRect().x + 0.6);
+			} else if(diff < 1) {
+				if(this.dnotes[1].value == this.dnotes[0].value) {
+					if(nx3.elements.tools.HeadsTool.headsCollide(this.dnotes[0].get_heads(),this.dnotes[1].get_heads())) this.dnotes[1].set_xAdjust(this.dnotes[0].get_headsRect().x + this.dnotes[0].get_headsRect().width - this.dnotes[1].get_headsRect().x + 0.6); else this.dnotes[1].set_xAdjust(-0.6);
+				} else this.dnotes[1].set_xAdjust(this.dnotes[0].get_headsRect().x + this.dnotes[0].get_headsRect().width - this.dnotes[1].get_headsRect().x + 0.6);
+			} else {
+			}
+		}
+	}
+	,get_dnotesXAdjust: function() {
+		return null;
+	}
+	,get_signRects: function() {
+		if(this.signRects_ != null) return this.signRects_;
+		if(this.signs.length == 0) return null;
+		this.signRects_ = [];
+		var currentRect = null;
+		var _g = 0, _g1 = this.signs;
+		while(_g < _g1.length) {
+			var sign = _g1[_g];
+			++_g;
+			currentRect = nx3.elements.tools.SignsTools.getSignRect(sign.sign);
+			currentRect.offset(0,sign.level);
+			if(currentRect == null) continue;
+			currentRect.offset(-currentRect.width,0);
+			var xMove = 0;
+			var _g2 = 0, _g3 = this.signRects_;
+			while(_g2 < _g3.length) {
+				var checkRect = _g3[_g2];
+				++_g2;
+				var isect = checkRect.intersection(currentRect);
+				if(checkRect.intersects(currentRect)) currentRect.x = checkRect.x - currentRect.width;
+			}
+			this.signRects_.push(currentRect);
+		}
+		if(this.signRects_.length == 0) {
+			this.signRects_ = null;
+			return this.signRects_;
+		}
+		var combineRect = this.signRects_[0];
+		var _g = 0, _g1 = this.signRects_;
+		while(_g < _g1.length) {
+			var rect = _g1[_g];
+			++_g;
+			if(combineRect == rect) {
+			} else combineRect = combineRect.union(rect);
+		}
+		var _g = 0, _g1 = this.signRects_;
+		while(_g < _g1.length) {
+			var rect = _g1[_g];
+			++_g;
+			rect.offset(combineRect.width,0);
+		}
+		return this.signRects_;
+	}
+	,signRects_: null
+	,signRects: null
+	,get_signsFrame: function() {
+		if(this.signsFrame_ != null) return this.signsFrame_;
+		if(this.get_signRects() == null) return null;
+		var _g = 0, _g1 = this.get_signRects();
+		while(_g < _g1.length) {
+			var rect = _g1[_g];
+			++_g;
+			if(this.signsFrame_ == null) this.signsFrame_ = rect.clone(); else this.signsFrame_ = this.signsFrame_.union(rect);
+		}
+		this.signsFrame_.x = this.get_headsRect().x - this.signsFrame_.width - 0.8;
+		return this.signsFrame_;
+	}
+	,signsFrame_: null
+	,signsFrame: null
+	,getSigns_: function(dnotes) {
+		var signs = new Array();
+		var _g = 0;
+		while(_g < dnotes.length) {
+			var dnote = dnotes[_g];
+			++_g;
+			var _g1 = 0, _g2 = dnote.get_heads();
+			while(_g1 < _g2.length) {
+				var head = _g2[_g1];
+				++_g1;
+				signs.push({ sign : head.sign, level : head.level, position : 0});
+			}
+		}
+		return nx3.elements.tools.SignsTools.adjustPositions(signs);
+	}
+	,get_headsRect: function() {
+		if(this.headsRect_ != null) return this.headsRect_;
+		this.headsRect_ = this.dnotes[0].get_headsRect();
+		this.headsRect_.offset(this.dnotes[0].get_xAdjust(),0);
+		if(this.dnotes.length == 1) return this.headsRect_;
+		var _g1 = 1, _g = this.dnotes.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			var dnoteRect = this.dnotes[i].get_headsRect();
+			dnoteRect.offset(this.dnotes[i].get_xAdjust(),0);
+			this.headsRect_ = this.headsRect_.union(dnoteRect);
+		}
+		return this.headsRect_;
+	}
+	,headsRect: null
+	,headsRect_: null
+	,rectsBack: null
+	,get_rectsBack: function() {
+		return this.rectsBack_;
+	}
+	,rectsBack_: null
+	,rectCenter: null
+	,get_rectCenter: function() {
+		return this.rectCenter_;
+	}
+	,rectCenter_: null
+	,rectsFront: null
+	,get_rectsFront: function() {
+		return this.rectsFront_;
+	}
+	,rectsFront_: null
+	,dnotesXAdjust: null
+	,position: null
+	,signs: null
+	,dnotes: null
+	,__class__: nx3.elements.DComplex
+	,__properties__: {get_dnotesXAdjust:"get_dnotesXAdjust",get_rectsFront:"get_rectsFront",get_rectCenter:"get_rectCenter",get_rectsBack:"get_rectsBack",get_headsRect:"get_headsRect",get_signsFrame:"get_signsFrame",get_signRects:"get_signRects"}
+}
+nx3.elements.DNote = function(note,variant,articulations,attributes,forceDirection) {
+	this.xAdjust_ = 0;
+	this.headRects_ = null;
+	this.note = note;
+	this.variant = variant == null?nx3.elements.ENotationVariant.Normal:variant;
+	this.articulations = articulations == null?[]:articulations;
+	this.attributes = attributes == null?[]:attributes;
+	this.forceDirection = forceDirection;
+	this.levelTop = this.note.get_nheads()[0].level;
+	this.levelBottom = this.note.get_nheads()[this.note.get_nheads().length - 1].level;
+	this.value = this.note.value;
+	this.type = this.note.type;
+};
+$hxClasses["nx3.elements.DNote"] = nx3.elements.DNote;
+nx3.elements.DNote.__name__ = ["nx3","elements","DNote"];
+nx3.elements.DNote.prototype = {
+	reset: function() {
+		this.headRects_ = null;
+		this.headsRect_ = null;
+	}
+	,set_xAdjust: function(val) {
+		return this.xAdjust_ = val;
+	}
+	,get_xAdjust: function() {
+		return this.xAdjust_;
+	}
+	,xAdjust_: null
+	,get_headsRect: function() {
+		if(this.headsRect_ != null) return this.headsRect_;
+		this.headsRect_ = this.get_headRects()[0];
+		if(this.get_heads().length > 1) {
+			var _g1 = 1, _g = this.get_heads().length;
+			while(_g1 < _g) {
+				var i = _g1++;
+				this.headsRect_ = this.headsRect_.union(this.get_headRects()[i]);
+			}
+		}
+		return this.headsRect_;
+	}
+	,headsRect: null
+	,headsRect_: null
+	,get_headBottom: function() {
+		if(this.headBottom_ != null) return this.headBottom_;
+		this.headBottom_ = this.get_heads()[this.get_heads().length - 1];
+		return this.headBottom_;
+	}
+	,headBottom: null
+	,headBottom_: null
+	,get_headTop: function() {
+		if(this.heads_ != null) return this.heads_[0];
+		return this.get_heads()[0];
+	}
+	,headTop: null
+	,get_heads: function() {
+		if(this.heads_ != null) return this.heads_;
+		this.heads_ = this.note.get_nheads();
+		return this.heads_;
+	}
+	,heads: null
+	,heads_: null
+	,get_midLevel: function() {
+		if(this.midLevel_ != null) return this.midLevel_;
+		this.midLevel_ = nx3.elements.tools.HeadsTool.midLevel(this.note.get_nheads());
+		return this.midLevel_;
+	}
+	,midLevel_: null
+	,midLevel: null
+	,get_headRects: function() {
+		if(this.headRects_ != null) return this.headRects_;
+		this.headRects_ = [];
+		var headPositions = nx3.elements.tools.HeadsTool.getHeadPositions(this.note.get_nheads(),this.get_direction());
+		var i = 0;
+		var _g = 0, _g1 = this.note.get_nheads();
+		while(_g < _g1.length) {
+			var head = _g1[_g];
+			++_g;
+			var rect = nx3.elements.tools.HeadTool.getHeadRect(head,this.note.value);
+			rect.offset(rect.width * headPositions[i],0);
+			this.headRects_.push(rect);
+			i++;
+		}
+		return this.headRects_;
+	}
+	,headRects: null
+	,headRects_: null
+	,get_stemX: function() {
+		if(this.stemX_ != null) return this.stemX_;
+		this.stemX_ = 1.6;
+		if(this.get_direction() == nx3.elements.EDirectionUD.Down) this.stemX_ = -this.stemX_;
+		return this.stemX_;
+	}
+	,stemX_: null
+	,stemX: null
+	,set_direction: function(val) {
+		this.direction_ = val;
+		return this.direction_;
+	}
+	,get_direction: function() {
+		if(this.direction_ != null) return this.direction_;
+		if(this.forceDirection != null) this.direction_ = this.forceDirection; else this.direction_ = this.note.direction != null?nx3.elements.EDirectionUADTools.toUD(this.note.direction):nx3.elements.tools.HeadsTool.getDirection(this.note.get_nheads());
+		return this.direction_;
+	}
+	,direction_: null
+	,value: null
+	,levelBottom: null
+	,levelTop: null
+	,forceDirection: null
+	,attributes: null
+	,articulations: null
+	,variant: null
+	,type: null
+	,note: null
+	,__class__: nx3.elements.DNote
+	,__properties__: {set_direction:"set_direction",get_direction:"get_direction",get_stemX:"get_stemX",get_headRects:"get_headRects",get_midLevel:"get_midLevel",get_heads:"get_heads",get_headTop:"get_headTop",get_headBottom:"get_headBottom",get_headsRect:"get_headsRect",set_xAdjust:"set_xAdjust",get_xAdjust:"get_xAdjust"}
+}
 nx3.elements.EBarType = $hxClasses["nx3.elements.EBarType"] = { __ename__ : true, __constructs__ : ["Normal","Repeat","Ignore","Folded"] }
 nx3.elements.EBarType.Normal = ["Normal",0];
 nx3.elements.EBarType.Normal.toString = $estr;
@@ -10127,9 +10419,12 @@ nx3.elements.VPartComplexesGenerator.prototype = {
 		this.complexes = [];
 		this.positionsComplexes = new haxe.ds.IntMap();
 		this.complexesPositions = new haxe.ds.ObjectMap();
-		var $it0 = positions.keys();
-		while( $it0.hasNext() ) {
-			var pos = $it0.next();
+		var poskeys = nx3.elements.VMapTools.keysToArray(positions.keys());
+		poskeys = nx3.elements.VMapTools.sortarray(poskeys);
+		var _g = 0;
+		while(_g < poskeys.length) {
+			var pos = poskeys[_g];
+			++_g;
 			var vnotes = positions.get(pos);
 			var vcomplex = new nx3.elements.VComplex(vnotes);
 			this.complexes.push(vcomplex);
@@ -10168,6 +10463,12 @@ nx3.elements.VMapTools.keysToArray = function(it) {
 	}
 	return result;
 }
+nx3.elements.VMapTools.sortarray = function(a) {
+	a.sort(function(a1,b) {
+		return Reflect.compare(a1,b);
+	});
+	return a;
+}
 nx3.elements.tools = {}
 nx3.elements.tools.ENoteTypeTools = function() { }
 $hxClasses["nx3.elements.tools.ENoteTypeTools"] = nx3.elements.tools.ENoteTypeTools;
@@ -10187,6 +10488,170 @@ nx3.elements.tools.ENoteTypeTools.noteSortHeads = function(type) {
 	default:
 		throw "Can not sort heads on other type than ENoteType.Note - this one is a " + Std.string(type);
 	}
+}
+nx3.elements.tools.HeadTool = function() { }
+$hxClasses["nx3.elements.tools.HeadTool"] = nx3.elements.tools.HeadTool;
+nx3.elements.tools.HeadTool.__name__ = ["nx3","elements","tools","HeadTool"];
+nx3.elements.tools.HeadTool.getHeadRect = function(head,value) {
+	var rect = null;
+	switch( (value.head)[1] ) {
+	case 2:
+		rect = new flash.geom.Rectangle(-2,-1,4,2);
+		break;
+	case 1:
+	case 0:
+		rect = new flash.geom.Rectangle(-1.6,-1,3.2,2);
+		break;
+	}
+	rect.offset(0,head.level);
+	return rect;
+}
+nx3.elements.tools.HeadTool.getDirection = function(heads) {
+	return null;
+}
+nx3.elements.tools.HeadsTool = function() { }
+$hxClasses["nx3.elements.tools.HeadsTool"] = nx3.elements.tools.HeadsTool;
+nx3.elements.tools.HeadsTool.__name__ = ["nx3","elements","tools","HeadsTool"];
+nx3.elements.tools.HeadsTool.topLevel = function(heads) {
+	return heads[0].level;
+}
+nx3.elements.tools.HeadsTool.bottomLevel = function(heads) {
+	return heads[heads.length - 1].level;
+}
+nx3.elements.tools.HeadsTool.midLevel = function(heads) {
+	var bottom = nx3.elements.tools.HeadsTool.bottomLevel(heads);
+	var top = nx3.elements.tools.HeadsTool.topLevel(heads);
+	return top + (bottom - top) / 2;
+}
+nx3.elements.tools.HeadsTool.getDirection = function(heads) {
+	return nx3.elements.tools.HeadsTool.midLevel(heads) > 0?nx3.elements.EDirectionUD.Up:nx3.elements.EDirectionUD.Down;
+}
+nx3.elements.tools.HeadsTool.getHeadPositions = function(heads,direction) {
+	if(heads.length < 2) return [0];
+	var len = heads.length;
+	var result = [];
+	var _g = 0;
+	while(_g < len) {
+		var i = _g++;
+		result.push(0);
+	}
+	if(direction == nx3.elements.EDirectionUD.Down) {
+		var _g1 = 0, _g = len - 1;
+		while(_g1 < _g) {
+			var i = _g1++;
+			var head = heads[i];
+			var headNext = heads[i + 1];
+			var lDiff = headNext.level - head.level;
+			if(lDiff < 2) {
+				if(result[i] == result[i + 1]) result[i + 1] = -1;
+			}
+		}
+	} else {
+		var _g1 = 0, _g = len - 1;
+		while(_g1 < _g) {
+			var j = _g1++;
+			var i = len - j - 1;
+			var head = heads[i];
+			var headNext = heads[i - 1];
+			var lDiff = head.level - headNext.level;
+			if(lDiff < 2) {
+				if(result[i] == result[i - 1]) result[i - 1] = 1;
+			}
+		}
+	}
+	return result;
+}
+nx3.elements.tools.HeadsTool.headsCollide = function(heads1,heads2) {
+	var _g = 0;
+	while(_g < heads1.length) {
+		var head1 = heads1[_g];
+		++_g;
+		var _g1 = 0;
+		while(_g1 < heads2.length) {
+			var head2 = heads2[_g1];
+			++_g1;
+			if(head1.level == head2.level - 1) return true;
+			if(head1.level == head2.level) return true;
+			if(head1.level == nx3.elements._ULevel.ULevel_Impl_.addInteger(head2.level,1)) return true;
+		}
+	}
+	return false;
+}
+nx3.elements.tools.SignsTools = function() { }
+$hxClasses["nx3.elements.tools.SignsTools"] = nx3.elements.tools.SignsTools;
+nx3.elements.tools.SignsTools.__name__ = ["nx3","elements","tools","SignsTools"];
+nx3.elements.tools.SignsTools.adjustPositions = function(signs) {
+	signs = nx3.elements.tools.SignsTools.removeNones(signs);
+	if(signs.length < 2) return signs;
+	signs = nx3.elements.tools.SignsTools.sortSigns(signs);
+	signs = nx3.elements.tools.SignsTools.calcPositions(signs);
+	return signs;
+}
+nx3.elements.tools.SignsTools.calcPositions = function(signs) {
+	var levels = [-999,-999,-999,-999];
+	var _g = 0;
+	while(_g < signs.length) {
+		var sign = signs[_g];
+		++_g;
+		var cpos = 0;
+		var diff = sign.level - levels[cpos];
+		while(diff < nx3.elements.tools.SignsTools.BREAKPOINT) {
+			cpos++;
+			diff = sign.level - levels[cpos];
+		}
+		levels[cpos] = sign.level;
+		sign.position = cpos;
+	}
+	return signs;
+}
+nx3.elements.tools.SignsTools.removeNones = function(signs) {
+	var r = [];
+	var _g = 0;
+	while(_g < signs.length) {
+		var sign = signs[_g];
+		++_g;
+		if(sign.sign != nx3.elements.ESign.None) r.push(sign);
+	}
+	return r;
+}
+nx3.elements.tools.SignsTools.sortSigns = function(signs) {
+	signs.sort(function(signA,signB) {
+		if(signA.level <= signB.level) return -1; else return 1;
+	});
+	return signs;
+}
+nx3.elements.tools.SignsTools.getPositions = function(signs) {
+	return Lambda.array(Lambda.map(signs,function(sign) {
+		return sign.position;
+	}));
+}
+nx3.elements.tools.SignsTools.getSignRect = function(sign) {
+	switch( (sign)[1] ) {
+	case 0:
+		return null;
+	case 5:
+		return new flash.geom.Rectangle(0,-1.5,2.6,3);
+	case 7:
+	case 8:
+	case 6:
+		return new flash.geom.Rectangle(0,-2,4.4,4);
+	case 2:
+		return new flash.geom.Rectangle(0,-3,2.6,5);
+	default:
+		return new flash.geom.Rectangle(0,-3,2.6,6);
+	}
+	throw "This shouldn't happen!";
+	return null;
+}
+nx3.elements.tools.SignsTools.adjustSignFontX = function(sign) {
+	switch( (sign)[1] ) {
+	case 2:
+		return 0.3;
+	case 1:
+		return 0.3;
+	default:
+	}
+	return 0;
 }
 nx3.io = {}
 nx3.io.HeadXML = function() { }
@@ -10377,6 +10842,122 @@ nx3.io.NoteXML.test = function(item) {
 	haxe.Log.trace(str,{ fileName : "NoteXML.hx", lineNumber : 195, className : "nx3.io.NoteXML", methodName : "test"});
 	haxe.Log.trace(str2,{ fileName : "NoteXML.hx", lineNumber : 196, className : "nx3.io.NoteXML", methodName : "test"});
 	return str == str2;
+}
+nx3.render = {}
+nx3.render.ISpriteRenderer = function() { }
+$hxClasses["nx3.render.ISpriteRenderer"] = nx3.render.ISpriteRenderer;
+nx3.render.ISpriteRenderer.__name__ = ["nx3","render","ISpriteRenderer"];
+nx3.render.ISpriteRenderer.prototype = {
+	initTargetSprite: null
+	,__class__: nx3.render.ISpriteRenderer
+}
+nx3.render.IRenderer = function() { }
+$hxClasses["nx3.render.IRenderer"] = nx3.render.IRenderer;
+nx3.render.IRenderer.__name__ = ["nx3","render","IRenderer"];
+nx3.render.IRenderer.prototype = {
+	complex: null
+	,note: null
+	,signs: null
+	,heads: null
+	,stave: null
+	,notelines: null
+	,__class__: nx3.render.IRenderer
+}
+nx3.render.FrameRenderer = function(target,scaling) {
+	this.initTargetSprite(target,scaling);
+};
+$hxClasses["nx3.render.FrameRenderer"] = nx3.render.FrameRenderer;
+nx3.render.FrameRenderer.__name__ = ["nx3","render","FrameRenderer"];
+nx3.render.FrameRenderer.__interfaces__ = [nx3.render.ISpriteRenderer,nx3.render.IRenderer];
+nx3.render.FrameRenderer.prototype = {
+	drawRect: function(rect,x,y,lineColor,inflate) {
+		if(inflate == null) inflate = 0;
+		if(lineColor == null) lineColor = 0;
+		this.target.get_graphics().lineStyle(1,lineColor);
+		var r = nx3.render.scaling.Scaling.scaleRect(this.scaling,rect);
+		r.offset(x,y);
+		if(inflate != 0) r.inflate(inflate,inflate);
+		this.target.get_graphics().drawRect(r.x,r.y,r.width,r.height);
+	}
+	,rects: function(x,y,rects) {
+		var _g = 0;
+		while(_g < rects.length) {
+			var item = rects[_g];
+			++_g;
+		}
+	}
+	,signs: function(x,y,dcomplex) {
+		if(dcomplex.get_signsFrame() != null) this.drawRect(dcomplex.get_signsFrame(),x,y,16711680,2);
+		var signsX = x + dcomplex.get_signsFrame().x * this.scaling.halfNoteWidth;
+		if(dcomplex.get_signRects() != null) {
+			var _g = 0, _g1 = dcomplex.get_signRects();
+			while(_g < _g1.length) {
+				var signRect = _g1[_g];
+				++_g;
+				this.drawRect(signRect,signsX,y,0);
+			}
+		}
+	}
+	,heads: function(x,y,dnote) {
+		var _g = 0, _g1 = dnote.get_headRects();
+		while(_g < _g1.length) {
+			var rect = _g1[_g];
+			++_g;
+			this.drawRect(rect,x,y,255);
+		}
+	}
+	,stave: function(x,y,dnote) {
+	}
+	,notelines: function(x,y,width) {
+		this.target.get_graphics().lineStyle(this.scaling.linesWidth,11184810);
+		var _g = -2;
+		while(_g < 3) {
+			var i = _g++;
+			var cy = y + i * this.scaling.space;
+			this.target.get_graphics().moveTo(x,cy);
+			this.target.get_graphics().lineTo(x + width,cy);
+		}
+	}
+	,complex: function(x,y,dcomplex) {
+		var _g = 0, _g1 = dcomplex.dnotes;
+		while(_g < _g1.length) {
+			var dnote = _g1[_g];
+			++_g;
+			this.note(x,y,dnote);
+		}
+		this.signs(x,y,dcomplex);
+		this.drawRect(dcomplex.get_headsRect(),x,y,16711680,2);
+	}
+	,note: function(x,y,dnote) {
+		this.heads(x,y,dnote);
+		this.stave(x,y,dnote);
+		this.drawRect(dnote.get_headsRect(),x,y,16755370,2);
+		this.target.get_graphics().lineStyle(1,11184810);
+		this.target.get_graphics().moveTo(x,y + this.scaling.space * 6);
+		this.target.get_graphics().lineTo(x,y - this.scaling.space * 6);
+	}
+	,initTargetSprite: function(target,scaling) {
+		this.target = target;
+		this.scaling = scaling;
+	}
+	,target: null
+	,scaling: null
+	,__class__: nx3.render.FrameRenderer
+}
+nx3.render.scaling = {}
+nx3.render.scaling.Scaling = function() { }
+$hxClasses["nx3.render.scaling.Scaling"] = nx3.render.scaling.Scaling;
+nx3.render.scaling.Scaling.__name__ = ["nx3","render","scaling","Scaling"];
+nx3.render.scaling.Scaling.scaleRect = function(scaling,rect) {
+	return new flash.geom.Rectangle(rect.x * scaling.halfNoteWidth,rect.y * scaling.halfSpace,rect.width * scaling.halfNoteWidth,rect.height * scaling.halfSpace);
+}
+nx3.render.tools = {}
+nx3.render.tools.RenderTools = function() { }
+$hxClasses["nx3.render.tools.RenderTools"] = nx3.render.tools.RenderTools;
+nx3.render.tools.RenderTools.__name__ = ["nx3","render","tools","RenderTools"];
+nx3.render.tools.RenderTools.spriteToPng = function(sprite,filename,extraWidth,extraHeight) {
+	if(extraHeight == null) extraHeight = 100;
+	if(extraWidth == null) extraWidth = 100;
 }
 nx3.test.QHead = function(level,sign) {
 	if(level == null) level = 0;
@@ -11021,6 +11602,32 @@ nx3.test.TestV.prototype = $extend(haxe.unit.TestCase.prototype,{
 	}
 	,__class__: nx3.test.TestV
 });
+nx3.test.TestVRender = function() {
+	haxe.unit.TestCase.call(this);
+	this.target = flash.Lib.get_current();
+	this.renderer = new nx3.test.DevRenderer(this.target,nx3.render.scaling.Scaling.NORMAL);
+};
+$hxClasses["nx3.test.TestVRender"] = nx3.test.TestVRender;
+nx3.test.TestVRender.__name__ = ["nx3","test","TestVRender"];
+nx3.test.TestVRender.__super__ = haxe.unit.TestCase;
+nx3.test.TestVRender.prototype = $extend(haxe.unit.TestCase.prototype,{
+	test0: function() {
+		this.assertEquals(1,1,{ fileName : "TestVRender.hx", lineNumber : 34, className : "nx3.test.TestVRender", methodName : "test0"});
+		this.renderer.notelines(10,50,300);
+	}
+	,renderer: null
+	,target: null
+	,__class__: nx3.test.TestVRender
+});
+nx3.test.DevRenderer = function(target,scaling) {
+	nx3.render.FrameRenderer.call(this,target,scaling);
+};
+$hxClasses["nx3.test.DevRenderer"] = nx3.test.DevRenderer;
+nx3.test.DevRenderer.__name__ = ["nx3","test","DevRenderer"];
+nx3.test.DevRenderer.__super__ = nx3.render.FrameRenderer;
+nx3.test.DevRenderer.prototype = $extend(nx3.render.FrameRenderer.prototype,{
+	__class__: nx3.test.DevRenderer
+});
 var openfl = {}
 openfl.display = {}
 openfl.display.Tilesheet = function(image) {
@@ -11575,6 +12182,7 @@ nx3.elements.ENoteValue.Nv32ddot = new nx3.elements.ENoteValue(nx3.elements.ENot
 nx3.elements.ENoteValue.Nv32tri = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N32 * 3024 * nx3.elements.ENoteValue.TRI,nx3.elements.EHeadValuetype.HVT4,1,3,0);
 nx3.elements._ULevel.ULevel_Impl_.MAX_LEVEL = 15;
 nx3.elements._ULevel.ULevel_Impl_.MIN_LEVEL = -15;
+nx3.elements.tools.SignsTools.BREAKPOINT = 5;
 nx3.io.HeadXML.XHEAD = "head";
 nx3.io.HeadXML.XHEAD_TYPE = "type";
 nx3.io.HeadXML.XHEAD_LEVEL = "level";
@@ -11599,6 +12207,11 @@ nx3.io.NoteXML.XNOTE_TYPE_NOTE_ATTRIBUTES = "attributes";
 nx3.io.NoteXML.XOFFSET = "offset";
 nx3.io.NoteXML.XLYRIC_CONTINUATION = "continuation";
 nx3.io.NoteXML.XLYRIC_FORMAT = "format";
+nx3.render.scaling.Scaling.MID = { linesWidth : 0.8, space : 12.0, halfSpace : 6.0, noteWidth : 10, halfNoteWidth : 5, quarterNoteWidth : 2.5, signPosWidth : 14.0, svgScale : .27, svgX : 0, svgY : -55.0, fontScaling : 6.0};
+nx3.render.scaling.Scaling.NORMAL = { linesWidth : .5, space : 8.0, halfSpace : 4.0, noteWidth : 7.0, halfNoteWidth : 3.5, quarterNoteWidth : 1.75, signPosWidth : 9.5, svgScale : .175, svgX : 0, svgY : -36.0, fontScaling : 4.0};
+nx3.render.scaling.Scaling.SMALL = { linesWidth : .5, space : 6.0, halfSpace : 3.0, noteWidth : 5.0, halfNoteWidth : 2.5, quarterNoteWidth : 1.25, signPosWidth : 7.0, svgScale : .14, svgX : 0, svgY : -28.5, fontScaling : 3.0};
+nx3.render.scaling.Scaling.BIG = { linesWidth : 1.5, space : 16.0, halfSpace : 8.0, noteWidth : 14.0, halfNoteWidth : 7.0, quarterNoteWidth : 5.5, signPosWidth : 19.0, svgScale : .36, svgX : -0.0, svgY : -74.0, fontScaling : 8.0};
+nx3.render.scaling.Scaling.PRINT1 = { linesWidth : 3, space : 32.0, halfSpace : 16.0, noteWidth : 28.0, halfNoteWidth : 14.0, quarterNoteWidth : 11.0, signPosWidth : 38.0, svgScale : .72, svgX : -0.0, svgY : -148.0, fontScaling : 16.0};
 openfl.display.Tilesheet.TILE_SCALE = 1;
 openfl.display.Tilesheet.TILE_ROTATION = 2;
 openfl.display.Tilesheet.TILE_RGB = 4;
@@ -11611,3 +12224,5 @@ openfl.display.Tilesheet.TILE_BLEND_SCREEN = 262144;
 tink.macro.tools.MacroTools.idCounter = 0;
 ApplicationMain.main();
 })();
+
+//@ sourceMappingURL=Nx3OpenFLTest.js.map
