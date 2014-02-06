@@ -8,12 +8,12 @@ import nx3.Constants;
 
 
 
+import nx3.geom.Rectangle;
 #if nme
-import nme.geom.Rectangle;
 import nme.display.Sprite;
 
 #else
-import flash.geom.Rectangle;
+//import flash.geom.Rectangle;
 import flash.display.Sprite;
 #end
 
@@ -24,7 +24,7 @@ import flash.display.Sprite;
  using nx3.render.scaling.Scaling;
 class FrameRenderer implements IRenderer implements ISpriteRenderer
 {
-	var scaling:TScaling;
+	public var scaling(default, null):TScaling;
 	var target:Sprite;
 	 
 	public function initTargetSprite(target:Sprite, scaling:TScaling): Void
@@ -149,7 +149,7 @@ class FrameRenderer implements IRenderer implements ISpriteRenderer
 		this.target.graphics.drawRect(rect.x, rect.y, rect.width, rect.height);
 	}
 	*/
-	function drawRect(rect:Rectangle, x:Float, y:Float, lineColor:UInt=0x000000, inflate:Int=0)
+	function drawRect(rect:Rectangle, x:Float, y:Float, lineColor:Int=0x000000, inflate:Int=0)
 	{
 		this.target.graphics.lineStyle(1, lineColor);
 		var r:Rectangle = scaling.scaleRect(rect);

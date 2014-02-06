@@ -628,7 +628,12 @@ class OdtTools
 					node = new EDiv();
 					var i = e.firstChild();
 					var link = i.get('xlink:href');
+<<<<<<< HEAD
+
+					//trace(link);
+=======
 				
+>>>>>>> 68248caa6ca2613fe15517505340718d27df136d
 					if (link.startsWith('Pictures/'))
 					{
 						try  
@@ -641,6 +646,19 @@ class OdtTools
 						catch (e:Dynamic)
 						{
 							node.addText('Image error: ' + Std.string(e) + ' - link: $link');
+<<<<<<< HEAD
+							
+						}
+					}
+					/*
+					else
+					{
+						var img = new EImage();
+						img.attr(Attr.Src, link);
+						e.
+					}
+					*/
+=======
 						}
 					} 
 					else if (link.startsWith('http'))
@@ -655,6 +673,7 @@ class OdtTools
 						
 					}
 					
+>>>>>>> 68248caa6ca2613fe15517505340718d27df136d
 					
 			case 'draw:image':
 				//var src = e.get('src');
@@ -666,7 +685,7 @@ class OdtTools
 			case 'text:a':
 				var target = e.get('office:target-frame-name');
 				var href = e.get('xlink:href');
-
+				
 				var hrefClass = StrTools.until(href, ':');
 
 				//trace(hrefClass);

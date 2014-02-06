@@ -29,6 +29,5 @@ class NPart
 	public var key(default, default):EKey;
 	public var keyDisplay(default, default):EDisplayALN;	
 	
-	public function toString() return Std.string(this);
 	
 }

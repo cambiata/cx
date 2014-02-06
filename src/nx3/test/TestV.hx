@@ -1,9 +1,11 @@
 package nx3.test;
 import cx.ArrayTools;
-import haxe.unit.TestCase;
+import haxe.ds.IntMap.IntMap;
+import nx3.elements.EDirectionUAD;
 import nx3.elements.EDirectionUD;
 import nx3.elements.ENoteValue;
 import nx3.elements.ESign;
+import nx3.elements.NBar;
 import nx3.elements.NPart;
 import nx3.elements.NVoice;
 import nx3.elements.VTree;
@@ -14,17 +16,22 @@ import nx3.test.QNote.QNote4;
 import nx3.test.QNote.QNote8;
 
 using nx3.elements.VTree.VMapTools;
+using cx.ArrayTools;
 /**
  * ...
  * @author Jonas Nyström
  */
+
+@:access(nx3.elements.VBar)
+@:access(nx3.elements.VNote)
 @:access(nx3.elements.VVoice)
 @:access(nx3.elements.VBeamgroupDirectionCalculator)
 @:access(nx3.elements.VBeamgroupFrameCalculator)
 @:access(nx3.elements.VBeamgroup)
 @:access(nx3.elements.VPartComplexesGenerator)
 @:access(nx3.elements.VBarColumnsGenerator)
-class TestV extends TestCase
+
+class TestV extends  haxe.unit.TestCase 
 {
 	
 	public function testVNote1() 
@@ -35,6 +42,129 @@ class TestV extends TestCase
 		this.assertEquals(ENoteValue.Nv4, vnote.nnote.value);
 	}
 
+	public function testVNoteInternalDirection()
+	{
+		var calculator = new VNoteInternalDirectionCalculator(new VNote(new QNote([ 0])).getVHeads());
+		this.assertEquals(EDirectionUD.Down, calculator.getDirection());
+		var calculator = new VNoteInternalDirectionCalculator(new VNote(new QNote([ 1])).getVHeads());
+		this.assertEquals(EDirectionUD.Up, calculator.getDirection());
+		
+		var calculator = new VNoteInternalDirectionCalculator(new VNote(new QNote([ -5, 5 ])).getVHeads());
+		this.assertEquals(EDirectionUD.Down, calculator.getDirection());
+		var calculator = new VNoteInternalDirectionCalculator(new VNote(new QNote([ -4, 5])).getVHeads());
+		this.assertEquals(EDirectionUD.Up, calculator.getDirection());
+
+		var calculator = new VNoteInternalDirectionCalculator(new VNote(new QNote([ -5, 1, 2, 3, 4, 5 ])).getVHeads());
+		this.assertEquals(EDirectionUD.Down, calculator.getDirection());
+		var calculator = new VNoteInternalDirectionCalculator(new VNote(new QNote([ -4, 1, 2, 5])).getVHeads());
+		this.assertEquals(EDirectionUD.Up, calculator.getDirection());
+	}
+	
+	public function testVHeadsPlacementsCalculator() 
+	{
+		var vnote = new VNote(new QNote([ 1, 2]));
+		var calculator = new VHeadPlacementCalculator(vnote.getVHeads(), EDirectionUD.Down);
+		var placements = calculator.getHeadsPlacements();
+		this.assertEquals(1, placements[0].level);
+		this.assertEquals(EHeadPosition.Center, placements[0].pos);
+		this.assertEquals(2, placements[1].level);
+		this.assertEquals(EHeadPosition.Left, placements[1].pos);
+
+		var calculator = new VHeadPlacementCalculator(vnote.getVHeads(), EDirectionUD.Up);
+		var placements = calculator.getHeadsPlacements();
+		this.assertEquals(1, placements[0].level);
+		this.assertEquals(EHeadPosition.Right, placements[0].pos);
+		this.assertEquals(2, placements[1].level);
+		this.assertEquals(EHeadPosition.Center, placements[1].pos);
+	}
+	
+	
+	public function testVNoteHeadPlacement()
+	{
+		var vnote = new VNote(new QNote([-1, 0, 1]));
+		var placements = vnote.getVHeadsPlacements();
+		this.assertEquals(EHeadPosition.Center, placements[0].pos);
+		this.assertEquals(EHeadPosition.Left, placements[1].pos);
+		this.assertEquals(EHeadPosition.Center, placements[2].pos);
+
+		var vnote = new VNote(new QNote([0, 1, 2]));
+		var placements = vnote.getVHeadsPlacements();
+		this.assertEquals(EHeadPosition.Center, placements[0].pos);
+		this.assertEquals(EHeadPosition.Right, placements[1].pos);
+		this.assertEquals(EHeadPosition.Center, placements[2].pos);
+		
+		var vnote = new VNote(new QNote([-2, -1, 0, 1]));
+		var placements = vnote.getVHeadsPlacements();
+		this.assertEquals(EHeadPosition.Center, placements[0].pos);
+		this.assertEquals(EHeadPosition.Left, placements[1].pos);
+		this.assertEquals(EHeadPosition.Center, placements[2].pos);
+		this.assertEquals(EHeadPosition.Left, placements[3].pos);
+		
+		var vnote = new VNote(new QNote([0, 1, 2, 3]));
+		var placements = vnote.getVHeadsPlacements();
+		this.assertEquals(EHeadPosition.Right, placements[0].pos);
+		this.assertEquals(EHeadPosition.Center, placements[1].pos);
+		this.assertEquals(EHeadPosition.Right, placements[2].pos);
+		this.assertEquals(EHeadPosition.Center, placements[3].pos);
+		
+		var vnote = new VNote(new QNote([0, 1, 2, 3]));
+		this.assertTrue(vnote.vheadsPlacements == null);
+		vnote.getVHeadsPlacements();
+		this.assertTrue(vnote.vheadsPlacements  != null);
+		vnote.setConfig( { direction: EDirectionUD.Down } );
+		this.assertTrue(vnote.vheadsPlacements == null);
+		var placements = vnote.getVHeadsPlacements();
+		this.assertEquals(EHeadPosition.Center, placements[0].pos);
+		this.assertEquals(EHeadPosition.Left, placements[1].pos);
+		this.assertEquals(EHeadPosition.Center, placements[2].pos);
+		this.assertEquals(EHeadPosition.Left, placements[3].pos);		
+	}
+
+	public function testVNoteDirectionCalculator() 
+	{
+		var vnote = new VNote(new QNote([ -1, 0, 1], EDirectionUAD.Auto));
+		var calculator = new VNoteDirectionCalculator(vnote);
+		this.assertEquals(EDirectionUD.Down, calculator.getDirection(null));
+
+		var vnote = new VNote(new QNote([ -1, 0, 2], EDirectionUAD.Auto));
+		var calculator = new VNoteDirectionCalculator(vnote);
+		this.assertEquals(EDirectionUD.Up, calculator.getDirection(null));
+
+		var vnote = new VNote(new QNote([ -1, 0, 2], EDirectionUAD.Down));
+		var calculator = new VNoteDirectionCalculator(vnote);
+		this.assertEquals(EDirectionUD.Down, calculator.getDirection(null));
+
+		var vnote = new VNote(new QNote([ -1, 0, 2]));
+		var calculator = new VNoteDirectionCalculator(vnote);
+		this.assertEquals(EDirectionUD.Down, calculator.getDirection(EDirectionUD.Down));
+		
+		var vnote = new VNote(new QNote([ -1, 0, 2], EDirectionUAD.Up));
+		var calculator = new VNoteDirectionCalculator(vnote);
+		this.assertEquals(EDirectionUD.Up, calculator.getDirection(EDirectionUD.Down));
+		
+		//----------------------------
+
+		var vnote = new VNote(new QNote([ -1, 0, 2]));
+		this.assertEquals(vnote.direction, null);
+		this.assertEquals(EDirectionUD.Up, vnote.getDirection());
+		vnote.setConfig( { direction:EDirectionUD.Down } );
+		this.assertEquals(vnote.direction, null);
+		this.assertEquals(EDirectionUD.Down, vnote.getDirection());
+
+		var vnote = new VNote(new QNote([ -1, 0, 2], EDirectionUAD.Down));
+		this.assertEquals(EDirectionUD.Down, vnote.getDirection());
+		
+		var vnote = new VNote(new QNote([ -1, 0, 2]));
+		vnote.setConfig( { direction:EDirectionUD.Down } );
+		this.assertEquals(EDirectionUD.Down, vnote.getDirection());
+		this.assertTrue(vnote.direction != null);
+		vnote.setConfig( { direction:null} );
+		this.assertTrue(vnote.direction == null);
+		this.assertEquals(EDirectionUD.Up, vnote.getDirection());
+		
+	}
+	
+	
 	public function testVVoice1()
 	{
 		var vvoice = new VVoice(new QVoice([4, 8, 8, 2]));
@@ -231,13 +361,13 @@ class TestV extends TestCase
 	public function testVComplexSigns()
 	{
 		var vcomplex = new VComplex([new VNote(new QNote4(0))]);
-		this.assertEquals(1, vcomplex.vnotes.length);
+		this.assertEquals(1, vcomplex.getVNotes().length);
 		var signs = vcomplex.getSigns();
 		this.assertEquals(signs[0].sign, ESign.None);
 		this.assertEquals(signs[0].level, 0);
 		
 		var vcomplex = new VComplex([new VNote(new QNote4(2, '#')), new VNote(new QNote4(-3, 'n'))]);
-		this.assertEquals(2, vcomplex.vnotes.length);
+		this.assertEquals(2, vcomplex.getVNotes().length);
 		var signs = vcomplex.getSigns();
 		this.assertEquals(signs.length, 2);
 		this.assertEquals(signs[0].level, -3);
@@ -278,7 +408,7 @@ class TestV extends TestCase
 		this.assertEquals(0, signs.length);
 		
 		var vcomplex = new VComplex([new VNote(new QNote4(2, '#')), new VNote(new QNote4(-3, '.'))]);
-		this.assertEquals(2, vcomplex.vnotes.length);
+		this.assertEquals(2, vcomplex.getVNotes().length);
 		var signs = vcomplex.getVisibleSigns();
 		this.assertEquals(signs.length, 1);
 		this.assertEquals(signs[0].level, 2);
@@ -312,22 +442,23 @@ class TestV extends TestCase
 		var complexes = generator.getComplexes();
 		this.assertEquals(generator.positionsMap.keys().keysToArray().toString(), [0, 3024, 4536, 6048].toString());
 		this.assertEquals(complexes.length, 4);
-		this.assertEquals(complexes[0].vnotes.length, 2);
-		this.assertEquals(complexes[1].vnotes.length, 2);
-		this.assertEquals(complexes[2].vnotes.length, 1);
-		this.assertEquals(complexes[3].vnotes.length, 2);
+		this.assertEquals(complexes[0].getVNotes().length, 2);
+		this.assertEquals(complexes[1].getVNotes().length, 2);
+		this.assertEquals(complexes[2].getVNotes().length, 1);
+		this.assertEquals(complexes[3].getVNotes().length, 2);
 		
 		var vvoice0 = new VVoice(new QVoice([4, 8, 8, 4, 4]));
 		var vvoice1 = new VVoice(new QVoice([.4, .4, 4]));
 		var generator = new VPartComplexesGenerator([vvoice0, vvoice1]);
 		var complexes = generator.getComplexes();
-		this.assertEquals(generator.positionsMap.keys().keysToArray().toString(), [0, 3024, 4536, 6048, 9072].toString());	
+		
+		this.assertEquals(generator.positionsMap.keys().keysToArray().sorta().toString(), [0, 3024, 4536, 6048, 9072].toString());	
 		this.assertEquals(complexes.length, 5);
-		this.assertEquals(complexes[0].vnotes.length, 2);
-		this.assertEquals(complexes[1].vnotes.length, 1);
-		this.assertEquals(complexes[2].vnotes.length, 2);
-		this.assertEquals(complexes[3].vnotes.length, 1);
-		this.assertEquals(complexes[4].vnotes.length, 2);
+		this.assertEquals(complexes[0].getVNotes().length, 2);
+		this.assertEquals(complexes[1].getVNotes().length, 1);
+		this.assertEquals(complexes[2].getVNotes().length, 2);
+		this.assertEquals(complexes[3].getVNotes().length, 1);
+		this.assertEquals(complexes[4].getVNotes().length, 2);
 		
 		var vvoice0 = new VVoice(new QVoice([4, 8, 8, 2]));
 		var vvoice1 = new VVoice(new QVoice([4, 4, 2]));
@@ -355,6 +486,7 @@ class TestV extends TestCase
 		this.assertEquals([0, 3024, 4536, 6048].toString(), positions.toString());
 	}
 	
+	
 	public function testBarColumnsGenerator()
 	{
 		var vpart = new VPart(new NPart([
@@ -367,7 +499,6 @@ class TestV extends TestCase
 		this.assertEquals(generator.positions.toString(), [0, 3024, 4536, 6048].toString());
 		this.assertEquals(columns.length, 4);
 		
-		
 		var vpart0 = new VPart(new NPart([
 			new QVoice([.4, .4, 4]),
 		]));
@@ -375,19 +506,77 @@ class TestV extends TestCase
 			new QVoice([4, 8, 8, 4, 4]),
 		]));
 		var generator = new VBarColumnsGenerator([vpart0, vpart1]);
-		var columns = generator.getColumns();
+		var columns:VColumns = generator.getColumns();
 		this.assertFalse(false);
 		this.assertEquals(generator.positions.toString(), [0, 3024, 4536, 6048, 9072].toString());
 		
-		
-		
-		
+		var column0:VColumn = columns[0];
+		this.assertEquals(column0.vcomplexes.length, 2);
+		this.assertEquals(vpart0.getVVoices()[0].getVNotes()[0], column0.vcomplexes[0].getVNotes()[0]);
+		this.assertEquals(vpart1.getVVoices()[0].getVNotes()[0], column0.vcomplexes[1].getVNotes()[0]);
+		this.assertTrue(columns[1].vcomplexes[0] == null);
+		this.assertEquals(vpart1.getVVoices()[0].getVNotes()[1], columns[1].vcomplexes[1].getVNotes()[0]);
 	}
-	
+
+	public function testVBarValue()
+	{
+		var npart0 = new NPart([
+			new QVoice([4]),
+			new QVoice([4,4]),
+		]);
+		var npart1 = new NPart([
+			new QVoice([4,4,4,4]),
+			new QVoice([4, 4, 4])
+		]);
+		var vbar = new VBar(new NBar([npart0, npart1]));
+		var value = vbar.getValue();
+		this.assertEquals(value, ENoteValue.Nv4.value * 4);
+	}
 	
 	public function testVBar()
 	{
+		var npart0 = new NPart([
+			new QVoice([2]),
+			new QVoice([.4, 8]),
+		]);
+		var npart1 = new NPart([
+			new QVoice([8, .4]),
+			new QVoice([4, 4])
+		]);
+		var vbar = new VBar(new NBar([npart0, npart1]));
+		var positionsColumns : IntMap<VColumn> = vbar.getPositionsColumns();
+		this.assertEquals(positionsColumns.keys().keysToArray().toString(), [0, 1512, 3024, 4536].toString());
+	}
+	
+	
+	public function testVBarVNoteVColumn()
+	{
+		var npart0 = new NPart([
+			new QVoice([2]),
+			new QVoice([.4, 8]),
+		]);
+		var npart1 = new NPart([
+			new QVoice([8, .4]),
+			new QVoice([4, 4])
+		]);
+		var vbar = new VBar(new NBar([npart0, npart1]));
+		var vnotesVColumns = vbar.getVNotesVColumns();
 		
+		var vnote = vbar.getVParts()[0].getVVoices()[0].getVNotes()[0];
+		var vcolumn = vbar.getVColumns()[0];
+		this.assertEquals(vnotesVColumns.get(vnote), vcolumn);
+
+		var vnote = vbar.getVParts()[0].getVVoices()[1].getVNotes()[1];
+		var vcolumn = vbar.getVColumns()[3];
+		this.assertEquals(vnotesVColumns.get(vnote), vcolumn);
+
+		var vnote = vbar.getVParts()[1].getVVoices()[0].getVNotes()[1];
+		var vcolumn = vbar.getVColumns()[1];
+		this.assertEquals(vnotesVColumns.get(vnote), vcolumn);
+		
+		var vnote = vbar.getVParts()[1].getVVoices()[1].getVNotes()[1];
+		var vcolumn = vbar.getVColumns()[2];
+		this.assertEquals(vnotesVColumns.get(vnote), vcolumn);
 		
 		
 	}
