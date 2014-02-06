@@ -96,6 +96,20 @@ class ArrayTools
 	static public function index<T>(array:Array<T>, item:T) {
 		return Lambda.indexOf(array, item);
 	}
+
+	static public function second<T>(array:Array<T>): T {
+		return array[1];
+	}
+	
+	static public function third<T>(array:Array<T>): T {
+		return array[2];
+	}
+
+	static public function fourth<T>(array:Array<T>): T {
+		return array[3];
+	}
+	
+	
 	
 	public static function shuffle<T>(a : Array<T>) : Array<T> {
 		var t = range(a.length);

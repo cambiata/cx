@@ -72,6 +72,16 @@ class QNote8 extends QNote
 	}
 }
 
+class QNote16 extends QNote
+{
+	public function new(?headLevel:Int=null, ?headLevels:Array<Int>=null, ?signs:String='') 
+	{
+		super(headLevel, headLevels, ENoteValue.Nv16);
+	}
+}
+
+
+
 class QNote2 extends QNote
 {
 	public function new(?headLevel:Int=null, ?headLevels:Array<Int>=null, ?signs:String='') 

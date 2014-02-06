@@ -3,14 +3,17 @@ import cx.ArrayTools;
 import haxe.ds.IntMap.IntMap;
 import nx3.elements.EDirectionUAD;
 import nx3.elements.EDirectionUD;
+import nx3.elements.ENoteType;
 import nx3.elements.ENoteValue;
 import nx3.elements.ESign;
 import nx3.elements.NBar;
+import nx3.elements.NNote;
 import nx3.elements.NPart;
 import nx3.elements.NVoice;
 import nx3.elements.VTree;
 import nx3.elements.VTree.VNote;
 import nx3.elements.VTree.VVoice;
+import nx3.test.QNote.QNote16;
 import nx3.test.QNote.QNote2;
 import nx3.test.QNote.QNote4;
 import nx3.test.QNote.QNote8;
@@ -247,6 +250,92 @@ class TestV extends  haxe.unit.TestCase
 		this.assertEquals(2, beamgroups.length);
 		this.assertEquals(1, beamgroups[0].vnotes.length);
 		this.assertEquals(4, beamgroups[1].vnotes.length);	
+		
+		//-------------------------------------------------------------------
+		// pauses...
+		
+		var vvoice = new VVoice(new NVoice([new NNote(
+			ENoteType.Pause(0), ENoteValue.Nv8), 
+			new QNote8(),
+			new QNote8(),
+			new QNote8(),
+			new QNote8(), 
+			new QNote8(),
+			]));
+		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteValue.Nv4]);
+		this.assertEquals(beamgroups.length, 4);
+		this.assertEquals(beamgroups.first().vnotes.length, 1);
+		this.assertEquals(beamgroups.second().vnotes.length, 1);
+		this.assertEquals(beamgroups.third().vnotes.length, 2);
+		this.assertEquals(beamgroups.fourth().vnotes.length, 2);
+
+		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteValue.Nv4dot]);
+		this.assertEquals(beamgroups.length, 3);
+		this.assertEquals(beamgroups.first().vnotes.length, 1);
+		this.assertEquals(beamgroups.second().vnotes.length, 2);
+		this.assertEquals(beamgroups.third().vnotes.length, 3);
+
+		var vvoice = new VVoice(new NVoice([new NNote(
+			ENoteType.Pause(0), ENoteValue.Nv8), 
+			new QNote4(),
+			new QNote8(),
+			new QNote8(), 
+			new QNote8(),
+			]));
+		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteValue.Nv4]);
+		this.assertEquals(beamgroups.length, 4);
+		this.assertEquals(beamgroups.first().vnotes.length, 1);
+		this.assertEquals(beamgroups.second().vnotes.length, 1);
+		this.assertEquals(beamgroups.third().vnotes.length, 1);
+		this.assertEquals(beamgroups.fourth().vnotes.length, 2);
+
+		var vvoice = new VVoice(new NVoice([new NNote(
+			ENoteType.Pause(0), ENoteValue.Nv8), 
+			new QNote4(),
+			new QNote8(),
+			new QNote8(), 
+			new QNote8(),
+			]));
+		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteValue.Nv4dot]);
+		this.assertEquals(beamgroups.length, 3);
+		this.assertEquals(beamgroups.first().vnotes.length, 1);
+		this.assertEquals(beamgroups.second().vnotes.length, 1);
+		this.assertEquals(beamgroups.third().vnotes.length, 3);
+
+		var vvoice = new VVoice(new NVoice([
+			new NNote(ENoteType.Pause(0), ENoteValue.Nv16), 
+			new QNote16(),
+			new QNote16(),
+			new QNote16(),
+			new QNote16(),
+			new QNote8(),
+			new QNote16(),
+			new QNote8(), 
+			new QNote16(),
+			new QNote16(),
+		]));
+		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteValue.Nv4]);
+		this.assertEquals(beamgroups.length, 4);
+		this.assertEquals(beamgroups.first().vnotes.length, 1);
+		this.assertEquals(beamgroups.second().vnotes.length, 3);
+		this.assertEquals(beamgroups.third().vnotes.length, 3);
+		this.assertEquals(beamgroups.last().vnotes.length, 3);
+		
+		var vvoice = new VVoice(new NVoice([
+			new NNote(ENoteType.Pause(0), ENoteValue.Nv16), 
+			new QNote16(),
+			new QNote16(),
+			new QNote16(),
+			new QNote16(),
+			new QNote8(),
+			new NNote(ENoteType.Pause(0), ENoteValue.Nv16),
+			new QNote8(), 
+			new QNote16(),
+			new NNote(ENoteType.Pause(0), ENoteValue.Nv16),
+		]));
+		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteValue.Nv4]);
+		this.assertEquals(beamgroups.length, 6);
+		
 	}
 	
 	public function testBeamgroupDirection()
