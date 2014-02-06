@@ -129,7 +129,7 @@ class TreeUtils
 			
 			map.set(safepath, docinfo);			
 		}			
-
+		//trace(map);
 		return map;	
 	}	
 	
@@ -219,8 +219,6 @@ class TreeUtils
 		
 		var body = getBody(pageElements);
 		
-		
-		
 		html.appendChild(head);
 		html.appendChild(body);		
 		
@@ -287,14 +285,15 @@ class TreeUtils
 			var i = 0;
 			for (segment in segments)
 			{
-				path = path + segment;
-				var fileSegment = fileSegments[i];
+				path = path + segment  + '/';
 				
+				var fileSegment = fileSegments[i];				
 				fileSegment = FileTools.excludeExtension(fileSegment);
 				var orderval = Std.parseInt(fileSegment.substring(0, 3));
 				if (orderval != null) fileSegment = fileSegment.substr(4);
 				
 				crumbs.push(segment + '|' + path + '|' + fileSegment);
+				
 				i++;
 			}
 			//trace(crumbs);
@@ -607,9 +606,11 @@ class NavbarUser extends Navbar
 			form = new EForm().classes('navbar-form form-inline pull-right').attr(Attr.Action, '/logout').attr(Attr.Method, 'post');			
 			var submit = new EInput(InputType.Submit).classes('btn btn-primary btn-sm').attr(Attr.Value, 'Logga ut');			
 			form.appendChild(submit);				
+			this.appendChild(form);
 		}
 		else
 		{
+			/*
 			divUser.addText('Gäst');
 			form = new EForm().classes('navbar-form form-inline pull-right').attr(Attr.Action, '/loginform').attr(Attr.Method, 'post');
 			var login = new EInput(InputType.IText).classes('span2').attr(Attr.Placeholder, 'Användarnamn').attr(Attr.Id, 'login').attr(Attr.Name, 'login');
@@ -617,9 +618,10 @@ class NavbarUser extends Navbar
 			var submit = new EInput(InputType.Submit).classes('btn btn-success btn-sm').attr(Attr.Value, 'Logga in');
 			form.appendChild(login);
 			form.appendChild(pass);
-			form.appendChild(submit);			
+			form.appendChild(submit);	
+			this.appendChild(form);			
+			*/
 		}
-		this.appendChild(form);
 		this.appendChild(divUser);		
 		
 		
@@ -684,7 +686,9 @@ class Breadcrumbs extends EDiv {
 			var a = crumb.split('|');
 			//var title = a[0];
 			var title = EncodeTools.utf8(a[2]);
-			var url = a[1];
+			var url = PathTools.removeSlash(a[1]);
+			
+			
 			var cr = new EListItem();
 			if (ArrayTools.isLast(crumbs, crumb))
 			{

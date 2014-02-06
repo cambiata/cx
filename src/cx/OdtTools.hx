@@ -16,6 +16,7 @@ import hxdom.Elements.EHeader2;
 import hxdom.Elements.EHeader3;
 import hxdom.Elements.EHeader4;
 import hxdom.Elements.EHtml;
+import hxdom.Elements.EImage;
 import hxdom.Elements.EItalics;
 import hxdom.Elements.EListItem;
 import hxdom.Elements.EObject;
@@ -627,26 +628,39 @@ class OdtTools
 					node = new EDiv();
 					var i = e.firstChild();
 					var link = i.get('xlink:href');
-				
-					try  
+
+					//trace(link);
+					if (link.startsWith('Pictures/'))
 					{
-						if (this.zipEntries == null) throw "png zip entry error";
-						var imgBytes = ZipTools.getEntryData(this.zipEntries, link);
-						var imgHtml = PngTools.pngBytesToHtmlImg(imgBytes, imgstyle);
-						node.addHtml(imgHtml);
+						try  
+						{
+							if (this.zipEntries == null) throw "png zip entry error";
+							var imgBytes = ZipTools.getEntryData(this.zipEntries, link);
+							var imgHtml = PngTools.pngBytesToHtmlImg(imgBytes, imgstyle);
+							node.addHtml(imgHtml);
+						}
+						catch (e:Dynamic)
+						{
+							node.addText('Image error: ' + Std.string(e) + ' - link: $link');
+							
+						}
 					}
-					catch (e:Dynamic)
+					/*
+					else
 					{
-						node.addText('Image error: ' + Std.string(e) + ' - link: $link');
-						
+						var img = new EImage();
+						img.attr(Attr.Src, link);
+						e.
 					}
+					*/
+					
 			case 'draw:image':
 				node = null;
 				
 			case 'text:a':
 				var target = e.get('office:target-frame-name');
 				var href = e.get('xlink:href');
-
+				
 				var hrefClass = StrTools.until(href, ':');
 
 				//trace(hrefClass);
