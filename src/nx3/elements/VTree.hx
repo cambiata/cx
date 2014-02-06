@@ -413,6 +413,9 @@ class VNoteDirectionCalculator
 	
 	public function getDirection(directionConfig:EDirectionUD): EDirectionUD
 	{
+		// always return down if not ENoteType == Note
+		if (this.vnote.nnote.type.getIndex() != Type.enumIndex(ENoteType.Note(null))) return EDirectionUD.Down;
+		
 		var direction:EDirectionUD;
 		// prio 1: NNote direction
 		if (this.vnote.nnote.direction != null) 
@@ -451,7 +454,13 @@ class VNoteInternalDirectionCalculator
 	public function getDirection():EDirectionUD
 	{
 		var headsCount = this.vheads.length;
-		if (headsCount == 1)  return this.weightToDirection(this.vheads[0].nhead.level);
+		switch headsCount
+		{
+			case 0: return EDirectionUD.Down; // Pause etc...		
+			case 1: return this.weightToDirection(this.vheads[0].nhead.level);
+			default: 
+				//
+		}
 		var weight = this.vheads[0].nhead.level + this.vheads[headsCount - 1].nhead.level;
 		return this.weightToDirection(weight);
 	}

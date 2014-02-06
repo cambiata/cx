@@ -10,7 +10,7 @@ enum ENoteType {
 	Pause(level:ULevel); 
 	BarPause;
 	Tpl;
-	Lyric(text:String, ?offset:EPosition, ?continuation:ELyricContinuation, ?format:ELyricFormat);
+	Lyric(?text:String, ?offset:EPosition, ?continuation:ELyricContinuation, ?format:ELyricFormat);
 	Chord;
 	Dynam;
 }

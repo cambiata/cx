@@ -1,5 +1,7 @@
 package nx3.test;
+import cx.EnumTools;
 import nx3.elements.EDirectionUAD;
+import nx3.elements.ENoteType;
 import nx3.elements.ENoteValue;
 import nx3.elements.ESign;
 import nx3.elements.NHead;
@@ -36,6 +38,14 @@ class TestN extends   haxe.unit.TestCase
 		
 		// verify head level sorting...
 		this.assertEquals([ -3, -2, 1, 4].toString(), item1.getHeadLevels().toString());
+	}
+	
+	public function testText()
+	{
+		var item = new NNote(ENoteType.Pause(0), null, ENoteValue.Nv4);		
+		this.assertEquals(Type.enumIndex(item.type), Type.enumIndex(ENoteType.Pause(0)));
+		var item = new NNote(ENoteType.Lyric('Hello'), null, ENoteValue.Nv4);
+		this.assertEquals(Type.enumIndex(item.type), Type.enumIndex(ENoteType.Lyric('hello')));
 	}
 	
 		

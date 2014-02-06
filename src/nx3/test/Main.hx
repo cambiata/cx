@@ -16,12 +16,10 @@ class Main
 {
 	static public function main() 
 	{
-		var runner = new  #if (neko) shohei909.nanotest.NanoTestRunner(); #else TestRunner(); #end
+		var runner = new  TestRunner(); 
 		runner.add(new TestQ());
 		runner.add(new TestN());
 		runner.add(new TestV());
-		/*
-		*/
 		
 		//runner.add(new TestDVoice());
 		//runner.add(new TestDPart());

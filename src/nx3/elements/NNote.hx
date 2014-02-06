@@ -34,15 +34,17 @@ class NNote
 	function get_nheads():Array<NHead> 
 	{
 		if (this.nheads_ != null) return this.nheads_;		
+		
 		switch(this.type) 
 		{
 			case ENoteType.Note(nheads, variant, articulations, attributes):
 				nheads.cleverSort(_.level);
 				this.nheads_ = nheads;
-				return this.nheads_;
 			default:
+				this.nheads_ = [];
 		}
-		return null;
+		return this.nheads_;
+		//return null;
 	}
 	
 	var headLevels:Array<Int>;
