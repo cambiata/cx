@@ -187,15 +187,13 @@ class DevRenderer extends FrameRenderer
 				this.target.graphics.endFill();
 				this.target.graphics.lineStyle(1, 0xFF0000);
 				this.target.graphics.drawRect(colx - 5, party - 5, 10, 10); 
-				
-				var vnoteIdx = 0;
 				for (vnote in vcomplex.getVNotes())
 				{
-					var color = (vnoteIdx == 0) ? 0x00FF00 : 0x0000FF;
+					var vvoice = vpart.getVNotesVVoices().get(vnote);
+					var vvoiceIdx = vpart.getVVoices().index(vvoice);
+					var color = (vvoiceIdx == 0) ? 0x00FF00 : 0x0000FF;
 					this.vnoteheads(vnote, colx, party, color);
-					vnoteIdx++;
 				}
-				
 			}
 			party += this.partdistance;
 		}

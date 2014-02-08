@@ -2,6 +2,7 @@ package nx3.elements;
 import cx.ArrayTools;
 import haxe.ds.IntMap.IntMap;
 import nx3.Constants;
+import nx3.elements.VTree.Partbeamgroups;
 import nx3.elements.VTree.VBarColumnsGenerator;
 import nx3.elements.VTree.VBeamframe;
 import nx3.elements.VTree.VBeamgroup;
@@ -17,6 +18,7 @@ import nx3.elements.VTree.VHeadPlacements;
 import nx3.elements.VTree.VNoteConfig;
 import nx3.elements.VTree.VNoteHeadsRectsCalculator;
 import nx3.elements.VTree.VNoteInternalDirectionCalculator;
+import nx3.elements.VTree.VPartbeamgroupsDirectionCalculator;
 import nx3.geom.Rectangle;
 import nx3.geom.Rectangles;
 
@@ -290,21 +292,58 @@ class VPart
 		return this.partbeamgroups;
 	}
 	
-	
 	var beamgroupsDirections:Map<VBeamgroup, EDirectionUD>;
 	public function getBeamgroupsDirections():Map<VBeamgroup, EDirectionUD>
 	{
 		if (this.beamgroupsDirections != null) return this.beamgroupsDirections;
 		if (this.partbeamgroups == null) this.getPartbeamgroups();
 		
-		this.beamgroupsDirections = new Map<VBeamgroup, EDirectionUD>();
+		var calculator = new VPartbeamgroupsDirectionCalculator(this);
+		this.beamgroupsDirections = calculator.getBeamgroupsDirections();
+		return this.beamgroupsDirections;
+	}
+	
+	var vnotesVVoices:Map<VNote, VVoice>;
+	public function getVNotesVVoices():Map<VNote, VVoice>
+	{
+		if (this.vnotesVVoices != null) return this.vnotesVVoices;
 		
+		this.vnotesVVoices = new Map<VNote, VVoice>();
 		
-		var beamgroups0 = this.partbeamgroups[0];
-		var voiceDirection0 = this.getVVoices()[0].nvoice.direction;
+		for (vvoice in this.getVVoices())
+		{
+			for (vnote in vvoice.getVNotes())
+			{
+				this.vnotesVVoices.set(vnote, vvoice);
+			}
+		}
+		return this.vnotesVVoices;
+	}
+	
+}
+
+typedef Partbeamgroups = Array<VBeamgroups>;
+
+class VPartbeamgroupsDirectionCalculator 
+{
+	
+	var vpart:VPart;
+	public function new (vpart:VPart)
+	{
+		this.vpart = vpart;
+	}
+	
+	public function getBeamgroupsDirections():Map<VBeamgroup, EDirectionUD>
+	{
+		var beamgroupsDirections = new Map<VBeamgroup, EDirectionUD>();
+		
+		var partbeamgroups = this.vpart.getPartbeamgroups();
+		
+		var beamgroups0 = partbeamgroups[0];
+		var voiceDirection0 = this.vpart.getVVoices()[0].nvoice.direction;
 		if (voiceDirection0 == null) voiceDirection0 = EDirectionUAD.Auto;
 		
-		if (this.partbeamgroups.length == 1)
+		if (partbeamgroups.length == 1)
 		{
 			for (beamgroup in beamgroups0)
 			{
@@ -320,17 +359,17 @@ class VPart
 						direction = calculator.getDirection();
 						
 				}
-				this.beamgroupsDirections.set(beamgroup, direction);
+				beamgroupsDirections.set(beamgroup, direction);
 			}
 		}
-		else if (this.partbeamgroups.length == 2)
+		else if (partbeamgroups.length == 2)
 		{
-			var beamgroups1 = this.partbeamgroups[1];
-			var voiceDirection1 = this.getVVoices()[1].nvoice.direction;
+			var beamgroups1 = partbeamgroups[1];
+			var voiceDirection1 = this.vpart.getVVoices()[1].nvoice.direction;
 			if (voiceDirection1 == null) voiceDirection0 = EDirectionUAD.Auto;
 			
-			var voice0 = this.getVVoices()[0];
-			var voice1 = this.getVVoices()[1];			
+			var voice0 = this.vpart.getVVoices()[0];
+			var voice1 = this.vpart.getVVoices()[1];			
 			
 			if ((voiceDirection0 == EDirectionUAD.Auto) && (voiceDirection1 == EDirectionUAD.Auto))
 			{
@@ -352,7 +391,7 @@ class VPart
 						var calculator = new VBeamgroupDirectionCalculator(beamgroup);
 						direction = calculator.getDirection();						
 					}
-					this.beamgroupsDirections.set(beamgroup, direction);
+					beamgroupsDirections.set(beamgroup, direction);
 					bgPosition += beamgroup.getValue();
 				}
 
@@ -368,7 +407,7 @@ class VPart
 						var calculator = new VBeamgroupDirectionCalculator(beamgroup);
 						direction = calculator.getDirection();						
 					}
-					this.beamgroupsDirections.set(beamgroup, direction);
+					beamgroupsDirections.set(beamgroup, direction);
 					bgPosition += beamgroup.getValue();
 				}
 			}
@@ -376,12 +415,12 @@ class VPart
 			{
 				for (beamgroup in beamgroups0)
 				{
-					this.beamgroupsDirections.set(beamgroup, EDirectionTools.uadToUd(voice0.nvoice.direction));
+					beamgroupsDirections.set(beamgroup, EDirectionTools.uadToUd(voice0.nvoice.direction));
 				}
 
 				for (beamgroup in beamgroups1)
 				{
-					this.beamgroupsDirections.set(beamgroup, EDirectionTools.uadToUd(voice1.nvoice.direction));
+					beamgroupsDirections.set(beamgroup, EDirectionTools.uadToUd(voice1.nvoice.direction));
 				}
 			}
 		}
@@ -390,12 +429,11 @@ class VPart
 			throw "SHOULDN'T HAPPEN";
 		}
 		
-		return this.beamgroupsDirections;
+		return beamgroupsDirections;
 	}
 	
+	
 }
-
-typedef Partbeamgroups = Array<VBeamgroups>;
 
 typedef VVoices = Array<VVoice>;
 
