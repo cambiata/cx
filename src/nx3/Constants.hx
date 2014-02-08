@@ -1,4 +1,6 @@
 package nx3;
+import haxe.macro.Expr.Function;
+import nx3.geom.Rectangle;
 
 /**
  * ...
@@ -15,4 +17,9 @@ class Constants
 	static public inline var HEAD_ADJUST_X						:Float = 0;
 	static public inline var COMPLEX_COLLISION_ADJUST_X			:Float = 3.0;
 	static public inline var NOTE_STEM_X_NORMAL					:Float = 1.6;	
+	
+	static public inline var HEAD_HALFWIDTH_NORMAL: Float = 1.6;
+	static public inline var HEAD_HALFWIDTH_WIDE: Float = 2.0;
+	
+	
 } 

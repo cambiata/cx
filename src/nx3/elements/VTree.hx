@@ -1,6 +1,7 @@
 package nx3.elements;
 import cx.ArrayTools;
 import haxe.ds.IntMap.IntMap;
+import nx3.Constants;
 import nx3.elements.VTree.VBarColumnsGenerator;
 import nx3.elements.VTree.VBeamframe;
 import nx3.elements.VTree.VBeamgroup;
@@ -15,6 +16,8 @@ import nx3.elements.VTree.VHeadPlacementCalculator;
 import nx3.elements.VTree.VHeadPlacements;
 import nx3.elements.VTree.VNoteConfig;
 import nx3.elements.VTree.VNoteInternalDirectionCalculator;
+import nx3.geom.Rectangle;
+import nx3.geom.Rectangles;
 
 using nx3.elements.VTree.VMapTools;
 /**
@@ -472,6 +475,55 @@ class VNoteInternalDirectionCalculator
 	
 }
 
+class VNoteHeadsRectsCalculator
+{
+	var vnote:VNote;
+	public function new(vnote:VNote)
+	{
+		this.vnote = vnote;		
+	}
+	
+	
+	
+	public function getHeadsRects():Rectangles
+	{
+		var rects = new Rectangles();
+		var headPlacements:VHeadPlacements = vnote.getVHeadsPlacements();
+		var value = this.vnote.nnote.value;
+		
+		for (placement in headPlacements)
+		{
+			var rect:Rectangle = null;
+			var headw:Float = null;
+			switch(value.head)
+			{
+				case EHeadValuetype.HVT1:					
+					headw = Constants.HEAD_HALFWIDTH_WIDE;
+				default:
+					headw = Constants.HEAD_HALFWIDTH_NORMAL;
+			}	
+			
+			rect =  new Rectangle( -headw, -1, 2 * headw, 2);
+			
+			var pos = 0.0;
+			switch placement.pos
+			{
+				case EHeadPosition.Left: pos = -2*headw;
+				case EHeadPosition.Right: pos = 2*headw;
+				default : pos = 0;
+			}			
+			rect.offset(pos, placement.level);					
+			rects.push(rect);
+		}
+
+		return rects;
+	}
+	
+	
+	
+}
+
+
 
 class VHeadPlacementCalculator
 {
@@ -663,8 +715,7 @@ class VComplex
 		if (visibleSigns != null) return this.visibleSigns;
 		this.getSigns();
 		return this.visibleSigns;
-	}
-	
+	}	
 }
 
 typedef VBeamframe = 

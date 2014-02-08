@@ -1,6 +1,8 @@
 package nx3.test;
+
 import cx.ArrayTools;
 import haxe.ds.IntMap.IntMap;
+import nx3.Constants;
 import nx3.elements.EDirectionUAD;
 import nx3.elements.EDirectionUD;
 import nx3.elements.ENoteType;
@@ -13,6 +15,7 @@ import nx3.elements.NVoice;
 import nx3.elements.VTree;
 import nx3.elements.VTree.VNote;
 import nx3.elements.VTree.VVoice;
+import nx3.geom.Rectangle;
 import nx3.test.QNote.QNote16;
 import nx3.test.QNote.QNote2;
 import nx3.test.QNote.QNote4;
@@ -122,6 +125,43 @@ class TestV extends  haxe.unit.TestCase
 		this.assertEquals(EHeadPosition.Center, placements[2].pos);
 		this.assertEquals(EHeadPosition.Left, placements[3].pos);		
 	}
+	
+	public function testVNoteHeadRectanglesCalculator()
+	{
+		var vnote = new VNote(new QNote(0));
+		var calculator = new VNoteHeadsRectsCalculator(vnote);
+		var rects = calculator.getHeadsRects();
+		assertEquals(rects.length, 1);
+		assertEquals(rects.first().x , -Constants.HEAD_HALFWIDTH_NORMAL);
+
+		var vnote = new VNote(new QNote([0, 1]));
+		var calculator = new VNoteHeadsRectsCalculator(vnote);
+		var rects = calculator.getHeadsRects();
+		assertEquals(rects.length, 2);
+		assertEquals(vnote.getDirection(), EDirectionUD.Up);
+		assertEquals(rects.first().x , Constants.HEAD_HALFWIDTH_NORMAL);
+		assertEquals(rects.second().x , -Constants.HEAD_HALFWIDTH_NORMAL);
+
+		var vnote = new VNote(new QNote([0, 1],EDirectionUAD.Down));
+		var calculator = new VNoteHeadsRectsCalculator(vnote);
+		var rects = calculator.getHeadsRects();		
+		assertEquals(rects.length, 2);
+		assertEquals(vnote.getDirection(), EDirectionUD.Down);
+		assertEquals(rects.first().x , -Constants.HEAD_HALFWIDTH_NORMAL);
+		assertEquals(rects.second().x , 3*-Constants.HEAD_HALFWIDTH_NORMAL);
+
+		var vnote = new VNote(new QNote([0, 1]));
+		vnote.setConfig( { direction:EDirectionUD.Down } );
+		var calculator = new VNoteHeadsRectsCalculator(vnote);
+		var rects = calculator.getHeadsRects();		
+		assertEquals(rects.length, 2);
+		assertEquals(vnote.getDirection(), EDirectionUD.Down);
+		assertEquals(rects.first().x , -Constants.HEAD_HALFWIDTH_NORMAL);
+		assertEquals(rects.second().x , 3*-Constants.HEAD_HALFWIDTH_NORMAL);		
+		
+	}
+	
+	
 
 	public function testVNoteDirectionCalculator() 
 	{
@@ -666,8 +706,6 @@ class TestV extends  haxe.unit.TestCase
 		var vnote = vbar.getVParts()[1].getVVoices()[1].getVNotes()[1];
 		var vcolumn = vbar.getVColumns()[2];
 		this.assertEquals(vnotesVColumns.get(vnote), vcolumn);
-		
-		
 	}
 	
 	
