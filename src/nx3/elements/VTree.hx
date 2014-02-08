@@ -15,6 +15,7 @@ import nx3.elements.VTree.VCreateBeamgroups;
 import nx3.elements.VTree.VHeadPlacementCalculator;
 import nx3.elements.VTree.VHeadPlacements;
 import nx3.elements.VTree.VNoteConfig;
+import nx3.elements.VTree.VNoteHeadsRectsCalculator;
 import nx3.elements.VTree.VNoteInternalDirectionCalculator;
 import nx3.geom.Rectangle;
 import nx3.geom.Rectangles;
@@ -102,13 +103,31 @@ typedef VBars = Array<VBar>;
 			 {
 				for (vnote in vvoice.getVNotes())
 				{
-					var pos = vvoice.getVNotePosition(vnote);
+					var pos = vvoice.getVNotePositions().get(vnote);
 					var vcolumn = this.getPositionsColumns().get(pos);
 					this.vnotesVColumns.set(vnote, vcolumn);
 				}
 			 }
 		 }
 		 return this.vnotesVColumns;
+	 }
+	 
+	 var vcomplexesVColumns:Map<VComplex, VColumn>;
+	 public function getVComplexesVColumns():Map<VComplex, VColumn>
+	 {
+		 if (this.vcomplexesVColumns != null) return this.vcomplexesVColumns;
+		 this.vcomplexesVColumns = new Map<VComplex, VColumn>();
+		 for (vpart in this.getVParts())
+		 {
+			 //vpart.getPositionsVComplexes().get(
+			 for (vcomplex in vpart.getVComplexes())
+			 {
+				 var pos = vpart.getVComplexesPositions().get(vcomplex);
+				 var vcolumn = this.getPositionsColumns().get(pos);
+				 this.vcomplexesVColumns.set(vcomplex, vcolumn);
+			 }
+		 }
+		 return this.vcomplexesVColumns;
 	 }
 	 
  }
@@ -220,7 +239,7 @@ class VPart
 	var positionsVComplexes:IntMap<VComplex>;
 	
 	var generator: VPartComplexesGenerator;
-	public function getComplexes():VComplexes
+	public function getVComplexes():VComplexes
 	{
 		if (this.vcomplexes != null) return this.vcomplexes;
 		this.generator = new  VPartComplexesGenerator(this.getVVoices());
@@ -232,8 +251,14 @@ class VPart
 
 	public function getPositionsVComplexes():IntMap<VComplex>
 	{
-		if (this.vcomplexes == null) this.getComplexes();
+		if (this.vcomplexes == null) this.getVComplexes();
 		return this.positionsVComplexes;
+	}
+	
+	public function getVComplexesPositions():Map<VComplex,Int>
+	{
+		if (this.vcomplexes == null) this.getVComplexes();
+		return this.vcomplexesPositions;
 	}
 	
 	var value:Null<Int>;
@@ -252,7 +277,125 @@ class VPart
 		this.value = Std.int(value);
 		return this.value;
 	}
+	
+	var partbeamgroups:Partbeamgroups;
+	public function getPartbeamgroups(): Partbeamgroups
+	{
+		if (this.partbeamgroups != null) return this.partbeamgroups;
+		this.partbeamgroups = new Partbeamgroups();
+		for (vvoice in this.getVVoices())
+		{
+			this.partbeamgroups.push(vvoice.getBeamgroups());
+		}
+		return this.partbeamgroups;
+	}
+	
+	
+	var beamgroupsDirections:Map<VBeamgroup, EDirectionUD>;
+	public function getBeamgroupsDirections():Map<VBeamgroup, EDirectionUD>
+	{
+		if (this.beamgroupsDirections != null) return this.beamgroupsDirections;
+		if (this.partbeamgroups == null) this.getPartbeamgroups();
+		
+		this.beamgroupsDirections = new Map<VBeamgroup, EDirectionUD>();
+		
+		
+		var beamgroups0 = this.partbeamgroups[0];
+		var voiceDirection0 = this.getVVoices()[0].nvoice.direction;
+		if (voiceDirection0 == null) voiceDirection0 = EDirectionUAD.Auto;
+		
+		if (this.partbeamgroups.length == 1)
+		{
+			for (beamgroup in beamgroups0)
+			{
+				var direction:EDirectionUD = null;
+				switch voiceDirection0
+				{
+					case EDirectionUAD.Up:
+						direction = EDirectionUD.Up;
+					case  EDirectionUAD.Down:
+						direction = EDirectionUD.Down;
+					case EDirectionUAD.Auto:
+						var calculator = new VBeamgroupDirectionCalculator(beamgroup);
+						direction = calculator.getDirection();
+						
+				}
+				this.beamgroupsDirections.set(beamgroup, direction);
+			}
+		}
+		else if (this.partbeamgroups.length == 2)
+		{
+			var beamgroups1 = this.partbeamgroups[1];
+			var voiceDirection1 = this.getVVoices()[1].nvoice.direction;
+			if (voiceDirection1 == null) voiceDirection0 = EDirectionUAD.Auto;
+			
+			var voice0 = this.getVVoices()[0];
+			var voice1 = this.getVVoices()[1];			
+			
+			if ((voiceDirection0 == EDirectionUAD.Auto) && (voiceDirection1 == EDirectionUAD.Auto))
+			{
+
+				var voice0value = voice0.getValue();
+				var voice1value = voice1.getValue();
+				
+				var direction:EDirectionUD = null;
+				
+				var bgPosition = 0;
+				for (beamgroup in beamgroups0)
+				{
+					if (bgPosition < voice1value) 
+					{
+						direction = EDirectionUD.Up;
+					}
+					else
+					{
+						var calculator = new VBeamgroupDirectionCalculator(beamgroup);
+						direction = calculator.getDirection();						
+					}
+					this.beamgroupsDirections.set(beamgroup, direction);
+					bgPosition += beamgroup.getValue();
+				}
+
+				var bgPosition = 0;
+				for (beamgroup in beamgroups1)
+				{
+					if (bgPosition < voice0value) 
+					{
+						direction = EDirectionUD.Down;
+					}
+					else
+					{
+						var calculator = new VBeamgroupDirectionCalculator(beamgroup);
+						direction = calculator.getDirection();						
+					}
+					this.beamgroupsDirections.set(beamgroup, direction);
+					bgPosition += beamgroup.getValue();
+				}
+			}
+			else 
+			{
+				for (beamgroup in beamgroups0)
+				{
+					this.beamgroupsDirections.set(beamgroup, EDirectionTools.uadToUd(voice0.nvoice.direction));
+				}
+
+				for (beamgroup in beamgroups1)
+				{
+					this.beamgroupsDirections.set(beamgroup, EDirectionTools.uadToUd(voice1.nvoice.direction));
+				}
+			}
+		}
+		else
+		{
+			throw "SHOULDN'T HAPPEN";
+		}
+		
+		return this.beamgroupsDirections;
+	}
+	
 }
+
+typedef Partbeamgroups = Array<VBeamgroups>;
 
 typedef VVoices = Array<VVoice>;
 
@@ -274,11 +417,10 @@ class VVoice
 	}
 	
 	var vnotePositions:Map<VNote, Int>;
-	public function getVNotePosition(vnote:VNote):Int
+	public function getVNotePositions():Map<VNote, Int>
 	{
-		if (this.vnotePositions != null) return this.vnotePositions.get(vnote);
+		if (this.vnotePositions != null) return this.vnotePositions;
 		if (this.vnotes == null) this.getVNotes();
-		
 		this.vnotePositions = new Map<VNote, Int>();
 		
 		var pos = 0;
@@ -286,10 +428,11 @@ class VVoice
 		{
 			this.vnotePositions.set(vnote, pos);
 			pos += vnote.nnote.value.value;
-		}
-		return this.vnotePositions.get(vnote);
+		}		
+		return this.vnotePositions;
+		
 	}
-	
+
 	var value:Null<Int>;
 	public function getValue():Int
 	{
@@ -347,6 +490,17 @@ class VNote
 		var calculator:VHeadPlacementCalculator = new VHeadPlacementCalculator(this.vheads, this.getDirection());
 		this.vheadsPlacements = calculator.getHeadsPlacements();
 		return this.vheadsPlacements;
+	}
+	
+	var vheadsRectangles:Rectangles;
+	public function getVHeadsRectangles():Rectangles
+	{
+		if (this.vheadsRectangles != null) return this.vheadsRectangles;
+		if (this.vheads == null) this.getVHeads();
+		
+		var calculator = new VNoteHeadsRectsCalculator(this);
+		this.vheadsRectangles = calculator.getHeadsRects();
+		return this.vheadsRectangles;
 	}
 	
 	/*
@@ -494,7 +648,7 @@ class VNoteHeadsRectsCalculator
 		for (placement in headPlacements)
 		{
 			var rect:Rectangle = null;
-			var headw:Float = null;
+			var headw:Float = 0;
 			switch(value.head)
 			{
 				case EHeadValuetype.HVT1:					
@@ -760,8 +914,18 @@ typedef VBeamgroups = Array<VBeamgroup>;
 		 this.frame = calculator.getFrame();
 		 
 		 return this.frame;
-		 
-		 
+	 }
+	 
+	 var value:Null<Int> = null;
+	 public function getValue():Int
+	 {
+		 if (this.value != null) return this.value;
+		 this.value = 0;
+		 for (vnote in this.vnotes)
+		 {
+			this.value += vnote.nnote.value.value;
+		 }
+		 return this.value;
 	 }
 	 
 	 
@@ -1083,7 +1247,7 @@ typedef VBeamgroups = Array<VBeamgroup>;
 		  {
 			  for (vnote in vvoice.getVNotes())
 			  {
-				  var npos = vvoice.getVNotePosition(vnote);
+				  var npos = vvoice.getVNotePositions().get(vnote);
 				  if (!positionsMap.exists(npos)) positionsMap.set(npos, []);
 				  positionsMap.get(npos).push(vnote);
 			  }

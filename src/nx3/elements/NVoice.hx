@@ -27,7 +27,7 @@ class NVoice
 			this.nnotes = notes;
 			this.type = (type != null) ? type : EVoiceType.Normal;
 		}
-		this.direction = direction;
+		this.direction = (direction != null) ? direction : EDirectionUAD.Auto ;
 	}
 	
 }

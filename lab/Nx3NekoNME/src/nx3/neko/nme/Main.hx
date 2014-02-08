@@ -17,15 +17,12 @@ class Main
 	
 	static function main() 
 	{
-		
 		var runner = new  TestRunner();
 		runner.add(new TestQ());
 		runner.add(new TestN());
 		runner.add(new TestV());
-		//runner.add(new TestVRender());		
+		runner.add(new TestVRender());		
 		runner.run();
-		
-		
 	}
 	
 }

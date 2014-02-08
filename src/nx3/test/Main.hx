@@ -20,7 +20,7 @@ class Main
 		runner.add(new TestQ());
 		runner.add(new TestN());
 		runner.add(new TestV());
-		
+		//runner.add(new TestVRender());
 		//runner.add(new TestDVoice());
 		//runner.add(new TestDPart());
 		var success = runner.run();
