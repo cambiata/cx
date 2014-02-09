@@ -2,7 +2,7 @@ package nx3.test;
 import cx.EnumTools;
 import nx3.elements.EDirectionUAD;
 import nx3.elements.ENoteType;
-import nx3.elements.ENoteValue;
+import nx3.elements.ENoteVal;
 import nx3.elements.ESign;
 import nx3.elements.NHead;
 import nx3.elements.NNote;
@@ -29,7 +29,7 @@ class TestN extends   haxe.unit.TestCase
 	public function test2()
 	{
 
-		var item1 = new NNote([ new NHead(-3), new NHead(-2, ESign.Flat), new NHead(4, ESign.Natural), new NHead(1)], ENoteValue.Nv2dot, EDirectionUAD.Down);
+		var item1 = new NNote([ new NHead(-3), new NHead(-2, ESign.Flat), new NHead(4, ESign.Natural), new NHead(1)], ENoteVal.Nv2dot, EDirectionUAD.Down);
 		var xmlstr1= NoteXML.toXml(item1).toString();
 		var item2 = NoteXML.fromXmlStr(xmlstr1);
 		var xmlstr2 = NoteXML.toXml(item2).toString();
@@ -42,9 +42,9 @@ class TestN extends   haxe.unit.TestCase
 	
 	public function testText()
 	{
-		var item = new NNote(ENoteType.Pause(0), null, ENoteValue.Nv4);		
+		var item = new NNote(ENoteType.Pause(0), null, ENoteVal.Nv4);		
 		this.assertEquals(Type.enumIndex(item.type), Type.enumIndex(ENoteType.Pause(0)));
-		var item = new NNote(ENoteType.Lyric('Hello'), null, ENoteValue.Nv4);
+		var item = new NNote(ENoteType.Lyric('Hello'), null, ENoteVal.Nv4);
 		this.assertEquals(Type.enumIndex(item.type), Type.enumIndex(ENoteType.Lyric('hello')));
 	}
 	

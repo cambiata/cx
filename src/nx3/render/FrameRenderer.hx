@@ -1,6 +1,6 @@
 package nx3.render;
-import nx3.elements.DComplex;
-import nx3.elements.DNote;
+//import nx3.elements.DComplex;
+//import nx3.elements.DNote;
 import nx3.elements.interfaces.IDistanceRects;
 import nx3.render.scaling.TScaling;
 import nx3.elements.EDirectionUD;
@@ -38,6 +38,7 @@ class FrameRenderer implements IRenderer implements ISpriteRenderer
 		this.initTargetSprite(target, scaling);
 	}
 	
+	/*
 	public function note(x:Float, y:Float, dnote:DNote)
 	{		
 		this.heads(x, y, dnote);
@@ -67,7 +68,7 @@ class FrameRenderer implements IRenderer implements ISpriteRenderer
 		// ComplexFrame
 		drawRect(dcomplex.headsRect, x, y, 0xFF0000, 2);
 	}
-	
+	*/
 	public function notelines(x:Float, y:Float, width:Float)
 	{
 		this.target.graphics.lineStyle(this.scaling.linesWidth, 0xAAAAAA);	
@@ -80,9 +81,9 @@ class FrameRenderer implements IRenderer implements ISpriteRenderer
 		}
 	}
 	
+	/*
 	public function stave(x:Float, y:Float, dnote:DNote)
 	{
-		/*
 		this.target.graphics.lineStyle(this.scaling.linesWidth, 0x000000);			
 		var topY:Float = y + dnote.headTop.level * scaling.halfSpace;
 		var bottomY:Float = y + dnote.headBottom.level * scaling.halfSpace;		
@@ -100,9 +101,7 @@ class FrameRenderer implements IRenderer implements ISpriteRenderer
 				target.graphics.moveTo(staveX, topY);
 				target.graphics.lineTo(staveX, bottomY + staveLength);
 		}
-		*/
 	}
-	
 	public function heads(x:Float, y:Float, dnote:DNote)
 	{
 		for (rect in dnote.headRects)
@@ -129,7 +128,7 @@ class FrameRenderer implements IRenderer implements ISpriteRenderer
 			}
 		}				
 	}
-	
+	*/
 	/* INTERFACE nx3.render.IRenderer */
 	
 	public function rects(x:Float, y:Float, rects:Array<IDistanceRects>) 

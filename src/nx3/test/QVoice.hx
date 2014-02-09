@@ -1,7 +1,7 @@
 package nx3.test;
 import cx.ArrayTools;
 import nx3.elements.EDirectionUAD;
-import nx3.elements.ENoteValue;
+import nx3.elements.ENoteVal;
 import nx3.elements.ESign;
 import nx3.elements.NNote;
 import nx3.elements.NVoice;
@@ -98,19 +98,19 @@ class QVoice extends NVoice
 	{
 		switch(val)
 		{
-			case 16.0: return ENoteValue.Nv16;
-			case .16: return ENoteValue.Nv16dot;
-			case 8.0: return ENoteValue.Nv8;
-			case .8: return ENoteValue.Nv8dot;
-			case 4.0: return ENoteValue.Nv4;
-			case .4: return ENoteValue.Nv4dot;
-			case 2.0: return ENoteValue.Nv2;
-			case .2: return ENoteValue.Nv2dot;
-			case 1.0: return ENoteValue.Nv1;
-			case .1: return ENoteValue.Nv1dot;
+			case 16.0: return ENoteVal.Nv16;
+			case .16: return ENoteVal.Nv16dot;
+			case 8.0: return ENoteVal.Nv8;
+			case .8: return ENoteVal.Nv8dot;
+			case 4.0: return ENoteVal.Nv4;
+			case .4: return ENoteVal.Nv4dot;
+			case 2.0: return ENoteVal.Nv2;
+			case .2: return ENoteVal.Nv2dot;
+			case 1.0: return ENoteVal.Nv1;
+			case .1: return ENoteVal.Nv1dot;
 			default: throw 'Unknown notevalue: $val';
 		}
-		return ENoteValue.Nv4;
+		return ENoteVal.Nv4;
 	}
 	
 }

@@ -4,7 +4,7 @@ package nx3.test;
 import haxe.ds.IntMap.IntMap;
 
 import nx3.elements.EDirectionUAD;
-import nx3.elements.ENoteValue;
+import nx3.elements.ENoteVal;
 import nx3.elements.NBar;
 import nx3.elements.NHead;
 import nx3.elements.NNote;
@@ -87,7 +87,7 @@ class TestVRender extends  haxe.unit.TestCase
 		var npart0 = new NPart([
 			new NVoice([
 				//new QNote2([ -2, -3]),
-				new NNote([new NHead( -2), new NHead( -3)], ENoteValue.Nv1, EDirectionUAD.Up),
+				new NNote([new NHead( -2), new NHead( -3)], ENoteVal.Nv1, EDirectionUAD.Up),
 			]),
 			
 			new QVoice([.4, 8], [2, 2]),
@@ -163,14 +163,10 @@ class DevRenderer extends FrameRenderer
 		for (pos in positionsColumns.keys())
 		{
 			var colx = pos  / 20;			
-			//var r = new Rectangle(colx - 2, this.defaultY, 4, height);
 			this.target.graphics.endFill();
 			this.target.graphics.lineStyle(1, 0x0000ff);
 			this.target.graphics.moveTo(this.defaultX + colx, this.defaultY - this.scaling.space*3);
 			this.target.graphics.lineTo(this.defaultX + colx, this.defaultY + height + this.scaling.space*3);
-			
-			//this.target.graphics.drawRect(this.defaultX + colx - 2, this.defaultY, 4, height);
-			//this.drawRect(new Rectangle( -2, 0,  4, height), colx, this.defaultY, 0x0000ff); 
 		}
 	}
 	
@@ -207,14 +203,10 @@ class DevRenderer extends FrameRenderer
 			for (beamgroups in vpart.getPartbeamgroups())
 			{
 				var vvoiceIdx = vpart.getPartbeamgroups().index(beamgroups);
-			//}
-			//for (vvoice in vpart.getVVoices())
-			//{
-				///var vvoiceIdx = vpart.getVVoices().index(vvoice);
+	
 				for (beamgroup in beamgroups)
 				{
 					var beamgroupIdx =beamgroups.index(beamgroup);
-					
 					for (vnote in beamgroup.vnotes)
 					{
 						var vnoteIdx = beamgroup.vnotes.index(vnote);

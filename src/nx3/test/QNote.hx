@@ -1,7 +1,7 @@
 package nx3.test;
 import nx3.elements.ESign;
 import nx3.elements.EHeadType;
-import nx3.elements.ENoteValue;
+import nx3.elements.ENoteVal;
 import nx3.elements.EDirectionUAD;
 import nx3.elements.NHead;
 import nx3.elements.NNote;
@@ -13,7 +13,7 @@ import nx3.elements.NNote;
 class QNote extends NNote
 {
 
-	public function new(?headLevel:Int=null, ?headLevels:Array<Int>=null, ?head:NHead=null, ?heads:Array<NHead>=null, ?value : ENoteValue=null, ?signs:String='', ?direction:EDirectionUAD=null) 
+	public function new(?headLevel:Int=null, ?headLevels:Array<Int>=null, ?head:NHead=null, ?heads:Array<NHead>=null, ?value : ENoteVal=null, ?signs:String='', ?direction:EDirectionUAD=null) 
 	{
 		//var heads:Array<NHead> = null;
 		
@@ -32,7 +32,7 @@ class QNote extends NNote
 		
 		if (heads == null) heads = [new NHead(0)];
 		
-		if (value == null) value = ENoteValue.Nv4;
+		if (value == null) value = ENoteVal.Nv4;
 		
 		
 		
@@ -60,7 +60,7 @@ class QNote4 extends QNote
 {
 	public function new(?headLevel:Int=null, ?headLevels:Array<Int>=null, ?signs:String='') 
 	{
-		super(headLevel, headLevels, ENoteValue.Nv4, signs);
+		super(headLevel, headLevels, ENoteVal.Nv4, signs);
 	}
 }
 
@@ -68,7 +68,7 @@ class QNote8 extends QNote
 {
 	public function new(?headLevel:Int=null, ?headLevels:Array<Int>=null, ?signs:String='') 
 	{
-		super(headLevel, headLevels, ENoteValue.Nv8);
+		super(headLevel, headLevels, ENoteVal.Nv8);
 	}
 }
 
@@ -76,7 +76,7 @@ class QNote16 extends QNote
 {
 	public function new(?headLevel:Int=null, ?headLevels:Array<Int>=null, ?signs:String='') 
 	{
-		super(headLevel, headLevels, ENoteValue.Nv16);
+		super(headLevel, headLevels, ENoteVal.Nv16);
 	}
 }
 
@@ -86,6 +86,6 @@ class QNote2 extends QNote
 {
 	public function new(?headLevel:Int=null, ?headLevels:Array<Int>=null, ?signs:String='') 
 	{
-		super(headLevel, headLevels, ENoteValue.Nv2);
+		super(headLevel, headLevels, ENoteVal.Nv2);
 	}
 }

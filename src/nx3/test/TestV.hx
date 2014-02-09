@@ -6,7 +6,9 @@ import nx3.Constants;
 import nx3.elements.EDirectionUAD;
 import nx3.elements.EDirectionUD;
 import nx3.elements.ENoteType;
-import nx3.elements.ENoteValue;
+import nx3.elements.ENoteVal;
+import nx3.elements.ENoteVal;
+//import nx3.elements.ENoteValue;
 import nx3.elements.ESign;
 import nx3.elements.NBar;
 import nx3.elements.NNote;
@@ -23,6 +25,7 @@ import nx3.test.QNote.QNote8;
 
 using nx3.elements.VTree.VMapTools;
 using cx.ArrayTools;
+using nx3.elements.ENoteValTools;
 /**
  * ...
  * @author Jonas Nyström
@@ -39,13 +42,61 @@ using cx.ArrayTools;
 
 class TestV extends  haxe.unit.TestCase 
 {
+	/*
+	public function testENoteVal()
+	{
+		this.assertEquals(ENoteValue.Nv1.value, ENoteVal.Nv1.value());
+		this.assertEquals(ENoteValue.Nv1dot.value, ENoteVal.Nv1dot.value());
+		this.assertEquals(ENoteValue.Nv1ddot.value, ENoteVal.Nv1ddot.value());
+		this.assertEquals(ENoteValue.Nv1tri.value, ENoteVal.Nv1tri.value());
+		
+		this.assertEquals(ENoteValue.Nv2.value, ENoteVal.Nv2.value());
+		this.assertEquals(ENoteValue.Nv2dot.value, ENoteVal.Nv2dot.value());
+		this.assertEquals(ENoteValue.Nv2ddot.value, ENoteVal.Nv2ddot.value());
+		this.assertEquals(ENoteValue.Nv2tri.value, ENoteVal.Nv2tri.value());				
+
+		this.assertEquals(ENoteValue.Nv4.value, ENoteVal.Nv4.value());
+		this.assertEquals(ENoteValue.Nv4dot.value, ENoteVal.Nv4dot.value());
+		this.assertEquals(ENoteValue.Nv4ddot.value, ENoteVal.Nv4ddot.value());
+		this.assertEquals(ENoteValue.Nv4tri.value, ENoteVal.Nv4tri.value());				
+
+		this.assertEquals(ENoteValue.Nv8.value, ENoteVal.Nv8.value());
+		this.assertEquals(ENoteValue.Nv8dot.value, ENoteVal.Nv8dot.value());
+		this.assertEquals(ENoteValue.Nv8ddot.value, ENoteVal.Nv8ddot.value());
+		this.assertEquals(ENoteValue.Nv8tri.value, ENoteVal.Nv8tri.value());		
+		
+		this.assertEquals(ENoteValue.Nv16.value, ENoteVal.Nv16.value());
+		this.assertEquals(ENoteValue.Nv16dot.value, ENoteVal.Nv16dot.value());
+		this.assertEquals(ENoteValue.Nv16ddot.value, ENoteVal.Nv16ddot.value());
+		this.assertEquals(ENoteValue.Nv16tri.value, ENoteVal.Nv16tri.value());		
+		
+		//------------------------------------------------------------------------------------------------------------
+		
+		this.assertEquals(ENoteValue.Nv1.head, ENoteVal.Nv1.head());
+		this.assertEquals(ENoteValue.Nv2.head, ENoteVal.Nv2.head());
+		this.assertEquals(ENoteValue.Nv4.head, ENoteVal.Nv4.head());
+		this.assertEquals(ENoteValue.Nv8.head, ENoteVal.Nv8.head());
+		
+		this.assertEquals(ENoteValue.Nv1.stavingLevel, ENoteVal.Nv1.stavinglevel());
+		this.assertEquals(ENoteValue.Nv2.stavingLevel, ENoteVal.Nv2.stavinglevel());
+		this.assertEquals(ENoteValue.Nv4.stavingLevel, ENoteVal.Nv4.stavinglevel());
+		this.assertEquals(ENoteValue.Nv8.stavingLevel, ENoteVal.Nv8.stavinglevel());
+		
+		this.assertEquals(ENoteValue.Nv1.beamingLevel, ENoteVal.Nv1.beaminglevel());
+		this.assertEquals(ENoteValue.Nv2.beamingLevel, ENoteVal.Nv2.beaminglevel());
+		this.assertEquals(ENoteValue.Nv4.beamingLevel, ENoteVal.Nv4.beaminglevel());
+		this.assertEquals(ENoteValue.Nv8.beamingLevel, ENoteVal.Nv8.beaminglevel());
+		this.assertEquals(ENoteValue.Nv16.beamingLevel, ENoteVal.Nv16.beaminglevel());
+		this.assertEquals(ENoteValue.Nv32.beamingLevel, ENoteVal.Nv32.beaminglevel());
+	}
+	*/
 	
 	public function testVNote1() 
 	{
 		var vnote = new VNote(new QNote([ 1, -2]));
 		this.assertEquals(2, vnote.nnote.nheads.length);
 		this.assertEquals([ -2, 1].toString(), vnote.nnote.getHeadLevels().toString());
-		this.assertEquals(ENoteValue.Nv4, vnote.nnote.value);
+		this.assertEquals(ENoteVal.Nv4, vnote.nnote.value);
 	}
 
 	public function testVNoteInternalDirection()
@@ -213,13 +264,13 @@ class TestV extends  haxe.unit.TestCase
 		var vvoice = new VVoice(new QVoice([4, 8, 8, 2]));
 		this.assertEquals(4, vvoice.nvoice.nnotes.length);
 		this.assertEquals(4, vvoice.getVNotes().length);
-		this.assertEquals(ENoteValue.Nv8, vvoice.getVNotes()[1].nnote.value);
-		this.assertEquals(ENoteValue.Nv2, vvoice.getVNotes()[3].nnote.value);
+		this.assertEquals(ENoteVal.Nv8, vvoice.getVNotes()[1].nnote.value);
+		this.assertEquals(ENoteVal.Nv2, vvoice.getVNotes()[3].nnote.value);
 		
 		this.assertEquals(0, vvoice.getVNotePositions().get(vvoice.getVNotes()[0]));
-		this.assertEquals(ENoteValue.Nv4.value, vvoice.getVNotePositions().get(vvoice.getVNotes()[1]));
-		this.assertEquals(ENoteValue.Nv4.value+ENoteValue.Nv8.value, vvoice.getVNotePositions().get(vvoice.getVNotes()[2]));
-		this.assertEquals(ENoteValue.Nv4.value+ENoteValue.Nv8.value+ENoteValue.Nv8.value, vvoice.getVNotePositions().get(vvoice.getVNotes()[3]));
+		this.assertEquals(ENoteVal.Nv4.value(), vvoice.getVNotePositions().get(vvoice.getVNotes()[1]));
+		this.assertEquals(ENoteVal.Nv4.value()+ENoteVal.Nv8.value(), vvoice.getVNotePositions().get(vvoice.getVNotes()[2]));
+		this.assertEquals(ENoteVal.Nv4.value()+ENoteVal.Nv8.value()+ENoteVal.Nv8.value(), vvoice.getVNotePositions().get(vvoice.getVNotes()[3]));
 	}
 	
 	// Test lazy instatioation (private variables!)
@@ -240,44 +291,44 @@ class TestV extends  haxe.unit.TestCase
 		var value = vvoice.getValue();
 		this.assertTrue(vvoice.vnotes != null);
 		this.assertTrue(vvoice.value != null);
-		this.assertEquals(ENoteValue.Nv4.value * 4, vvoice.value);
+		this.assertEquals(ENoteVal.Nv4.value() * 4, vvoice.value);
 	}
 	
 	public function testBeamgroups()
 	{
 		var vvoice = new VVoice(new QVoice([8, 8, 8, 8, 8, 8]));
 		this.assertTrue(vvoice.beamgroups == null);
-		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteValue.Nv4]);
+		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteVal.Nv4]);
 		this.assertEquals(3, beamgroups.length);
 		this.assertEquals(2, beamgroups[0].vnotes.length);
 		this.assertEquals(2, beamgroups[1].vnotes.length);
 		this.assertEquals(2, beamgroups[2].vnotes.length);
 		this.assertTrue(vvoice.beamgroups != null);
-		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteValue.Nv4dot]);
+		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteVal.Nv4dot]);
 		this.assertEquals(2, beamgroups.length);
 		this.assertEquals(3, beamgroups[0].vnotes.length);
 		this.assertEquals(3, beamgroups[1].vnotes.length);
 		
 		var vvoice = new VVoice(new QVoice([4, 8, 8, 8, 8]));		
-		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteValue.Nv4]);
+		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteVal.Nv4]);
 		this.assertEquals(3, beamgroups.length);
 		this.assertEquals(1, beamgroups[0].vnotes.length);
 		this.assertEquals(2, beamgroups[1].vnotes.length);
 		this.assertEquals(2, beamgroups[2].vnotes.length);
-		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteValue.Nv4dot]);
+		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteVal.Nv4dot]);
 		this.assertEquals(3, beamgroups.length);
 		this.assertEquals(1, beamgroups[0].vnotes.length);
 		this.assertEquals(1, beamgroups[1].vnotes.length);
 		this.assertEquals(3, beamgroups[2].vnotes.length);
 
 		var vvoice = new VVoice(new QVoice([8, 4, 8, 8, 8]));		
-		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteValue.Nv4]);
+		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteVal.Nv4]);
 		this.assertEquals(4, beamgroups.length);
 		this.assertEquals(1, beamgroups[0].vnotes.length);
 		this.assertEquals(1, beamgroups[1].vnotes.length);
 		this.assertEquals(1, beamgroups[2].vnotes.length);
 		this.assertEquals(2, beamgroups[3].vnotes.length);
-		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteValue.Nv4dot]);
+		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteVal.Nv4dot]);
 		this.assertEquals(3, beamgroups.length);
 		this.assertEquals(1, beamgroups[0].vnotes.length);
 		this.assertEquals(1, beamgroups[1].vnotes.length);
@@ -285,7 +336,7 @@ class TestV extends  haxe.unit.TestCase
 		
 		
 		var vvoice = new VVoice(new QVoice([.2, 16, 16, 16, 16]));		
-		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteValue.Nv4]);
+		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteVal.Nv4]);
 		
 		this.assertEquals(2, beamgroups.length);
 		this.assertEquals(1, beamgroups[0].vnotes.length);
@@ -295,34 +346,34 @@ class TestV extends  haxe.unit.TestCase
 		// pauses...
 		
 		var vvoice = new VVoice(new NVoice([new NNote(
-			ENoteType.Pause(0), ENoteValue.Nv8), 
+			ENoteType.Pause(0), ENoteVal.Nv8), 
 			new QNote8(),
 			new QNote8(),
 			new QNote8(),
 			new QNote8(), 
 			new QNote8(),
 			]));
-		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteValue.Nv4]);
+		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteVal.Nv4]);
 		this.assertEquals(beamgroups.length, 4);
 		this.assertEquals(beamgroups.first().vnotes.length, 1);
 		this.assertEquals(beamgroups.second().vnotes.length, 1);
 		this.assertEquals(beamgroups.third().vnotes.length, 2);
 		this.assertEquals(beamgroups.fourth().vnotes.length, 2);
 
-		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteValue.Nv4dot]);
+		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteVal.Nv4dot]);
 		this.assertEquals(beamgroups.length, 3);
 		this.assertEquals(beamgroups.first().vnotes.length, 1);
 		this.assertEquals(beamgroups.second().vnotes.length, 2);
 		this.assertEquals(beamgroups.third().vnotes.length, 3);
 
 		var vvoice = new VVoice(new NVoice([new NNote(
-			ENoteType.Pause(0), ENoteValue.Nv8), 
+			ENoteType.Pause(0), ENoteVal.Nv8), 
 			new QNote4(),
 			new QNote8(),
 			new QNote8(), 
 			new QNote8(),
 			]));
-		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteValue.Nv4]);
+		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteVal.Nv4]);
 		this.assertEquals(beamgroups.length, 4);
 		this.assertEquals(beamgroups.first().vnotes.length, 1);
 		this.assertEquals(beamgroups.second().vnotes.length, 1);
@@ -330,20 +381,20 @@ class TestV extends  haxe.unit.TestCase
 		this.assertEquals(beamgroups.fourth().vnotes.length, 2);
 
 		var vvoice = new VVoice(new NVoice([new NNote(
-			ENoteType.Pause(0), ENoteValue.Nv8), 
+			ENoteType.Pause(0), ENoteVal.Nv8), 
 			new QNote4(),
 			new QNote8(),
 			new QNote8(), 
 			new QNote8(),
 			]));
-		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteValue.Nv4dot]);
+		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteVal.Nv4dot]);
 		this.assertEquals(beamgroups.length, 3);
 		this.assertEquals(beamgroups.first().vnotes.length, 1);
 		this.assertEquals(beamgroups.second().vnotes.length, 1);
 		this.assertEquals(beamgroups.third().vnotes.length, 3);
 
 		var vvoice = new VVoice(new NVoice([
-			new NNote(ENoteType.Pause(0), ENoteValue.Nv16), 
+			new NNote(ENoteType.Pause(0), ENoteVal.Nv16), 
 			new QNote16(),
 			new QNote16(),
 			new QNote16(),
@@ -354,7 +405,7 @@ class TestV extends  haxe.unit.TestCase
 			new QNote16(),
 			new QNote16(),
 		]));
-		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteValue.Nv4]);
+		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteVal.Nv4]);
 		this.assertEquals(beamgroups.length, 4);
 		this.assertEquals(beamgroups.first().vnotes.length, 1);
 		this.assertEquals(beamgroups.second().vnotes.length, 3);
@@ -362,18 +413,18 @@ class TestV extends  haxe.unit.TestCase
 		this.assertEquals(beamgroups.last().vnotes.length, 3);
 		
 		var vvoice = new VVoice(new NVoice([
-			new NNote(ENoteType.Pause(0), ENoteValue.Nv16), 
+			new NNote(ENoteType.Pause(0), ENoteVal.Nv16), 
 			new QNote16(),
 			new QNote16(),
 			new QNote16(),
 			new QNote16(),
 			new QNote8(),
-			new NNote(ENoteType.Pause(0), ENoteValue.Nv16),
+			new NNote(ENoteType.Pause(0), ENoteVal.Nv16),
 			new QNote8(), 
 			new QNote16(),
-			new NNote(ENoteType.Pause(0), ENoteValue.Nv16),
+			new NNote(ENoteType.Pause(0), ENoteVal.Nv16),
 		]));
-		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteValue.Nv4]);
+		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteVal.Nv4]);
 		this.assertEquals(beamgroups.length, 6);
 		
 	}
@@ -459,9 +510,9 @@ class TestV extends  haxe.unit.TestCase
 	public function testBeamgroupValue()
 	{
 		var vvoice = new VVoice(new QVoice([8, 8, 8, 8, 8, 8]));
-		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteValue.Nv4]);		
+		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteVal.Nv4]);		
 		this.assertEquals(beamgroups.length, 3);
-		this.assertEquals(beamgroups.first().getValue(), ENoteValue.Nv4.value);
+		this.assertEquals(beamgroups.first().getValue(), ENoteVal.Nv4.value());
 	}
 	
 	
@@ -805,7 +856,7 @@ class TestV extends  haxe.unit.TestCase
 		]);
 		var vbar = new VBar(new NBar([npart0, npart1]));
 		var value = vbar.getValue();
-		this.assertEquals(value, ENoteValue.Nv4.value * 4);
+		this.assertEquals(value, ENoteVal.Nv4.value() * 4);
 	}
 	
 	public function testVBar()

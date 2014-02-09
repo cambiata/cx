@@ -23,6 +23,7 @@ import nx3.geom.Rectangle;
 import nx3.geom.Rectangles;
 
 using nx3.elements.VTree.VMapTools;
+using nx3.elements.ENoteValTools;
 /**
  * ...
  * @author Jonas Nyström
@@ -465,7 +466,7 @@ class VVoice
 		for (vnote in this.vnotes) 
 		{
 			this.vnotePositions.set(vnote, pos);
-			pos += vnote.nnote.value.value;
+			pos += vnote.nnote.value.value();
 		}		
 		return this.vnotePositions;
 		
@@ -477,13 +478,13 @@ class VVoice
 		if (this.value != null) return this.value;
 		if (this.vnotes == null) this.getVNotes();
 		this.value = 0;
-		for (vnote in this.vnotes) this.value += vnote.nnote.value.value;
+		for (vnote in this.vnotes) this.value += vnote.nnote.value.value();
 		return this.value;
 	}
 	
 	var beamgroups:VBeamgroups;
-	var beampattern: ENoteValues;
-	public function getBeamgroups(pattern:ENoteValues=null):VBeamgroups
+	var beampattern: ENoteVals;
+	public function getBeamgroups(pattern:ENoteVals=null):VBeamgroups
 	{
 		// if new pattern, recreate beamgroups
 		if (pattern != beampattern) this.beamgroups = null;
@@ -687,7 +688,7 @@ class VNoteHeadsRectsCalculator
 		{
 			var rect:Rectangle = null;
 			var headw:Float = 0;
-			switch(value.head)
+			switch(value.head())
 			{
 				case EHeadValuetype.HVT1:					
 					headw = Constants.HEAD_HALFWIDTH_WIDE;
@@ -961,7 +962,7 @@ typedef VBeamgroups = Array<VBeamgroup>;
 		 this.value = 0;
 		 for (vnote in this.vnotes)
 		 {
-			this.value += vnote.nnote.value.value;
+			this.value += vnote.nnote.value.value();
 		 }
 		 return this.value;
 	 }
@@ -1078,11 +1079,11 @@ typedef VBeamgroups = Array<VBeamgroup>;
  class VCreateBeamgroups 
  {
 	 var vnotes:VNotes;
-	 var pattern: ENoteValues;
+	 var pattern: ENoteVals;
 	 
-	 public function new (vnotes:VNotes, pattern:ENoteValues=null)
+	 public function new (vnotes:VNotes, pattern:ENoteVals=null)
 	 {
-		 if (pattern == null) pattern = [ENoteValue.Nv4];
+		 if (pattern == null) pattern = [ENoteVal.Nv4];
 
 		 this.vnotes = vnotes;
 		this.pattern = pattern;
@@ -1103,10 +1104,10 @@ typedef VBeamgroups = Array<VBeamgroup>;
 	 private function adjustPatternLenght()
 	 {
 		 var notesValue = 0;
-		 for (vnote in vnotes) notesValue += vnote.nnote.value.value;
+		 for (vnote in vnotes) notesValue += vnote.nnote.value.value();
 		 
 		 var patternValue = 0;
-		 for (value in pattern) patternValue += value.value;
+		 for (value in pattern) patternValue += value.value();
 		 
 		 while (patternValue < notesValue)
 		 {
@@ -1125,7 +1126,7 @@ typedef VBeamgroups = Array<VBeamgroup>;
 		var vPos = 0;
 		var i = 0;
 		for (v in this.pattern) {			
-			var vValue = v.value;
+			var vValue = v.value();
 			var vEnd = vPos + vValue;
 			patternValuePos.push(vPos);
 			patternValueEnd.push(vEnd);			
@@ -1146,8 +1147,8 @@ typedef VBeamgroups = Array<VBeamgroup>;
 		for (vnote in this.vnotes)
 		{
 			this.vnotePosition.set(vnote, pos);
-			var endpos = pos + vnote.nnote.value.value;
-			this.vnotePositionEnd.set(vnote, pos + vnote.nnote.value.value);
+			var endpos = pos + vnote.nnote.value.value();
+			this.vnotePositionEnd.set(vnote, pos + vnote.nnote.value.value());
 			pos = endpos;
 		}			
 	}
@@ -1167,7 +1168,7 @@ typedef VBeamgroups = Array<VBeamgroup>;
 			{
 				case ENoteType.Note(heads, variant, articulations, attributes):
 					
-						if (vnote.nnote.value.beamingLevel < 1) 
+						if (vnote.nnote.value.beaminglevel() < 1) 
 						{
 							groupIdx = -1;
 						}

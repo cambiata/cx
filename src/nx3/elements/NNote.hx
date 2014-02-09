@@ -14,11 +14,11 @@ class NNote
 {
 	
 	public var type(default, null):ENoteType;
-	public var value(default, null): ENoteValue;
+	public var value(default, null): ENoteVal;
 	public var direction(default, null):EDirectionUAD;
 	public var nheads(get, null):Array<NHead>;	
 	
-	public function new(?type:ENoteType=null, ?heads:Array<NHead>=null, ?value:ENoteValue=null , ?direction:EDirectionUAD=null) 
+	public function new(?type:ENoteType=null, ?heads:Array<NHead>=null, ?value:ENoteVal=null , ?direction:EDirectionUAD=null) 
 	{
 		if (type == null) 
 		{
@@ -26,7 +26,7 @@ class NNote
 		}
 		
 		this.type = (type == null) ? ENoteType.Note(heads) : type;
-		this.value = (value == null) ? ENoteValue.Nv4 : value;
+		this.value = (value == null) ? ENoteVal.Nv4 : value;
 		this.direction = (direction == null) ? EDirectionUAD.Auto : direction;
 	}
 	

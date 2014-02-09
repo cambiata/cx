@@ -6,7 +6,7 @@ import nx3.elements.ELyricContinuation;
 import nx3.elements.ELyricFormat;
 import nx3.elements.ENoteArticulation;
 import nx3.elements.ENoteAttributes;
-import nx3.elements.ENoteValue;
+import nx3.elements.ENoteVal;
 import nx3.elements.NHead;
 import nx3.elements.NNote;
 import nx3.elements.ENoteType;
@@ -15,7 +15,7 @@ import nx3.elements.EPosition;
 import nx3.elements.ULevel;
 
 using nx3.io.HeadXML;
-
+using nx3.elements.ENoteValTools;
 /**
  * ...
  * @author 
@@ -99,9 +99,9 @@ class NoteXML
 		}
 		
 		// value
-		if (note.value.value != ENoteValue.Nv4.value)
+		if (note.value.value() != ENoteVal.Nv4.value())
 		{
-			xml.set(XNOTE_VALUE, Std.string(note.value.value));
+			xml.set(XNOTE_VALUE, Std.string(note.value.value()));
 		}
 		
 		// direction
@@ -178,9 +178,10 @@ class NoteXML
 		
 		// value
 		var valStr = xml.get(XNOTE_VALUE);
-		var val:Int = (valStr == null) ? ENoteValue.Nv4.value : Std.parseInt(xml.get(XNOTE_VALUE));
-		var value:ENoteValue = ENoteValue.getFromValue(val);
-
+		var val:Int = (valStr == null) ? ENoteVal.Nv4.value() : Std.parseInt(xml.get(XNOTE_VALUE));
+		//var value:ENoteVal = ENoteValue.getFromValue(val);
+		var value:ENoteVal = ENoteValTools.getFromValue(val);
+		
 		// direction		
 		var direction:EDirectionUAD = EnumTools.createFromString(EDirectionUAD, xml.get(XNOTE_DIRECTION));
 		
