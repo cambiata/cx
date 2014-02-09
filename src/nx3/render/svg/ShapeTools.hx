@@ -1,7 +1,13 @@
 package nx3.render.svg;
 import cx.ReflectTools;
 
+
+#if (nme)
+import nme.display.Shape;
+#else
 import flash.display.Shape;
+#end
+
 
 
 import format.SVG;

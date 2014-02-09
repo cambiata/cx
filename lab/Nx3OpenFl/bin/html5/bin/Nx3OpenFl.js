@@ -1330,8 +1330,15 @@ nx3.xamples.main.openfl.Main.__name__ = ["nx3","xamples","main","openfl","Main"]
 nx3.xamples.main.openfl.Main.__super__ = nx3.xamples.main.openfl.OpenFlMain;
 nx3.xamples.main.openfl.Main.prototype = $extend(nx3.xamples.main.openfl.OpenFlMain.prototype,{
 	start: function() {
-		this.addChild(nx3.xamples.Examples.basic2());
-		nx3.xamples.Examples.illustration1();
+		var renderer = new nx3.test.DevRenderer(this,nx3.render.scaling.Scaling.BIG);
+		var npart0 = new nx3.elements.NPart([new nx3.test.QVoice([2],null,[-2]),new nx3.test.QVoice([.4,8],null,[2,2])]);
+		var npart1 = new nx3.elements.NPart([new nx3.test.QVoice([8,.4],null,[-2,-2]),new nx3.test.QVoice([4,4],null,[2,2])]);
+		var vbar = new nx3.elements.VBar(new nx3.elements.NBar([npart0,npart1]));
+		renderer.setDefaultXY(200,80);
+		renderer.drawVBarNotelines(vbar,400,-30);
+		renderer.drawVBarColumns(vbar);
+		renderer.drawVBarComplexes(vbar);
+		renderer.drawVBarVoices(vbar);
 	}
 	,__class__: nx3.xamples.main.openfl.Main
 });
@@ -1392,6 +1399,28 @@ EReg.prototype = {
 var HxOverrides = function() { }
 $hxClasses["HxOverrides"] = HxOverrides;
 HxOverrides.__name__ = ["HxOverrides"];
+HxOverrides.strDate = function(s) {
+	switch(s.length) {
+	case 8:
+		var k = s.split(":");
+		var d = new Date();
+		d.setTime(0);
+		d.setUTCHours(k[0]);
+		d.setUTCMinutes(k[1]);
+		d.setUTCSeconds(k[2]);
+		return d;
+	case 10:
+		var k = s.split("-");
+		return new Date(k[0],k[1] - 1,k[2],0,0,0);
+	case 19:
+		var k = s.split(" ");
+		var y = k[0].split("-");
+		var t = k[1].split(":");
+		return new Date(y[0],y[1] - 1,y[2],t[0],t[1],t[2]);
+	default:
+		throw "Invalid date format : " + s;
+	}
+}
 HxOverrides.cca = function(s,index) {
 	var x = s.charCodeAt(index);
 	if(x != x) return undefined;
@@ -1437,15 +1466,6 @@ Lambda.array = function(it) {
 	}
 	return a;
 }
-Lambda.map = function(it,f) {
-	var l = new List();
-	var $it0 = $iterator(it)();
-	while( $it0.hasNext() ) {
-		var x = $it0.next();
-		l.add(f(x));
-	}
-	return l;
-}
 Lambda.has = function(it,elt) {
 	var $it0 = $iterator(it)();
 	while( $it0.hasNext() ) {
@@ -1463,20 +1483,6 @@ Lambda.indexOf = function(it,v) {
 		i++;
 	}
 	return -1;
-}
-Lambda.concat = function(a,b) {
-	var l = new List();
-	var $it0 = $iterator(a)();
-	while( $it0.hasNext() ) {
-		var x = $it0.next();
-		l.add(x);
-	}
-	var $it1 = $iterator(b)();
-	while( $it1.hasNext() ) {
-		var x = $it1.next();
-		l.add(x);
-	}
-	return l;
 }
 var List = function() {
 	this.length = 0;
@@ -1675,25 +1681,6 @@ StringTools.htmlEscape = function(s,quotes) {
 StringTools.startsWith = function(s,start) {
 	return s.length >= start.length && HxOverrides.substr(s,0,start.length) == start;
 }
-StringTools.isSpace = function(s,pos) {
-	var c = HxOverrides.cca(s,pos);
-	return c > 8 && c < 14 || c == 32;
-}
-StringTools.ltrim = function(s) {
-	var l = s.length;
-	var r = 0;
-	while(r < l && StringTools.isSpace(s,r)) r++;
-	if(r > 0) return HxOverrides.substr(s,r,l - r); else return s;
-}
-StringTools.rtrim = function(s) {
-	var l = s.length;
-	var r = 0;
-	while(r < l && StringTools.isSpace(s,l - r - 1)) r++;
-	if(r > 0) return HxOverrides.substr(s,0,l - r); else return s;
-}
-StringTools.trim = function(s) {
-	return StringTools.ltrim(StringTools.rtrim(s));
-}
 StringTools.replace = function(s,sub,by) {
 	return s.split(sub).join(by);
 }
@@ -1753,6 +1740,10 @@ Type.createInstance = function(cl,args) {
 	}
 	return null;
 }
+Type.createEmptyInstance = function(cl) {
+	function empty() {}; empty.prototype = cl.prototype;
+	return new empty();
+}
 Type.createEnum = function(e,constr,params) {
 	var f = Reflect.field(e,constr);
 	if(f == null) throw "No such constructor " + constr;
@@ -1774,6 +1765,10 @@ Type.getInstanceFields = function(c) {
 	HxOverrides.remove(a,"__class__");
 	HxOverrides.remove(a,"__properties__");
 	return a;
+}
+Type.getEnumConstructs = function(e) {
+	var a = e.__constructs__;
+	return a.slice();
 }
 var XmlType = $hxClasses["XmlType"] = { __ename__ : true, __constructs__ : [] }
 var Xml = function() {
@@ -1881,32 +1876,6 @@ Xml.prototype = {
 			cur++;
 		}
 		return null;
-	}
-	,elementsNamed: function(name) {
-		if(this._children == null) throw "bad nodetype";
-		return { cur : 0, x : this._children, hasNext : function() {
-			var k = this.cur;
-			var l = this.x.length;
-			while(k < l) {
-				var n = this.x[k];
-				if(n.nodeType == Xml.Element && n._nodeName == name) break;
-				k++;
-			}
-			this.cur = k;
-			return k < l;
-		}, next : function() {
-			var k = this.cur;
-			var l = this.x.length;
-			while(k < l) {
-				var n = this.x[k];
-				k++;
-				if(n.nodeType == Xml.Element && n._nodeName == name) {
-					this.cur = k;
-					return n;
-				}
-			}
-			return null;
-		}};
 	}
 	,elements: function() {
 		if(this._children == null) throw "bad nodetype";
@@ -2050,6 +2019,15 @@ cx.ArrayTools.isLast = function(array,item) {
 cx.ArrayTools.index = function(array,item) {
 	return Lambda.indexOf(array,item);
 }
+cx.ArrayTools.second = function(array) {
+	return array[1];
+}
+cx.ArrayTools.third = function(array) {
+	return array[2];
+}
+cx.ArrayTools.fourth = function(array) {
+	return array[3];
+}
 cx.ArrayTools.shuffle = function(a) {
 	var t = cx.ArrayTools.range(a.length);
 	var arr = [];
@@ -2070,6 +2048,12 @@ cx.ArrayTools.countItem = function(a,item) {
 	}
 	return cnt;
 }
+cx.ArrayTools.sorta = function(a) {
+	a.sort(function(a1,b) {
+		return Reflect.compare(a1,b);
+	});
+	return a;
+}
 cx.ArrayTools.range = function(start,stop,step) {
 	if(step == null) step = 1;
 	if(null == stop) {
@@ -2080,23 +2064,6 @@ cx.ArrayTools.range = function(start,stop,step) {
 	var range = [], i = -1, j;
 	if(step < 0) while((j = start + step * ++i) > stop) range.push(j); else while((j = start + step * ++i) < stop) range.push(j);
 	return range;
-}
-cx.EnumTools = function() { }
-$hxClasses["cx.EnumTools"] = cx.EnumTools;
-cx.EnumTools.__name__ = ["cx","EnumTools"];
-cx.EnumTools.createFromString = function(e,str) {
-	try {
-		var type = str;
-		var params = [];
-		if(cx.StrTools.has(str,"(")) {
-			var parIdx = str.indexOf("(");
-			type = HxOverrides.substr(str,0,parIdx);
-			params = StringTools.replace(StringTools.replace(HxOverrides.substr(str,parIdx,null),"(",""),")","").split(",");
-		}
-		return Type.createEnum(e,type,params);
-	} catch( e1 ) {
-	}
-	return null;
 }
 cx.ReflectTools = function() { }
 $hxClasses["cx.ReflectTools"] = cx.ReflectTools;
@@ -2138,229 +2105,6 @@ cx.ReflectTools.getObjectFields = function(object) {
 }
 cx.ReflectTools.getStaticField = function(object,fieldName) {
 	return Reflect.field(cx.ReflectTools.getClass(object),fieldName);
-}
-cx.StrTools = function() { }
-$hxClasses["cx.StrTools"] = cx.StrTools;
-cx.StrTools.__name__ = ["cx","StrTools"];
-cx.StrTools.countSub = function(str,lookForStr) {
-	return str.split(lookForStr).length - 1;
-}
-cx.StrTools.until = function(str,untilStr,includeUntilStr) {
-	if(includeUntilStr == null) includeUntilStr = false;
-	var pos = str.indexOf(untilStr);
-	if(includeUntilStr) pos++;
-	return str.substring(0,pos);
-}
-cx.StrTools.untilLast = function(str,untilStr,includeUntilStr) {
-	if(includeUntilStr == null) includeUntilStr = false;
-	var pos = str.lastIndexOf(untilStr);
-	if(includeUntilStr) pos++;
-	return str.substring(0,pos);
-}
-cx.StrTools.tab = function(str) {
-	return str + "\t";
-}
-cx.StrTools.newline = function(str) {
-	return str + "\n";
-}
-cx.StrTools.repeat = function(repeatString,count) {
-	var result = "";
-	var _g = 0;
-	while(_g < count) {
-		var i = _g++;
-		result += repeatString;
-	}
-	return result;
-}
-cx.StrTools.fill = function(str,toLength,$with,replaceNull) {
-	if(replaceNull == null) replaceNull = "-";
-	if($with == null) $with = " ";
-	if(toLength == null) toLength = 32;
-	if(str == null) str = replaceNull;
-	do str += $with; while(str.length < toLength);
-	return HxOverrides.substr(str,0,toLength);
-}
-cx.StrTools.splitTrim = function(str,delimiter) {
-	if(delimiter == null) delimiter = ",";
-	if(str == null) return [];
-	var a = str.split(delimiter);
-	var a2 = new Array();
-	var _g = 0;
-	while(_g < a.length) {
-		var part = a[_g];
-		++_g;
-		var part2 = StringTools.trim(part);
-		if(part2.length > 0) a2.push(part2);
-	}
-	return a2;
-}
-cx.StrTools.replaceNull = function(str,$with) {
-	if($with == null) $with = "-";
-	return str == null?$with:str;
-}
-cx.StrTools.firstUpperCase = function(str,restToLowercase) {
-	if(restToLowercase == null) restToLowercase = true;
-	var rest = restToLowercase?HxOverrides.substr(str,1,null).toLowerCase():HxOverrides.substr(str,1,null);
-	return HxOverrides.substr(str,0,1).toUpperCase() + rest;
-}
-cx.StrTools.afterLast = function(str,$char,includeChar) {
-	if(includeChar == null) includeChar = false;
-	var idx = str.lastIndexOf($char);
-	if(idx == -1) return str;
-	if(!includeChar) idx += $char.length;
-	return HxOverrides.substr(str,idx,null);
-}
-cx.StrTools.similarityCaseIgnore = function(strA,strB) {
-	return cx.StrTools.similarity(strA.toLowerCase(),strB.toLowerCase());
-}
-cx.StrTools.similarityCaseBalance = function(strA,strB) {
-	return (cx.StrTools.similarity(strA,strB) + cx.StrTools.similarity(strA.toLowerCase(),strB.toLowerCase())) / 2;
-}
-cx.StrTools.similarity = function(strA,strB) {
-	if(strA == strB) return 1;
-	var sim = function(strA1,strB1) {
-		var score = cx.StrTools._similarity(strA1,strB1);
-		if(strA1.length != strB1.length) score = (score + cx.StrTools._similarity(strB1,strA1)) / 2;
-		return score;
-	};
-	return sim(strA,strB);
-}
-cx.StrTools.similarityAssymetric = function(strShorter,strLonger) {
-	if(strShorter == strLonger) return 1;
-	return cx.StrTools._similarity(strShorter,strShorter);
-}
-cx.StrTools._similarity = function(strA,strB) {
-	var lengthA = strA.length;
-	var lengthB = strB.length;
-	var i = 0;
-	var segmentCount = 0;
-	var segmentsInfos = new Array();
-	var segment = "";
-	while(i < lengthA) {
-		var $char = strA.charAt(i);
-		if(strB.indexOf($char) > -1) {
-			segment += $char;
-			if(strB.indexOf(segment) > -1) {
-				var segmentPosA = i - segment.length + 1;
-				var segmentPosB = strB.indexOf(segment);
-				var positionDiff = Math.abs(segmentPosA - segmentPosB);
-				var posFactor = (lengthA - positionDiff) / lengthB;
-				var lengthFactor = segment.length / lengthA;
-				segmentsInfos[segmentCount] = { segment : segment, score : posFactor * lengthFactor};
-			} else {
-				segment = "";
-				segmentCount++;
-				i--;
-			}
-		} else {
-			segment = "";
-			segmentCount++;
-		}
-		i++;
-	}
-	var usedSegmentsCount = -2;
-	var totalScore = 0.0;
-	var _g = 0;
-	while(_g < segmentsInfos.length) {
-		var si = segmentsInfos[_g];
-		++_g;
-		if(si != null) {
-			totalScore += si.score;
-			usedSegmentsCount++;
-		}
-	}
-	totalScore = totalScore - Math.max(usedSegmentsCount,0) * 0.02;
-	return Math.max(0,Math.min(totalScore,1));
-}
-cx.StrTools.has = function(str,substr) {
-	return str.indexOf(substr) > -1;
-}
-cx.StrTools.reverse = function(string) {
-	var result = "";
-	var _g1 = 0, _g = string.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		result = string.charAt(i) + result;
-	}
-	return result;
-}
-cx.StrTools.intToChar = function($int,offset) {
-	if(offset == null) offset = 65;
-	if($int > 9) throw "int to char error";
-	if($int < 0) throw "int to char error";
-	var c = $int + offset;
-	var $char = String.fromCharCode(c);
-	return $char;
-}
-cx.StrTools.charToInt = function($char,offset) {
-	if(offset == null) offset = 65;
-	if($char.length > 1) throw "char to int error";
-	return HxOverrides.cca($char,0) - offset;
-}
-cx.StrTools.numToStr = function(numStr,offset) {
-	if(offset == null) offset = 65;
-	var testParse = Std.parseInt(numStr);
-	var result = "";
-	var _g1 = 0, _g = numStr.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		var $int = Std.parseInt(numStr.charAt(i));
-		var $char = cx.StrTools.intToChar($int,offset);
-		result += $char;
-	}
-	return result;
-}
-cx.StrTools.strToNum = function(str,offset) {
-	if(offset == null) offset = 65;
-	var result = "";
-	var _g1 = 0, _g = str.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		var $char = str.charAt(i);
-		var $int = cx.StrTools.charToInt($char,offset);
-		result += Std.string($int);
-	}
-	return result;
-}
-cx.StrTools.rotate = function(str,positions) {
-	if(positions == null) positions = 1;
-	var result = str;
-	var _g = 0;
-	while(_g < positions) {
-		var i = _g++;
-		result = HxOverrides.substr(result,1,result.length) + HxOverrides.substr(result,0,1);
-	}
-	return result;
-}
-cx.StrTools.rotateBack = function(str,positions) {
-	if(positions == null) positions = 1;
-	var result = str;
-	var _g = 0;
-	while(_g < positions) {
-		var i = _g++;
-		result = HxOverrides.substr(result,-1,null) + HxOverrides.substr(result,0,result.length - 1);
-	}
-	return result;
-}
-cx.StrTools.toLatin1 = function(str) {
-	return haxe.Utf8.decode(str);
-	return str;
-}
-cx.StrTools.lastIdxOf = function(str,search,lastPos) {
-	if(lastPos == null) lastPos = 0;
-	if(lastPos == 0) return str.lastIndexOf(search);
-	var _g = 0;
-	while(_g < lastPos) {
-		var i = _g++;
-		str = HxOverrides.substr(str,0,str.lastIndexOf(search));
-	}
-	return str.lastIndexOf(search);
-}
-cx.StrTools.toInt = function(str) {
-	return Std.parseInt(str);
-}
-cx.StrTools.toFloat = function(str) {
-	return Std.parseFloat(str);
 }
 var haxe = {}
 haxe.Timer = function() { }
@@ -7320,6 +7064,834 @@ flash.system.SecurityDomain.__name__ = ["flash","system","SecurityDomain"];
 flash.system.SecurityDomain.prototype = {
 	__class__: flash.system.SecurityDomain
 }
+flash.text = {}
+flash.text.Font = function() {
+	this.__metrics = [];
+	this.__fontScale = 9.0;
+	var className = Type.getClassName(Type.getClass(this));
+	if(flash.text.Font.__fontData == null) {
+		flash.text.Font.__fontData = [];
+		flash.text.Font.__fontData["Bitstream_Vera_Sans"] = haxe.Unserializer.run(flash.text.Font.DEFAULT_FONT_DATA);
+	}
+	if(className == "flash.text.Font") this.set_fontName("Bitstream_Vera_Sans"); else this.set_fontName(className.split(".").pop());
+};
+$hxClasses["flash.text.Font"] = flash.text.Font;
+flash.text.Font.__name__ = ["flash","text","Font"];
+flash.text.Font.enumerateFonts = function(enumerateDeviceFonts) {
+	if(enumerateDeviceFonts == null) enumerateDeviceFonts = false;
+	return flash.text.Font.__registeredFonts.slice();
+}
+flash.text.Font.__ofResource = function(resourceName,fontName) {
+	if(fontName == null) fontName = "";
+	var data = haxe.Unserializer.run(haxe.Resource.getString(resourceName));
+	if(data == null) {
+	} else {
+		if(fontName == "") {
+			flash.text.Font.__fontData[resourceName] = data.hash;
+			fontName = data.fontName;
+		}
+		flash.text.Font.__fontData[data.fontName] = data.hash;
+	}
+	return fontName;
+}
+flash.text.Font.registerFont = function(font) {
+	var instance = js.Boot.__cast(Type.createInstance(font,[]) , flash.text.Font);
+	if(instance != null) {
+		if(Reflect.hasField(font,"resourceName")) instance.set_fontName(flash.text.Font.__ofResource(Reflect.field(font,"resourceName")));
+		flash.text.Font.__registeredFonts.push(instance);
+	}
+}
+flash.text.Font.prototype = {
+	set_fontName: function(name) {
+		if(name == "_sans" || name == "_serif" || name == "_typewriter") name = "Bitstream_Vera_Sans";
+		this.fontName = name;
+		if(flash.text.Font.__fontData[this.fontName] == null) try {
+			flash.text.Font.__ofResource(name);
+		} catch( e ) {
+			this.fontName = "Bitstream_Vera_Sans";
+		}
+		if(flash.text.Font.__fontData[this.fontName] != null) try {
+			this.__glyphData = flash.text.Font.__fontData[this.fontName];
+		} catch( e ) {
+			this.fontName = "Bitstream_Vera_Sans";
+		}
+		return name;
+	}
+	,__setScale: function(scale) {
+		this.__fontScale = scale / 1024;
+	}
+	,__render: function(graphics,inChar,inX,inY,inOutline) {
+		var index = 0;
+		var glyph = this.__glyphData.get(inChar);
+		if(glyph == null) return;
+		var commands = glyph.commands;
+		var data = glyph.data;
+		var _g = 0;
+		while(_g < commands.length) {
+			var c = commands[_g];
+			++_g;
+			switch(c) {
+			case 1:
+				graphics.moveTo(inX + data[index++] * this.__fontScale,inY + data[index++] * this.__fontScale);
+				break;
+			case 2:
+				graphics.lineTo(inX + data[index++] * this.__fontScale,inY + data[index++] * this.__fontScale);
+				break;
+			case 3:
+				graphics.curveTo(inX + data[index++] * this.__fontScale,inY + data[index++] * this.__fontScale,inX + data[index++] * this.__fontScale,inY + data[index++] * this.__fontScale);
+				break;
+			}
+		}
+	}
+	,__getAdvance: function(inGlyph,height) {
+		var m = this.__metrics[inGlyph];
+		if(m == null) {
+			var glyph = this.__glyphData.get(inGlyph);
+			if(glyph == null) return 0;
+			this.__metrics[inGlyph] = m = glyph._width * this.__fontScale | 0;
+		}
+		if(m == null) return 0;
+		return m;
+	}
+	,hasGlyph: function(str) {
+		return this.__glyphData.exists(HxOverrides.cca(str,0));
+	}
+	,__metrics: null
+	,__glyphData: null
+	,__fontScale: null
+	,fontType: null
+	,fontStyle: null
+	,fontName: null
+	,__class__: flash.text.Font
+	,__properties__: {set_fontName:"set_fontName"}
+}
+flash.text.FontStyle = $hxClasses["flash.text.FontStyle"] = { __ename__ : true, __constructs__ : ["REGULAR","ITALIC","BOLD_ITALIC","BOLD"] }
+flash.text.FontStyle.REGULAR = ["REGULAR",0];
+flash.text.FontStyle.REGULAR.toString = $estr;
+flash.text.FontStyle.REGULAR.__enum__ = flash.text.FontStyle;
+flash.text.FontStyle.ITALIC = ["ITALIC",1];
+flash.text.FontStyle.ITALIC.toString = $estr;
+flash.text.FontStyle.ITALIC.__enum__ = flash.text.FontStyle;
+flash.text.FontStyle.BOLD_ITALIC = ["BOLD_ITALIC",2];
+flash.text.FontStyle.BOLD_ITALIC.toString = $estr;
+flash.text.FontStyle.BOLD_ITALIC.__enum__ = flash.text.FontStyle;
+flash.text.FontStyle.BOLD = ["BOLD",3];
+flash.text.FontStyle.BOLD.toString = $estr;
+flash.text.FontStyle.BOLD.__enum__ = flash.text.FontStyle;
+flash.text.FontType = $hxClasses["flash.text.FontType"] = { __ename__ : true, __constructs__ : ["EMBEDDED","DEVICE"] }
+flash.text.FontType.EMBEDDED = ["EMBEDDED",0];
+flash.text.FontType.EMBEDDED.toString = $estr;
+flash.text.FontType.EMBEDDED.__enum__ = flash.text.FontType;
+flash.text.FontType.DEVICE = ["DEVICE",1];
+flash.text.FontType.DEVICE.toString = $estr;
+flash.text.FontType.DEVICE.__enum__ = flash.text.FontType;
+flash.text.GridFitType = $hxClasses["flash.text.GridFitType"] = { __ename__ : true, __constructs__ : ["NONE","PIXEL","SUBPIXEL"] }
+flash.text.GridFitType.NONE = ["NONE",0];
+flash.text.GridFitType.NONE.toString = $estr;
+flash.text.GridFitType.NONE.__enum__ = flash.text.GridFitType;
+flash.text.GridFitType.PIXEL = ["PIXEL",1];
+flash.text.GridFitType.PIXEL.toString = $estr;
+flash.text.GridFitType.PIXEL.__enum__ = flash.text.GridFitType;
+flash.text.GridFitType.SUBPIXEL = ["SUBPIXEL",2];
+flash.text.GridFitType.SUBPIXEL.toString = $estr;
+flash.text.GridFitType.SUBPIXEL.__enum__ = flash.text.GridFitType;
+flash.text.TextField = function() {
+	flash.display.InteractiveObject.call(this);
+	this.mWidth = 100;
+	this.mHeight = 20;
+	this.mHTMLMode = false;
+	this.multiline = false;
+	this.__graphics = new flash.display.Graphics();
+	this.mFace = flash.text.TextField.mDefaultFont;
+	this.mAlign = flash.text.TextFormatAlign.LEFT;
+	this.mParagraphs = new Array();
+	this.mSelStart = -1;
+	this.mSelEnd = -1;
+	this.scrollH = 0;
+	this.scrollV = 1;
+	this.mType = flash.text.TextFieldType.DYNAMIC;
+	this.set_autoSize("NONE");
+	this.mTextHeight = 12;
+	this.mMaxHeight = this.mTextHeight;
+	this.mHTMLText = " ";
+	this.mText = " ";
+	this.mTextColour = 0;
+	this.tabEnabled = false;
+	this.mTryFreeType = true;
+	this.selectable = true;
+	this.mInsertPos = 0;
+	this.__inputEnabled = false;
+	this.mDownChar = 0;
+	this.mSelectDrag = -1;
+	this.mLineInfo = [];
+	this.set_defaultTextFormat(new flash.text.TextFormat());
+	this.set_borderColor(0);
+	this.set_border(false);
+	this.set_backgroundColor(16777215);
+	this.set_background(false);
+	this.gridFitType = flash.text.GridFitType.PIXEL;
+	this.sharpness = 0;
+};
+$hxClasses["flash.text.TextField"] = flash.text.TextField;
+flash.text.TextField.__name__ = ["flash","text","TextField"];
+flash.text.TextField.__super__ = flash.display.InteractiveObject;
+flash.text.TextField.prototype = $extend(flash.display.InteractiveObject.prototype,{
+	set_wordWrap: function(inWordWrap) {
+		this.wordWrap = inWordWrap;
+		this.Rebuild();
+		return this.get_wordWrap();
+	}
+	,get_wordWrap: function() {
+		return this.wordWrap;
+	}
+	,set_width: function(inValue) {
+		if(this.parent != null) this.parent.__invalidateBounds();
+		if(this.get__boundsInvalid()) this.validateBounds();
+		if(inValue != this.mWidth) {
+			this.mWidth = inValue;
+			this.Rebuild();
+		}
+		return this.mWidth;
+	}
+	,get_width: function() {
+		return Math.max(this.mWidth,this.getBounds(this.get_stage()).width);
+	}
+	,set_type: function(inType) {
+		this.mType = inType;
+		this.__inputEnabled = this.mType == flash.text.TextFieldType.INPUT;
+		if(this.mHTMLMode) {
+			if(this.__inputEnabled) flash.Lib.__setContentEditable(this.__graphics.__surface,true); else flash.Lib.__setContentEditable(this.__graphics.__surface,false);
+		} else if(this.__inputEnabled) {
+			this.set_htmlText(StringTools.replace(this.mText,"\n","<BR />"));
+			flash.Lib.__setContentEditable(this.__graphics.__surface,true);
+		}
+		this.tabEnabled = this.get_type() == flash.text.TextFieldType.INPUT;
+		this.Rebuild();
+		return inType;
+	}
+	,get_type: function() {
+		return this.mType;
+	}
+	,get_textHeight: function() {
+		return this.mMaxHeight;
+	}
+	,get_textWidth: function() {
+		return this.mMaxWidth;
+	}
+	,set_textColor: function(inCol) {
+		this.mTextColour = inCol;
+		this.RebuildText();
+		return inCol;
+	}
+	,get_textColor: function() {
+		return this.mTextColour;
+	}
+	,set_text: function(inText) {
+		this.mText = Std.string(inText);
+		this.mHTMLMode = false;
+		this.RebuildText();
+		this.___renderFlags |= 64;
+		if(this.parent != null) this.parent.___renderFlags |= 64;
+		return this.mText;
+	}
+	,get_text: function() {
+		if(this.mHTMLMode) this.ConvertHTMLToText(false);
+		return this.mText;
+	}
+	,set_scrollV: function(value) {
+		return this.scrollV = value;
+	}
+	,get_scrollV: function() {
+		return this.scrollV;
+	}
+	,set_scrollH: function(value) {
+		return this.scrollH = value;
+	}
+	,get_scrollH: function() {
+		return this.scrollH;
+	}
+	,get_numLines: function() {
+		return 0;
+	}
+	,set_multiline: function(value) {
+		return this.multiline = value;
+	}
+	,get_multiline: function() {
+		return this.multiline;
+	}
+	,get_maxScrollV: function() {
+		return 0;
+	}
+	,get_maxScrollH: function() {
+		return 0;
+	}
+	,set_htmlText: function(inHTMLText) {
+		this.mParagraphs = new Array();
+		this.mHTMLText = inHTMLText;
+		if(!this.mHTMLMode) {
+			var domElement = js.Browser.document.createElement("div");
+			if(this.background || this.border) {
+				domElement.style.width = this.mWidth + "px";
+				domElement.style.height = this.mHeight + "px";
+			}
+			if(this.background) domElement.style.backgroundColor = "#" + StringTools.hex(this.backgroundColor,6);
+			if(this.border) domElement.style.border = "1px solid #" + StringTools.hex(this.borderColor,6);
+			domElement.style.color = "#" + StringTools.hex(this.mTextColour,6);
+			domElement.style.fontFamily = this.mFace;
+			domElement.style.fontSize = this.mTextHeight + "px";
+			domElement.style.textAlign = Std.string(this.mAlign);
+			var wrapper = domElement;
+			wrapper.innerHTML = inHTMLText;
+			var destination = new flash.display.Graphics(wrapper);
+			var __surface = this.__graphics.__surface;
+			if(flash.Lib.__isOnStage(__surface)) {
+				flash.Lib.__appendSurface(wrapper);
+				flash.Lib.__copyStyle(__surface,wrapper);
+				flash.Lib.__swapSurface(__surface,wrapper);
+				flash.Lib.__removeSurface(__surface);
+			}
+			this.__graphics = destination;
+			this.__graphics.__extent.width = wrapper.width;
+			this.__graphics.__extent.height = wrapper.height;
+		} else this.__graphics.__surface.innerHTML = inHTMLText;
+		this.mHTMLMode = true;
+		this.RebuildText();
+		this.___renderFlags |= 64;
+		if(this.parent != null) this.parent.___renderFlags |= 64;
+		return this.mHTMLText;
+	}
+	,get_htmlText: function() {
+		return this.mHTMLText;
+	}
+	,set_height: function(inValue) {
+		if(this.parent != null) this.parent.__invalidateBounds();
+		if(this.get__boundsInvalid()) this.validateBounds();
+		if(inValue != this.mHeight) {
+			this.mHeight = inValue;
+			this.Rebuild();
+		}
+		return this.mHeight;
+	}
+	,get_height: function() {
+		return Math.max(this.mHeight,this.getBounds(this.get_stage()).height);
+	}
+	,set_defaultTextFormat: function(inFmt) {
+		this.setTextFormat(inFmt);
+		this._defaultTextFormat = inFmt;
+		return inFmt;
+	}
+	,get_defaultTextFormat: function() {
+		return this._defaultTextFormat;
+	}
+	,get_caretPos: function() {
+		return this.mInsertPos;
+	}
+	,get_bottomScrollV: function() {
+		return 0;
+	}
+	,set_borderColor: function(inBorderCol) {
+		this.borderColor = inBorderCol;
+		this.Rebuild();
+		return inBorderCol;
+	}
+	,set_border: function(inBorder) {
+		this.border = inBorder;
+		this.Rebuild();
+		return inBorder;
+	}
+	,set_backgroundColor: function(inCol) {
+		this.backgroundColor = inCol;
+		this.Rebuild();
+		return inCol;
+	}
+	,set_background: function(inBack) {
+		this.background = inBack;
+		this.Rebuild();
+		return inBack;
+	}
+	,set_autoSize: function(inAutoSize) {
+		this.autoSize = inAutoSize;
+		this.Rebuild();
+		return inAutoSize;
+	}
+	,get_autoSize: function() {
+		return this.autoSize;
+	}
+	,__render: function(inMask,clipRect) {
+		if(!this.__combinedVisible) return;
+		if((this.___renderFlags & 4) != 0 || (this.___renderFlags & 8) != 0) this.__validateMatrix();
+		if(this.__graphics.__render(inMask,this.__filters,1,1)) {
+			this.___renderFlags |= 64;
+			if(this.parent != null) this.parent.___renderFlags |= 64;
+			this.__applyFilters(this.__graphics.__surface);
+			this.___renderFlags |= 32;
+		}
+		if(!this.mHTMLMode && inMask != null) {
+			var m = this.getSurfaceTransform(this.__graphics);
+			flash.Lib.__drawToSurface(this.__graphics.__surface,inMask,m,(this.parent != null?this.parent.__combinedAlpha:1) * this.alpha,clipRect,this.gridFitType != flash.text.GridFitType.PIXEL);
+		} else {
+			if((this.___renderFlags & 32) != 0) {
+				var m = this.getSurfaceTransform(this.__graphics);
+				flash.Lib.__setSurfaceTransform(this.__graphics.__surface,m);
+				this.___renderFlags &= -33;
+			}
+			flash.Lib.__setSurfaceOpacity(this.__graphics.__surface,(this.parent != null?this.parent.__combinedAlpha:1) * this.alpha);
+		}
+	}
+	,__getObjectUnderPoint: function(point) {
+		if(!this.get_visible()) return null; else if(this.mText.length > 1) {
+			var local = this.globalToLocal(point);
+			if(local.x < 0 || local.y < 0 || local.x > this.mMaxWidth || local.y > this.mMaxHeight) return null; else return this;
+		} else return flash.display.InteractiveObject.prototype.__getObjectUnderPoint.call(this,point);
+	}
+	,__getGraphics: function() {
+		return this.__graphics;
+	}
+	,toString: function() {
+		return "[TextField name=" + this.name + " id=" + this.___id + "]";
+	}
+	,setTextFormat: function(inFmt,beginIndex,endIndex) {
+		if(endIndex == null) endIndex = 0;
+		if(beginIndex == null) beginIndex = 0;
+		if(inFmt.font != null) this.mFace = inFmt.font;
+		if(inFmt.size != null) this.mTextHeight = inFmt.size | 0;
+		if(inFmt.align != null) this.mAlign = inFmt.align;
+		if(inFmt.color != null) this.mTextColour = inFmt.color;
+		this.RebuildText();
+		this.___renderFlags |= 64;
+		if(this.parent != null) this.parent.___renderFlags |= 64;
+		return this.getTextFormat();
+	}
+	,setSelection: function(beginIndex,endIndex) {
+	}
+	,RenderRow: function(inRow,inY,inCharIdx,inAlign,inInsert) {
+		if(inInsert == null) inInsert = 0;
+		var h = 0;
+		var w = 0;
+		var _g = 0;
+		while(_g < inRow.length) {
+			var chr = inRow[_g];
+			++_g;
+			if(chr.fh > h) h = chr.fh;
+			w += chr.adv;
+		}
+		if(w > this.mMaxWidth) this.mMaxWidth = w;
+		var full_height = h * 1.2 | 0;
+		var align_x = 0;
+		var insert_x = 0;
+		if(inInsert != null) {
+			if(this.autoSize != "NONE") {
+				this.scrollH = 0;
+				insert_x = inInsert;
+			} else {
+				insert_x = inInsert - this.scrollH;
+				if(insert_x < 0) this.scrollH -= (this.mLimitRenderX * 3 >> 2) - insert_x; else if(insert_x > this.mLimitRenderX) this.scrollH += insert_x - (this.mLimitRenderX * 3 >> 2);
+				if(this.scrollH < 0) this.scrollH = 0;
+			}
+		}
+		if(this.autoSize == "NONE" && w <= this.mLimitRenderX) {
+			if(inAlign == flash.text.TextFormatAlign.CENTER) align_x = Math.round(this.mWidth) - w >> 1; else if(inAlign == flash.text.TextFormatAlign.RIGHT) align_x = Math.round(this.mWidth) - w;
+		}
+		var x_list = new Array();
+		this.mLineInfo.push({ mY0 : inY, mIndex : inCharIdx - 1, mX : x_list});
+		var cache_sel_font = null;
+		var cache_normal_font = null;
+		var x = align_x - this.scrollH;
+		var x0 = x;
+		var _g = 0;
+		while(_g < inRow.length) {
+			var chr = inRow[_g];
+			++_g;
+			var adv = chr.adv;
+			if(x + adv > this.mLimitRenderX) break;
+			x_list.push(x);
+			if(x >= 0) {
+				var font = chr.font;
+				if(chr.sel) {
+					this.__graphics.lineStyle();
+					this.__graphics.beginFill(2105440);
+					this.__graphics.drawRect(x,inY,adv,full_height);
+					this.__graphics.endFill();
+					if(cache_normal_font == chr.font) font = cache_sel_font; else {
+						font = flash.text.FontInstance.CreateSolid(chr.font.GetFace(),chr.fh,16777215,1.0);
+						cache_sel_font = font;
+						cache_normal_font = chr.font;
+					}
+				}
+				font.RenderChar(this.__graphics,chr.chr,x,inY + (h - chr.fh) | 0);
+			}
+			x += adv;
+		}
+		x += this.scrollH;
+		return full_height;
+	}
+	,RebuildText: function() {
+		this.mParagraphs = [];
+		if(!this.mHTMLMode) {
+			var font = flash.text.FontInstance.CreateSolid(this.mFace,this.mTextHeight,this.mTextColour,1.0);
+			var paras = this.mText.split("\n");
+			var _g = 0;
+			while(_g < paras.length) {
+				var paragraph = paras[_g];
+				++_g;
+				this.mParagraphs.push({ align : this.mAlign, spans : [{ font : font, text : paragraph + "\n"}]});
+			}
+		}
+		this.Rebuild();
+	}
+	,Rebuild: function() {
+		if(this.mHTMLMode) return;
+		this.mLineInfo = [];
+		this.__graphics.clear();
+		if(this.background) {
+			this.__graphics.beginFill(this.backgroundColor);
+			this.__graphics.drawRect(0,0,this.get_width(),this.get_height());
+			this.__graphics.endFill();
+		}
+		this.__graphics.lineStyle(this.mTextColour);
+		var insert_x = null;
+		this.mMaxWidth = 0;
+		var wrap = this.mLimitRenderX = this.get_wordWrap() && !this.__inputEnabled?this.mWidth | 0:999999;
+		var char_idx = 0;
+		var h = 0;
+		var s0 = this.mSelStart;
+		var s1 = this.mSelEnd;
+		var _g = 0, _g1 = this.mParagraphs;
+		while(_g < _g1.length) {
+			var paragraph = _g1[_g];
+			++_g;
+			var row = [];
+			var row_width = 0;
+			var last_word_break = 0;
+			var last_word_break_width = 0;
+			var last_word_char_idx = 0;
+			var start_idx = char_idx;
+			var tx = 0;
+			var _g2 = 0, _g3 = paragraph.spans;
+			while(_g2 < _g3.length) {
+				var span = _g3[_g2];
+				++_g2;
+				var text = span.text;
+				var font = span.font;
+				var fh = font.get_height();
+				last_word_break = row.length;
+				last_word_break_width = row_width;
+				last_word_char_idx = char_idx;
+				var _g5 = 0, _g4 = text.length;
+				while(_g5 < _g4) {
+					var ch = _g5++;
+					var g = HxOverrides.cca(text,ch);
+					var adv = font.__getAdvance(g);
+					if(g == 32) {
+						last_word_break = row.length;
+						last_word_break_width = tx;
+						last_word_char_idx = char_idx;
+					}
+					if(tx + adv > wrap) {
+						if(last_word_break > 0) {
+							var row_end = row.splice(last_word_break,row.length - last_word_break);
+							h += this.RenderRow(row,h,start_idx,paragraph.align);
+							row = row_end;
+							tx -= last_word_break_width;
+							start_idx = last_word_char_idx;
+							last_word_break = 0;
+							last_word_break_width = 0;
+							last_word_char_idx = 0;
+							if(row_end.length > 0 && row_end[0].chr == 32) {
+								row_end.shift();
+								start_idx++;
+							}
+						} else {
+							h += this.RenderRow(row,h,char_idx,paragraph.align);
+							row = [];
+							tx = 0;
+							start_idx = char_idx;
+						}
+					}
+					row.push({ font : font, chr : g, x : tx, fh : fh, sel : char_idx >= s0 && char_idx < s1, adv : adv});
+					tx += adv;
+					char_idx++;
+				}
+			}
+			if(row.length > 0) {
+				h += this.RenderRow(row,h,start_idx,paragraph.align,insert_x);
+				insert_x = null;
+			}
+		}
+		var w = this.mMaxWidth;
+		if(h < this.mTextHeight) h = this.mTextHeight;
+		this.mMaxHeight = h;
+		var _g = this;
+		switch(_g.autoSize) {
+		case "LEFT":
+			break;
+		case "RIGHT":
+			var x0 = this.get_x() + this.get_width();
+			this.set_x(this.mWidth - x0);
+			break;
+		case "CENTER":
+			var x0 = this.get_x() + this.get_width() / 2;
+			this.set_x(this.mWidth / 2 - x0);
+			break;
+		default:
+			if(this.get_wordWrap()) this.set_height(h);
+		}
+		if(this.border) {
+			this.__graphics.endFill();
+			this.__graphics.lineStyle(1,this.borderColor,1,true);
+			this.__graphics.drawRect(.5,.5,this.get_width() - .5,this.get_height() - .5);
+		}
+	}
+	,getTextFormat: function(beginIndex,endIndex) {
+		if(endIndex == null) endIndex = 0;
+		if(beginIndex == null) beginIndex = 0;
+		return new flash.text.TextFormat(this.mFace,this.mTextHeight,this.mTextColour);
+	}
+	,getLineIndexAtPoint: function(inX,inY) {
+		if(this.mLineInfo.length < 1) return -1;
+		if(inY <= 0) return 0;
+		var _g1 = 0, _g = this.mLineInfo.length;
+		while(_g1 < _g) {
+			var l = _g1++;
+			if(this.mLineInfo[l].mY0 > inY) return l == 0?0:l - 1;
+		}
+		return this.mLineInfo.length - 1;
+	}
+	,getCharIndexAtPoint: function(inX,inY) {
+		var li = this.getLineIndexAtPoint(inX,inY);
+		if(li < 0) return -1;
+		var line = this.mLineInfo[li];
+		var idx = line.mIndex;
+		var _g = 0, _g1 = line.mX;
+		while(_g < _g1.length) {
+			var x = _g1[_g];
+			++_g;
+			if(x > inX) return idx;
+			idx++;
+		}
+		return idx;
+	}
+	,getCharBoundaries: function(a) {
+		return null;
+	}
+	,DecodeColour: function(col) {
+		return Std.parseInt("0x" + HxOverrides.substr(col,1,null));
+	}
+	,ConvertHTMLToText: function(inUnSetHTML) {
+		this.mText = "";
+		var _g = 0, _g1 = this.mParagraphs;
+		while(_g < _g1.length) {
+			var paragraph = _g1[_g];
+			++_g;
+			var _g2 = 0, _g3 = paragraph.spans;
+			while(_g2 < _g3.length) {
+				var span = _g3[_g2];
+				++_g2;
+				this.mText += span.text;
+			}
+		}
+		if(inUnSetHTML) {
+			this.mHTMLMode = false;
+			this.RebuildText();
+		}
+	}
+	,appendText: function(newText) {
+		var _g = this;
+		_g.set_text(_g.get_text() + newText);
+	}
+	,_defaultTextFormat: null
+	,__inputEnabled: null
+	,__graphics: null
+	,mWidth: null
+	,mType: null
+	,mTextColour: null
+	,mText: null
+	,mSelectDrag: null
+	,mSelStart: null
+	,mSelEnd: null
+	,mSelectionAnchored: null
+	,mSelectionAnchor: null
+	,mMaxWidth: null
+	,mMaxHeight: null
+	,mLineInfo: null
+	,mLimitRenderX: null
+	,mInsertPos: null
+	,mHTMLMode: null
+	,mHTMLText: null
+	,mHeight: null
+	,mAlign: null
+	,wordWrap: null
+	,textWidth: null
+	,textHeight: null
+	,sharpness: null
+	,selectionEndIndex: null
+	,selectionBeginIndex: null
+	,selectable: null
+	,scrollV: null
+	,scrollH: null
+	,restrict: null
+	,numLines: null
+	,multiline: null
+	,mTryFreeType: null
+	,mTextHeight: null
+	,mParagraphs: null
+	,mFace: null
+	,mDownChar: null
+	,maxScrollV: null
+	,maxScrollH: null
+	,maxChars: null
+	,length: null
+	,gridFitType: null
+	,embedFonts: null
+	,displayAsPassword: null
+	,caretPos: null
+	,caretIndex: null
+	,bottomScrollV: null
+	,borderColor: null
+	,border: null
+	,backgroundColor: null
+	,background: null
+	,autoSize: null
+	,antiAliasType: null
+	,__class__: flash.text.TextField
+	,__properties__: $extend(flash.display.InteractiveObject.prototype.__properties__,{set_autoSize:"set_autoSize",set_background:"set_background",set_backgroundColor:"set_backgroundColor",set_border:"set_border",set_borderColor:"set_borderColor",get_bottomScrollV:"get_bottomScrollV",get_caretPos:"get_caretPos",set_defaultTextFormat:"set_defaultTextFormat",get_defaultTextFormat:"get_defaultTextFormat",set_htmlText:"set_htmlText",get_htmlText:"get_htmlText",get_maxScrollH:"get_maxScrollH",get_maxScrollV:"get_maxScrollV",get_numLines:"get_numLines",set_text:"set_text",get_text:"get_text",set_textColor:"set_textColor",get_textColor:"get_textColor",get_textHeight:"get_textHeight",get_textWidth:"get_textWidth",set_type:"set_type",get_type:"get_type",set_wordWrap:"set_wordWrap",get_wordWrap:"get_wordWrap"})
+});
+flash.text.FontInstanceMode = $hxClasses["flash.text.FontInstanceMode"] = { __ename__ : true, __constructs__ : ["fimSolid"] }
+flash.text.FontInstanceMode.fimSolid = ["fimSolid",0];
+flash.text.FontInstanceMode.fimSolid.toString = $estr;
+flash.text.FontInstanceMode.fimSolid.__enum__ = flash.text.FontInstanceMode;
+flash.text.FontInstance = function(inFont,inHeight) {
+	this.mFont = inFont;
+	this.mHeight = inHeight;
+	this.mTryFreeType = true;
+	this.mGlyphs = [];
+	this.mCacheAsBitmap = false;
+};
+$hxClasses["flash.text.FontInstance"] = flash.text.FontInstance;
+flash.text.FontInstance.__name__ = ["flash","text","FontInstance"];
+flash.text.FontInstance.CreateSolid = function(inFace,inHeight,inColour,inAlpha) {
+	var id = "SOLID:" + inFace + ":" + inHeight + ":" + inColour + ":" + inAlpha;
+	var f = flash.text.FontInstance.mSolidFonts.get(id);
+	if(f != null) return f;
+	var font = new flash.text.Font();
+	font.__setScale(inHeight);
+	font.set_fontName(inFace);
+	if(font == null) return null;
+	f = new flash.text.FontInstance(font,inHeight);
+	f.SetSolid(inColour,inAlpha);
+	flash.text.FontInstance.mSolidFonts.set(id,f);
+	return f;
+}
+flash.text.FontInstance.prototype = {
+	get_height: function() {
+		return this.mHeight;
+	}
+	,__getAdvance: function(inChar) {
+		if(this.mFont == null) return 0;
+		return this.mFont.__getAdvance(inChar,this.mHeight);
+	}
+	,toString: function() {
+		return "FontInstance:" + Std.string(this.mFont) + ":" + this.mColour + "(" + this.mGlyphs.length + ")";
+	}
+	,RenderChar: function(inGraphics,inGlyph,inX,inY) {
+		inGraphics.__clearLine();
+		inGraphics.beginFill(this.mColour,this.mAlpha);
+		this.mFont.__render(inGraphics,inGlyph,inX,inY,this.mTryFreeType);
+		inGraphics.endFill();
+	}
+	,SetSolid: function(inCol,inAlpha) {
+		this.mColour = inCol;
+		this.mAlpha = inAlpha;
+		this.mMode = flash.text.FontInstanceMode.fimSolid;
+	}
+	,GetFace: function() {
+		return this.mFont.fontName;
+	}
+	,mCacheAsBitmap: null
+	,mGlyphs: null
+	,mHeight: null
+	,mFont: null
+	,mAlpha: null
+	,mColour: null
+	,mMode: null
+	,mTryFreeType: null
+	,height: null
+	,__class__: flash.text.FontInstance
+	,__properties__: {get_height:"get_height"}
+}
+flash.text.TextFieldAutoSize = function() { }
+$hxClasses["flash.text.TextFieldAutoSize"] = flash.text.TextFieldAutoSize;
+flash.text.TextFieldAutoSize.__name__ = ["flash","text","TextFieldAutoSize"];
+flash.text.TextFieldType = function() { }
+$hxClasses["flash.text.TextFieldType"] = flash.text.TextFieldType;
+flash.text.TextFieldType.__name__ = ["flash","text","TextFieldType"];
+flash.text.TextFormat = function(in_font,in_size,in_color,in_bold,in_italic,in_underline,in_url,in_target,in_align,in_leftMargin,in_rightMargin,in_indent,in_leading) {
+	this.font = in_font;
+	this.size = in_size;
+	this.color = in_color;
+	this.bold = in_bold;
+	this.italic = in_italic;
+	this.underline = in_underline;
+	this.url = in_url;
+	this.target = in_target;
+	this.align = in_align;
+	this.leftMargin = in_leftMargin;
+	this.rightMargin = in_rightMargin;
+	this.indent = in_indent;
+	this.leading = in_leading;
+};
+$hxClasses["flash.text.TextFormat"] = flash.text.TextFormat;
+flash.text.TextFormat.__name__ = ["flash","text","TextFormat"];
+flash.text.TextFormat.prototype = {
+	clone: function() {
+		var newFormat = new flash.text.TextFormat(this.font,this.size,this.color,this.bold,this.italic,this.underline,this.url,this.target);
+		newFormat.align = this.align;
+		newFormat.leftMargin = this.leftMargin;
+		newFormat.rightMargin = this.rightMargin;
+		newFormat.indent = this.indent;
+		newFormat.leading = this.leading;
+		newFormat.blockIndent = this.blockIndent;
+		newFormat.bullet = this.bullet;
+		newFormat.display = this.display;
+		newFormat.kerning = this.kerning;
+		newFormat.letterSpacing = this.letterSpacing;
+		newFormat.tabStops = this.tabStops;
+		return newFormat;
+	}
+	,url: null
+	,underline: null
+	,target: null
+	,tabStops: null
+	,size: null
+	,rightMargin: null
+	,letterSpacing: null
+	,leftMargin: null
+	,leading: null
+	,kerning: null
+	,italic: null
+	,indent: null
+	,font: null
+	,display: null
+	,color: null
+	,bullet: null
+	,bold: null
+	,blockIndent: null
+	,align: null
+	,__class__: flash.text.TextFormat
+}
+flash.text.TextFormatAlign = $hxClasses["flash.text.TextFormatAlign"] = { __ename__ : true, __constructs__ : ["LEFT","RIGHT","JUSTIFY","CENTER"] }
+flash.text.TextFormatAlign.LEFT = ["LEFT",0];
+flash.text.TextFormatAlign.LEFT.toString = $estr;
+flash.text.TextFormatAlign.LEFT.__enum__ = flash.text.TextFormatAlign;
+flash.text.TextFormatAlign.RIGHT = ["RIGHT",1];
+flash.text.TextFormatAlign.RIGHT.toString = $estr;
+flash.text.TextFormatAlign.RIGHT.__enum__ = flash.text.TextFormatAlign;
+flash.text.TextFormatAlign.JUSTIFY = ["JUSTIFY",2];
+flash.text.TextFormatAlign.JUSTIFY.toString = $estr;
+flash.text.TextFormatAlign.JUSTIFY.__enum__ = flash.text.TextFormatAlign;
+flash.text.TextFormatAlign.CENTER = ["CENTER",3];
+flash.text.TextFormatAlign.CENTER.toString = $estr;
+flash.text.TextFormatAlign.CENTER.__enum__ = flash.text.TextFormatAlign;
 flash.ui = {}
 flash.ui.Keyboard = function() { }
 $hxClasses["flash.ui.Keyboard"] = flash.ui.Keyboard;
@@ -9393,6 +9965,19 @@ haxe.Resource.listNames = function() {
 	}
 	return names;
 }
+haxe.Resource.getString = function(name) {
+	var _g = 0, _g1 = haxe.Resource.content;
+	while(_g < _g1.length) {
+		var x = _g1[_g];
+		++_g;
+		if(x.name == name) {
+			if(x.str != null) return x.str;
+			var b = haxe.Unserializer.run(x.data);
+			return b.toString();
+		}
+	}
+	return null;
+}
 haxe._Template = {}
 haxe._Template.TemplateExpr = $hxClasses["haxe._Template.TemplateExpr"] = { __ename__ : true, __constructs__ : ["OpVar","OpExpr","OpIf","OpStr","OpBlock","OpForeach","OpMacro"] }
 haxe._Template.TemplateExpr.OpVar = function(v) { var $x = ["OpVar",0,v]; $x.__enum__ = haxe._Template.TemplateExpr; $x.toString = $estr; return $x; }
@@ -9779,12 +10364,274 @@ haxe.Template.prototype = {
 	,expr: null
 	,__class__: haxe.Template
 }
-haxe.Utf8 = function() { }
-$hxClasses["haxe.Utf8"] = haxe.Utf8;
-haxe.Utf8.__name__ = ["haxe","Utf8"];
-haxe.Utf8.decode = function(s) {
-	throw "Not implemented";
-	return s;
+haxe.Unserializer = function(buf) {
+	this.buf = buf;
+	this.length = buf.length;
+	this.pos = 0;
+	this.scache = new Array();
+	this.cache = new Array();
+	var r = haxe.Unserializer.DEFAULT_RESOLVER;
+	if(r == null) {
+		r = Type;
+		haxe.Unserializer.DEFAULT_RESOLVER = r;
+	}
+	this.setResolver(r);
+};
+$hxClasses["haxe.Unserializer"] = haxe.Unserializer;
+haxe.Unserializer.__name__ = ["haxe","Unserializer"];
+haxe.Unserializer.initCodes = function() {
+	var codes = new Array();
+	var _g1 = 0, _g = haxe.Unserializer.BASE64.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		codes[haxe.Unserializer.BASE64.charCodeAt(i)] = i;
+	}
+	return codes;
+}
+haxe.Unserializer.run = function(v) {
+	return new haxe.Unserializer(v).unserialize();
+}
+haxe.Unserializer.prototype = {
+	unserialize: function() {
+		var _g = this.buf.charCodeAt(this.pos++);
+		switch(_g) {
+		case 110:
+			return null;
+		case 116:
+			return true;
+		case 102:
+			return false;
+		case 122:
+			return 0;
+		case 105:
+			return this.readDigits();
+		case 100:
+			var p1 = this.pos;
+			while(true) {
+				var c = this.buf.charCodeAt(this.pos);
+				if(c >= 43 && c < 58 || c == 101 || c == 69) this.pos++; else break;
+			}
+			return Std.parseFloat(HxOverrides.substr(this.buf,p1,this.pos - p1));
+		case 121:
+			var len = this.readDigits();
+			if(this.buf.charCodeAt(this.pos++) != 58 || this.length - this.pos < len) throw "Invalid string length";
+			var s = HxOverrides.substr(this.buf,this.pos,len);
+			this.pos += len;
+			s = StringTools.urlDecode(s);
+			this.scache.push(s);
+			return s;
+		case 107:
+			return Math.NaN;
+		case 109:
+			return Math.NEGATIVE_INFINITY;
+		case 112:
+			return Math.POSITIVE_INFINITY;
+		case 97:
+			var buf = this.buf;
+			var a = new Array();
+			this.cache.push(a);
+			while(true) {
+				var c = this.buf.charCodeAt(this.pos);
+				if(c == 104) {
+					this.pos++;
+					break;
+				}
+				if(c == 117) {
+					this.pos++;
+					var n = this.readDigits();
+					a[a.length + n - 1] = null;
+				} else a.push(this.unserialize());
+			}
+			return a;
+		case 111:
+			var o = { };
+			this.cache.push(o);
+			this.unserializeObject(o);
+			return o;
+		case 114:
+			var n = this.readDigits();
+			if(n < 0 || n >= this.cache.length) throw "Invalid reference";
+			return this.cache[n];
+		case 82:
+			var n = this.readDigits();
+			if(n < 0 || n >= this.scache.length) throw "Invalid string reference";
+			return this.scache[n];
+		case 120:
+			throw this.unserialize();
+			break;
+		case 99:
+			var name = this.unserialize();
+			var cl = this.resolver.resolveClass(name);
+			if(cl == null) throw "Class not found " + name;
+			var o = Type.createEmptyInstance(cl);
+			this.cache.push(o);
+			this.unserializeObject(o);
+			return o;
+		case 119:
+			var name = this.unserialize();
+			var edecl = this.resolver.resolveEnum(name);
+			if(edecl == null) throw "Enum not found " + name;
+			var e = this.unserializeEnum(edecl,this.unserialize());
+			this.cache.push(e);
+			return e;
+		case 106:
+			var name = this.unserialize();
+			var edecl = this.resolver.resolveEnum(name);
+			if(edecl == null) throw "Enum not found " + name;
+			this.pos++;
+			var index = this.readDigits();
+			var tag = Type.getEnumConstructs(edecl)[index];
+			if(tag == null) throw "Unknown enum index " + name + "@" + index;
+			var e = this.unserializeEnum(edecl,tag);
+			this.cache.push(e);
+			return e;
+		case 108:
+			var l = new List();
+			this.cache.push(l);
+			var buf = this.buf;
+			while(this.buf.charCodeAt(this.pos) != 104) l.add(this.unserialize());
+			this.pos++;
+			return l;
+		case 98:
+			var h = new haxe.ds.StringMap();
+			this.cache.push(h);
+			var buf = this.buf;
+			while(this.buf.charCodeAt(this.pos) != 104) {
+				var s = this.unserialize();
+				h.set(s,this.unserialize());
+			}
+			this.pos++;
+			return h;
+		case 113:
+			var h = new haxe.ds.IntMap();
+			this.cache.push(h);
+			var buf = this.buf;
+			var c = this.buf.charCodeAt(this.pos++);
+			while(c == 58) {
+				var i = this.readDigits();
+				h.set(i,this.unserialize());
+				c = this.buf.charCodeAt(this.pos++);
+			}
+			if(c != 104) throw "Invalid IntMap format";
+			return h;
+		case 77:
+			var h = new haxe.ds.ObjectMap();
+			this.cache.push(h);
+			var buf = this.buf;
+			while(this.buf.charCodeAt(this.pos) != 104) {
+				var s = this.unserialize();
+				h.set(s,this.unserialize());
+			}
+			this.pos++;
+			return h;
+		case 118:
+			var d = HxOverrides.strDate(HxOverrides.substr(this.buf,this.pos,19));
+			this.cache.push(d);
+			this.pos += 19;
+			return d;
+		case 115:
+			var len = this.readDigits();
+			var buf = this.buf;
+			if(this.buf.charCodeAt(this.pos++) != 58 || this.length - this.pos < len) throw "Invalid bytes length";
+			var codes = haxe.Unserializer.CODES;
+			if(codes == null) {
+				codes = haxe.Unserializer.initCodes();
+				haxe.Unserializer.CODES = codes;
+			}
+			var i = this.pos;
+			var rest = len & 3;
+			var size = (len >> 2) * 3 + (rest >= 2?rest - 1:0);
+			var max = i + (len - rest);
+			var bytes = haxe.io.Bytes.alloc(size);
+			var bpos = 0;
+			while(i < max) {
+				var c1 = codes[buf.charCodeAt(i++)];
+				var c2 = codes[buf.charCodeAt(i++)];
+				bytes.b[bpos++] = (c1 << 2 | c2 >> 4) & 255;
+				var c3 = codes[buf.charCodeAt(i++)];
+				bytes.b[bpos++] = (c2 << 4 | c3 >> 2) & 255;
+				var c4 = codes[buf.charCodeAt(i++)];
+				bytes.b[bpos++] = (c3 << 6 | c4) & 255;
+			}
+			if(rest >= 2) {
+				var c1 = codes[buf.charCodeAt(i++)];
+				var c2 = codes[buf.charCodeAt(i++)];
+				bytes.b[bpos++] = (c1 << 2 | c2 >> 4) & 255;
+				if(rest == 3) {
+					var c3 = codes[buf.charCodeAt(i++)];
+					bytes.b[bpos++] = (c2 << 4 | c3 >> 2) & 255;
+				}
+			}
+			this.pos += len;
+			this.cache.push(bytes);
+			return bytes;
+		case 67:
+			var name = this.unserialize();
+			var cl = this.resolver.resolveClass(name);
+			if(cl == null) throw "Class not found " + name;
+			var o = Type.createEmptyInstance(cl);
+			this.cache.push(o);
+			o.hxUnserialize(this);
+			if(this.buf.charCodeAt(this.pos++) != 103) throw "Invalid custom data";
+			return o;
+		default:
+		}
+		this.pos--;
+		throw "Invalid char " + this.buf.charAt(this.pos) + " at position " + this.pos;
+	}
+	,unserializeEnum: function(edecl,tag) {
+		if(this.buf.charCodeAt(this.pos++) != 58) throw "Invalid enum format";
+		var nargs = this.readDigits();
+		if(nargs == 0) return Type.createEnum(edecl,tag);
+		var args = new Array();
+		while(nargs-- > 0) args.push(this.unserialize());
+		return Type.createEnum(edecl,tag,args);
+	}
+	,unserializeObject: function(o) {
+		while(true) {
+			if(this.pos >= this.length) throw "Invalid object";
+			if(this.buf.charCodeAt(this.pos) == 103) break;
+			var k = this.unserialize();
+			if(!js.Boot.__instanceof(k,String)) throw "Invalid object key";
+			var v = this.unserialize();
+			o[k] = v;
+		}
+		this.pos++;
+	}
+	,readDigits: function() {
+		var k = 0;
+		var s = false;
+		var fpos = this.pos;
+		while(true) {
+			var c = this.buf.charCodeAt(this.pos);
+			if(c != c) break;
+			if(c == 45) {
+				if(this.pos != fpos) break;
+				s = true;
+				this.pos++;
+				continue;
+			}
+			if(c < 48 || c > 57) break;
+			k = k * 10 + (c - 48);
+			this.pos++;
+		}
+		if(s) k *= -1;
+		return k;
+	}
+	,setResolver: function(r) {
+		if(r == null) this.resolver = { resolveClass : function(_) {
+			return null;
+		}, resolveEnum : function(_) {
+			return null;
+		}}; else this.resolver = r;
+	}
+	,resolver: null
+	,scache: null
+	,cache: null
+	,length: null
+	,pos: null
+	,buf: null
+	,__class__: haxe.Unserializer
 }
 haxe.crypto = {}
 haxe.crypto.BaseCode = function(base) {
@@ -9810,10 +10657,23 @@ $hxClasses["haxe.ds.IntMap"] = haxe.ds.IntMap;
 haxe.ds.IntMap.__name__ = ["haxe","ds","IntMap"];
 haxe.ds.IntMap.__interfaces__ = [IMap];
 haxe.ds.IntMap.prototype = {
-	remove: function(key) {
+	keys: function() {
+		var a = [];
+		for( var key in this.h ) {
+		if(this.h.hasOwnProperty(key)) a.push(key | 0);
+		}
+		return HxOverrides.iter(a);
+	}
+	,remove: function(key) {
 		if(!this.h.hasOwnProperty(key)) return false;
 		delete(this.h[key]);
 		return true;
+	}
+	,exists: function(key) {
+		return this.h.hasOwnProperty(key);
+	}
+	,get: function(key) {
+		return this.h[key];
 	}
 	,set: function(key,value) {
 		this.h[key] = value;
@@ -9870,6 +10730,15 @@ haxe.io.Bytes = function(length,b) {
 };
 $hxClasses["haxe.io.Bytes"] = haxe.io.Bytes;
 haxe.io.Bytes.__name__ = ["haxe","io","Bytes"];
+haxe.io.Bytes.alloc = function(length) {
+	var a = new Array();
+	var _g = 0;
+	while(_g < length) {
+		var i = _g++;
+		a.push(0);
+	}
+	return new haxe.io.Bytes(length,a);
+}
 haxe.io.Bytes.ofString = function(s) {
 	var a = new Array();
 	var _g1 = 0, _g = s.length;
@@ -9893,7 +10762,33 @@ haxe.io.Bytes.ofString = function(s) {
 	return new haxe.io.Bytes(a.length,a);
 }
 haxe.io.Bytes.prototype = {
-	b: null
+	toString: function() {
+		return this.readString(0,this.length);
+	}
+	,readString: function(pos,len) {
+		if(pos < 0 || len < 0 || pos + len > this.length) throw haxe.io.Error.OutsideBounds;
+		var s = "";
+		var b = this.b;
+		var fcc = String.fromCharCode;
+		var i = pos;
+		var max = pos + len;
+		while(i < max) {
+			var c = b[i++];
+			if(c < 128) {
+				if(c == 0) break;
+				s += fcc(c);
+			} else if(c < 224) s += fcc((c & 63) << 6 | b[i++] & 127); else if(c < 240) {
+				var c2 = b[i++];
+				s += fcc((c & 31) << 12 | (c2 & 127) << 6 | b[i++] & 127);
+			} else {
+				var c2 = b[i++];
+				var c3 = b[i++];
+				s += fcc((c & 15) << 18 | (c2 & 127) << 12 | c3 << 6 & 127 | b[i++] & 127);
+			}
+		}
+		return s;
+	}
+	,b: null
 	,length: null
 	,__class__: haxe.io.Bytes
 }
@@ -9905,6 +10800,78 @@ haxe.io.Eof.prototype = {
 		return "Eof";
 	}
 	,__class__: haxe.io.Eof
+}
+haxe.io.Error = $hxClasses["haxe.io.Error"] = { __ename__ : true, __constructs__ : ["Blocked","Overflow","OutsideBounds","Custom"] }
+haxe.io.Error.Blocked = ["Blocked",0];
+haxe.io.Error.Blocked.toString = $estr;
+haxe.io.Error.Blocked.__enum__ = haxe.io.Error;
+haxe.io.Error.Overflow = ["Overflow",1];
+haxe.io.Error.Overflow.toString = $estr;
+haxe.io.Error.Overflow.__enum__ = haxe.io.Error;
+haxe.io.Error.OutsideBounds = ["OutsideBounds",2];
+haxe.io.Error.OutsideBounds.toString = $estr;
+haxe.io.Error.OutsideBounds.__enum__ = haxe.io.Error;
+haxe.io.Error.Custom = function(e) { var $x = ["Custom",3,e]; $x.__enum__ = haxe.io.Error; $x.toString = $estr; return $x; }
+haxe.unit = {}
+haxe.unit.TestCase = function() {
+};
+$hxClasses["haxe.unit.TestCase"] = haxe.unit.TestCase;
+haxe.unit.TestCase.__name__ = ["haxe","unit","TestCase"];
+haxe.unit.TestCase.prototype = {
+	assertEquals: function(expected,actual,c) {
+		this.currentTest.done = true;
+		if(actual != expected) {
+			this.currentTest.success = false;
+			this.currentTest.error = "expected '" + Std.string(expected) + "' but was '" + Std.string(actual) + "'";
+			this.currentTest.posInfos = c;
+			throw this.currentTest;
+		}
+	}
+	,assertFalse: function(b,c) {
+		this.currentTest.done = true;
+		if(b == true) {
+			this.currentTest.success = false;
+			this.currentTest.error = "expected false but was true";
+			this.currentTest.posInfos = c;
+			throw this.currentTest;
+		}
+	}
+	,assertTrue: function(b,c) {
+		this.currentTest.done = true;
+		if(b == false) {
+			this.currentTest.success = false;
+			this.currentTest.error = "expected true but was false";
+			this.currentTest.posInfos = c;
+			throw this.currentTest;
+		}
+	}
+	,print: function(v) {
+		haxe.unit.TestRunner.print(v);
+	}
+	,tearDown: function() {
+	}
+	,setup: function() {
+	}
+	,currentTest: null
+	,__class__: haxe.unit.TestCase
+}
+haxe.unit.TestRunner = function() { }
+$hxClasses["haxe.unit.TestRunner"] = haxe.unit.TestRunner;
+haxe.unit.TestRunner.__name__ = ["haxe","unit","TestRunner"];
+haxe.unit.TestRunner.print = function(v) {
+	var msg = StringTools.htmlEscape(js.Boot.__string_rec(v,"")).split("\n").join("<br/>");
+	var d = document.getElementById("haxe:trace");
+	if(d == null) alert("haxe:trace element not found"); else d.innerHTML += msg;
+}
+haxe.unit.TestStatus = function() { }
+$hxClasses["haxe.unit.TestStatus"] = haxe.unit.TestStatus;
+haxe.unit.TestStatus.__name__ = ["haxe","unit","TestStatus"];
+haxe.unit.TestStatus.prototype = {
+	posInfos: null
+	,error: null
+	,success: null
+	,done: null
+	,__class__: haxe.unit.TestStatus
 }
 haxe.xml = {}
 haxe.xml.Parser = function() { }
@@ -10279,786 +11246,19 @@ nx3.Constants = function() { }
 $hxClasses["nx3.Constants"] = nx3.Constants;
 nx3.Constants.__name__ = ["nx3","Constants"];
 nx3.elements = {}
-nx3.elements.BItem = function() { }
-$hxClasses["nx3.elements.BItem"] = nx3.elements.BItem;
-nx3.elements.BItem.__name__ = ["nx3","elements","BItem"];
-nx3.elements.BItem.prototype = {
-	firstNotevalue: null
-	,firstType: null
-	,getValuePosition: null
-	,getValue: null
-	,getBottomHeadsLevels: null
-	,getTopHeadsLevels: null
-	,getLevelBottom: null
-	,getLevelTop: null
-	,setLevelBottom: null
-	,setLevelTop: null
-	,setDirection: null
-	,getDirection: null
-	,count: null
-	,getNote: null
-	,getLastNote: null
-	,getFirstNote: null
-	,getNotes: null
-	,__class__: nx3.elements.BItem
-}
-nx3.elements.BGroup = function(dNotes) {
-	this.value = 0;
-	this.dNotes = dNotes != null?dNotes:new Array();
-};
-$hxClasses["nx3.elements.BGroup"] = nx3.elements.BGroup;
-nx3.elements.BGroup.__name__ = ["nx3","elements","BGroup"];
-nx3.elements.BGroup.__interfaces__ = [nx3.elements.BItem];
-nx3.elements.BGroup.prototype = {
-	toString: function() {
-		return "BeamGroupMulti (" + this.levelTop + "," + this.levelBottom + ")- direction:" + Std.string(this.direction) + " count:" + this.count();
-	}
-	,getValuePosition: function(noteIndex) {
-		if(this.valuePositions == null) this.getValue();
-		return this.valuePositions[noteIndex];
-	}
-	,getValue: function() {
-		if(this.value != 0) return this.value;
-		this.valuePositions = [];
-		var idx = 0;
-		var _g = 0, _g1 = this.dNotes;
-		while(_g < _g1.length) {
-			var dnote = _g1[_g];
-			++_g;
-			this.valuePositions[idx] = this.value;
-			this.value += dnote.value.value;
-			idx++;
-		}
-		return this.value;
-	}
-	,valuePositions: null
-	,value: null
-	,firstNotevalue: null
-	,firstType: null
-	,getBottomHeadsLevels: function() {
-		var ret = new Array();
-		var _g = 0, _g1 = this.getNotes();
-		while(_g < _g1.length) {
-			var n = _g1[_g];
-			++_g;
-			ret.push(n.levelBottom);
-		}
-		return ret;
-	}
-	,getTopHeadsLevels: function() {
-		var ret = new Array();
-		var _g = 0, _g1 = this.getNotes();
-		while(_g < _g1.length) {
-			var n = _g1[_g];
-			++_g;
-			ret.push(n.levelTop);
-		}
-		return ret;
-	}
-	,getLevelBottom: function() {
-		return this.levelBottom;
-	}
-	,setLevelBottom: function(value) {
-		return this.levelBottom = value;
-	}
-	,levelBottom: null
-	,getLevelTop: function() {
-		return this.levelTop;
-	}
-	,setLevelTop: function(value) {
-		return this.levelTop = value;
-	}
-	,levelTop: null
-	,setDirection: function(value) {
-		return this.direction = value;
-	}
-	,getDirection: function() {
-		return this.direction;
-	}
-	,direction: null
-	,count: function() {
-		return this.dNotes.length;
-	}
-	,getNote: function(index) {
-		return this.dNotes[index];
-	}
-	,getLastNote: function() {
-		return this.dNotes[this.dNotes.length - 1];
-	}
-	,getFirstNote: function() {
-		return this.dNotes[0];
-	}
-	,getNotes: function() {
-		return this.dNotes;
-	}
-	,dNotes: null
-	,__class__: nx3.elements.BGroup
-}
-nx3.elements.BProcessor = function() { }
-$hxClasses["nx3.elements.BProcessor"] = nx3.elements.BProcessor;
-nx3.elements.BProcessor.__name__ = ["nx3","elements","BProcessor"];
-nx3.elements.BProcessor.prototype = {
-	doBeaming: null
-	,__class__: nx3.elements.BProcessor
-}
-nx3.elements.BProcessorBase = function() { }
-$hxClasses["nx3.elements.BProcessorBase"] = nx3.elements.BProcessorBase;
-nx3.elements.BProcessorBase.__name__ = ["nx3","elements","BProcessorBase"];
-nx3.elements.BProcessorBase.prototype = {
-	trBeamGroups: function(beamGroups) {
-		if(beamGroups == null) beamGroups = this.dVoice.get_beamGroups();
-		var _g = 0;
-		while(_g < beamGroups.length) {
-			var beamGroup = beamGroups[_g];
-			++_g;
-			console.log(beamGroup);
-		}
-		return this;
-	}
-	,_findBeamGroupIndex: function(pos,endPos,countFrom) {
-		if(countFrom == null) countFrom = 0;
-		var _g1 = countFrom, _g = this.patternValuePos.length;
-		while(_g1 < _g) {
-			var idx = _g1++;
-			if(pos >= this.patternValuePos[idx] && endPos <= this.patternValueEnd[idx]) return idx;
-		}
-		return -1;
-	}
-	,_getBeamGroupFromArray: function(dnotes) {
-		var beamGroup = null;
-		if(dnotes.length == 1) {
-			beamGroup = new nx3.elements.BSingle(cx.ArrayTools.first(dnotes));
-			beamGroup.firstType = cx.ArrayTools.first(dnotes).type;
-			beamGroup.firstNotevalue = cx.ArrayTools.first(dnotes).value;
-		} else {
-			beamGroup = new nx3.elements.BGroup(dnotes);
-			beamGroup.firstType = cx.ArrayTools.first(dnotes).type;
-			beamGroup.firstNotevalue = cx.ArrayTools.first(dnotes).value;
-		}
-		return beamGroup;
-	}
-	,setFlagCorrections: function() {
-		var _g = 0, _g1 = this.dVoice.get_beamGroups();
-		while(_g < _g1.length) {
-			var bg = _g1[_g];
-			++_g;
-			if(!js.Boot.__instanceof(bg,nx3.elements.BSingle)) continue;
-			if(bg.getDirection() != nx3.elements.EDirectionUD.Up) continue;
-			var dNote = bg.getFirstNote();
-			var $e = (dNote.type);
-			switch( $e[1] ) {
-			case 0:
-				var attributes = $e[5], articulations = $e[4], variant = $e[3], heads = $e[2];
-				continue;
-				break;
-			default:
-			}
-			if(dNote.value.beamingLevel < 1) continue;
-			console.log("TODO!");
-		}
-	}
-	,setDisplayNoteDirections: function() {
-		var _g = 0, _g1 = this.dVoice.get_beamGroups();
-		while(_g < _g1.length) {
-			var bg = _g1[_g];
-			++_g;
-			if(js.Boot.__instanceof(bg,nx3.elements.BSingle)) {
-				var dNote = bg.getFirstNote();
-				dNote.set_direction(bg.getDirection());
-			} else {
-				var _g2 = 0, _g3 = bg.getNotes();
-				while(_g2 < _g3.length) {
-					var dNote = _g3[_g2];
-					++_g2;
-					dNote.set_direction(bg.getDirection());
-				}
-			}
-		}
-		return this;
-	}
-	,directionTranslate: function(dirUAD) {
-		if(dirUAD == nx3.elements.EDirectionUAD.Up) return nx3.elements.EDirectionUD.Up;
-		return nx3.elements.EDirectionUD.Down;
-	}
-	,setGroupDirection: function() {
-		var useDirection = this.forceDirection != null?this.forceDirection:this.dVoice.direction;
-		if(useDirection == null) useDirection = nx3.elements.EDirectionUAD.Auto;
-		var _g = 0, _g1 = this.dVoice.get_beamGroups();
-		while(_g < _g1.length) {
-			var bg = _g1[_g];
-			++_g;
-			if(useDirection == nx3.elements.EDirectionUAD.Auto) {
-				var levelWeight = bg.getLevelTop() + bg.getLevelBottom();
-				var levelWeightDirection = levelWeight > 0?nx3.elements.EDirectionUD.Up:nx3.elements.EDirectionUD.Down;
-				bg.setDirection(levelWeightDirection);
-			} else bg.setDirection(this.directionTranslate(useDirection));
-		}
-		return this;
-	}
-	,calcLevelWeight: function() {
-		var _g = 0, _g1 = this.dVoice.get_beamGroups();
-		while(_g < _g1.length) {
-			var bg = _g1[_g];
-			++_g;
-			if(js.Boot.__instanceof(bg,nx3.elements.BSingle)) {
-				bg.setLevelTop(bg.getFirstNote().levelTop);
-				bg.setLevelBottom(bg.getFirstNote().levelBottom);
-			} else {
-				var _g2 = 0, _g3 = bg.getNotes();
-				while(_g2 < _g3.length) {
-					var dNote = _g3[_g2];
-					++_g2;
-					if(dNote == bg.getFirstNote()) {
-						bg.setLevelTop(dNote.levelTop);
-						bg.setLevelBottom(dNote.levelBottom);
-					} else {
-						bg.setLevelTop(Math.min(bg.getLevelTop(),dNote.levelTop) | 0);
-						bg.setLevelBottom(Math.max(bg.getLevelBottom(),dNote.levelBottom) | 0);
-					}
-				}
-			}
-		}
-		return this;
-	}
-	,createBeamGroups: function() {
-		var dnoteGroupIdx = new haxe.ds.ObjectMap();
-		var _g = 0, _g1 = this.dVoice.dnotes;
-		while(_g < _g1.length) {
-			var dnote = _g1[_g];
-			++_g;
-			var dnotePos = this.dVoice.dnotePosition.h[dnote.__id__];
-			var dnoteEnd = this.dVoice.dnotePositionEnd.h[dnote.__id__];
-			var groupIdx = -111;
-			var $e = (dnote.type);
-			switch( $e[1] ) {
-			case 0:
-				var attributes = $e[5], articulations = $e[4], variant = $e[3], heads = $e[2];
-				if(dnote.value.beamingLevel < 1) groupIdx = -1; else groupIdx = this._findBeamGroupIndex(dnotePos,dnoteEnd);
-				break;
-			default:
-				groupIdx = -2;
-			}
-			dnoteGroupIdx.set(dnote,groupIdx);
-		}
-		var count = 0;
-		var prevDnote = null;
-		var arrDnote = [];
-		var beamgroups = [];
-		var _g = 0, _g1 = this.dVoice.dnotes;
-		while(_g < _g1.length) {
-			var dnote = _g1[_g];
-			++_g;
-			if(prevDnote == null) {
-				arrDnote.push(dnote);
-				prevDnote = dnote;
-				continue;
-			}
-			var prevIdx = dnoteGroupIdx.h[prevDnote.__id__];
-			var groupIdx = dnoteGroupIdx.h[dnote.__id__];
-			if(prevIdx != groupIdx || prevIdx == -1) {
-				var newBeamGroup = this._getBeamGroupFromArray(arrDnote);
-				this.dVoice.get_beamGroups().push(newBeamGroup);
-				count = 0;
-				arrDnote = [dnote];
-			} else {
-				count++;
-				arrDnote.push(dnote);
-			}
-			prevDnote = dnote;
-		}
-		var newBeamGroup = this._getBeamGroupFromArray(arrDnote);
-		this.dVoice.get_beamGroups().push(newBeamGroup);
-		this.trBeamGroups(beamgroups);
-		return this;
-	}
-	,preparePatternCalculation: function() {
-		this.patternValuePos = [];
-		this.patternValueEnd = [];
-		var vPos = 0;
-		var i = 0;
-		var _g = 0, _g1 = this.valuePattern;
-		while(_g < _g1.length) {
-			var v = _g1[_g];
-			++_g;
-			var vValue = v.value;
-			var vEnd = vPos + vValue;
-			this.patternValuePos.push(vPos);
-			this.patternValueEnd.push(vEnd);
-			vPos = vEnd;
-			i++;
-		}
-		return this;
-	}
-	,adjustPatternLength: function() {
-		var vpValue = 0;
-		var _g = 0, _g1 = this.valuePattern;
-		while(_g < _g1.length) {
-			var value = _g1[_g];
-			++_g;
-			vpValue += value.value;
-		}
-		while(vpValue <= this.dVoice.sumNoteValue) {
-			this.valuePattern = Lambda.array(Lambda.concat(this.valuePattern,this.valuePattern));
-			vpValue = 0;
-			var _g = 0, _g1 = this.valuePattern;
-			while(_g < _g1.length) {
-				var value = _g1[_g];
-				++_g;
-				vpValue += value.value;
-			}
-		}
-		return this;
-	}
-	,clearBeamlist: function() {
-		this.dVoice.beamGroupsClear();
-		return this;
-	}
-	,beam: function(dVoice,valuePattern,forceDirection) {
-		this.valuePattern = valuePattern;
-		this.dVoice = dVoice;
-		this.forceDirection = forceDirection;
-		this.clearBeamlist().adjustPatternLength().preparePatternCalculation().createBeamGroups().calcLevelWeight().setGroupDirection().setDisplayNoteDirections().setFlagCorrections();
-	}
-	,patternValueEnd: null
-	,patternValuePos: null
-	,forceDirection: null
-	,dVoice: null
-	,valuePattern: null
-	,__class__: nx3.elements.BProcessorBase
-}
-nx3.elements.BProcessor_2Eights = function() {
-	this.valuePattern = [nx3.elements.ENoteValue.Nv4];
-};
-$hxClasses["nx3.elements.BProcessor_2Eights"] = nx3.elements.BProcessor_2Eights;
-nx3.elements.BProcessor_2Eights.__name__ = ["nx3","elements","BProcessor_2Eights"];
-nx3.elements.BProcessor_2Eights.__interfaces__ = [nx3.elements.BProcessor];
-nx3.elements.BProcessor_2Eights.__super__ = nx3.elements.BProcessorBase;
-nx3.elements.BProcessor_2Eights.prototype = $extend(nx3.elements.BProcessorBase.prototype,{
-	doBeaming: function(dVoice,forceDirection) {
-		this.beam(dVoice,this.valuePattern,forceDirection);
-	}
-	,__class__: nx3.elements.BProcessor_2Eights
-});
-nx3.elements.BSingle = function(dnote) {
-	this.dNote = dnote;
-};
-$hxClasses["nx3.elements.BSingle"] = nx3.elements.BSingle;
-nx3.elements.BSingle.__name__ = ["nx3","elements","BSingle"];
-nx3.elements.BSingle.__interfaces__ = [nx3.elements.BItem];
-nx3.elements.BSingle.prototype = {
-	toString: function() {
-		return "BeamGroupSingle (" + this.levelTop + "," + this.levelBottom + ")- direction:" + Std.string(this.direction) + " count:" + this.count();
-	}
-	,getValuePosition: function(noteIdx) {
-		return 0;
-	}
-	,getValue: function() {
-		return this.getFirstNote().value.value;
-	}
-	,firstNotevalue: null
-	,firstType: null
-	,getBottomHeadsLevels: function() {
-		var ret = [this.getFirstNote().levelBottom];
-		return ret;
-	}
-	,getTopHeadsLevels: function() {
-		var ret = [this.getFirstNote().levelTop];
-		return ret;
-	}
-	,getLevelBottom: function() {
-		return this.levelBottom;
-	}
-	,setLevelBottom: function(value) {
-		return this.levelBottom = value;
-	}
-	,levelBottom: null
-	,getLevelTop: function() {
-		return this.levelTop;
-	}
-	,setLevelTop: function(value) {
-		return this.levelTop = value;
-	}
-	,levelTop: null
-	,setDirection: function(value) {
-		return this.direction = value;
-	}
-	,getDirection: function() {
-		return this.direction;
-	}
-	,direction: null
-	,count: function() {
-		return 1;
-	}
-	,getNote: function(index) {
-		return this.dNote;
-	}
-	,getLastNote: function() {
-		return this.dNote;
-	}
-	,getFirstNote: function() {
-		return this.dNote;
-	}
-	,getNotes: function() {
-		return [this.dNote];
-	}
-	,dNote: null
-	,__class__: nx3.elements.BSingle
-}
-nx3.elements.interfaces = {}
-nx3.elements.interfaces.IDistanceRects = function() { }
-$hxClasses["nx3.elements.interfaces.IDistanceRects"] = nx3.elements.interfaces.IDistanceRects;
-nx3.elements.interfaces.IDistanceRects.__name__ = ["nx3","elements","interfaces","IDistanceRects"];
-nx3.elements.interfaces.IDistanceRects.prototype = {
-	rectsBack: null
-	,rectCenter: null
-	,rectsFront: null
-	,__class__: nx3.elements.interfaces.IDistanceRects
-}
-nx3.elements.DComplex = function(dnotes) {
-	this.headsRect_ = null;
-	this.dnotes = dnotes;
-	this.signs = this.getSigns_(dnotes);
-	this.avoidCollisions_();
-	this.get_headsRect();
-};
-$hxClasses["nx3.elements.DComplex"] = nx3.elements.DComplex;
-nx3.elements.DComplex.__name__ = ["nx3","elements","DComplex"];
-nx3.elements.DComplex.__interfaces__ = [nx3.elements.interfaces.IDistanceRects];
-nx3.elements.DComplex.prototype = {
-	avoidCollisions_: function() {
-		if(this.dnotes.length > 1) {
-			var diff = this.dnotes[1].get_headTop().level - this.dnotes[0].get_headBottom().level;
-			if(diff == 1) this.dnotes[1].set_xAdjust(3.0); else if(diff == 0) {
-				if(this.dnotes[1].value != this.dnotes[0].value) this.dnotes[1].set_xAdjust(this.dnotes[0].get_headsRect().x + this.dnotes[0].get_headsRect().width - this.dnotes[1].get_headsRect().x + 0.6);
-			} else if(diff < 1) {
-				if(this.dnotes[1].value == this.dnotes[0].value) {
-					if(nx3.elements.tools.HeadsTool.headsCollide(this.dnotes[0].get_heads(),this.dnotes[1].get_heads())) this.dnotes[1].set_xAdjust(this.dnotes[0].get_headsRect().x + this.dnotes[0].get_headsRect().width - this.dnotes[1].get_headsRect().x + 0.6); else this.dnotes[1].set_xAdjust(-0.6);
-				} else this.dnotes[1].set_xAdjust(this.dnotes[0].get_headsRect().x + this.dnotes[0].get_headsRect().width - this.dnotes[1].get_headsRect().x + 0.6);
-			} else {
-			}
-		}
-	}
-	,get_dnotesXAdjust: function() {
-		return null;
-	}
-	,get_signRects: function() {
-		if(this.signRects_ != null) return this.signRects_;
-		if(this.signs.length == 0) return null;
-		this.signRects_ = [];
-		var currentRect = null;
-		var _g = 0, _g1 = this.signs;
-		while(_g < _g1.length) {
-			var sign = _g1[_g];
-			++_g;
-			currentRect = nx3.elements.tools.SignsTools.getSignRect(sign.sign);
-			currentRect.offset(0,sign.level);
-			if(currentRect == null) continue;
-			currentRect.offset(-currentRect.width,0);
-			var xMove = 0;
-			var _g2 = 0, _g3 = this.signRects_;
-			while(_g2 < _g3.length) {
-				var checkRect = _g3[_g2];
-				++_g2;
-				var isect = checkRect.intersection(currentRect);
-				if(checkRect.intersects(currentRect)) currentRect.x = checkRect.x - currentRect.width;
-			}
-			this.signRects_.push(currentRect);
-		}
-		if(this.signRects_.length == 0) {
-			this.signRects_ = null;
-			return this.signRects_;
-		}
-		var combineRect = this.signRects_[0];
-		var _g = 0, _g1 = this.signRects_;
-		while(_g < _g1.length) {
-			var rect = _g1[_g];
-			++_g;
-			if(combineRect == rect) {
-			} else combineRect = combineRect.union(rect);
-		}
-		var _g = 0, _g1 = this.signRects_;
-		while(_g < _g1.length) {
-			var rect = _g1[_g];
-			++_g;
-			rect.offset(combineRect.width,0);
-		}
-		return this.signRects_;
-	}
-	,signRects_: null
-	,signRects: null
-	,get_signsFrame: function() {
-		if(this.signsFrame_ != null) return this.signsFrame_;
-		if(this.get_signRects() == null) return null;
-		var _g = 0, _g1 = this.get_signRects();
-		while(_g < _g1.length) {
-			var rect = _g1[_g];
-			++_g;
-			if(this.signsFrame_ == null) this.signsFrame_ = rect.clone(); else this.signsFrame_ = this.signsFrame_.union(rect);
-		}
-		this.signsFrame_.x = this.get_headsRect().x - this.signsFrame_.width - 0.8;
-		return this.signsFrame_;
-	}
-	,signsFrame_: null
-	,signsFrame: null
-	,getSigns_: function(dnotes) {
-		var signs = new Array();
-		var _g = 0;
-		while(_g < dnotes.length) {
-			var dnote = dnotes[_g];
-			++_g;
-			var _g1 = 0, _g2 = dnote.get_heads();
-			while(_g1 < _g2.length) {
-				var head = _g2[_g1];
-				++_g1;
-				signs.push({ sign : head.sign, level : head.level, position : 0});
-			}
-		}
-		return nx3.elements.tools.SignsTools.adjustPositions(signs);
-	}
-	,get_headsRect: function() {
-		if(this.headsRect_ != null) return this.headsRect_;
-		this.headsRect_ = this.dnotes[0].get_headsRect();
-		this.headsRect_.offset(this.dnotes[0].get_xAdjust(),0);
-		if(this.dnotes.length == 1) return this.headsRect_;
-		var _g1 = 1, _g = this.dnotes.length;
-		while(_g1 < _g) {
-			var i = _g1++;
-			var dnoteRect = this.dnotes[i].get_headsRect();
-			dnoteRect.offset(this.dnotes[i].get_xAdjust(),0);
-			this.headsRect_ = this.headsRect_.union(dnoteRect);
-		}
-		return this.headsRect_;
-	}
-	,headsRect: null
-	,headsRect_: null
-	,rectsBack: null
-	,get_rectsBack: function() {
-		return this.rectsBack_;
-	}
-	,rectsBack_: null
-	,rectCenter: null
-	,get_rectCenter: function() {
-		return this.rectCenter_;
-	}
-	,rectCenter_: null
-	,rectsFront: null
-	,get_rectsFront: function() {
-		return this.rectsFront_;
-	}
-	,rectsFront_: null
-	,dnotesXAdjust: null
-	,signs: null
-	,dnotes: null
-	,__class__: nx3.elements.DComplex
-	,__properties__: {get_dnotesXAdjust:"get_dnotesXAdjust",get_rectsFront:"get_rectsFront",get_rectCenter:"get_rectCenter",get_rectsBack:"get_rectsBack",get_headsRect:"get_headsRect",get_signsFrame:"get_signsFrame",get_signRects:"get_signRects"}
-}
-nx3.elements.DNote = function(note,variant,articulations,attributes,forceDirection) {
-	this.xAdjust_ = 0;
-	this.headRects_ = null;
-	this.note = note;
-	this.variant = variant == null?nx3.elements.ENotationVariant.Normal:variant;
-	this.articulations = articulations == null?[]:articulations;
-	this.attributes = attributes == null?[]:attributes;
-	this.forceDirection = forceDirection;
-	this.levelTop = this.note.get_heads()[0].level;
-	this.levelBottom = this.note.get_heads()[this.note.get_heads().length - 1].level;
-	this.value = this.note.value;
-	this.type = this.note.type;
-};
-$hxClasses["nx3.elements.DNote"] = nx3.elements.DNote;
-nx3.elements.DNote.__name__ = ["nx3","elements","DNote"];
-nx3.elements.DNote.prototype = {
-	reset: function() {
-		this.headRects_ = null;
-		this.headsRect_ = null;
-	}
-	,set_xAdjust: function(val) {
-		return this.xAdjust_ = val;
-	}
-	,get_xAdjust: function() {
-		return this.xAdjust_;
-	}
-	,xAdjust_: null
-	,get_headsRect: function() {
-		if(this.headsRect_ != null) return this.headsRect_;
-		this.headsRect_ = this.get_headRects()[0];
-		if(this.get_heads().length > 1) {
-			var _g1 = 1, _g = this.get_heads().length;
-			while(_g1 < _g) {
-				var i = _g1++;
-				this.headsRect_ = this.headsRect_.union(this.get_headRects()[i]);
-			}
-		}
-		return this.headsRect_;
-	}
-	,headsRect: null
-	,headsRect_: null
-	,get_headBottom: function() {
-		if(this.headBottom_ != null) return this.headBottom_;
-		this.headBottom_ = this.get_heads()[this.get_heads().length - 1];
-		return this.headBottom_;
-	}
-	,headBottom: null
-	,headBottom_: null
-	,get_headTop: function() {
-		if(this.heads_ != null) return this.heads_[0];
-		return this.get_heads()[0];
-	}
-	,headTop: null
-	,get_heads: function() {
-		if(this.heads_ != null) return this.heads_;
-		this.heads_ = this.note.get_heads();
-		return this.heads_;
-	}
-	,heads: null
-	,heads_: null
-	,get_midLevel: function() {
-		if(this.midLevel_ != null) return this.midLevel_;
-		this.midLevel_ = nx3.elements.tools.HeadsTool.midLevel(this.note.get_heads());
-		return this.midLevel_;
-	}
-	,midLevel_: null
-	,midLevel: null
-	,get_headRects: function() {
-		if(this.headRects_ != null) return this.headRects_;
-		this.headRects_ = [];
-		var headPositions = nx3.elements.tools.HeadsTool.getHeadPositions(this.note.get_heads(),this.get_direction());
-		var i = 0;
-		var _g = 0, _g1 = this.note.get_heads();
-		while(_g < _g1.length) {
-			var head = _g1[_g];
-			++_g;
-			var rect = nx3.elements.tools.HeadTool.getHeadRect(head,this.note.value);
-			rect.offset(rect.width * headPositions[i],0);
-			this.headRects_.push(rect);
-			i++;
-		}
-		return this.headRects_;
-	}
-	,headRects: null
-	,headRects_: null
-	,get_stemX: function() {
-		if(this.stemX_ != null) return this.stemX_;
-		this.stemX_ = 1.6;
-		if(this.get_direction() == nx3.elements.EDirectionUD.Down) this.stemX_ = -this.stemX_;
-		return this.stemX_;
-	}
-	,stemX_: null
-	,stemX: null
-	,set_direction: function(val) {
-		this.direction_ = val;
-		return this.direction_;
-	}
-	,get_direction: function() {
-		if(this.direction_ != null) return this.direction_;
-		if(this.forceDirection != null) this.direction_ = this.forceDirection; else this.direction_ = this.note.direction != null?nx3.elements.EDirectionUADTools.toUD(this.note.direction):nx3.elements.tools.HeadsTool.getDirection(this.note.get_heads());
-		return this.direction_;
-	}
-	,direction_: null
-	,value: null
-	,levelBottom: null
-	,levelTop: null
-	,forceDirection: null
-	,attributes: null
-	,articulations: null
-	,variant: null
-	,type: null
-	,note: null
-	,__class__: nx3.elements.DNote
-	,__properties__: {set_direction:"set_direction",get_direction:"get_direction",get_stemX:"get_stemX",get_headRects:"get_headRects",get_midLevel:"get_midLevel",get_heads:"get_heads",get_headTop:"get_headTop",get_headBottom:"get_headBottom",get_headsRect:"get_headsRect",set_xAdjust:"set_xAdjust",get_xAdjust:"get_xAdjust"}
-}
-nx3.elements.DVoice = function(voice,direction,beamingProcessor) {
-	this.voice = voice;
-	this.direction = direction == null?nx3.elements.EDirectionUAD.Auto:direction;
-	this.beamingProcessor = beamingProcessor == null?new nx3.elements.BProcessor_2Eights():beamingProcessor;
-	this.dnotes = [];
-	var _g = this;
-	switch( (_g.voice.type)[1] ) {
-	case 0:
-		break;
-	default:
-		throw "Unimplemented Voicetype";
-	}
-	this.prepareClassHelperStuff();
-	this.doBeaming();
-};
-$hxClasses["nx3.elements.DVoice"] = nx3.elements.DVoice;
-nx3.elements.DVoice.__name__ = ["nx3","elements","DVoice"];
-nx3.elements.DVoice.prototype = {
-	_setConnectionPoints: function() {
-		console.log("_setConnectionPoints");
-		var _g = 0, _g1 = this.get_beamGroups();
-		while(_g < _g1.length) {
-			var beamGroup = _g1[_g];
-			++_g;
-			var noteIndex = 0;
-			var _g2 = 0, _g3 = beamGroup.getNotes();
-			while(_g2 < _g3.length) {
-				var dnote = _g3[_g2];
-				++_g2;
-				if(beamGroup.count() == 1) console.log("single"); else if(dnote == beamGroup.getFirstNote()) console.log("multi first " + beamGroup.getValuePosition(noteIndex) + " " + beamGroup.getValue()); else if(dnote == beamGroup.getLastNote()) console.log("multi last " + beamGroup.getValuePosition(noteIndex)); else console.log("multi mid " + beamGroup.getValuePosition(noteIndex));
-				noteIndex++;
-			}
-		}
-	}
-	,beamGroups: null
-	,get_beamGroups: function() {
-		return this._beamGroups;
-	}
-	,_beamGroups: null
-	,beamGroupsAdd: function(beamGroup) {
-		this._beamGroups.push(beamGroup);
-	}
-	,beamGroupsClear: function() {
-		this._beamGroups = [];
-	}
-	,doBeaming: function() {
-		if(this.beamingProcessor != null) this.beamingProcessor.doBeaming(this,this.direction);
-	}
-	,beamingProcessor: null
-	,prepareClassHelperStuff: function() {
-		this.dnotePosition = new haxe.ds.ObjectMap();
-		this.dnotePositionEnd = new haxe.ds.ObjectMap();
-		this.dnoteBeamgroup = new haxe.ds.ObjectMap();
-		var sum = 0;
-		var _g = 0, _g1 = this.voice.notes;
-		while(_g < _g1.length) {
-			var note = _g1[_g];
-			++_g;
-			this.dnotes.push(new nx3.elements.DNote(note,null,null,null,nx3.elements.EDirectionUADTools.toUD(this.direction)));
-			sum += note.value.value;
-		}
-		this.sumNoteValue = sum;
-		var pos = 0;
-		var _g = 0, _g1 = this.dnotes;
-		while(_g < _g1.length) {
-			var dnote = _g1[_g];
-			++_g;
-			this.dnotePosition.set(dnote,pos);
-			this.dnotePositionEnd.set(dnote,pos + dnote.value.value);
-			pos += dnote.value.value;
-		}
-	}
-	,dnoteBeamgroup: null
-	,dnotePositionEnd: null
-	,dnotePosition: null
-	,sumNoteValue: null
-	,dnote: function(idx) {
-		return this.dnotes[idx];
-	}
-	,dnotes: null
-	,direction: null
-	,voice: null
-	,__class__: nx3.elements.DVoice
-	,__properties__: {get_beamGroups:"get_beamGroups"}
-}
-nx3.elements.EBarType = $hxClasses["nx3.elements.EBarType"] = { __ename__ : true, __constructs__ : ["Normal","Weird"] }
+nx3.elements.EBarType = $hxClasses["nx3.elements.EBarType"] = { __ename__ : true, __constructs__ : ["Normal","Repeat","Ignore","Folded"] }
 nx3.elements.EBarType.Normal = ["Normal",0];
 nx3.elements.EBarType.Normal.toString = $estr;
 nx3.elements.EBarType.Normal.__enum__ = nx3.elements.EBarType;
-nx3.elements.EBarType.Weird = ["Weird",1];
-nx3.elements.EBarType.Weird.toString = $estr;
-nx3.elements.EBarType.Weird.__enum__ = nx3.elements.EBarType;
+nx3.elements.EBarType.Repeat = ["Repeat",1];
+nx3.elements.EBarType.Repeat.toString = $estr;
+nx3.elements.EBarType.Repeat.__enum__ = nx3.elements.EBarType;
+nx3.elements.EBarType.Ignore = ["Ignore",2];
+nx3.elements.EBarType.Ignore.toString = $estr;
+nx3.elements.EBarType.Ignore.__enum__ = nx3.elements.EBarType;
+nx3.elements.EBarType.Folded = ["Folded",3];
+nx3.elements.EBarType.Folded.toString = $estr;
+nx3.elements.EBarType.Folded.__enum__ = nx3.elements.EBarType;
 nx3.elements.EClef = $hxClasses["nx3.elements.EClef"] = { __ename__ : true, __constructs__ : ["ClefG","ClefF","ClefC"] }
 nx3.elements.EClef.ClefG = ["ClefG",0];
 nx3.elements.EClef.ClefG.toString = $estr;
@@ -11069,6 +11269,13 @@ nx3.elements.EClef.ClefF.__enum__ = nx3.elements.EClef;
 nx3.elements.EClef.ClefC = ["ClefC",2];
 nx3.elements.EClef.ClefC.toString = $estr;
 nx3.elements.EClef.ClefC.__enum__ = nx3.elements.EClef;
+nx3.elements.EDirectionTools = function() { }
+$hxClasses["nx3.elements.EDirectionTools"] = nx3.elements.EDirectionTools;
+nx3.elements.EDirectionTools.__name__ = ["nx3","elements","EDirectionTools"];
+nx3.elements.EDirectionTools.uadToUd = function(directionUAD) {
+	if(directionUAD == nx3.elements.EDirectionUAD.Up) return nx3.elements.EDirectionUD.Up;
+	return nx3.elements.EDirectionUD.Down;
+}
 nx3.elements.EDirectionUAD = $hxClasses["nx3.elements.EDirectionUAD"] = { __ename__ : true, __constructs__ : ["Up","Auto","Down"] }
 nx3.elements.EDirectionUAD.Up = ["Up",0];
 nx3.elements.EDirectionUAD.Up.toString = $estr;
@@ -11220,55 +11427,347 @@ nx3.elements.ENoteType.Chord.__enum__ = nx3.elements.ENoteType;
 nx3.elements.ENoteType.Dynam = ["Dynam",6];
 nx3.elements.ENoteType.Dynam.toString = $estr;
 nx3.elements.ENoteType.Dynam.__enum__ = nx3.elements.ENoteType;
-nx3.elements.ENoteValue = function(value,head,stavingLevel,beamingLevel,dotlevel) {
-	if(dotlevel == null) dotlevel = 0;
-	if(beamingLevel == null) beamingLevel = 0;
-	if(stavingLevel == null) stavingLevel = 0;
-	this.value = value | 0;
-	this.head = head;
-	this.stavingLevel = stavingLevel;
-	this.beamingLevel = beamingLevel;
-	this.dotLevel = dotlevel;
-};
-$hxClasses["nx3.elements.ENoteValue"] = nx3.elements.ENoteValue;
-nx3.elements.ENoteValue.__name__ = ["nx3","elements","ENoteValue"];
-nx3.elements.ENoteValue.getFromValue = function(value) {
-	if(value == nx3.elements.ENoteValue.N1 * 3024) return nx3.elements.ENoteValue.Nv1;
-	if(value == nx3.elements.ENoteValue.N1 * 3024 * nx3.elements.ENoteValue.DOT) return nx3.elements.ENoteValue.Nv1dot;
-	if(value == nx3.elements.ENoteValue.N1 * 3024 * nx3.elements.ENoteValue.DOTDOT) return nx3.elements.ENoteValue.Nv1ddot;
-	if(value == nx3.elements.ENoteValue.N1 * 3024 * nx3.elements.ENoteValue.TRI) return nx3.elements.ENoteValue.Nv1tri;
-	if(value == nx3.elements.ENoteValue.N2 * 3024) return nx3.elements.ENoteValue.Nv2;
-	if(value == nx3.elements.ENoteValue.N2 * 3024 * nx3.elements.ENoteValue.DOT) return nx3.elements.ENoteValue.Nv2dot;
-	if(value == nx3.elements.ENoteValue.N2 * 3024 * nx3.elements.ENoteValue.DOTDOT) return nx3.elements.ENoteValue.Nv2ddot;
-	if(value == nx3.elements.ENoteValue.N2 * 3024 * nx3.elements.ENoteValue.TRI) return nx3.elements.ENoteValue.Nv2tri;
-	if(value == 3024) return nx3.elements.ENoteValue.Nv4;
-	if(value == 3024 * nx3.elements.ENoteValue.DOT) return nx3.elements.ENoteValue.Nv4dot;
-	if(value == 3024 * nx3.elements.ENoteValue.DOTDOT) return nx3.elements.ENoteValue.Nv4ddot;
-	if(value == 3024 * nx3.elements.ENoteValue.TRI) return nx3.elements.ENoteValue.Nv4tri;
-	if(value == nx3.elements.ENoteValue.N8 * 3024) return nx3.elements.ENoteValue.Nv8;
-	if(value == nx3.elements.ENoteValue.N8 * 3024 * nx3.elements.ENoteValue.DOT) return nx3.elements.ENoteValue.Nv8dot;
-	if(value == nx3.elements.ENoteValue.N8 * 3024 * nx3.elements.ENoteValue.DOTDOT) return nx3.elements.ENoteValue.Nv8ddot;
-	if(value == nx3.elements.ENoteValue.N8 * 3024 * nx3.elements.ENoteValue.TRI) return nx3.elements.ENoteValue.Nv8tri;
-	if(value == nx3.elements.ENoteValue.N16 * 3024) return nx3.elements.ENoteValue.Nv16;
-	if(value == nx3.elements.ENoteValue.N16 * 3024 * nx3.elements.ENoteValue.DOT) return nx3.elements.ENoteValue.Nv16dot;
-	if(value == nx3.elements.ENoteValue.N16 * 3024 * nx3.elements.ENoteValue.DOTDOT) return nx3.elements.ENoteValue.Nv16ddot;
-	if(value == nx3.elements.ENoteValue.N16 * 3024 * nx3.elements.ENoteValue.TRI) return nx3.elements.ENoteValue.Nv16tri;
-	if(value == nx3.elements.ENoteValue.N32 * 3024) return nx3.elements.ENoteValue.Nv32;
-	if(value == nx3.elements.ENoteValue.N32 * 3024 * nx3.elements.ENoteValue.DOT) return nx3.elements.ENoteValue.Nv32dot;
-	if(value == nx3.elements.ENoteValue.N32 * 3024 * nx3.elements.ENoteValue.DOTDOT) return nx3.elements.ENoteValue.Nv32ddot;
-	if(value == nx3.elements.ENoteValue.N32 * 3024 * nx3.elements.ENoteValue.TRI) return nx3.elements.ENoteValue.Nv32tri;
-	throw "Could not find note value for value " + value;
-	return nx3.elements.ENoteValue.Nv4;
+nx3.elements.ENoteVal = $hxClasses["nx3.elements.ENoteVal"] = { __ename__ : true, __constructs__ : ["Nv1","Nv1dot","Nv1ddot","Nv1tri","Nv2","Nv2dot","Nv2ddot","Nv2tri","Nv4","Nv4dot","Nv4ddot","Nv4tri","Nv8","Nv8dot","Nv8ddot","Nv8tri","Nv16","Nv16dot","Nv16ddot","Nv16tri","Nv32","Nv32dot","Nv32ddot","Nv32tri"] }
+nx3.elements.ENoteVal.Nv1 = ["Nv1",0];
+nx3.elements.ENoteVal.Nv1.toString = $estr;
+nx3.elements.ENoteVal.Nv1.__enum__ = nx3.elements.ENoteVal;
+nx3.elements.ENoteVal.Nv1dot = ["Nv1dot",1];
+nx3.elements.ENoteVal.Nv1dot.toString = $estr;
+nx3.elements.ENoteVal.Nv1dot.__enum__ = nx3.elements.ENoteVal;
+nx3.elements.ENoteVal.Nv1ddot = ["Nv1ddot",2];
+nx3.elements.ENoteVal.Nv1ddot.toString = $estr;
+nx3.elements.ENoteVal.Nv1ddot.__enum__ = nx3.elements.ENoteVal;
+nx3.elements.ENoteVal.Nv1tri = ["Nv1tri",3];
+nx3.elements.ENoteVal.Nv1tri.toString = $estr;
+nx3.elements.ENoteVal.Nv1tri.__enum__ = nx3.elements.ENoteVal;
+nx3.elements.ENoteVal.Nv2 = ["Nv2",4];
+nx3.elements.ENoteVal.Nv2.toString = $estr;
+nx3.elements.ENoteVal.Nv2.__enum__ = nx3.elements.ENoteVal;
+nx3.elements.ENoteVal.Nv2dot = ["Nv2dot",5];
+nx3.elements.ENoteVal.Nv2dot.toString = $estr;
+nx3.elements.ENoteVal.Nv2dot.__enum__ = nx3.elements.ENoteVal;
+nx3.elements.ENoteVal.Nv2ddot = ["Nv2ddot",6];
+nx3.elements.ENoteVal.Nv2ddot.toString = $estr;
+nx3.elements.ENoteVal.Nv2ddot.__enum__ = nx3.elements.ENoteVal;
+nx3.elements.ENoteVal.Nv2tri = ["Nv2tri",7];
+nx3.elements.ENoteVal.Nv2tri.toString = $estr;
+nx3.elements.ENoteVal.Nv2tri.__enum__ = nx3.elements.ENoteVal;
+nx3.elements.ENoteVal.Nv4 = ["Nv4",8];
+nx3.elements.ENoteVal.Nv4.toString = $estr;
+nx3.elements.ENoteVal.Nv4.__enum__ = nx3.elements.ENoteVal;
+nx3.elements.ENoteVal.Nv4dot = ["Nv4dot",9];
+nx3.elements.ENoteVal.Nv4dot.toString = $estr;
+nx3.elements.ENoteVal.Nv4dot.__enum__ = nx3.elements.ENoteVal;
+nx3.elements.ENoteVal.Nv4ddot = ["Nv4ddot",10];
+nx3.elements.ENoteVal.Nv4ddot.toString = $estr;
+nx3.elements.ENoteVal.Nv4ddot.__enum__ = nx3.elements.ENoteVal;
+nx3.elements.ENoteVal.Nv4tri = ["Nv4tri",11];
+nx3.elements.ENoteVal.Nv4tri.toString = $estr;
+nx3.elements.ENoteVal.Nv4tri.__enum__ = nx3.elements.ENoteVal;
+nx3.elements.ENoteVal.Nv8 = ["Nv8",12];
+nx3.elements.ENoteVal.Nv8.toString = $estr;
+nx3.elements.ENoteVal.Nv8.__enum__ = nx3.elements.ENoteVal;
+nx3.elements.ENoteVal.Nv8dot = ["Nv8dot",13];
+nx3.elements.ENoteVal.Nv8dot.toString = $estr;
+nx3.elements.ENoteVal.Nv8dot.__enum__ = nx3.elements.ENoteVal;
+nx3.elements.ENoteVal.Nv8ddot = ["Nv8ddot",14];
+nx3.elements.ENoteVal.Nv8ddot.toString = $estr;
+nx3.elements.ENoteVal.Nv8ddot.__enum__ = nx3.elements.ENoteVal;
+nx3.elements.ENoteVal.Nv8tri = ["Nv8tri",15];
+nx3.elements.ENoteVal.Nv8tri.toString = $estr;
+nx3.elements.ENoteVal.Nv8tri.__enum__ = nx3.elements.ENoteVal;
+nx3.elements.ENoteVal.Nv16 = ["Nv16",16];
+nx3.elements.ENoteVal.Nv16.toString = $estr;
+nx3.elements.ENoteVal.Nv16.__enum__ = nx3.elements.ENoteVal;
+nx3.elements.ENoteVal.Nv16dot = ["Nv16dot",17];
+nx3.elements.ENoteVal.Nv16dot.toString = $estr;
+nx3.elements.ENoteVal.Nv16dot.__enum__ = nx3.elements.ENoteVal;
+nx3.elements.ENoteVal.Nv16ddot = ["Nv16ddot",18];
+nx3.elements.ENoteVal.Nv16ddot.toString = $estr;
+nx3.elements.ENoteVal.Nv16ddot.__enum__ = nx3.elements.ENoteVal;
+nx3.elements.ENoteVal.Nv16tri = ["Nv16tri",19];
+nx3.elements.ENoteVal.Nv16tri.toString = $estr;
+nx3.elements.ENoteVal.Nv16tri.__enum__ = nx3.elements.ENoteVal;
+nx3.elements.ENoteVal.Nv32 = ["Nv32",20];
+nx3.elements.ENoteVal.Nv32.toString = $estr;
+nx3.elements.ENoteVal.Nv32.__enum__ = nx3.elements.ENoteVal;
+nx3.elements.ENoteVal.Nv32dot = ["Nv32dot",21];
+nx3.elements.ENoteVal.Nv32dot.toString = $estr;
+nx3.elements.ENoteVal.Nv32dot.__enum__ = nx3.elements.ENoteVal;
+nx3.elements.ENoteVal.Nv32ddot = ["Nv32ddot",22];
+nx3.elements.ENoteVal.Nv32ddot.toString = $estr;
+nx3.elements.ENoteVal.Nv32ddot.__enum__ = nx3.elements.ENoteVal;
+nx3.elements.ENoteVal.Nv32tri = ["Nv32tri",23];
+nx3.elements.ENoteVal.Nv32tri.toString = $estr;
+nx3.elements.ENoteVal.Nv32tri.__enum__ = nx3.elements.ENoteVal;
+nx3.elements.ENoteValTools = function() { }
+$hxClasses["nx3.elements.ENoteValTools"] = nx3.elements.ENoteValTools;
+nx3.elements.ENoteValTools.__name__ = ["nx3","elements","ENoteValTools"];
+nx3.elements.ENoteValTools.beaminglevel = function(val) {
+	return (function($this) {
+		var $r;
+		switch( (val)[1] ) {
+		case 12:
+			$r = 1;
+			break;
+		case 15:
+			$r = 1;
+			break;
+		case 13:
+			$r = 1;
+			break;
+		case 14:
+			$r = 1;
+			break;
+		case 16:
+			$r = 2;
+			break;
+		case 19:
+			$r = 2;
+			break;
+		case 17:
+			$r = 2;
+			break;
+		case 18:
+			$r = 2;
+			break;
+		case 20:
+			$r = 3;
+			break;
+		case 23:
+			$r = 3;
+			break;
+		case 21:
+			$r = 3;
+			break;
+		case 22:
+			$r = 3;
+			break;
+		default:
+			$r = 0;
+		}
+		return $r;
+	}(this));
 }
-nx3.elements.ENoteValue.prototype = {
-	dotLevel: null
-	,beamingLevel: null
-	,stavingLevel: null
-	,head: null
-	,value: null
-	,__class__: nx3.elements.ENoteValue
+nx3.elements.ENoteValTools.stavinglevel = function(val) {
+	return (function($this) {
+		var $r;
+		switch( (val)[1] ) {
+		case 0:
+			$r = 0;
+			break;
+		case 3:
+			$r = 0;
+			break;
+		case 1:
+			$r = 0;
+			break;
+		case 2:
+			$r = 0;
+			break;
+		default:
+			$r = 1;
+		}
+		return $r;
+	}(this));
 }
-nx3.elements.EPartType = $hxClasses["nx3.elements.EPartType"] = { __ename__ : true, __constructs__ : ["Normal","Lyrics","Tpl","Tplchain","Dynamics","Chords"] }
+nx3.elements.ENoteValTools.head = function(val) {
+	return (function($this) {
+		var $r;
+		switch( (val)[1] ) {
+		case 0:
+			$r = nx3.elements.EHeadValuetype.HVT1;
+			break;
+		case 3:
+			$r = nx3.elements.EHeadValuetype.HVT1;
+			break;
+		case 1:
+			$r = nx3.elements.EHeadValuetype.HVT1;
+			break;
+		case 2:
+			$r = nx3.elements.EHeadValuetype.HVT1;
+			break;
+		case 4:
+			$r = nx3.elements.EHeadValuetype.HVT2;
+			break;
+		case 7:
+			$r = nx3.elements.EHeadValuetype.HVT2;
+			break;
+		case 5:
+			$r = nx3.elements.EHeadValuetype.HVT2;
+			break;
+		case 6:
+			$r = nx3.elements.EHeadValuetype.HVT2;
+			break;
+		default:
+			$r = nx3.elements.EHeadValuetype.HVT4;
+		}
+		return $r;
+	}(this));
+}
+nx3.elements.ENoteValTools.value = function(noteval) {
+	return (function($this) {
+		var $r;
+		switch( (noteval)[1] ) {
+		case 0:
+			$r = 12096;
+			break;
+		case 1:
+			$r = 18144;
+			break;
+		case 2:
+			$r = 21168;
+			break;
+		case 3:
+			$r = 8063;
+			break;
+		case 4:
+			$r = 6048;
+			break;
+		case 5:
+			$r = 9072;
+			break;
+		case 6:
+			$r = 10584;
+			break;
+		case 7:
+			$r = 4031;
+			break;
+		case 8:
+			$r = 3024;
+			break;
+		case 9:
+			$r = 4536;
+			break;
+		case 10:
+			$r = 5292;
+			break;
+		case 11:
+			$r = 2015;
+			break;
+		case 12:
+			$r = 1512;
+			break;
+		case 13:
+			$r = 2268;
+			break;
+		case 14:
+			$r = 2646;
+			break;
+		case 15:
+			$r = 1007;
+			break;
+		case 16:
+			$r = 756;
+			break;
+		case 17:
+			$r = 1134;
+			break;
+		case 18:
+			$r = 1323;
+			break;
+		case 19:
+			$r = 503;
+			break;
+		case 20:
+			$r = 378;
+			break;
+		case 21:
+			$r = 567;
+			break;
+		case 22:
+			$r = 661;
+			break;
+		case 23:
+			$r = 251;
+			break;
+		}
+		return $r;
+	}(this));
+}
+nx3.elements.ENoteValTools.getFromValue = function(value) {
+	return (function($this) {
+		var $r;
+		switch(value) {
+		case 12096:
+			$r = nx3.elements.ENoteVal.Nv1;
+			break;
+		case 18144:
+			$r = nx3.elements.ENoteVal.Nv1dot;
+			break;
+		case 21168:
+			$r = nx3.elements.ENoteVal.Nv1ddot;
+			break;
+		case 8063:
+			$r = nx3.elements.ENoteVal.Nv1tri;
+			break;
+		case 6048:
+			$r = nx3.elements.ENoteVal.Nv2;
+			break;
+		case 9072:
+			$r = nx3.elements.ENoteVal.Nv2dot;
+			break;
+		case 10584:
+			$r = nx3.elements.ENoteVal.Nv2ddot;
+			break;
+		case 4031:
+			$r = nx3.elements.ENoteVal.Nv2tri;
+			break;
+		case 3024:
+			$r = nx3.elements.ENoteVal.Nv4;
+			break;
+		case 4536:
+			$r = nx3.elements.ENoteVal.Nv4dot;
+			break;
+		case 5292:
+			$r = nx3.elements.ENoteVal.Nv4ddot;
+			break;
+		case 2015:
+			$r = nx3.elements.ENoteVal.Nv4tri;
+			break;
+		case 1512:
+			$r = nx3.elements.ENoteVal.Nv8;
+			break;
+		case 2268:
+			$r = nx3.elements.ENoteVal.Nv8dot;
+			break;
+		case 2646:
+			$r = nx3.elements.ENoteVal.Nv8ddot;
+			break;
+		case 1007:
+			$r = nx3.elements.ENoteVal.Nv8tri;
+			break;
+		case 756:
+			$r = nx3.elements.ENoteVal.Nv16;
+			break;
+		case 1134:
+			$r = nx3.elements.ENoteVal.Nv16dot;
+			break;
+		case 1323:
+			$r = nx3.elements.ENoteVal.Nv16ddot;
+			break;
+		case 503:
+			$r = nx3.elements.ENoteVal.Nv16tri;
+			break;
+		case 378:
+			$r = nx3.elements.ENoteVal.Nv32;
+			break;
+		case 567:
+			$r = nx3.elements.ENoteVal.Nv32dot;
+			break;
+		case 661:
+			$r = nx3.elements.ENoteVal.Nv32ddot;
+			break;
+		case 251:
+			$r = nx3.elements.ENoteVal.Nv32tri;
+			break;
+		default:
+			$r = null;
+		}
+		return $r;
+	}(this));
+}
+nx3.elements.EPartType = $hxClasses["nx3.elements.EPartType"] = { __ename__ : true, __constructs__ : ["Normal","Lyrics","Tpl","Tplchain","Dynamics","Chords","Ignore","Hidden"] }
 nx3.elements.EPartType.Normal = ["Normal",0];
 nx3.elements.EPartType.Normal.toString = $estr;
 nx3.elements.EPartType.Normal.__enum__ = nx3.elements.EPartType;
@@ -11287,6 +11786,12 @@ nx3.elements.EPartType.Dynamics.__enum__ = nx3.elements.EPartType;
 nx3.elements.EPartType.Chords = ["Chords",5];
 nx3.elements.EPartType.Chords.toString = $estr;
 nx3.elements.EPartType.Chords.__enum__ = nx3.elements.EPartType;
+nx3.elements.EPartType.Ignore = ["Ignore",6];
+nx3.elements.EPartType.Ignore.toString = $estr;
+nx3.elements.EPartType.Ignore.__enum__ = nx3.elements.EPartType;
+nx3.elements.EPartType.Hidden = ["Hidden",7];
+nx3.elements.EPartType.Hidden.toString = $estr;
+nx3.elements.EPartType.Hidden.__enum__ = nx3.elements.EPartType;
 nx3.elements.EPosition = $hxClasses["nx3.elements.EPosition"] = { __ename__ : true, __constructs__ : ["X","Y","XY","XYW"] }
 nx3.elements.EPosition.X = function(x) { var $x = ["X",0,x]; $x.__enum__ = nx3.elements.EPosition; $x.toString = $estr; return $x; }
 nx3.elements.EPosition.Y = function(y) { var $x = ["Y",1,y]; $x.__enum__ = nx3.elements.EPosition; $x.toString = $estr; return $x; }
@@ -11481,7 +11986,7 @@ nx3.elements.EVoiceType.Barpause = ["Barpause",1];
 nx3.elements.EVoiceType.Barpause.toString = $estr;
 nx3.elements.EVoiceType.Barpause.__enum__ = nx3.elements.EVoiceType;
 nx3.elements.NBar = function(parts,type,time,timeDisplay) {
-	this.parts = parts;
+	this.nparts = parts;
 	this.type = type == null?nx3.elements.EBarType.Normal:type;
 	this.time = time == null?nx3.elements.ETime.Time4_4:time;
 	this.timeDisplay = timeDisplay == null?nx3.elements.EDisplayALN.Layout:timeDisplay;
@@ -11492,7 +11997,7 @@ nx3.elements.NBar.prototype = {
 	timeDisplay: null
 	,time: null
 	,type: null
-	,parts: null
+	,nparts: null
 	,__class__: nx3.elements.NBar
 }
 nx3.elements.NHead = function(type,level,sign,tie,tieTo) {
@@ -11516,42 +12021,61 @@ nx3.elements.NHead.prototype = {
 nx3.elements.NNote = function(type,heads,value,direction) {
 	if(type == null) type = heads != null?nx3.elements.ENoteType.Note(heads):nx3.elements.ENoteType.Note([new nx3.elements.NHead()]);
 	this.type = type == null?nx3.elements.ENoteType.Note(heads):type;
-	this.value = value == null?nx3.elements.ENoteValue.Nv4:value;
+	this.value = value == null?nx3.elements.ENoteVal.Nv4:value;
 	this.direction = direction == null?nx3.elements.EDirectionUAD.Auto:direction;
 };
 $hxClasses["nx3.elements.NNote"] = nx3.elements.NNote;
 nx3.elements.NNote.__name__ = ["nx3","elements","NNote"];
 nx3.elements.NNote.prototype = {
-	get_heads: function() {
-		if(this.heads_ != null) return this.heads_;
+	getBottomLevel: function() {
+		return this.get_nheads()[this.get_nheads().length - 1].level;
+	}
+	,getTopLevel: function() {
+		return this.get_nheads()[0].level;
+	}
+	,getHeadLevels: function() {
+		if(this.headLevels != null) return this.headLevels;
+		this.headLevels = [];
+		var _g = 0, _g1 = this.get_nheads();
+		while(_g < _g1.length) {
+			var head = _g1[_g];
+			++_g;
+			this.headLevels.push(head.level);
+		}
+		return this.headLevels;
+	}
+	,headLevels: null
+	,get_nheads: function() {
+		if(this.nheads_ != null) return this.nheads_;
 		var _g = this;
 		var $e = (_g.type);
 		switch( $e[1] ) {
 		case 0:
-			var attributes = $e[5], articulations = $e[4], variant = $e[3], heads = $e[2];
-			heads.sort(function(i1,i2) {
+			var attributes = $e[5], articulations = $e[4], variant = $e[3], nheads = $e[2];
+			nheads.sort(function(i1,i2) {
 				var cmp;
 				cmp = Reflect.compare(i1.level,i2.level);
 				if(cmp != 0) return cmp;
 				return 0;
 			});
-			this.heads_ = heads;
-			return this.heads_;
+			this.nheads_ = nheads;
+			break;
 		default:
+			this.nheads_ = [];
 		}
-		return null;
+		return this.nheads_;
 	}
-	,heads_: null
-	,heads: null
+	,nheads_: null
+	,nheads: null
 	,direction: null
 	,value: null
 	,type: null
 	,__class__: nx3.elements.NNote
-	,__properties__: {get_heads:"get_heads"}
+	,__properties__: {get_nheads:"get_nheads"}
 }
 nx3.elements.NPart = function(voices,type,clef,clefDisplay,key,keyDisplay) {
-	this.voices = voices;
-	if(this.voices.length > 2) throw "For now, NPart can't have more than two voices";
+	this.nvoices = voices;
+	if(this.nvoices.length > 2) throw "For now, NPart can't have more than two voices";
 	this.type = type == null?nx3.elements.EPartType.Normal:type;
 	this.clef = clef == null?nx3.elements.EClef.ClefG:clef;
 	this.clefDisplay = clefDisplay == null?nx3.elements.EDisplayALN.Layout:clefDisplay;
@@ -11565,25 +12089,25 @@ nx3.elements.NPart.prototype = {
 	,key: null
 	,clefDisplay: null
 	,clef: null
-	,voices: null
+	,nvoices: null
 	,type: null
 	,__class__: nx3.elements.NPart
 }
 nx3.elements.NVoice = function(notes,type,direction) {
 	if(notes == null || notes == []) {
-		this.notes = null;
+		this.nnotes = null;
 		this.type = nx3.elements.EVoiceType.Barpause;
 	} else {
-		this.notes = notes;
+		this.nnotes = notes;
 		this.type = type != null?type:nx3.elements.EVoiceType.Normal;
 	}
-	this.direction = direction;
+	this.direction = direction != null?direction:nx3.elements.EDirectionUAD.Auto;
 };
 $hxClasses["nx3.elements.NVoice"] = nx3.elements.NVoice;
 nx3.elements.NVoice.__name__ = ["nx3","elements","NVoice"];
 nx3.elements.NVoice.prototype = {
 	type: null
-	,notes: null
+	,nnotes: null
 	,direction: null
 	,__class__: nx3.elements.NVoice
 }
@@ -11630,6 +12154,1077 @@ nx3.elements._ULevel.ULevel_Impl_.ltInt = function(l,r) {
 nx3.elements._ULevel.ULevel_Impl_.inRange = function(value) {
 	return Math.min(Math.max(value,nx3.elements._ULevel.ULevel_Impl_.MIN_LEVEL),nx3.elements._ULevel.ULevel_Impl_.MAX_LEVEL) | 0;
 }
+nx3.elements.VTree = function() { }
+$hxClasses["nx3.elements.VTree"] = nx3.elements.VTree;
+nx3.elements.VTree.__name__ = ["nx3","elements","VTree"];
+nx3.elements.VBar = function(nbar) {
+	this.nbar = nbar;
+};
+$hxClasses["nx3.elements.VBar"] = nx3.elements.VBar;
+nx3.elements.VBar.__name__ = ["nx3","elements","VBar"];
+nx3.elements.VBar.prototype = {
+	getVComplexesVColumns: function() {
+		if(this.vcomplexesVColumns != null) return this.vcomplexesVColumns;
+		this.vcomplexesVColumns = new haxe.ds.ObjectMap();
+		var _g = 0, _g1 = this.getVParts();
+		while(_g < _g1.length) {
+			var vpart = _g1[_g];
+			++_g;
+			var _g2 = 0, _g3 = vpart.getVComplexes();
+			while(_g2 < _g3.length) {
+				var vcomplex = _g3[_g2];
+				++_g2;
+				var pos = vpart.getVComplexesPositions().h[vcomplex.__id__];
+				var vcolumn = this.getPositionsColumns().get(pos);
+				this.vcomplexesVColumns.set(vcomplex,vcolumn);
+			}
+		}
+		return this.vcomplexesVColumns;
+	}
+	,vcomplexesVColumns: null
+	,getVNotesVColumns: function() {
+		if(this.vnotesVColumns != null) return this.vnotesVColumns;
+		this.vnotesVColumns = new haxe.ds.ObjectMap();
+		var _g = 0, _g1 = this.getVParts();
+		while(_g < _g1.length) {
+			var vpart = _g1[_g];
+			++_g;
+			var _g2 = 0, _g3 = vpart.getVVoices();
+			while(_g2 < _g3.length) {
+				var vvoice = _g3[_g2];
+				++_g2;
+				var _g4 = 0, _g5 = vvoice.getVNotes();
+				while(_g4 < _g5.length) {
+					var vnote = _g5[_g4];
+					++_g4;
+					var pos = vvoice.getVNotePositions().h[vnote.__id__];
+					var vcolumn = this.getPositionsColumns().get(pos);
+					this.vnotesVColumns.set(vnote,vcolumn);
+				}
+			}
+		}
+		return this.vnotesVColumns;
+	}
+	,vnotesVColumns: null
+	,getValue: function() {
+		if(this.value != null) return this.value;
+		var value = .0;
+		var _g = 0, _g1 = this.getVParts();
+		while(_g < _g1.length) {
+			var vpart = _g1[_g];
+			++_g;
+			value = Math.max(value,vpart.getValue());
+		}
+		this.value = value | 0;
+		return this.value;
+	}
+	,value: null
+	,getVColumnsPositions: function() {
+		if(this.positionsVColumns == null) this.getVColumns();
+		this.vcolumnsPositions = new haxe.ds.ObjectMap();
+		var $it0 = this.positionsVColumns.keys();
+		while( $it0.hasNext() ) {
+			var pos = $it0.next();
+			var vcolumn = this.positionsVColumns.get(pos);
+			this.vcolumnsPositions.set(vcolumn,pos);
+		}
+		return this.vcolumnsPositions;
+	}
+	,vcolumnsPositions: null
+	,getPositionsColumns: function() {
+		if(this.positionsVColumns == null) this.getVColumns();
+		return this.positionsVColumns;
+	}
+	,positionsVColumns: null
+	,getVColumns: function() {
+		if(this.vcolumns != null) return this.vcolumns;
+		if(this.vparts == null) this.getVParts();
+		var generator = new nx3.elements.VBarColumnsGenerator(this.vparts);
+		this.vcolumns = generator.getColumns();
+		this.positionsVColumns = generator.getPositionsColumns();
+		return this.vcolumns;
+	}
+	,vcolumns: null
+	,getVParts: function() {
+		if(this.vparts != null) return this.vparts;
+		this.vparts = [];
+		var _g = 0, _g1 = this.nbar.nparts;
+		while(_g < _g1.length) {
+			var npart = _g1[_g];
+			++_g;
+			this.vparts.push(new nx3.elements.VPart(npart));
+		}
+		return this.vparts;
+	}
+	,vparts: null
+	,nbar: null
+	,__class__: nx3.elements.VBar
+}
+nx3.elements.VBarColumnsGenerator = function(vparts) {
+	this.vparts = vparts;
+};
+$hxClasses["nx3.elements.VBarColumnsGenerator"] = nx3.elements.VBarColumnsGenerator;
+nx3.elements.VBarColumnsGenerator.__name__ = ["nx3","elements","VBarColumnsGenerator"];
+nx3.elements.VBarColumnsGenerator.prototype = {
+	calcPositions: function(vparts) {
+		var positionsMap = new haxe.ds.IntMap();
+		var _g = 0;
+		while(_g < vparts.length) {
+			var vpart = vparts[_g];
+			++_g;
+			var poss = nx3.elements.VMapTools.keysToArray(vpart.getPositionsVComplexes().keys());
+			var _g1 = 0;
+			while(_g1 < poss.length) {
+				var pos = poss[_g1];
+				++_g1;
+				positionsMap.set(pos,true);
+			}
+		}
+		var positions = nx3.elements.VMapTools.keysToArray(positionsMap.keys());
+		positions.sort(function(a,b) {
+			return Reflect.compare(a,b);
+		});
+		return positions;
+	}
+	,calcColumns: function(positions,vparts) {
+		var partsCount = vparts.length;
+		this.columns = [];
+		this.positionsColumns = new haxe.ds.IntMap();
+		var _g = 0;
+		while(_g < positions.length) {
+			var pos = positions[_g];
+			++_g;
+			var vcomplexes = [];
+			var _g1 = 0;
+			while(_g1 < vparts.length) {
+				var vpart = vparts[_g1];
+				++_g1;
+				var complex = vpart.getPositionsVComplexes().get(pos);
+				vcomplexes.push(complex);
+			}
+			var vcolumn = new nx3.elements.VColumn(vcomplexes);
+			this.columns.push(vcolumn);
+			this.positionsColumns.set(pos,vcolumn);
+		}
+	}
+	,getVComplexesVColumns: function() {
+		if(this.columns == null) this.getColumns();
+		return this.vcomplexesVColumns;
+	}
+	,vcomplexesVColumns: null
+	,getPositionsColumns: function() {
+		if(this.columns == null) this.getColumns();
+		return this.positionsColumns;
+	}
+	,getColumns: function() {
+		if(this.columns != null) return this.columns;
+		this.positions = this.calcPositions(this.vparts);
+		this.calcColumns(this.positions,this.vparts);
+		return this.columns;
+	}
+	,positionsColumns: null
+	,columns: null
+	,positions: null
+	,vparts: null
+	,__class__: nx3.elements.VBarColumnsGenerator
+}
+nx3.elements.VColumn = function(vcomplexes) {
+	this.vcomplexes = vcomplexes;
+};
+$hxClasses["nx3.elements.VColumn"] = nx3.elements.VColumn;
+nx3.elements.VColumn.__name__ = ["nx3","elements","VColumn"];
+nx3.elements.VColumn.prototype = {
+	vcomplexes: null
+	,__class__: nx3.elements.VColumn
+}
+nx3.elements.VPart = function(npart) {
+	this.npart = npart;
+};
+$hxClasses["nx3.elements.VPart"] = nx3.elements.VPart;
+nx3.elements.VPart.__name__ = ["nx3","elements","VPart"];
+nx3.elements.VPart.prototype = {
+	getVNotesVVoices: function() {
+		if(this.vnotesVVoices != null) return this.vnotesVVoices;
+		this.vnotesVVoices = new haxe.ds.ObjectMap();
+		var _g = 0, _g1 = this.getVVoices();
+		while(_g < _g1.length) {
+			var vvoice = _g1[_g];
+			++_g;
+			var _g2 = 0, _g3 = vvoice.getVNotes();
+			while(_g2 < _g3.length) {
+				var vnote = _g3[_g2];
+				++_g2;
+				this.vnotesVVoices.set(vnote,vvoice);
+			}
+		}
+		return this.vnotesVVoices;
+	}
+	,vnotesVVoices: null
+	,getBeamgroupsDirections: function() {
+		if(this.beamgroupsDirections != null) return this.beamgroupsDirections;
+		if(this.partbeamgroups == null) this.getPartbeamgroups();
+		var calculator = new nx3.elements.VPartbeamgroupsDirectionCalculator(this);
+		this.beamgroupsDirections = calculator.getBeamgroupsDirections();
+		return this.beamgroupsDirections;
+	}
+	,beamgroupsDirections: null
+	,getPartbeamgroups: function() {
+		if(this.partbeamgroups != null) return this.partbeamgroups;
+		this.partbeamgroups = new Array();
+		var _g = 0, _g1 = this.getVVoices();
+		while(_g < _g1.length) {
+			var vvoice = _g1[_g];
+			++_g;
+			this.partbeamgroups.push(vvoice.getBeamgroups());
+		}
+		return this.partbeamgroups;
+	}
+	,partbeamgroups: null
+	,getValue: function() {
+		if(this.value != null) return this.value;
+		if(this.getVVoices().length == 1) this.value = this.vvoices[0].getValue();
+		var value = .0;
+		var _g = 0, _g1 = this.vvoices;
+		while(_g < _g1.length) {
+			var vvoice = _g1[_g];
+			++_g;
+			value = Math.max(value,vvoice.getValue());
+		}
+		this.value = value | 0;
+		return this.value;
+	}
+	,value: null
+	,getVComplexesPositions: function() {
+		if(this.vcomplexes == null) this.getVComplexes();
+		return this.vcomplexesPositions;
+	}
+	,getPositionsVComplexes: function() {
+		if(this.vcomplexes == null) this.getVComplexes();
+		return this.positionsVComplexes;
+	}
+	,getVComplexes: function() {
+		if(this.vcomplexes != null) return this.vcomplexes;
+		this.generator = new nx3.elements.VPartComplexesGenerator(this.getVVoices());
+		this.vcomplexes = this.generator.getComplexes();
+		this.vcomplexesPositions = this.generator.getComplexesPositions();
+		this.positionsVComplexes = this.generator.getPositionsComplexes();
+		return this.vcomplexes;
+	}
+	,generator: null
+	,positionsVComplexes: null
+	,vcomplexesPositions: null
+	,vcomplexes: null
+	,getVVoices: function() {
+		if(this.vvoices != null) return this.vvoices;
+		this.vvoices = [];
+		var _g = 0, _g1 = this.npart.nvoices;
+		while(_g < _g1.length) {
+			var nvoice = _g1[_g];
+			++_g;
+			this.vvoices.push(new nx3.elements.VVoice(nvoice));
+		}
+		return this.vvoices;
+	}
+	,vvoices: null
+	,npart: null
+	,__class__: nx3.elements.VPart
+}
+nx3.elements.VPartbeamgroupsDirectionCalculator = function(vpart) {
+	this.vpart = vpart;
+};
+$hxClasses["nx3.elements.VPartbeamgroupsDirectionCalculator"] = nx3.elements.VPartbeamgroupsDirectionCalculator;
+nx3.elements.VPartbeamgroupsDirectionCalculator.__name__ = ["nx3","elements","VPartbeamgroupsDirectionCalculator"];
+nx3.elements.VPartbeamgroupsDirectionCalculator.prototype = {
+	getBeamgroupsDirections: function() {
+		var beamgroupsDirections = new haxe.ds.ObjectMap();
+		var partbeamgroups = this.vpart.getPartbeamgroups();
+		var beamgroups0 = partbeamgroups[0];
+		var voiceDirection0 = this.vpart.getVVoices()[0].nvoice.direction;
+		if(voiceDirection0 == null) voiceDirection0 = nx3.elements.EDirectionUAD.Auto;
+		if(partbeamgroups.length == 1) {
+			var _g = 0;
+			while(_g < beamgroups0.length) {
+				var beamgroup = beamgroups0[_g];
+				++_g;
+				var direction = null;
+				switch( (voiceDirection0)[1] ) {
+				case 0:
+					direction = nx3.elements.EDirectionUD.Up;
+					break;
+				case 2:
+					direction = nx3.elements.EDirectionUD.Down;
+					break;
+				case 1:
+					var calculator = new nx3.elements.VBeamgroupDirectionCalculator(beamgroup);
+					direction = calculator.getDirection();
+					break;
+				}
+				beamgroupsDirections.set(beamgroup,direction);
+			}
+		} else if(partbeamgroups.length == 2) {
+			var beamgroups1 = partbeamgroups[1];
+			var voiceDirection1 = this.vpart.getVVoices()[1].nvoice.direction;
+			if(voiceDirection1 == null) voiceDirection0 = nx3.elements.EDirectionUAD.Auto;
+			var voice0 = this.vpart.getVVoices()[0];
+			var voice1 = this.vpart.getVVoices()[1];
+			if(voiceDirection0 == nx3.elements.EDirectionUAD.Auto && voiceDirection1 == nx3.elements.EDirectionUAD.Auto) {
+				var voice0value = voice0.getValue();
+				var voice1value = voice1.getValue();
+				var direction = null;
+				var bgPosition = 0;
+				var _g = 0;
+				while(_g < beamgroups0.length) {
+					var beamgroup = beamgroups0[_g];
+					++_g;
+					if(bgPosition < voice1value) direction = nx3.elements.EDirectionUD.Up; else {
+						var calculator = new nx3.elements.VBeamgroupDirectionCalculator(beamgroup);
+						direction = calculator.getDirection();
+					}
+					beamgroupsDirections.set(beamgroup,direction);
+					bgPosition += beamgroup.getValue();
+				}
+				var bgPosition1 = 0;
+				var _g = 0;
+				while(_g < beamgroups1.length) {
+					var beamgroup = beamgroups1[_g];
+					++_g;
+					if(bgPosition1 < voice0value) direction = nx3.elements.EDirectionUD.Down; else {
+						var calculator = new nx3.elements.VBeamgroupDirectionCalculator(beamgroup);
+						direction = calculator.getDirection();
+					}
+					beamgroupsDirections.set(beamgroup,direction);
+					bgPosition1 += beamgroup.getValue();
+				}
+			} else {
+				var _g = 0;
+				while(_g < beamgroups0.length) {
+					var beamgroup = beamgroups0[_g];
+					++_g;
+					beamgroupsDirections.set(beamgroup,nx3.elements.EDirectionTools.uadToUd(voice0.nvoice.direction));
+				}
+				var _g = 0;
+				while(_g < beamgroups1.length) {
+					var beamgroup = beamgroups1[_g];
+					++_g;
+					beamgroupsDirections.set(beamgroup,nx3.elements.EDirectionTools.uadToUd(voice1.nvoice.direction));
+				}
+			}
+		} else throw "SHOULDN'T HAPPEN";
+		return beamgroupsDirections;
+	}
+	,vpart: null
+	,__class__: nx3.elements.VPartbeamgroupsDirectionCalculator
+}
+nx3.elements.VVoice = function(nvoice) {
+	this.nvoice = nvoice;
+};
+$hxClasses["nx3.elements.VVoice"] = nx3.elements.VVoice;
+nx3.elements.VVoice.__name__ = ["nx3","elements","VVoice"];
+nx3.elements.VVoice.prototype = {
+	getBeamgroups: function(pattern) {
+		if(pattern != this.beampattern) this.beamgroups = null;
+		if(this.beamgroups != null) return this.beamgroups;
+		this.beamgroups = new nx3.elements.VCreateBeamgroups(this.getVNotes(),pattern).getBeamgroups();
+		return this.beamgroups;
+	}
+	,beampattern: null
+	,beamgroups: null
+	,getValue: function() {
+		if(this.value != null) return this.value;
+		if(this.vnotes == null) this.getVNotes();
+		this.value = 0;
+		var _g = 0, _g1 = this.vnotes;
+		while(_g < _g1.length) {
+			var vnote = _g1[_g];
+			++_g;
+			this.value += nx3.elements.ENoteValTools.value(vnote.nnote.value);
+		}
+		return this.value;
+	}
+	,value: null
+	,getVNotePositions: function() {
+		if(this.vnotePositions != null) return this.vnotePositions;
+		if(this.vnotes == null) this.getVNotes();
+		this.vnotePositions = new haxe.ds.ObjectMap();
+		var pos = 0;
+		var _g = 0, _g1 = this.vnotes;
+		while(_g < _g1.length) {
+			var vnote = _g1[_g];
+			++_g;
+			this.vnotePositions.set(vnote,pos);
+			pos += nx3.elements.ENoteValTools.value(vnote.nnote.value);
+		}
+		return this.vnotePositions;
+	}
+	,vnotePositions: null
+	,getVNotes: function() {
+		if(this.vnotes != null) return this.vnotes;
+		this.vnotes = [];
+		var _g = 0, _g1 = this.nvoice.nnotes;
+		while(_g < _g1.length) {
+			var nnote = _g1[_g];
+			++_g;
+			this.vnotes.push(new nx3.elements.VNote(nnote));
+		}
+		return this.vnotes;
+	}
+	,vnotes: null
+	,nvoice: null
+	,__class__: nx3.elements.VVoice
+}
+nx3.elements.VNote = function(nnote) {
+	this.nnote = nnote;
+};
+$hxClasses["nx3.elements.VNote"] = nx3.elements.VNote;
+nx3.elements.VNote.__name__ = ["nx3","elements","VNote"];
+nx3.elements.VNote.prototype = {
+	getDirection: function() {
+		if(this.direction != null) return this.direction;
+		var calculator = new nx3.elements.VNoteDirectionCalculator(this);
+		var configDirection = this.config != null?this.config.direction:null;
+		this.direction = calculator.getDirection(configDirection);
+		return this.direction;
+	}
+	,direction: null
+	,setConfig: function(newConfig) {
+		if(Std.string(this.config) == Std.string(newConfig)) return; else {
+			this.direction = null;
+			this.vheadsPlacements = null;
+		}
+		this.config = newConfig;
+	}
+	,config: null
+	,getVHeadsRectangles: function() {
+		if(this.vheadsRectangles != null) return this.vheadsRectangles;
+		if(this.vheads == null) this.getVHeads();
+		var calculator = new nx3.elements.VNoteHeadsRectsCalculator(this);
+		this.vheadsRectangles = calculator.getHeadsRects();
+		return this.vheadsRectangles;
+	}
+	,vheadsRectangles: null
+	,getVHeadsPlacements: function() {
+		if(this.vheadsPlacements != null) return this.vheadsPlacements;
+		if(this.vheads == null) this.getVHeads();
+		var calculator = new nx3.elements.VHeadPlacementCalculator(this.vheads,this.getDirection());
+		this.vheadsPlacements = calculator.getHeadsPlacements();
+		return this.vheadsPlacements;
+	}
+	,vheadsPlacements: null
+	,getVHeads: function() {
+		if(this.vheads != null) return this.vheads;
+		this.vheads = [];
+		var _g = 0, _g1 = this.nnote.get_nheads();
+		while(_g < _g1.length) {
+			var nhead = _g1[_g];
+			++_g;
+			this.vheads.push(new nx3.elements.VHead(nhead));
+		}
+		return this.vheads;
+	}
+	,vheads: null
+	,nnote: null
+	,__class__: nx3.elements.VNote
+}
+nx3.elements.VNoteDirectionCalculator = function(vnote) {
+	this.vnote = vnote;
+};
+$hxClasses["nx3.elements.VNoteDirectionCalculator"] = nx3.elements.VNoteDirectionCalculator;
+nx3.elements.VNoteDirectionCalculator.__name__ = ["nx3","elements","VNoteDirectionCalculator"];
+nx3.elements.VNoteDirectionCalculator.prototype = {
+	getDirection: function(directionConfig) {
+		if(this.vnote.nnote.type[1] != 0) return nx3.elements.EDirectionUD.Down;
+		var direction;
+		if(this.vnote.nnote.direction != null) {
+			var _g = this;
+			switch( (_g.vnote.nnote.direction)[1] ) {
+			case 0:
+				direction = nx3.elements.EDirectionUD.Up;
+				return direction;
+			case 2:
+				direction = nx3.elements.EDirectionUD.Down;
+				return direction;
+			default:
+			}
+		}
+		if(directionConfig != null) return directionConfig;
+		var calculator = new nx3.elements.VNoteInternalDirectionCalculator(this.vnote.getVHeads());
+		return calculator.getDirection();
+	}
+	,vnote: null
+	,__class__: nx3.elements.VNoteDirectionCalculator
+}
+nx3.elements.VNoteInternalDirectionCalculator = function(vheads) {
+	this.vheads = vheads;
+};
+$hxClasses["nx3.elements.VNoteInternalDirectionCalculator"] = nx3.elements.VNoteInternalDirectionCalculator;
+nx3.elements.VNoteInternalDirectionCalculator.__name__ = ["nx3","elements","VNoteInternalDirectionCalculator"];
+nx3.elements.VNoteInternalDirectionCalculator.prototype = {
+	weightToDirection: function(weight) {
+		return weight <= 0?nx3.elements.EDirectionUD.Down:nx3.elements.EDirectionUD.Up;
+	}
+	,getDirection: function() {
+		var headsCount = this.vheads.length;
+		switch(headsCount) {
+		case 0:
+			return nx3.elements.EDirectionUD.Down;
+		case 1:
+			return this.weightToDirection(this.vheads[0].nhead.level);
+		default:
+		}
+		var weight = nx3.elements._ULevel.ULevel_Impl_.add(this.vheads[0].nhead.level,this.vheads[headsCount - 1].nhead.level);
+		return this.weightToDirection(weight);
+	}
+	,vheads: null
+	,__class__: nx3.elements.VNoteInternalDirectionCalculator
+}
+nx3.elements.VNoteHeadsRectsCalculator = function(vnote) {
+	this.vnote = vnote;
+};
+$hxClasses["nx3.elements.VNoteHeadsRectsCalculator"] = nx3.elements.VNoteHeadsRectsCalculator;
+nx3.elements.VNoteHeadsRectsCalculator.__name__ = ["nx3","elements","VNoteHeadsRectsCalculator"];
+nx3.elements.VNoteHeadsRectsCalculator.prototype = {
+	getHeadsRects: function() {
+		var rects = new Array();
+		var headPlacements = this.vnote.getVHeadsPlacements();
+		var value = this.vnote.nnote.value;
+		var _g = 0;
+		while(_g < headPlacements.length) {
+			var placement = headPlacements[_g];
+			++_g;
+			var rect = null;
+			var headw = 0;
+			var _g1 = nx3.elements.ENoteValTools.head(value);
+			switch( (_g1)[1] ) {
+			case 2:
+				headw = 2.0;
+				break;
+			default:
+				headw = 1.6;
+			}
+			rect = new flash.geom.Rectangle(-headw,-1,2 * headw,2);
+			var pos = 0.0;
+			switch( (placement.pos)[1] ) {
+			case 0:
+				pos = -2 * headw;
+				break;
+			case 2:
+				pos = 2 * headw;
+				break;
+			default:
+				pos = 0;
+			}
+			rect.offset(pos,placement.level);
+			rects.push(rect);
+		}
+		return rects;
+	}
+	,vnote: null
+	,__class__: nx3.elements.VNoteHeadsRectsCalculator
+}
+nx3.elements.VHeadPlacementCalculator = function(vheads,direction) {
+	this.vheads = vheads;
+	this.direction = direction;
+};
+$hxClasses["nx3.elements.VHeadPlacementCalculator"] = nx3.elements.VHeadPlacementCalculator;
+nx3.elements.VHeadPlacementCalculator.__name__ = ["nx3","elements","VHeadPlacementCalculator"];
+nx3.elements.VHeadPlacementCalculator.prototype = {
+	getHeadsPlacements: function() {
+		if(this.vheads.length == 1) return [{ level : this.vheads[0].nhead.level, pos : nx3.elements.EHeadPosition.Center}];
+		var len = this.vheads.length;
+		var placements = [];
+		var tempArray = [];
+		var _g = 0, _g1 = this.vheads;
+		while(_g < _g1.length) {
+			var vhead = _g1[_g];
+			++_g;
+			var placement = { level : vhead.nhead.level, pos : nx3.elements.EHeadPosition.Center};
+			placements.push(placement);
+			tempArray.push(0);
+		}
+		if(this.direction == nx3.elements.EDirectionUD.Up) {
+			var _g1 = 0, _g = len - 1;
+			while(_g1 < _g) {
+				var j = _g1++;
+				var i = len - j - 1;
+				var vhead = this.vheads[i];
+				var vheadNext = this.vheads[i - 1];
+				var lDiff = vhead.nhead.level - vheadNext.nhead.level;
+				if(lDiff < 2) {
+					if(tempArray[i] == tempArray[i - 1]) {
+						tempArray[i - 1] = 1;
+						placements[i - 1].pos = nx3.elements.EHeadPosition.Right;
+					}
+				}
+			}
+		} else {
+			var _g1 = 0, _g = len - 1;
+			while(_g1 < _g) {
+				var i = _g1++;
+				var vhead = this.vheads[i];
+				var vheadNext = this.vheads[i + 1];
+				var lDiff = vheadNext.nhead.level - vhead.nhead.level;
+				if(lDiff < 2) {
+					if(tempArray[i] == tempArray[i + 1]) {
+						tempArray[i + 1] = -1;
+						placements[i + 1].pos = nx3.elements.EHeadPosition.Left;
+					}
+				}
+			}
+		}
+		return placements;
+	}
+	,direction: null
+	,vheads: null
+	,__class__: nx3.elements.VHeadPlacementCalculator
+}
+nx3.elements.EHeadPosition = $hxClasses["nx3.elements.EHeadPosition"] = { __ename__ : true, __constructs__ : ["Left","Center","Right"] }
+nx3.elements.EHeadPosition.Left = ["Left",0];
+nx3.elements.EHeadPosition.Left.toString = $estr;
+nx3.elements.EHeadPosition.Left.__enum__ = nx3.elements.EHeadPosition;
+nx3.elements.EHeadPosition.Center = ["Center",1];
+nx3.elements.EHeadPosition.Center.toString = $estr;
+nx3.elements.EHeadPosition.Center.__enum__ = nx3.elements.EHeadPosition;
+nx3.elements.EHeadPosition.Right = ["Right",2];
+nx3.elements.EHeadPosition.Right.toString = $estr;
+nx3.elements.EHeadPosition.Right.__enum__ = nx3.elements.EHeadPosition;
+nx3.elements.VHead = function(nhead) {
+	this.nhead = nhead;
+};
+$hxClasses["nx3.elements.VHead"] = nx3.elements.VHead;
+nx3.elements.VHead.__name__ = ["nx3","elements","VHead"];
+nx3.elements.VHead.prototype = {
+	nhead: null
+	,__class__: nx3.elements.VHead
+}
+nx3.elements.VComplexSignsCalculator = function(vnotes) {
+	this.vnotes = vnotes;
+};
+$hxClasses["nx3.elements.VComplexSignsCalculator"] = nx3.elements.VComplexSignsCalculator;
+nx3.elements.VComplexSignsCalculator.__name__ = ["nx3","elements","VComplexSignsCalculator"];
+nx3.elements.VComplexSignsCalculator.prototype = {
+	calcSortSigns: function(vsigns) {
+		vsigns.sort(function(a,b) {
+			return Reflect.compare(a.level,b.level);
+		});
+		return vsigns;
+	}
+	,calcUnsortedSigns: function(vnotes) {
+		var vsigns = [];
+		var _g = 0;
+		while(_g < vnotes.length) {
+			var vnote = vnotes[_g];
+			++_g;
+			var _g1 = 0, _g2 = vnote.nnote.get_nheads();
+			while(_g1 < _g2.length) {
+				var nhead = _g2[_g1];
+				++_g1;
+				var tsign = { sign : nhead.sign, level : nhead.level, position : 0};
+				vsigns.push(tsign);
+			}
+		}
+		return vsigns;
+	}
+	,calcVisibleSigns: function(signs) {
+		var visibleSigns = [];
+		var _g = 0;
+		while(_g < signs.length) {
+			var sign = signs[_g];
+			++_g;
+			if(sign.sign == nx3.elements.ESign.None) continue;
+			visibleSigns.push(sign);
+		}
+		return visibleSigns;
+	}
+	,getVisibleSigns: function() {
+		return this.calcVisibleSigns(this.getSigns());
+	}
+	,visibleSigns: null
+	,getSigns: function() {
+		var signs;
+		signs = this.calcUnsortedSigns(this.vnotes);
+		signs = this.calcSortSigns(signs);
+		return signs;
+	}
+	,vnotes: null
+	,__class__: nx3.elements.VComplexSignsCalculator
+}
+nx3.elements.VComplex = function(vnotes) {
+	if(vnotes.length > 2) throw "VComplex nr of VNote(s) limited to max 2 - for now";
+	this.vnotes = vnotes;
+};
+$hxClasses["nx3.elements.VComplex"] = nx3.elements.VComplex;
+nx3.elements.VComplex.__name__ = ["nx3","elements","VComplex"];
+nx3.elements.VComplex.prototype = {
+	getVisibleSigns: function() {
+		if(this.visibleSigns != null) return this.visibleSigns;
+		this.getSigns();
+		return this.visibleSigns;
+	}
+	,getSigns: function() {
+		this.calculator = new nx3.elements.VComplexSignsCalculator(this.vnotes);
+		this.signs = this.calculator.getSigns();
+		this.visibleSigns = this.calculator.getVisibleSigns();
+		return this.signs;
+	}
+	,getVNotes: function() {
+		return this.vnotes;
+	}
+	,calculator: null
+	,visibleSigns: null
+	,signs: null
+	,vnotes: null
+	,__class__: nx3.elements.VComplex
+}
+nx3.elements.VBeamgroup = function(vnotes) {
+	this.value = null;
+	this.vnotes = vnotes;
+};
+$hxClasses["nx3.elements.VBeamgroup"] = nx3.elements.VBeamgroup;
+nx3.elements.VBeamgroup.__name__ = ["nx3","elements","VBeamgroup"];
+nx3.elements.VBeamgroup.prototype = {
+	getValue: function() {
+		if(this.value != null) return this.value;
+		this.value = 0;
+		var _g = 0, _g1 = this.vnotes;
+		while(_g < _g1.length) {
+			var vnote = _g1[_g];
+			++_g;
+			this.value += nx3.elements.ENoteValTools.value(vnote.nnote.value);
+		}
+		return this.value;
+	}
+	,value: null
+	,getFrame: function() {
+		if(this.frame != null) return this.frame;
+		if(this.direction == null) this.getDirection();
+		this.calculator = new nx3.elements.VBeamgroupFrameCalculator(this);
+		this.frame = this.calculator.getFrame();
+		return this.frame;
+	}
+	,frame: null
+	,calculator: null
+	,setDirection: function(val) {
+		return this.direction = val;
+	}
+	,getDirection: function() {
+		if(this.direction != null) return this.direction;
+		this.direction = new nx3.elements.VBeamgroupDirectionCalculator(this).getDirection();
+		return this.direction;
+	}
+	,direction: null
+	,vnotes: null
+	,__class__: nx3.elements.VBeamgroup
+}
+nx3.elements.VBeamgroupFrameCalculator = function(beamgroup) {
+	this.beamgroup = beamgroup;
+};
+$hxClasses["nx3.elements.VBeamgroupFrameCalculator"] = nx3.elements.VBeamgroupFrameCalculator;
+nx3.elements.VBeamgroupFrameCalculator.__name__ = ["nx3","elements","VBeamgroupFrameCalculator"];
+nx3.elements.VBeamgroupFrameCalculator.prototype = {
+	calcLevelArrays: function() {
+		if(this.beamgroup.getDirection() == nx3.elements.EDirectionUD.Up) {
+			this.outerLevels = this.getTopLevels();
+			this.innerLevels = this.getBottomLevels();
+		} else {
+			this.outerLevels = this.getBottomLevels();
+			this.innerLevels = this.getTopLevels();
+		}
+	}
+	,getBottomLevels: function() {
+		var levels = [];
+		var _g = 0, _g1 = this.beamgroup.vnotes;
+		while(_g < _g1.length) {
+			var vnote = _g1[_g];
+			++_g;
+			levels.push(vnote.nnote.getBottomLevel());
+		}
+		return levels;
+	}
+	,getTopLevels: function() {
+		var levels = [];
+		var _g = 0, _g1 = this.beamgroup.vnotes;
+		while(_g < _g1.length) {
+			var vnote = _g1[_g];
+			++_g;
+			levels.push(vnote.nnote.getTopLevel());
+		}
+		return levels;
+	}
+	,calcFramePrototype: function() {
+		var count = this.innerLevels.length;
+		return { leftInnerY : this.innerLevels[0], leftOuterY : this.outerLevels[0], rightInnerY : this.innerLevels[count - 1], rightOuterY : this.outerLevels[count - 1]};
+	}
+	,getFrame: function() {
+		this.calcLevelArrays();
+		var frame = this.calcFramePrototype();
+		return frame;
+	}
+	,innerLevels: null
+	,outerLevels: null
+	,beamgroup: null
+	,__class__: nx3.elements.VBeamgroupFrameCalculator
+}
+nx3.elements.VBeamgroupDirectionCalculator = function(beamgroup) {
+	this.beamgroup = beamgroup;
+};
+$hxClasses["nx3.elements.VBeamgroupDirectionCalculator"] = nx3.elements.VBeamgroupDirectionCalculator;
+nx3.elements.VBeamgroupDirectionCalculator.__name__ = ["nx3","elements","VBeamgroupDirectionCalculator"];
+nx3.elements.VBeamgroupDirectionCalculator.prototype = {
+	findBottomLevel: function() {
+		var bottomLevel = this.beamgroup.vnotes[0].nnote.getBottomLevel();
+		if(this.beamgroup.vnotes.length == 1) return bottomLevel;
+		var _g1 = 1, _g = this.beamgroup.vnotes.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			var level = this.beamgroup.vnotes[i].nnote.getBottomLevel();
+			bottomLevel = Math.max(bottomLevel,level) | 0;
+		}
+		return bottomLevel;
+	}
+	,bottomLevel: null
+	,findTopLevel: function() {
+		var topLevel = this.beamgroup.vnotes[0].nnote.getTopLevel();
+		if(this.beamgroup.vnotes.length == 1) return topLevel;
+		var _g1 = 1, _g = this.beamgroup.vnotes.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			var level = this.beamgroup.vnotes[i].nnote.getTopLevel();
+			topLevel = Math.min(topLevel,level) | 0;
+		}
+		return topLevel;
+	}
+	,topLevel: null
+	,getDirection: function() {
+		this.topLevel = this.findTopLevel();
+		this.bottomLevel = this.findBottomLevel();
+		if(this.topLevel + this.bottomLevel <= 0) return nx3.elements.EDirectionUD.Down;
+		return nx3.elements.EDirectionUD.Up;
+	}
+	,beamgroup: null
+	,__class__: nx3.elements.VBeamgroupDirectionCalculator
+}
+nx3.elements.VCreateBeamgroups = function(vnotes,pattern) {
+	if(pattern == null) pattern = [nx3.elements.ENoteVal.Nv4];
+	this.vnotes = vnotes;
+	this.pattern = pattern;
+	this.adjustPatternLenght();
+};
+$hxClasses["nx3.elements.VCreateBeamgroups"] = nx3.elements.VCreateBeamgroups;
+nx3.elements.VCreateBeamgroups.__name__ = ["nx3","elements","VCreateBeamgroups"];
+nx3.elements.VCreateBeamgroups.prototype = {
+	findBeamGroupIndex: function(pos,endPos,countFrom) {
+		if(countFrom == null) countFrom = 0;
+		var _g1 = countFrom, _g = this.patternValuePos.length;
+		while(_g1 < _g) {
+			var idx = _g1++;
+			if(pos >= this.patternValuePos[idx] && endPos <= this.patternValueEnd[idx]) return idx;
+		}
+		return -1;
+	}
+	,createBeamGroups: function() {
+		this.beamgropus = [];
+		var vnoteGroupIdx = new haxe.ds.ObjectMap();
+		var _g = 0, _g1 = this.vnotes;
+		while(_g < _g1.length) {
+			var vnote = _g1[_g];
+			++_g;
+			var vnotePos = this.vnotePosition.h[vnote.__id__];
+			var vnoteEnd = this.vnotePositionEnd.h[vnote.__id__];
+			var groupIdx = -111;
+			var $e = (vnote.nnote.type);
+			switch( $e[1] ) {
+			case 0:
+				var attributes = $e[5], articulations = $e[4], variant = $e[3], heads = $e[2];
+				if(nx3.elements.ENoteValTools.beaminglevel(vnote.nnote.value) < 1) groupIdx = -1; else groupIdx = this.findBeamGroupIndex(vnotePos,vnoteEnd);
+				break;
+			default:
+				groupIdx = -2;
+			}
+			vnoteGroupIdx.set(vnote,groupIdx);
+		}
+		var count = 0;
+		var prevVNote = null;
+		var arrVNote = [];
+		var _g = 0, _g1 = this.vnotes;
+		while(_g < _g1.length) {
+			var vnote = _g1[_g];
+			++_g;
+			if(prevVNote == null) {
+				arrVNote.push(vnote);
+				prevVNote = vnote;
+				continue;
+			}
+			var prevIdx = vnoteGroupIdx.h[prevVNote.__id__];
+			var groupIdx = vnoteGroupIdx.h[vnote.__id__];
+			if(prevIdx != groupIdx || prevIdx == -1) {
+				var newBeamGroup = new nx3.elements.VBeamgroup(arrVNote);
+				this.beamgropus.push(newBeamGroup);
+				count = 0;
+				arrVNote = [vnote];
+			} else {
+				count++;
+				arrVNote.push(vnote);
+			}
+			prevVNote = vnote;
+		}
+		var newBeamGroup = new nx3.elements.VBeamgroup(arrVNote);
+		this.beamgropus.push(newBeamGroup);
+	}
+	,preparePositionMaps: function() {
+		this.vnotePosition = new haxe.ds.ObjectMap();
+		this.vnotePositionEnd = new haxe.ds.ObjectMap();
+		var pos = 0;
+		var _g = 0, _g1 = this.vnotes;
+		while(_g < _g1.length) {
+			var vnote = _g1[_g];
+			++_g;
+			this.vnotePosition.set(vnote,pos);
+			var endpos = pos + nx3.elements.ENoteValTools.value(vnote.nnote.value);
+			this.vnotePositionEnd.set(vnote,pos + nx3.elements.ENoteValTools.value(vnote.nnote.value));
+			pos = endpos;
+		}
+	}
+	,vnotePositionEnd: null
+	,vnotePosition: null
+	,preparePatternCalculation: function() {
+		this.patternValuePos = [];
+		this.patternValueEnd = [];
+		var vPos = 0;
+		var i = 0;
+		var _g = 0, _g1 = this.pattern;
+		while(_g < _g1.length) {
+			var v = _g1[_g];
+			++_g;
+			var vValue = nx3.elements.ENoteValTools.value(v);
+			var vEnd = vPos + vValue;
+			this.patternValuePos.push(vPos);
+			this.patternValueEnd.push(vEnd);
+			vPos = vEnd;
+			i++;
+		}
+		return this;
+	}
+	,patternValueEnd: null
+	,patternValuePos: null
+	,adjustPatternLenght: function() {
+		var notesValue = 0;
+		var _g = 0, _g1 = this.vnotes;
+		while(_g < _g1.length) {
+			var vnote = _g1[_g];
+			++_g;
+			notesValue += nx3.elements.ENoteValTools.value(vnote.nnote.value);
+		}
+		var patternValue = 0;
+		var _g = 0, _g1 = this.pattern;
+		while(_g < _g1.length) {
+			var value = _g1[_g];
+			++_g;
+			patternValue += nx3.elements.ENoteValTools.value(value);
+		}
+		while(patternValue < notesValue) {
+			this.pattern = this.pattern.concat(this.pattern);
+			patternValue *= 2;
+		}
+	}
+	,getBeamgroups: function() {
+		this.preparePatternCalculation();
+		this.preparePositionMaps();
+		this.createBeamGroups();
+		return this.beamgropus;
+	}
+	,beamgropus: null
+	,pattern: null
+	,vnotes: null
+	,__class__: nx3.elements.VCreateBeamgroups
+}
+nx3.elements.VPartComplexesGenerator = function(vvoices) {
+	this.vvoices = vvoices;
+};
+$hxClasses["nx3.elements.VPartComplexesGenerator"] = nx3.elements.VPartComplexesGenerator;
+nx3.elements.VPartComplexesGenerator.__name__ = ["nx3","elements","VPartComplexesGenerator"];
+nx3.elements.VPartComplexesGenerator.prototype = {
+	calcPositionsMap: function() {
+		var positionsMap = new haxe.ds.IntMap();
+		var _g = 0, _g1 = this.vvoices;
+		while(_g < _g1.length) {
+			var vvoice = _g1[_g];
+			++_g;
+			var _g2 = 0, _g3 = vvoice.getVNotes();
+			while(_g2 < _g3.length) {
+				var vnote = _g3[_g2];
+				++_g2;
+				var npos = vvoice.getVNotePositions().h[vnote.__id__];
+				if(!positionsMap.exists(npos)) positionsMap.set(npos,[]);
+				positionsMap.get(npos).push(vnote);
+			}
+		}
+		return positionsMap;
+	}
+	,positionsMap: null
+	,calcComplexes: function(positions) {
+		this.complexes = [];
+		this.positionsComplexes = new haxe.ds.IntMap();
+		this.complexesPositions = new haxe.ds.ObjectMap();
+		var poskeys = nx3.elements.VMapTools.keysToArray(positions.keys());
+		poskeys = nx3.elements.VMapTools.sortarray(poskeys);
+		var _g = 0;
+		while(_g < poskeys.length) {
+			var pos = poskeys[_g];
+			++_g;
+			var vnotes = positions.get(pos);
+			var vcomplex = new nx3.elements.VComplex(vnotes);
+			this.complexes.push(vcomplex);
+			this.positionsComplexes.set(pos,vcomplex);
+			this.complexesPositions.set(vcomplex,pos);
+		}
+	}
+	,getComplexesPositions: function() {
+		if(this.complexes == null) this.getComplexes();
+		return this.complexesPositions;
+	}
+	,complexesPositions: null
+	,getPositionsComplexes: function() {
+		if(this.complexes == null) this.getComplexes();
+		return this.positionsComplexes;
+	}
+	,positionsComplexes: null
+	,getComplexes: function() {
+		if(this.complexes != null) return this.complexes;
+		this.positionsMap = this.calcPositionsMap();
+		this.calcComplexes(this.positionsMap);
+		return this.complexes;
+	}
+	,complexes: null
+	,vvoices: null
+	,__class__: nx3.elements.VPartComplexesGenerator
+}
+nx3.elements.VMapTools = function() { }
+$hxClasses["nx3.elements.VMapTools"] = nx3.elements.VMapTools;
+nx3.elements.VMapTools.__name__ = ["nx3","elements","VMapTools"];
+nx3.elements.VMapTools.keysToArray = function(it) {
+	var result = [];
+	while( it.hasNext() ) {
+		var v = it.next();
+		result.push(v);
+	}
+	return result;
+}
+nx3.elements.VMapTools.sortarray = function(a) {
+	a.sort(function(a1,b) {
+		return Reflect.compare(a1,b);
+	});
+	return a;
+}
+nx3.elements.interfaces = {}
+nx3.elements.interfaces.IDistanceRects = function() { }
+$hxClasses["nx3.elements.interfaces.IDistanceRects"] = nx3.elements.interfaces.IDistanceRects;
+nx3.elements.interfaces.IDistanceRects.__name__ = ["nx3","elements","interfaces","IDistanceRects"];
+nx3.elements.interfaces.IDistanceRects.prototype = {
+	rectsBack: null
+	,rectCenter: null
+	,rectsFront: null
+	,__class__: nx3.elements.interfaces.IDistanceRects
+}
 nx3.elements.tools = {}
 nx3.elements.tools.ENoteTypeTools = function() { }
 $hxClasses["nx3.elements.tools.ENoteTypeTools"] = nx3.elements.tools.ENoteTypeTools;
@@ -11650,653 +13245,20 @@ nx3.elements.tools.ENoteTypeTools.noteSortHeads = function(type) {
 		throw "Can not sort heads on other type than ENoteType.Note - this one is a " + Std.string(type);
 	}
 }
-nx3.elements.tools.HeadTool = function() { }
-$hxClasses["nx3.elements.tools.HeadTool"] = nx3.elements.tools.HeadTool;
-nx3.elements.tools.HeadTool.__name__ = ["nx3","elements","tools","HeadTool"];
-nx3.elements.tools.HeadTool.getHeadRect = function(head,value) {
-	var rect = null;
-	switch( (value.head)[1] ) {
-	case 2:
-		rect = new flash.geom.Rectangle(-2,-1,4,2);
-		break;
-	case 1:
-	case 0:
-		rect = new flash.geom.Rectangle(-1.6,-1,3.2,2);
-		break;
-	}
-	rect.offset(0,head.level);
-	return rect;
-}
-nx3.elements.tools.HeadTool.getDirection = function(heads) {
-	return null;
-}
-nx3.elements.tools.HeadsTool = function() { }
-$hxClasses["nx3.elements.tools.HeadsTool"] = nx3.elements.tools.HeadsTool;
-nx3.elements.tools.HeadsTool.__name__ = ["nx3","elements","tools","HeadsTool"];
-nx3.elements.tools.HeadsTool.topLevel = function(heads) {
-	return heads[0].level;
-}
-nx3.elements.tools.HeadsTool.bottomLevel = function(heads) {
-	return heads[heads.length - 1].level;
-}
-nx3.elements.tools.HeadsTool.midLevel = function(heads) {
-	var bottom = nx3.elements.tools.HeadsTool.bottomLevel(heads);
-	var top = nx3.elements.tools.HeadsTool.topLevel(heads);
-	return top + (bottom - top) / 2;
-}
-nx3.elements.tools.HeadsTool.getDirection = function(heads) {
-	return nx3.elements.tools.HeadsTool.midLevel(heads) > 0?nx3.elements.EDirectionUD.Up:nx3.elements.EDirectionUD.Down;
-}
-nx3.elements.tools.HeadsTool.getHeadPositions = function(heads,direction) {
-	if(heads.length < 2) return [0];
-	var len = heads.length;
-	var result = [];
-	var _g = 0;
-	while(_g < len) {
-		var i = _g++;
-		result.push(0);
-	}
-	if(direction == nx3.elements.EDirectionUD.Down) {
-		var _g1 = 0, _g = len - 1;
-		while(_g1 < _g) {
-			var i = _g1++;
-			var head = heads[i];
-			var headNext = heads[i + 1];
-			var lDiff = headNext.level - head.level;
-			if(lDiff < 2) {
-				if(result[i] == result[i + 1]) result[i + 1] = -1;
-			}
-		}
-	} else {
-		var _g1 = 0, _g = len - 1;
-		while(_g1 < _g) {
-			var j = _g1++;
-			var i = len - j - 1;
-			var head = heads[i];
-			var headNext = heads[i - 1];
-			var lDiff = head.level - headNext.level;
-			if(lDiff < 2) {
-				if(result[i] == result[i - 1]) result[i - 1] = 1;
-			}
-		}
-	}
-	return result;
-}
-nx3.elements.tools.HeadsTool.headsCollide = function(heads1,heads2) {
-	var _g = 0;
-	while(_g < heads1.length) {
-		var head1 = heads1[_g];
-		++_g;
-		var _g1 = 0;
-		while(_g1 < heads2.length) {
-			var head2 = heads2[_g1];
-			++_g1;
-			if(head1.level == head2.level - 1) return true;
-			if(head1.level == head2.level) return true;
-			if(head1.level == nx3.elements._ULevel.ULevel_Impl_.addInteger(head2.level,1)) return true;
-		}
-	}
-	return false;
-}
-nx3.elements.tools.SignsTools = function() { }
-$hxClasses["nx3.elements.tools.SignsTools"] = nx3.elements.tools.SignsTools;
-nx3.elements.tools.SignsTools.__name__ = ["nx3","elements","tools","SignsTools"];
-nx3.elements.tools.SignsTools.adjustPositions = function(signs) {
-	signs = nx3.elements.tools.SignsTools.removeNones(signs);
-	if(signs.length < 2) return signs;
-	signs = nx3.elements.tools.SignsTools.sortSigns(signs);
-	signs = nx3.elements.tools.SignsTools.calcPositions(signs);
-	return signs;
-}
-nx3.elements.tools.SignsTools.calcPositions = function(signs) {
-	var levels = [-999,-999,-999,-999];
-	var _g = 0;
-	while(_g < signs.length) {
-		var sign = signs[_g];
-		++_g;
-		var cpos = 0;
-		var diff = sign.level - levels[cpos];
-		while(diff < nx3.elements.tools.SignsTools.BREAKPOINT) {
-			cpos++;
-			diff = sign.level - levels[cpos];
-		}
-		levels[cpos] = sign.level;
-		sign.position = cpos;
-	}
-	return signs;
-}
-nx3.elements.tools.SignsTools.removeNones = function(signs) {
-	var r = [];
-	var _g = 0;
-	while(_g < signs.length) {
-		var sign = signs[_g];
-		++_g;
-		if(sign.sign != nx3.elements.ESign.None) r.push(sign);
-	}
-	return r;
-}
-nx3.elements.tools.SignsTools.sortSigns = function(signs) {
-	signs.sort(function(signA,signB) {
-		if(signA.level <= signB.level) return -1; else return 1;
-	});
-	return signs;
-}
-nx3.elements.tools.SignsTools.getPositions = function(signs) {
-	return Lambda.array(Lambda.map(signs,function(sign) {
-		return sign.position;
-	}));
-}
-nx3.elements.tools.SignsTools.getSignRect = function(sign) {
-	switch( (sign)[1] ) {
-	case 0:
-		return null;
-	case 5:
-		return new flash.geom.Rectangle(0,-1.5,2.6,3);
-	case 7:
-	case 8:
-	case 6:
-		return new flash.geom.Rectangle(0,-2,4.4,4);
-	case 2:
-		return new flash.geom.Rectangle(0,-3,2.6,5);
-	default:
-		return new flash.geom.Rectangle(0,-3,2.6,6);
-	}
-	throw "This shouldn't happen!";
-	return null;
-}
-nx3.elements.tools.SignsTools.adjustSignFontX = function(sign) {
-	switch( (sign)[1] ) {
-	case 2:
-		return 0.3;
-	case 1:
-		return 0.3;
-	default:
-	}
-	return 0;
-}
-nx3.io = {}
-nx3.io.BarXML = function() { }
-$hxClasses["nx3.io.BarXML"] = nx3.io.BarXML;
-nx3.io.BarXML.__name__ = ["nx3","io","BarXML"];
-nx3.io.BarXML.toXml = function(bar) {
-	var xml = Xml.createElement("bar");
-	console.log(bar.parts.length);
-	var _g = 0, _g1 = bar.parts;
-	while(_g < _g1.length) {
-		var part = _g1[_g];
-		++_g;
-		var partXml = nx3.io.PartXML.toXml(part);
-		xml.addChild(partXml);
-	}
-	switch( (bar.type)[1] ) {
-	case 0:
-		break;
-	default:
-		xml.set("type",Std.string(bar.type));
-	}
-	switch( (bar.time)[1] ) {
-	case 5:
-		break;
-	default:
-		xml.set("time",Std.string(nx3.elements.ETimeUtils.toString(bar.time)));
-	}
-	switch( (bar.timeDisplay)[1] ) {
-	case 1:
-		break;
-	default:
-		xml.set("timedisplay",Std.string(bar.timeDisplay));
-	}
-	return xml;
-}
-nx3.io.BarXML.fromXmlStr = function(xmlStr) {
-	var xml = Xml.parse(xmlStr).firstElement();
-	var parts = [];
-	var $it0 = xml.elements();
-	while( $it0.hasNext() ) {
-		var p = $it0.next();
-		var part = nx3.io.PartXML.fromXmlStr(p.toString());
-		parts.push(part);
-	}
-	var typeStr = xml.get("type");
-	var type = typeStr == null?nx3.elements.EBarType.Normal:cx.EnumTools.createFromString(nx3.elements.EBarType,typeStr);
-	var timeStr = xml.get("time");
-	var time = timeStr == null?nx3.elements.ETime.Time4_4:nx3.elements.ETimeUtils.fromString(timeStr);
-	var timeDisplayStr = xml.get("timedisplay");
-	var timeDisplay = timeDisplayStr == null?nx3.elements.EDisplayALN.Layout:cx.EnumTools.createFromString(nx3.elements.EDisplayALN,timeDisplayStr);
-	return new nx3.elements.NBar(parts,type,time,timeDisplay);
-}
-nx3.io.BarXML.test = function(item) {
-	var str = nx3.io.BarXML.toXml(item).toString();
-	var item2 = nx3.io.BarXML.fromXmlStr(str);
-	var str2 = nx3.io.BarXML.toXml(item2).toString();
-	console.log(str);
-	console.log(str2);
-	return str == str2;
-	return false;
-}
-nx3.io.HeadXML = function() { }
-$hxClasses["nx3.io.HeadXML"] = nx3.io.HeadXML;
-nx3.io.HeadXML.__name__ = ["nx3","io","HeadXML"];
-nx3.io.HeadXML.toXml = function(head) {
-	var xml = Xml.createElement(nx3.io.HeadXML.XHEAD);
-	switch( (head.type)[1] ) {
-	case 2:
-	case 1:
-		xml.set(nx3.io.HeadXML.XHEAD_TYPE,Std.string(head.type));
-		break;
-	default:
-	}
-	xml.set(nx3.io.HeadXML.XHEAD_LEVEL,Std.string(head.level));
-	if(head.sign != nx3.elements.ESign.None) xml.set(nx3.io.HeadXML.XHEAD_SIGN,Std.string(head.sign));
-	if(head.tie != null) {
-		var $e = (head.tie);
-		switch( $e[1] ) {
-		case 0:
-			var direction = $e[2];
-			xml.set(nx3.io.HeadXML.XHEAD_TIE,Std.string(head.tie));
-			break;
-		case 1:
-			var direction = $e[2];
-			xml.set(nx3.io.HeadXML.XHEAD_TIE,Std.string(head.tie));
-			break;
-		}
-	}
-	if(head.tieTo != null) {
-		var $e = (head.tieTo);
-		switch( $e[1] ) {
-		case 0:
-			var direction = $e[2];
-			xml.set(nx3.io.HeadXML.XHEAD_TIETO,Std.string(head.tieTo));
-			break;
-		case 1:
-			var direction = $e[2];
-			xml.set(nx3.io.HeadXML.XHEAD_TIETO,Std.string(head.tieTo));
-			break;
-		}
-	}
-	return xml;
-}
-nx3.io.HeadXML.fromXmlStr = function(xmlStr) {
-	var xml = Xml.parse(xmlStr).firstElement();
-	var typeStr = xml.get(nx3.io.HeadXML.XHEAD_TYPE);
-	var type = cx.EnumTools.createFromString(nx3.elements.EHeadType,typeStr);
-	var level = Std.parseInt(xml.get(nx3.io.HeadXML.XHEAD_LEVEL));
-	var sign = cx.EnumTools.createFromString(nx3.elements.ESign,xml.get(nx3.io.HeadXML.XHEAD_SIGN));
-	var tie = cx.EnumTools.createFromString(nx3.elements.ETie,xml.get(nx3.io.HeadXML.XHEAD_TIE));
-	var tieTo = cx.EnumTools.createFromString(nx3.elements.ETie,xml.get(nx3.io.HeadXML.XHEAD_TIETO));
-	return new nx3.elements.NHead(type,nx3.elements._ULevel.ULevel_Impl_.inRange(level),sign,tie,tieTo);
-}
-nx3.io.HeadXML.test = function(item) {
-	var str = nx3.io.HeadXML.toXml(item).toString();
-	var item2 = nx3.io.HeadXML.fromXmlStr(str);
-	var str2 = nx3.io.HeadXML.toXml(item2).toString();
-	console.log(str);
-	console.log(str2);
-	return str == str2;
-}
-nx3.io.NoteXML = function() { }
-$hxClasses["nx3.io.NoteXML"] = nx3.io.NoteXML;
-nx3.io.NoteXML.__name__ = ["nx3","io","NoteXML"];
-nx3.io.NoteXML.toXml = function(note) {
-	var xml = null;
-	var $e = (note.type);
-	switch( $e[1] ) {
-	case 0:
-		var attributes = $e[5], articulations = $e[4], variant = $e[3], heads = $e[2];
-		xml = Xml.createElement("note");
-		var _g = 0;
-		while(_g < heads.length) {
-			var head = heads[_g];
-			++_g;
-			var headXml = nx3.io.HeadXML.toXml(head);
-			xml.addChild(headXml);
-		}
-		if(variant != null) xml.set("variant",Std.string(variant));
-		if(articulations != null) {
-			var articulationStrings = [];
-			var _g = 0;
-			while(_g < articulations.length) {
-				var articulation = articulations[_g];
-				++_g;
-				articulationStrings.push(Std.string(articulation));
-			}
-			xml.set("articulations",articulationStrings.join(";"));
-		}
-		if(attributes != null) {
-			var attributesStrings = [];
-			var _g = 0;
-			while(_g < attributes.length) {
-				var attribute = attributes[_g];
-				++_g;
-				attributesStrings.push(Std.string(attribute));
-			}
-			xml.set("attributes",attributesStrings.join(";"));
-		}
-		break;
-	case 1:
-		var level = $e[2];
-		xml = Xml.createElement("pause");
-		if(level != 0) xml.set("level",Std.string(level));
-		break;
-	case 4:
-		var format = $e[5], continuation = $e[4], offset = $e[3], text = $e[2];
-		xml = Xml.createElement("lyric");
-		xml.set("text",text);
-		if(continuation != null) xml.set("continuation",Std.string(continuation));
-		if(offset != null) xml.set("offset",Std.string(offset));
-		if(format != null) xml.set("format",Std.string(format));
-		break;
-	default:
-		xml = Xml.createElement("undefined");
-	}
-	if(note.value.value != nx3.elements.ENoteValue.Nv4.value) xml.set("value",Std.string(note.value.value));
-	if(note.direction != null) xml.set("direction",Std.string(note.direction));
-	return xml;
-}
-nx3.io.NoteXML.fromXmlStr = function(xmlStr) {
-	var xml = Xml.parse(xmlStr).firstElement();
-	var xmlType = xml.get_nodeName();
-	var type = null;
-	switch(xmlType) {
-	case "note":
-		var heads = [];
-		var $it0 = xml.elementsNamed(nx3.io.HeadXML.XHEAD);
-		while( $it0.hasNext() ) {
-			var h = $it0.next();
-			var head = nx3.io.HeadXML.fromXmlStr(h.toString());
-			heads.push(head);
-		}
-		var variant = cx.EnumTools.createFromString(nx3.elements.ENotationVariant,xml.get("variant"));
-		var articulations = [];
-		var articulationsStr = xml.get("articulations");
-		if(articulationsStr != null) {
-			var articulationStrings = articulationsStr.split(";");
-			var _g = 0;
-			while(_g < articulationStrings.length) {
-				var articulationStr = articulationStrings[_g];
-				++_g;
-				articulations.push(cx.EnumTools.createFromString(nx3.elements.ENoteArticulation,articulationStr));
-			}
-		}
-		if(articulations.length == 0) articulations = null;
-		var attributes = [];
-		var attributesStr = xml.get("attributes");
-		if(attributesStr != null) {
-			var attributesStrings = attributesStr.split(";");
-			var _g = 0;
-			while(_g < attributesStrings.length) {
-				var attributeStr = attributesStrings[_g];
-				++_g;
-				attributes.push(cx.EnumTools.createFromString(nx3.elements.ENoteAttributes,attributeStr));
-			}
-		}
-		if(attributes.length == 0) attributes = null;
-		type = nx3.elements.ENoteType.Note(heads,variant,articulations,attributes);
-		break;
-	case "pause":
-		var pauseLevelStr = xml.get("level");
-		var levelInt = pauseLevelStr == null?0:Std.parseInt(pauseLevelStr);
-		type = nx3.elements.ENoteType.Pause(nx3.elements._ULevel.ULevel_Impl_.inRange(0));
-		break;
-	case "lyric":
-		var text = xml.get("text");
-		var offsetStr = xml.get("offset");
-		var offset = cx.EnumTools.createFromString(nx3.elements.EPosition,offsetStr);
-		var continuationStr = xml.get("continuation");
-		var continuation = cx.EnumTools.createFromString(nx3.elements.ELyricContinuation,continuationStr);
-		var formatStr = xml.get("format");
-		var format = cx.EnumTools.createFromString(nx3.elements.ELyricFormat,formatStr);
-		type = nx3.elements.ENoteType.Lyric(text,offset,continuation,format);
-		break;
-	}
-	var valStr = xml.get("value");
-	var val = valStr == null?nx3.elements.ENoteValue.Nv4.value:Std.parseInt(xml.get("value"));
-	var value = nx3.elements.ENoteValue.getFromValue(val);
-	var direction = cx.EnumTools.createFromString(nx3.elements.EDirectionUAD,xml.get("direction"));
-	return new nx3.elements.NNote(type,null,value,direction);
-}
-nx3.io.NoteXML.test = function(item) {
-	var str = nx3.io.NoteXML.toXml(item).toString();
-	var item2 = nx3.io.NoteXML.fromXmlStr(str);
-	var str2 = nx3.io.NoteXML.toXml(item2).toString();
-	console.log(str);
-	console.log(str2);
-	return str == str2;
-}
-nx3.io.PartXML = function() { }
-$hxClasses["nx3.io.PartXML"] = nx3.io.PartXML;
-nx3.io.PartXML.__name__ = ["nx3","io","PartXML"];
-nx3.io.PartXML.toXml = function(part) {
-	var xml = Xml.createElement("part");
-	var _g = 0, _g1 = part.voices;
-	while(_g < _g1.length) {
-		var voice = _g1[_g];
-		++_g;
-		var voiceXml = nx3.io.VoiceXML.toXml(voice);
-		xml.addChild(voiceXml);
-	}
-	switch( (part.type)[1] ) {
-	case 0:
-		break;
-	default:
-		xml.set("type",Std.string(part.type));
-	}
-	switch( (part.clef)[1] ) {
-	case 0:
-		break;
-	default:
-		xml.set("clef",Std.string(part.clef));
-	}
-	switch( (part.clefDisplay)[1] ) {
-	case 1:
-		break;
-	default:
-		xml.set("clefdisplay",Std.string(part.clefDisplay));
-	}
-	switch(part.key.levelShift) {
-	case 0:
-		break;
-	default:
-		xml.set("key",Std.string(part.key.levelShift));
-	}
-	switch( (part.keyDisplay)[1] ) {
-	case 1:
-		break;
-	default:
-		xml.set("keydisplay",Std.string(part.keyDisplay));
-	}
-	return xml;
-}
-nx3.io.PartXML.fromXmlStr = function(xmlStr) {
-	var xml = Xml.parse(xmlStr).firstElement();
-	var voices = [];
-	var $it0 = xml.elements();
-	while( $it0.hasNext() ) {
-		var v = $it0.next();
-		var voice = nx3.io.VoiceXML.fromXmlStr(v.toString());
-		voices.push(voice);
-	}
-	var typeStr = xml.get("type");
-	var type = cx.EnumTools.createFromString(nx3.elements.EPartType,typeStr);
-	var str = xml.get("clef");
-	var clef = str == null?nx3.elements.EClef.ClefG:cx.EnumTools.createFromString(nx3.elements.EClef,str);
-	var clefDisplayStr = xml.get("clefdisplay");
-	var clefDisplay = clefDisplayStr == null?nx3.elements.EDisplayALN.Layout:cx.EnumTools.createFromString(nx3.elements.EDisplayALN,clefDisplayStr);
-	var str1 = xml.get("key");
-	var key = str1 == null?nx3.elements.EKey.Natural:new nx3.elements.EKey(Std.parseInt(str1));
-	var keyDisplayStr = xml.get("keydisplay");
-	var keyDisplay = keyDisplayStr == null?nx3.elements.EDisplayALN.Layout:cx.EnumTools.createFromString(nx3.elements.EDisplayALN,keyDisplayStr);
-	return new nx3.elements.NPart(voices,type,clef,clefDisplay,key,keyDisplay);
-}
-nx3.io.VoiceXML = function() { }
-$hxClasses["nx3.io.VoiceXML"] = nx3.io.VoiceXML;
-nx3.io.VoiceXML.__name__ = ["nx3","io","VoiceXML"];
-nx3.io.VoiceXML.toXml = function(voice) {
-	var xml = Xml.createElement("voice");
-	switch( (voice.type)[1] ) {
-	case 1:
-		xml.set("type",Std.string(voice.type));
-		break;
-	default:
-	}
-	if(voice.direction != nx3.elements.EDirectionUAD.Auto) xml.set("direction",Std.string(voice.direction));
-	if(voice.notes != null) {
-		var _g = 0, _g1 = voice.notes;
-		while(_g < _g1.length) {
-			var note = _g1[_g];
-			++_g;
-			var noteXml = nx3.io.NoteXML.toXml(note);
-			xml.addChild(noteXml);
-		}
-	}
-	return xml;
-}
-nx3.io.VoiceXML.fromXmlStr = function(xmlStr) {
-	var xml = Xml.parse(xmlStr).firstElement();
-	var typeStr = xml.get("type");
-	var type = cx.EnumTools.createFromString(nx3.elements.EVoiceType,typeStr);
-	var directionStr = xml.get("direction");
-	var direction = null;
-	direction = directionStr == null?nx3.elements.EDirectionUAD.Auto:cx.EnumTools.createFromString(nx3.elements.EDirectionUAD,directionStr);
-	var notes = [];
-	var $it0 = xml.elements();
-	while( $it0.hasNext() ) {
-		var n = $it0.next();
-		var note = nx3.io.NoteXML.fromXmlStr(n.toString());
-		notes.push(note);
-	}
-	return new nx3.elements.NVoice(notes,type,direction);
-}
-nx3.io.VoiceXML.test = function(item) {
-	var str = nx3.io.VoiceXML.toXml(item).toString();
-	var item2 = nx3.io.VoiceXML.fromXmlStr(str);
-	var str2 = nx3.io.VoiceXML.toXml(item2).toString();
-	console.log(str);
-	console.log(str2);
-	return str == str2;
-}
 nx3.render = {}
-nx3.render.IRenderer = function() { }
-$hxClasses["nx3.render.IRenderer"] = nx3.render.IRenderer;
-nx3.render.IRenderer.__name__ = ["nx3","render","IRenderer"];
-nx3.render.IRenderer.prototype = {
-	complex: null
-	,note: null
-	,signs: null
-	,heads: null
-	,stave: null
-	,notelines: null
-	,__class__: nx3.render.IRenderer
-}
-nx3.render.FontRenderer = function(target,scaling) {
-	this.initTargetSprite(target,scaling);
-};
-$hxClasses["nx3.render.FontRenderer"] = nx3.render.FontRenderer;
-nx3.render.FontRenderer.__name__ = ["nx3","render","FontRenderer"];
-nx3.render.FontRenderer.__interfaces__ = [nx3.render.IRenderer];
-nx3.render.FontRenderer.prototype = {
-	drawShape: function(shape,x,y,rect) {
-		if(shape == null) return;
-		shape.set_x(x + rect.x * this.scaling.halfNoteWidth + this.scaling.svgX);
-		shape.set_y(y + rect.y * this.scaling.halfSpace + this.scaling.svgY);
-		this.target.addChild(shape);
-	}
-	,signs: function(x,y,dcomplex) {
-		if(dcomplex.get_signRects() == null) return;
-		var signsX = x + dcomplex.get_signsFrame().x * this.scaling.halfNoteWidth;
-		var _g1 = 0, _g = dcomplex.get_signRects().length;
-		while(_g1 < _g) {
-			var i = _g1++;
-			var signRect = dcomplex.get_signRects()[i];
-			var sign = dcomplex.signs[i].sign;
-			var signStr = "sign" + Std.string(sign);
-			var xmlStr = nx3.render.svg.ShapeTools.getElementStr(signStr);
-			if(xmlStr == null) continue;
-			var shape = nx3.render.svg.ShapeTools.getShape(xmlStr,this.scaling);
-			var r = signRect;
-			var sx = signsX + nx3.elements.tools.SignsTools.adjustSignFontX(sign) * this.scaling.halfNoteWidth;
-			var sy = y + 2 * this.scaling.halfSpace;
-			this.drawShape(shape,sx,sy,r);
-		}
-	}
-	,complex: function(x,y,dcomplex) {
-		var _g = 0, _g1 = dcomplex.dnotes;
-		while(_g < _g1.length) {
-			var dnote = _g1[_g];
-			++_g;
-			this.note(x,y,dnote);
-		}
-		this.signs(x,y,dcomplex);
-	}
-	,note: function(x,y,dnote) {
-		this.stave(x,y,dnote);
-		this.heads(x,y,dnote);
-	}
-	,heads: function(x,y,dnote) {
-		var xmlStr = null;
-		switch( (dnote.value.head)[1] ) {
-		case 2:
-			xmlStr = nx3.render.svg.Elements.noteWhole;
-			break;
-		case 1:
-			xmlStr = nx3.render.svg.Elements.noteWhite;
-			break;
-		default:
-			xmlStr = nx3.render.svg.Elements.noteBlack;
-		}
-		var _g = 0, _g1 = dnote.get_headRects();
-		while(_g < _g1.length) {
-			var rect = _g1[_g];
-			++_g;
-			var shape = nx3.render.svg.ShapeTools.getShape(xmlStr,this.scaling);
-			this.drawShape(shape,x,y,rect);
-		}
-	}
-	,stave: function(x,y,dnote) {
-		if(dnote.value.head == nx3.elements.EHeadValuetype.HVT1) return;
-		this.target.get_graphics().lineStyle(this.scaling.linesWidth,0);
-		var topY = y + dnote.get_headTop().level * this.scaling.halfSpace;
-		var bottomY = y + dnote.get_headBottom().level * this.scaling.halfSpace;
-		var staveLength = 6.8 * this.scaling.halfSpace;
-		var staveX = x;
-		var _g = dnote.get_direction();
-		switch( (_g)[1] ) {
-		case 0:
-			staveX = x + (dnote.get_xAdjust() + dnote.get_stemX()) * this.scaling.halfNoteWidth;
-			this.target.get_graphics().moveTo(staveX,bottomY);
-			this.target.get_graphics().lineTo(staveX,topY - staveLength);
-			break;
-		case 1:
-			staveX = x + (dnote.get_xAdjust() + dnote.get_stemX()) * this.scaling.halfNoteWidth;
-			this.target.get_graphics().moveTo(staveX,topY);
-			this.target.get_graphics().lineTo(staveX,bottomY + staveLength);
-			break;
-		}
-	}
-	,notelines: function(x,y,width) {
-		this.target.get_graphics().lineStyle(this.scaling.linesWidth,11184810);
-		var _g = -2;
-		while(_g < 3) {
-			var i = _g++;
-			var cy = y + i * this.scaling.space;
-			this.target.get_graphics().moveTo(x,cy);
-			this.target.get_graphics().lineTo(x + width,cy);
-		}
-	}
-	,initTargetSprite: function(target,scaling) {
-		this.target = target;
-		this.scaling = scaling;
-	}
-	,target: null
-	,scaling: null
-	,__class__: nx3.render.FontRenderer
-}
 nx3.render.ISpriteRenderer = function() { }
 $hxClasses["nx3.render.ISpriteRenderer"] = nx3.render.ISpriteRenderer;
 nx3.render.ISpriteRenderer.__name__ = ["nx3","render","ISpriteRenderer"];
 nx3.render.ISpriteRenderer.prototype = {
 	initTargetSprite: null
 	,__class__: nx3.render.ISpriteRenderer
+}
+nx3.render.IRenderer = function() { }
+$hxClasses["nx3.render.IRenderer"] = nx3.render.IRenderer;
+nx3.render.IRenderer.__name__ = ["nx3","render","IRenderer"];
+nx3.render.IRenderer.prototype = {
+	notelines: null
+	,__class__: nx3.render.IRenderer
 }
 nx3.render.FrameRenderer = function(target,scaling) {
 	this.initTargetSprite(target,scaling);
@@ -12321,28 +13283,6 @@ nx3.render.FrameRenderer.prototype = {
 			++_g;
 		}
 	}
-	,signs: function(x,y,dcomplex) {
-		if(dcomplex.get_signsFrame() != null) this.drawRect(dcomplex.get_signsFrame(),x,y,16711680,2);
-		var signsX = x + dcomplex.get_signsFrame().x * this.scaling.halfNoteWidth;
-		if(dcomplex.get_signRects() != null) {
-			var _g = 0, _g1 = dcomplex.get_signRects();
-			while(_g < _g1.length) {
-				var signRect = _g1[_g];
-				++_g;
-				this.drawRect(signRect,signsX,y,0);
-			}
-		}
-	}
-	,heads: function(x,y,dnote) {
-		var _g = 0, _g1 = dnote.get_headRects();
-		while(_g < _g1.length) {
-			var rect = _g1[_g];
-			++_g;
-			this.drawRect(rect,x,y,255);
-		}
-	}
-	,stave: function(x,y,dnote) {
-	}
 	,notelines: function(x,y,width) {
 		this.target.get_graphics().lineStyle(this.scaling.linesWidth,11184810);
 		var _g = -2;
@@ -12353,24 +13293,6 @@ nx3.render.FrameRenderer.prototype = {
 			this.target.get_graphics().lineTo(x + width,cy);
 		}
 	}
-	,complex: function(x,y,dcomplex) {
-		var _g = 0, _g1 = dcomplex.dnotes;
-		while(_g < _g1.length) {
-			var dnote = _g1[_g];
-			++_g;
-			this.note(x,y,dnote);
-		}
-		this.signs(x,y,dcomplex);
-		this.drawRect(dcomplex.get_headsRect(),x,y,16711680,2);
-	}
-	,note: function(x,y,dnote) {
-		this.heads(x,y,dnote);
-		this.stave(x,y,dnote);
-		this.drawRect(dnote.get_headsRect(),x,y,16755370,2);
-		this.target.get_graphics().lineStyle(1,11184810);
-		this.target.get_graphics().moveTo(x,y + this.scaling.space * 6);
-		this.target.get_graphics().lineTo(x,y - this.scaling.space * 6);
-	}
 	,initTargetSprite: function(target,scaling) {
 		this.target = target;
 		this.scaling = scaling;
@@ -12378,75 +13300,6 @@ nx3.render.FrameRenderer.prototype = {
 	,target: null
 	,scaling: null
 	,__class__: nx3.render.FrameRenderer
-}
-nx3.render.MultiRenderer = function(target,scaling,renderers) {
-	this.target = target;
-	this.scaling = scaling;
-	this.renderers = [];
-	var _g = 0;
-	while(_g < renderers.length) {
-		var r = renderers[_g];
-		++_g;
-		var renderer = Type.createInstance(r,[target,scaling]);
-		this.renderers.push(renderer);
-	}
-};
-$hxClasses["nx3.render.MultiRenderer"] = nx3.render.MultiRenderer;
-nx3.render.MultiRenderer.__name__ = ["nx3","render","MultiRenderer"];
-nx3.render.MultiRenderer.__interfaces__ = [nx3.render.IRenderer];
-nx3.render.MultiRenderer.prototype = {
-	signs: function(x,y,dcomplex) {
-		var _g = 0, _g1 = this.renderers;
-		while(_g < _g1.length) {
-			var r = _g1[_g];
-			++_g;
-			r.signs(x,y,dcomplex);
-		}
-	}
-	,complex: function(x,y,dcomplex) {
-		var _g = 0, _g1 = this.renderers;
-		while(_g < _g1.length) {
-			var r = _g1[_g];
-			++_g;
-			r.complex(x,y,dcomplex);
-		}
-	}
-	,note: function(x,y,dnote) {
-		var _g = 0, _g1 = this.renderers;
-		while(_g < _g1.length) {
-			var r = _g1[_g];
-			++_g;
-			r.note(x,y,dnote);
-		}
-	}
-	,heads: function(x,y,dnote) {
-		var _g = 0, _g1 = this.renderers;
-		while(_g < _g1.length) {
-			var r = _g1[_g];
-			++_g;
-			r.heads(x,y,dnote);
-		}
-	}
-	,stave: function(x,y,dnote) {
-		var _g = 0, _g1 = this.renderers;
-		while(_g < _g1.length) {
-			var r = _g1[_g];
-			++_g;
-			r.stave(x,y,dnote);
-		}
-	}
-	,notelines: function(x,y,width) {
-		var _g = 0, _g1 = this.renderers;
-		while(_g < _g1.length) {
-			var r = _g1[_g];
-			++_g;
-			r.notelines(x,y,width);
-		}
-	}
-	,renderers: null
-	,scaling: null
-	,target: null
-	,__class__: nx3.render.MultiRenderer
 }
 nx3.render.scaling = {}
 nx3.render.scaling.Scaling = function() { }
@@ -12483,69 +13336,407 @@ nx3.render.tools = {}
 nx3.render.tools.RenderTools = function() { }
 $hxClasses["nx3.render.tools.RenderTools"] = nx3.render.tools.RenderTools;
 nx3.render.tools.RenderTools.__name__ = ["nx3","render","tools","RenderTools"];
-nx3.render.tools.RenderTools.spriteToPng = function(sprite,filename,extraHeight) {
+nx3.render.tools.RenderTools.spriteToPng = function(sprite,filename,extraWidth,extraHeight) {
 	if(extraHeight == null) extraHeight = 100;
+	if(extraWidth == null) extraWidth = 100;
 }
-nx3.xamples.Examples = function() { }
-$hxClasses["nx3.xamples.Examples"] = nx3.xamples.Examples;
-nx3.xamples.Examples.__name__ = ["nx3","xamples","Examples"];
-nx3.xamples.Examples.basic1 = function(target) {
-	if(target == null) target = new flash.display.Sprite();
-	var note = new nx3.elements.NNote(nx3.elements.ENoteType.Note([new nx3.elements.NHead(null,nx3.elements._ULevel.ULevel_Impl_.inRange(0)),new nx3.elements.NHead(null,nx3.elements._ULevel.ULevel_Impl_.inRange(1)),new nx3.elements.NHead(null,nx3.elements._ULevel.ULevel_Impl_.inRange(-1))]));
-	var dnote = new nx3.elements.DNote(note,null,null,null,nx3.elements.EDirectionUD.Up);
-	var dnote2 = new nx3.elements.DNote(note,null,null,null,nx3.elements.EDirectionUD.Down);
-	var render = new nx3.render.FrameRenderer(target,nx3.render.scaling.Scaling.NORMAL);
-	render.notelines(0,100,700);
-	render.note(100,100,dnote);
-	render.note(200,100,dnote2);
-	var render1 = new nx3.render.FrameRenderer(target,nx3.render.scaling.Scaling.SMALL);
-	render1.notelines(0,200,700);
-	render1.note(100,200,dnote);
-	render1.note(200,200,dnote2);
-	var render2 = new nx3.render.FrameRenderer(target,nx3.render.scaling.Scaling.MID);
-	render2.notelines(0,300,700);
-	render2.note(100,300,dnote);
-	render2.note(200,300,dnote2);
-	return target;
-}
-nx3.xamples.Examples.basic2 = function(target) {
-	if(target == null) target = new flash.display.Sprite();
-	var note1 = new nx3.elements.NNote(null,[new nx3.elements.NHead(null,nx3.elements._ULevel.ULevel_Impl_.inRange(-4),nx3.elements.ESign.Flat),new nx3.elements.NHead(null,nx3.elements._ULevel.ULevel_Impl_.inRange(3),nx3.elements.ESign.Flat),new nx3.elements.NHead(null,nx3.elements._ULevel.ULevel_Impl_.inRange(5),nx3.elements.ESign.Flat)],nx3.elements.ENoteValue.Nv4,nx3.elements.EDirectionUAD.Up);
-	var note2 = new nx3.elements.NNote(null,[new nx3.elements.NHead(null,nx3.elements._ULevel.ULevel_Impl_.inRange(0),nx3.elements.ESign.Sharp)],nx3.elements.ENoteValue.Nv2,nx3.elements.EDirectionUAD.Down);
-	var dnote1 = new nx3.elements.DNote(note1);
-	var dnote2 = new nx3.elements.DNote(note2);
-	var dcomplex = new nx3.elements.DComplex([dnote1,dnote2]);
-	var render = new nx3.render.MultiRenderer(target,nx3.render.scaling.Scaling.MID,[nx3.render.FrameRenderer,nx3.render.FontRenderer]);
-	render.notelines(0,100,700);
-	render.complex(200,100,dcomplex);
-	var dnote11 = new nx3.elements.DNote(note1);
-	var dnote21 = new nx3.elements.DNote(note2);
-	var dcomplex1 = new nx3.elements.DComplex([dnote11,dnote21]);
-	var render1 = new nx3.render.MultiRenderer(target,nx3.render.scaling.Scaling.PRINT1,[nx3.render.FrameRenderer,nx3.render.FontRenderer]);
-	render1.notelines(0,300,700);
-	render1.complex(200,300,dcomplex1);
-	console.log(nx3.io.NoteXML.toXml(note1).toString());
-	return target;
-}
-nx3.xamples.Examples.illustration1 = function(target) {
-	if(target == null) target = new flash.display.Sprite();
-	var note0 = new nx3.elements.NNote(null,[new nx3.elements.NHead(null,nx3.elements._ULevel.ULevel_Impl_.inRange(-1))],nx3.elements.ENoteValue.Nv2dot);
-	var voiceUpper = new nx3.elements.NVoice([note0],null,nx3.elements.EDirectionUAD.Up);
-	var note01 = new nx3.elements.NNote(null,[new nx3.elements.NHead(null,nx3.elements._ULevel.ULevel_Impl_.inRange(1))],nx3.elements.ENoteValue.Nv4dot);
-	var note1 = new nx3.elements.NNote(null,[new nx3.elements.NHead(null,nx3.elements._ULevel.ULevel_Impl_.inRange(2))],nx3.elements.ENoteValue.Nv8);
-	var note2 = new nx3.elements.NNote(null,[new nx3.elements.NHead(null,nx3.elements._ULevel.ULevel_Impl_.inRange(3),nx3.elements.ESign.Sharp)],nx3.elements.ENoteValue.Nv4);
-	var voiceLower = new nx3.elements.NVoice([note01,note1,note2],null,nx3.elements.EDirectionUAD.Down);
-	var part0 = new nx3.elements.NPart([voiceUpper,voiceLower],null,nx3.elements.EClef.ClefG,null,nx3.elements.EKey.Flat1);
-	var note02 = new nx3.elements.NNote(null,[new nx3.elements.NHead(null,nx3.elements._ULevel.ULevel_Impl_.inRange(-2)),new nx3.elements.NHead(null,nx3.elements._ULevel.ULevel_Impl_.inRange(5))],nx3.elements.ENoteValue.Nv2);
-	var note11 = new nx3.elements.NNote(null,[new nx3.elements.NHead(null,nx3.elements._ULevel.ULevel_Impl_.inRange(0))],nx3.elements.ENoteValue.Nv4);
-	var voice = new nx3.elements.NVoice([note02,note11]);
-	var part1 = new nx3.elements.NPart([voice],null,nx3.elements.EClef.ClefF,null,nx3.elements.EKey.Flat1);
-	var bar = new nx3.elements.NBar([part0,part1],null,nx3.elements.ETime.Time3_4);
-	var barXmlStr = nx3.io.BarXML.toXml(bar);
-	console.log(barXmlStr);
-	var dvoice = new nx3.elements.DVoice(voice);
-	return target;
-}
+nx3.test = {}
+nx3.test.QHead = function(level,sign) {
+	if(level == null) level = 0;
+	nx3.elements.NHead.call(this,null,level,sign);
+};
+$hxClasses["nx3.test.QHead"] = nx3.test.QHead;
+nx3.test.QHead.__name__ = ["nx3","test","QHead"];
+nx3.test.QHead.__super__ = nx3.elements.NHead;
+nx3.test.QHead.prototype = $extend(nx3.elements.NHead.prototype,{
+	__class__: nx3.test.QHead
+});
+nx3.test.QHeadSharp = function(level) {
+	if(level == null) level = 0;
+	nx3.test.QHead.call(this,level,nx3.elements.ESign.Sharp);
+};
+$hxClasses["nx3.test.QHeadSharp"] = nx3.test.QHeadSharp;
+nx3.test.QHeadSharp.__name__ = ["nx3","test","QHeadSharp"];
+nx3.test.QHeadSharp.__super__ = nx3.test.QHead;
+nx3.test.QHeadSharp.prototype = $extend(nx3.test.QHead.prototype,{
+	__class__: nx3.test.QHeadSharp
+});
+nx3.test.QHeadFlat = function(level) {
+	if(level == null) level = 0;
+	nx3.test.QHead.call(this,level,nx3.elements.ESign.Flat);
+};
+$hxClasses["nx3.test.QHeadFlat"] = nx3.test.QHeadFlat;
+nx3.test.QHeadFlat.__name__ = ["nx3","test","QHeadFlat"];
+nx3.test.QHeadFlat.__super__ = nx3.test.QHead;
+nx3.test.QHeadFlat.prototype = $extend(nx3.test.QHead.prototype,{
+	__class__: nx3.test.QHeadFlat
+});
+nx3.test.QHeadNatural = function(level) {
+	if(level == null) level = 0;
+	nx3.test.QHead.call(this,level,nx3.elements.ESign.Natural);
+};
+$hxClasses["nx3.test.QHeadNatural"] = nx3.test.QHeadNatural;
+nx3.test.QHeadNatural.__name__ = ["nx3","test","QHeadNatural"];
+nx3.test.QHeadNatural.__super__ = nx3.test.QHead;
+nx3.test.QHeadNatural.prototype = $extend(nx3.test.QHead.prototype,{
+	__class__: nx3.test.QHeadNatural
+});
+nx3.test.QNote = function(headLevel,headLevels,head,heads,value,signs,direction) {
+	if(signs == null) signs = "";
+	signs += "...........";
+	var aSigns = signs.split("");
+	if(headLevel != null) headLevels = [headLevel];
+	if(headLevels != null) {
+		heads = [];
+		var i = 0;
+		var _g = 0;
+		while(_g < headLevels.length) {
+			var level = headLevels[_g];
+			++_g;
+			heads.push(new nx3.elements.NHead(null,nx3.elements._ULevel.ULevel_Impl_.inRange(level),this.getSign(aSigns[i++])));
+		}
+	}
+	if(head != null) heads = [head];
+	if(heads == null) heads = [new nx3.elements.NHead(null,nx3.elements._ULevel.ULevel_Impl_.inRange(0))];
+	if(value == null) value = nx3.elements.ENoteVal.Nv4;
+	nx3.elements.NNote.call(this,null,heads,value,direction);
+};
+$hxClasses["nx3.test.QNote"] = nx3.test.QNote;
+nx3.test.QNote.__name__ = ["nx3","test","QNote"];
+nx3.test.QNote.__super__ = nx3.elements.NNote;
+nx3.test.QNote.prototype = $extend(nx3.elements.NNote.prototype,{
+	getSign: function(val) {
+		switch(val) {
+		case "#":
+			return nx3.elements.ESign.Sharp;
+		case "b":
+			return nx3.elements.ESign.Flat;
+		case "N":case "n":
+			return nx3.elements.ESign.Natural;
+		default:
+			return null;
+		}
+	}
+	,__class__: nx3.test.QNote
+});
+nx3.test.QNote4 = function(headLevel,headLevels,signs) {
+	if(signs == null) signs = "";
+	nx3.test.QNote.call(this,headLevel,headLevels,null,null,nx3.elements.ENoteVal.Nv4,signs);
+};
+$hxClasses["nx3.test.QNote4"] = nx3.test.QNote4;
+nx3.test.QNote4.__name__ = ["nx3","test","QNote4"];
+nx3.test.QNote4.__super__ = nx3.test.QNote;
+nx3.test.QNote4.prototype = $extend(nx3.test.QNote.prototype,{
+	__class__: nx3.test.QNote4
+});
+nx3.test.QNote8 = function(headLevel,headLevels,signs) {
+	if(signs == null) signs = "";
+	nx3.test.QNote.call(this,headLevel,headLevels,null,null,nx3.elements.ENoteVal.Nv8);
+};
+$hxClasses["nx3.test.QNote8"] = nx3.test.QNote8;
+nx3.test.QNote8.__name__ = ["nx3","test","QNote8"];
+nx3.test.QNote8.__super__ = nx3.test.QNote;
+nx3.test.QNote8.prototype = $extend(nx3.test.QNote.prototype,{
+	__class__: nx3.test.QNote8
+});
+nx3.test.QNote16 = function(headLevel,headLevels,signs) {
+	if(signs == null) signs = "";
+	nx3.test.QNote.call(this,headLevel,headLevels,null,null,nx3.elements.ENoteVal.Nv16);
+};
+$hxClasses["nx3.test.QNote16"] = nx3.test.QNote16;
+nx3.test.QNote16.__name__ = ["nx3","test","QNote16"];
+nx3.test.QNote16.__super__ = nx3.test.QNote;
+nx3.test.QNote16.prototype = $extend(nx3.test.QNote.prototype,{
+	__class__: nx3.test.QNote16
+});
+nx3.test.QNote2 = function(headLevel,headLevels,signs) {
+	if(signs == null) signs = "";
+	nx3.test.QNote.call(this,headLevel,headLevels,null,null,nx3.elements.ENoteVal.Nv2);
+};
+$hxClasses["nx3.test.QNote2"] = nx3.test.QNote2;
+nx3.test.QNote2.__name__ = ["nx3","test","QNote2"];
+nx3.test.QNote2.__super__ = nx3.test.QNote;
+nx3.test.QNote2.prototype = $extend(nx3.test.QNote.prototype,{
+	__class__: nx3.test.QNote2
+});
+nx3.test.QVoice = function(notevalues,notevalue,headlevels,levelrepeats,signs,direction) {
+	if(levelrepeats == null) levelrepeats = 1;
+	var _notevalues = notevalues;
+	if(_notevalues == null) _notevalues = [notevalue];
+	if(_notevalues == null) _notevalues = [4];
+	var _headlevels = headlevels != null?headlevels:[0];
+	while(_notevalues.length > _headlevels.length) _headlevels.push(0);
+	var r = 1;
+	var copy = _headlevels.slice();
+	while(r < levelrepeats) {
+		_headlevels = _headlevels.concat(copy);
+		r++;
+	}
+	while(_headlevels.length > _notevalues.length) _notevalues = _notevalues.concat(_notevalues);
+	var notes = [];
+	if(signs == null) signs = "-";
+	var asigns = signs.split("");
+	while(_headlevels.length > asigns.length) asigns = asigns.concat(asigns);
+	var i = 0;
+	var _g = 0;
+	while(_g < _headlevels.length) {
+		var level = _headlevels[_g];
+		++_g;
+		var sign = this.getSign(asigns[i]);
+		var head = new nx3.test.QHead(level,sign);
+		var note = new nx3.test.QNote(null,null,head,null,this.getNotevalue(_notevalues[i]));
+		notes.push(note);
+		i++;
+	}
+	nx3.elements.NVoice.call(this,notes,null,direction);
+};
+$hxClasses["nx3.test.QVoice"] = nx3.test.QVoice;
+nx3.test.QVoice.__name__ = ["nx3","test","QVoice"];
+nx3.test.QVoice.__super__ = nx3.elements.NVoice;
+nx3.test.QVoice.prototype = $extend(nx3.elements.NVoice.prototype,{
+	getNotevalue: function(val) {
+		switch(val) {
+		case 16.0:
+			return nx3.elements.ENoteVal.Nv16;
+		case .16:
+			return nx3.elements.ENoteVal.Nv16dot;
+		case 8.0:
+			return nx3.elements.ENoteVal.Nv8;
+		case .8:
+			return nx3.elements.ENoteVal.Nv8dot;
+		case 4.0:
+			return nx3.elements.ENoteVal.Nv4;
+		case .4:
+			return nx3.elements.ENoteVal.Nv4dot;
+		case 2.0:
+			return nx3.elements.ENoteVal.Nv2;
+		case .2:
+			return nx3.elements.ENoteVal.Nv2dot;
+		case 1.0:
+			return nx3.elements.ENoteVal.Nv1;
+		case .1:
+			return nx3.elements.ENoteVal.Nv1dot;
+		default:
+			throw "Unknown notevalue: " + val;
+		}
+		return nx3.elements.ENoteVal.Nv4;
+	}
+	,getSign: function(val) {
+		switch(val) {
+		case "#":
+			return nx3.elements.ESign.Sharp;
+		case "b":
+			return nx3.elements.ESign.Flat;
+		case "N":case "n":
+			return nx3.elements.ESign.Natural;
+		default:
+			return null;
+		}
+	}
+	,__class__: nx3.test.QVoice
+});
+nx3.test.QVoiceDown = function(notevalues,notevalue,headlevels,levelrepeats,signs) {
+	nx3.test.QVoice.call(this,notevalues,notevalue,headlevels,levelrepeats,signs,nx3.elements.EDirectionUAD.Down);
+};
+$hxClasses["nx3.test.QVoiceDown"] = nx3.test.QVoiceDown;
+nx3.test.QVoiceDown.__name__ = ["nx3","test","QVoiceDown"];
+nx3.test.QVoiceDown.__super__ = nx3.test.QVoice;
+nx3.test.QVoiceDown.prototype = $extend(nx3.test.QVoice.prototype,{
+	__class__: nx3.test.QVoiceDown
+});
+nx3.test.QVoiceUp = function(notevalues,notevalue,headlevels,levelrepeats,signs) {
+	nx3.test.QVoice.call(this,notevalues,notevalue,headlevels,levelrepeats,signs,nx3.elements.EDirectionUAD.Up);
+};
+$hxClasses["nx3.test.QVoiceUp"] = nx3.test.QVoiceUp;
+nx3.test.QVoiceUp.__name__ = ["nx3","test","QVoiceUp"];
+nx3.test.QVoiceUp.__super__ = nx3.test.QVoice;
+nx3.test.QVoiceUp.prototype = $extend(nx3.test.QVoice.prototype,{
+	__class__: nx3.test.QVoiceUp
+});
+nx3.test.TestVRender = function() {
+	haxe.unit.TestCase.call(this);
+	this.target = flash.Lib.get_current();
+	this.renderer = new nx3.test.DevRenderer(this.target,nx3.render.scaling.Scaling.BIG);
+};
+$hxClasses["nx3.test.TestVRender"] = nx3.test.TestVRender;
+nx3.test.TestVRender.__name__ = ["nx3","test","TestVRender"];
+nx3.test.TestVRender.__super__ = haxe.unit.TestCase;
+nx3.test.TestVRender.prototype = $extend(haxe.unit.TestCase.prototype,{
+	testVBar1: function() {
+		this.assertTrue(true,{ fileName : "TestVRender.hx", lineNumber : 89, className : "nx3.test.TestVRender", methodName : "testVBar1"});
+		var npart0 = new nx3.elements.NPart([new nx3.elements.NVoice([new nx3.elements.NNote(null,[new nx3.elements.NHead(null,nx3.elements._ULevel.ULevel_Impl_.inRange(-2)),new nx3.elements.NHead(null,nx3.elements._ULevel.ULevel_Impl_.inRange(-3))],nx3.elements.ENoteVal.Nv1,nx3.elements.EDirectionUAD.Up)]),new nx3.test.QVoice([.4,8],null,[2,2])]);
+		var npart1 = new nx3.elements.NPart([new nx3.test.QVoice([8,.4],null,[-2,-2]),new nx3.test.QVoice([4,4],null,[2,2])]);
+		var vbar = new nx3.elements.VBar(new nx3.elements.NBar([npart0,npart1]));
+		this.renderer.setDefaultXY(700,80);
+		this.renderer.drawVBarNotelines(vbar,400,-30);
+		this.renderer.drawVBarColumns(vbar);
+		this.renderer.drawVBarComplexes(vbar);
+		this.renderer.drawVBarVoices(vbar);
+	}
+	,testVBar: function() {
+		this.assertTrue(true,{ fileName : "TestVRender.hx", lineNumber : 65, className : "nx3.test.TestVRender", methodName : "testVBar"});
+		var npart0 = new nx3.elements.NPart([new nx3.test.QVoice([2],null,[-2]),new nx3.test.QVoice([.4,8],null,[2,2])]);
+		var npart1 = new nx3.elements.NPart([new nx3.test.QVoice([8,.4],null,[-2,-2]),new nx3.test.QVoice([4,4],null,[2,2])]);
+		var vbar = new nx3.elements.VBar(new nx3.elements.NBar([npart0,npart1]));
+		this.renderer.setDefaultXY(200,80);
+		this.renderer.drawVBarNotelines(vbar,400,-30);
+		this.renderer.drawVBarColumns(vbar);
+		this.renderer.drawVBarComplexes(vbar);
+		this.renderer.drawVBarVoices(vbar);
+	}
+	,test0: function() {
+		this.assertEquals(1,1,{ fileName : "TestVRender.hx", lineNumber : 59, className : "nx3.test.TestVRender", methodName : "test0"});
+	}
+	,renderer: null
+	,target: null
+	,__class__: nx3.test.TestVRender
+});
+nx3.test.DevRenderer = function(target,scaling) {
+	this.defaultY = 80;
+	this.defaultX = 40;
+	this.partdistance = 120;
+	nx3.render.FrameRenderer.call(this,target,scaling);
+};
+$hxClasses["nx3.test.DevRenderer"] = nx3.test.DevRenderer;
+nx3.test.DevRenderer.__name__ = ["nx3","test","DevRenderer"];
+nx3.test.DevRenderer.__super__ = nx3.render.FrameRenderer;
+nx3.test.DevRenderer.prototype = $extend(nx3.render.FrameRenderer.prototype,{
+	drawShape: function(shape,x,y,rect) {
+		if(shape == null) return;
+		shape.set_x(x + rect.x * this.scaling.halfNoteWidth + this.scaling.svgX);
+		shape.set_y(y + rect.y * this.scaling.halfSpace + this.scaling.svgY);
+		this.target.addChild(shape);
+	}
+	,heads: function(x,y,vnote) {
+		var xmlStr = null;
+		var _g = nx3.elements.ENoteValTools.head(vnote.nnote.value);
+		switch( (_g)[1] ) {
+		case 2:
+			xmlStr = nx3.render.svg.Elements.noteWhole;
+			break;
+		case 1:
+			xmlStr = nx3.render.svg.Elements.noteWhite;
+			break;
+		default:
+			xmlStr = nx3.render.svg.Elements.noteBlack;
+		}
+		var _g1 = 0, _g2 = vnote.getVHeadsRectangles();
+		while(_g1 < _g2.length) {
+			var rect = _g2[_g1];
+			++_g1;
+			var shape = nx3.render.svg.ShapeTools.getShape(xmlStr,this.scaling);
+			this.drawShape(shape,x,y,rect);
+		}
+	}
+	,drawVBarVoices: function(vbar) {
+		var party = this.defaultY;
+		var _g = 0, _g1 = vbar.getVParts();
+		while(_g < _g1.length) {
+			var vpart = _g1[_g];
+			++_g;
+			var _g2 = 0, _g3 = vpart.getPartbeamgroups();
+			while(_g2 < _g3.length) {
+				var beamgroups = _g3[_g2];
+				++_g2;
+				var vvoiceIdx = cx.ArrayTools.index(vpart.getPartbeamgroups(),beamgroups);
+				var _g4 = 0;
+				while(_g4 < beamgroups.length) {
+					var beamgroup = beamgroups[_g4];
+					++_g4;
+					var beamgroupIdx = cx.ArrayTools.index(beamgroups,beamgroup);
+					var _g5 = 0, _g6 = beamgroup.vnotes;
+					while(_g5 < _g6.length) {
+						var vnote = _g6[_g5];
+						++_g5;
+						var vnoteIdx = cx.ArrayTools.index(beamgroup.vnotes,vnote);
+						var vcolumn = vbar.getVNotesVColumns().h[vnote.__id__];
+						var pos = vbar.getVColumnsPositions().h[vcolumn.__id__];
+						var colx = this.defaultX + pos / 20;
+						var tf = new flash.text.TextField();
+						tf.set_defaultTextFormat(new flash.text.TextFormat("Arial",10));
+						tf.set_text("" + beamgroupIdx);
+						tf.set_x(colx);
+						tf.set_y(party + (vvoiceIdx == 0?this.scaling.space * -3:this.scaling.space * 3) - this.scaling.halfSpace);
+						this.target.addChild(tf);
+					}
+				}
+			}
+			party += this.partdistance;
+		}
+	}
+	,drawVBarComplexes: function(vbar) {
+		var party = this.defaultY;
+		var _g = 0, _g1 = vbar.getVParts();
+		while(_g < _g1.length) {
+			var vpart = _g1[_g];
+			++_g;
+			var _g2 = 0, _g3 = vpart.getVComplexes();
+			while(_g2 < _g3.length) {
+				var vcomplex = _g3[_g2];
+				++_g2;
+				var vcolumn = vbar.getVComplexesVColumns().h[vcomplex.__id__];
+				var pos = vbar.getVColumnsPositions().h[vcolumn.__id__];
+				var colx = this.defaultX + pos / 20;
+				this.target.get_graphics().endFill();
+				this.target.get_graphics().lineStyle(1,16711680);
+				this.target.get_graphics().drawRect(colx - 5,party - 5,10,10);
+				var _g4 = 0, _g5 = vcomplex.getVNotes();
+				while(_g4 < _g5.length) {
+					var vnote = _g5[_g4];
+					++_g4;
+					var vvoice = vpart.getVNotesVVoices().h[vnote.__id__];
+					var vvoiceIdx = cx.ArrayTools.index(vpart.getVVoices(),vvoice);
+					var color = vvoiceIdx == 0?65280:255;
+					this.heads(colx,party,vnote);
+				}
+			}
+			party += this.partdistance;
+		}
+	}
+	,drawVBarColumns: function(vbar) {
+		var height = (vbar.getVParts().length - 1) * this.partdistance;
+		var positionsColumns = vbar.getPositionsColumns();
+		var $it0 = positionsColumns.keys();
+		while( $it0.hasNext() ) {
+			var pos = $it0.next();
+			var colx = pos / 20;
+			this.target.get_graphics().endFill();
+			this.target.get_graphics().lineStyle(1,255);
+			this.target.get_graphics().moveTo(this.defaultX + colx,this.defaultY - this.scaling.space * 3);
+			this.target.get_graphics().lineTo(this.defaultX + colx,this.defaultY + height + this.scaling.space * 3);
+		}
+	}
+	,drawVBarNotelines: function(vbar,width,xMinus) {
+		if(xMinus == null) xMinus = -50;
+		if(width == null) width = 800;
+		var y = this.defaultY;
+		var _g = 0, _g1 = vbar.getVParts();
+		while(_g < _g1.length) {
+			var vpart = _g1[_g];
+			++_g;
+			this.notelines(this.defaultX + xMinus,y,width);
+			y += this.partdistance;
+		}
+	}
+	,vnoteheads: function(vnote,x,y,fill) {
+		if(fill == null) fill = 65280;
+		this.target.get_graphics().beginFill(fill);
+		var _g = 0, _g1 = vnote.getVHeadsRectangles();
+		while(_g < _g1.length) {
+			var rect = _g1[_g];
+			++_g;
+			this.drawRect(rect,x,y);
+		}
+	}
+	,setDefaultXY: function(x,y) {
+		this.defaultX = x;
+		this.defaultY = y;
+	}
+	,defaultY: null
+	,defaultX: null
+	,partdistance: null
+	,__class__: nx3.test.DevRenderer
+});
 var openfl = {}
 openfl.display = {}
 openfl.display.Tilesheet = function(image) {
@@ -12794,6 +13985,19 @@ flash.net.URLRequestMethod.POST = "POST";
 flash.net.URLRequestMethod.PUT = "PUT";
 flash.system.ApplicationDomain.currentDomain = new flash.system.ApplicationDomain(null);
 flash.system.SecurityDomain.currentDomain = new flash.system.SecurityDomain();
+flash.text.Font.DEFAULT_FONT_DATA = "q:55oy6:ascentd950.5y4:dataad84d277.5d564d277.5d564d320.5d293d1024d187.5d1024d442.5d362.5d84d362.5d84d277.5hy6:_widthd651.5y4:xMaxd564y4:xMind84y4:yMaxd746.5y4:yMind0y7:_heightd662.5y7:leadingd168y7:descentd241.5y8:charCodei55y15:leftsideBearingd84y12:advanceWidthd651.5y8:commandsai1i2i2i2i2i2i2i2hg:111oR0d950.5R1ad313.5d528.5d239.5d528.5d196.5d586.25d153.5d644d153.5d744.5d153.5d845d196.25d902.75d239d960.5d313.5d960.5d387d960.5d430d902.5d473d844.5d473d744.5d473d645d430d586.75d387d528.5d313.5d528.5d313.5d450.5d433.5d450.5d502d528.5d570.5d606.5d570.5d744.5d570.5d882d502d960.25d433.5d1038.5d313.5d1038.5d193d1038.5d124.75d960.25d56.5d882d56.5d744.5d56.5d606.5d124.75d528.5d193d450.5d313.5d450.5hR2d626.5R3d570.5R4d56.5R5d573.5R6d-14.5R7d517R8d168R9d241.5R10i111R11d56.5R12d626.5R13ai1i3i3i3i3i3i3i3i3i1i3i3i3i3i3i3i3i3hg:54oR0d950.5R1ad338d610.5d270d610.5d230.25d657d190.5d703.5d190.5d784.5d190.5d865d230.25d911.75d270d958.5d338d958.5d406d958.5d445.75d911.75d485.5d865d485.5d784.5d485.5d703.5d445.75d657d406d610.5d338d610.5d538.5d294d538.5d386d500.5d368d461.75d358.5d423d349d385d349d285d349d232.25d416.5d179.5d484d172d620.5d201.5d577d246d553.75d290.5d530.5d344d530.5d456.5d530.5d521.75d598.75d587d667d587d784.5d587d899.5d519d969d451d1038.5d338d1038.5d208.5d1038.5d140d939.25d71.5d840d71.5d651.5d71.5d474.5d155.5d369.25d239.5d264d381d264d419d264d457.75d271.5d496.5d279d538.5d294hR2d651.5R3d587R4d71.5R5d760R6d-14.5R7d688.5R8d168R9d241.5R10i54R11d71.5R12d651.5R13ai1i3i3i3i3i3i3i3i3i1i2i3i3i3i3i3i3i3i3i3i3i3i3i3i3i3i3hg:110oR0d950.5R1ad562d686d562d1024d470d1024d470d689d470d609.5d439d570d408d530.5d346d530.5d271.5d530.5d228.5d578d185.5d625.5d185.5d707.5d185.5d1024d93d1024d93d464d185.5d464d185.5d551d218.5d500.5d263.25d475.5d308d450.5d366.5d450.5d463d450.5d512.5d510.25d562d570d562d686hR2d649R3d562R4d93R5d573.5R6d0R7d480.5R8d168R9d241.5R10i110R11d93R12d649R13ai1i2i2i2i3i3i3i3i2i2i2i2i2i3i3i3i3hg:53oR0d950.5R1ad110.5d277.5d507d277.5d507d362.5d203d362.5d203d545.5d225d538d247d534.25d269d530.5d291d530.5d416d530.5d489d599d562d667.5d562d784.5d562d905d487d971.75d412d1038.5d275.5d1038.5d228.5d1038.5d179.75d1030.5d131d1022.5d79d1006.5d79d905d124d929.5d172d941.5d220d953.5d273.5d953.5d360d953.5d410.5d908d461d862.5d461d784.5d461d706.5d410.5d661d360d615.5d273.5d615.5d233d615.5d192.75d624.5d152.5d633.5d110.5d652.5d110.5d277.5hR2d651.5R3d562R4d79R5d746.5R6d-14.5R7d667.5R8d168R9d241.5R10i53R11d79R12d651.5R13ai1i2i2i2i2i3i3i3i3i3i3i3i3i2i3i3i3i3i3i3i3i3i2hg:109oR0d950.5R1ad532.5d571.5d567d509.5d615d480d663d450.5d728d450.5d815.5d450.5d863d511.75d910.5d573d910.5d686d910.5d1024d818d1024d818d689d818d608.5d789.5d569.5d761d530.5d702.5d530.5d631d530.5d589.5d578d548d625.5d548d707.5d548d1024d455.5d1024d455.5d689d455.5d608d427d569.25d398.5d530.5d339d530.5d268.5d530.5d227d578.25d185.5d626d185.5d707.5d185.5d1024d93d1024d93d464d185.5d464d185.5d551d217d499.5d261d475d305d450.5d365.5d450.5d426.5d450.5d469.25d481.5d512d512.5d532.5d571.5hR2d997.5R3d910.5R4d93R5d573.5R6d0R7d480.5R8d168R9d241.5R10i109R11d93R12d997.5R13ai1i3i3i3i3i2i2i2i3i3i3i3i2i2i2i3i3i3i3i2i2i2i2i2i3i3i3i3hg:52oR0d950.5R1ad387d365.5d132d764d387d764d387d365.5d360.5d277.5d487.5d277.5d487.5d764d594d764d594d848d487.5d848d487.5d1024d387d1024d387d848d50d848d50d750.5d360.5d277.5hR2d651.5R3d594R4d50R5d746.5R6d0R7d696.5R8d168R9d241.5R10i52R11d50R12d651.5R13ai1i2i2i2i1i2i2i2i2i2i2i2i2i2i2i2hg:108oR0d950.5R1ad96.5d246d188.5d246d188.5d1024d96.5d1024d96.5d246hR2d284.5R3d188.5R4d96.5R5d778R6d0R7d681.5R8d168R9d241.5R10i108R11d96.5R12d284.5R13ai1i2i2i2i2hg:51oR0d950.5R1ad415.5d621.5d488d637d528.75d686d569.5d735d569.5d807d569.5d917.5d493.5d978d417.5d1038.5d277.5d1038.5d230.5d1038.5d180.75d1029.25d131d1020d78d1001.5d78d904d120d928.5d170d941d220d953.5d274.5d953.5d369.5d953.5d419.25d916d469d878.5d469d807d469d741d422.75d703.75d376.5d666.5d294d666.5d207d666.5d207d583.5d298d583.5d372.5d583.5d412d553.75d451.5d524d451.5d468d451.5d410.5d410.75d379.75d370d349d294d349d252.5d349d205d358d157.5d367d100.5d386d100.5d296d158d280d208.25d272d258.5d264d303d264d418d264d485d316.25d552d368.5d552d457.5d552d519.5d516.5d562.25d481d605d415.5d621.5hR2d651.5R3d569.5R4d78R5d760R6d-14.5R7d682R8d168R9d241.5R10i51R11d78R12d651.5R13ai1i3i3i3i3i3i3i2i3i3i3i3i3i3i2i2i2i3i3i3i3i3i3i2i3i3i3i3i3i3hg:107oR0d950.5R1ad93d246d185.5d246d185.5d705.5d460d464d577.5d464d280.5d726d590d1024d470d1024d185.5d750.5d185.5d1024d93d1024d93d246hR2d593R3d590R4d93R5d778R6d0R7d685R8d168R9d241.5R10i107R11d93R12d593R13ai1i2i2i2i2i2i2i2i2i2i2i2hg:50oR0d950.5R1ad196.5d939d549d939d549d1024d75d1024d75d939d132.5d879.5d231.75d779.25d331d679d356.5d650d405d595.5d424.25d557.75d443.5d520d443.5d483.5d443.5d424d401.75d386.5d360d349d293d349d245.5d349d192.75d365.5d140d382d80d415.5d80d313.5d141d289d194d276.5d247d264d291d264d407d264d476d322d545d380d545d477d545d523d527.75d564.25d510.5d605.5d465d661.5d452.5d676d385.5d745.25d318.5d814.5d196.5d939hR2d651.5R3d549R4d75R5d760R6d0R7d685R8d168R9d241.5R10i50R11d75R12d651.5R13ai1i2i2i2i2i3i3i3i3i3i3i3i3i2i3i3i3i3i3i3i3i3hg:106oR0d950.5R1ad96.5d464d188.5d464d188.5d1034d188.5d1141d147.75d1189d107d1237d16.5d1237d-18.5d1237d-18.5d1159d6d1159d58.5d1159d77.5d1134.75d96.5d1110.5d96.5d1034d96.5d464d96.5d246d188.5d246d188.5d362.5d96.5d362.5d96.5d246hR2d284.5R3d188.5R4d-18.5R5d778R6d-213R7d796.5R8d168R9d241.5R10i106R11d-18.5R12d284.5R13ai1i2i2i3i3i2i2i2i3i3i2i1i2i2i2i2hg:49oR0d950.5R1ad127d939d292d939d292d369.5d112.5d405.5d112.5d313.5d291d277.5d392d277.5d392d939d557d939d557d1024d127d1024d127d939hR2d651.5R3d557R4d112.5R5d746.5R6d0R7d634R8d168R9d241.5R10i49R11d112.5R12d651.5R13ai1i2i2i2i2i2i2i2i2i2i2i2hg:105oR0d950.5R1ad96.5d464d188.5d464d188.5d1024d96.5d1024d96.5d464d96.5d246d188.5d246d188.5d362.5d96.5d362.5d96.5d246hR2d284.5R3d188.5R4d96.5R5d778R6d0R7d681.5R8d168R9d241.5R10i105R11d96.5R12d284.5R13ai1i2i2i2i2i1i2i2i2i2hg:48oR0d950.5R1ad325.5d344d247.5d344d208.25d420.75d169d497.5d169d651.5d169d805d208.25d881.75d247.5d958.5d325.5d958.5d404d958.5d443.25d881.75d482.5d805d482.5d651.5d482.5d497.5d443.25d420.75d404d344d325.5d344d325.5d264d451d264d517.25d363.25d583.5d462.5d583.5d651.5d583.5d840d517.25d939.25d451d1038.5d325.5d1038.5d200d1038.5d133.75d939.25d67.5d840d67.5d651.5d67.5d462.5d133.75d363.25d200d264d325.5d264hR2d651.5R3d583.5R4d67.5R5d760R6d-14.5R7d692.5R8d168R9d241.5R10i48R11d67.5R12d651.5R13ai1i3i3i3i3i3i3i3i3i1i3i3i3i3i3i3i3i3hg:104oR0d950.5R1ad562d686d562d1024d470d1024d470d689d470d609.5d439d570d408d530.5d346d530.5d271.5d530.5d228.5d578d185.5d625.5d185.5d707.5d185.5d1024d93d1024d93d246d185.5d246d185.5d551d218.5d500.5d263.25d475.5d308d450.5d366.5d450.5d463d450.5d512.5d510.25d562d570d562d686hR2d649R3d562R4d93R5d778R6d0R7d685R8d168R9d241.5R10i104R11d93R12d649R13ai1i2i2i2i3i3i3i3i2i2i2i2i2i3i3i3i3hg:47oR0d950.5R1ad260d277.5d345d277.5d85d1119d0d1119d260d277.5hR2d345R3d345R4d0R5d746.5R6d-95R7d746.5R8d168R9d241.5R10i47R11d0R12d345R13ai1i2i2i2i2hg:103oR0d950.5R1ad465d737.5d465d637.5d423.75d582.5d382.5d527.5d308d527.5d234d527.5d192.75d582.5d151.5d637.5d151.5d737.5d151.5d837d192.75d892d234d947d308d947d382.5d947d423.75d892d465d837d465d737.5d557d954.5d557d1097.5d493.5d1167.25d430d1237d299d1237d250.5d1237d207.5d1229.75d164.5d1222.5d124d1207.5d124d1118d164.5d1140d204d1150.5d243.5d1161d284.5d1161d375d1161d420d1113.75d465d1066.5d465d971d465d925.5d436.5d975d392d999.5d347.5d1024d285.5d1024d182.5d1024d119.5d945.5d56.5d867d56.5d737.5d56.5d607.5d119.5d529d182.5d450.5d285.5d450.5d347.5d450.5d392d475d436.5d499.5d465d549d465d464d557d464d557d954.5hR2d650R3d557R4d56.5R5d573.5R6d-213R7d517R8d168R9d241.5R10i103R11d56.5R12d650R13ai1i3i3i3i3i3i3i3i3i1i3i3i3i3i2i3i3i3i3i2i3i3i3i3i3i3i3i3i2i2i2hg:46oR0d950.5R1ad109.5d897d215d897d215d1024d109.5d1024d109.5d897hR2d325.5R3d215R4d109.5R5d127R6d0R7d17.5R8d168R9d241.5R10i46R11d109.5R12d325.5R13ai1i2i2i2i2hg:102oR0d950.5R1ad380d246d380d322.5d292d322.5d242.5d322.5d223.25d342.5d204d362.5d204d414.5d204d464d355.5d464d355.5d535.5d204d535.5d204d1024d111.5d1024d111.5d535.5d23.5d535.5d23.5d464d111.5d464d111.5d425d111.5d331.5d155d288.75d198.5d246d293d246d380d246hR2d360.5R3d380R4d23.5R5d778R6d0R7d754.5R8d168R9d241.5R10i102R11d23.5R12d360.5R13ai1i2i2i3i3i2i2i2i2i2i2i2i2i2i2i2i3i3i2hg:45oR0d950.5R1ad50d702.5d319.5d702.5d319.5d784.5d50d784.5d50d702.5hR2d369.5R3d319.5R4d50R5d321.5R6d239.5R7d271.5R8d168R9d241.5R10i45R11d50R12d369.5R13ai1i2i2i2i2hg:101oR0d950.5R1ad575.5d721d575.5d766d152.5d766d158.5d861d209.75d910.75d261d960.5d352.5d960.5d405.5d960.5d455.25d947.5d505d934.5d554d908.5d554d995.5d504.5d1016.5d452.5d1027.5d400.5d1038.5d347d1038.5d213d1038.5d134.75d960.5d56.5d882.5d56.5d749.5d56.5d612d130.75d531.25d205d450.5d331d450.5d444d450.5d509.75d523.25d575.5d596d575.5d721d483.5d694d482.5d618.5d441.25d573.5d400d528.5d332d528.5d255d528.5d208.75d572d162.5d615.5d155.5d694.5d483.5d694hR2d630R3d575.5R4d56.5R5d573.5R6d-14.5R7d517R8d168R9d241.5R10i101R11d56.5R12d630R13ai1i2i2i3i3i3i3i2i3i3i3i3i3i3i3i3i1i3i3i3i3i2hg:44oR0d950.5R1ad120d897d225.5d897d225.5d983d143.5d1143d79d1143d120d983d120d897hR2d325.5R3d225.5R4d79R5d127R6d-119R7d48R8d168R9d241.5R10i44R11d79R12d325.5R13ai1i2i2i2i2i2i2hg:100oR0d950.5R1ad465d549d465d246d557d246d557d1024d465d1024d465d940d436d990d391.75d1014.25d347.5d1038.5d285.5d1038.5d184d1038.5d120.25d957.5d56.5d876.5d56.5d744.5d56.5d612.5d120.25d531.5d184d450.5d285.5d450.5d347.5d450.5d391.75d474.75d436d499d465d549d151.5d744.5d151.5d846d193.25d903.75d235d961.5d308d961.5d381d961.5d423d903.75d465d846d465d744.5d465d643d423d585.25d381d527.5d308d527.5d235d527.5d193.25d585.25d151.5d643d151.5d744.5hR2d650R3d557R4d56.5R5d778R6d-14.5R7d721.5R8d168R9d241.5R10i100R11d56.5R12d650R13ai1i2i2i2i2i2i3i3i3i3i3i3i3i3i1i3i3i3i3i3i3i3i3hg:43oR0d950.5R1ad471d382d471d660.5d749.5d660.5d749.5d745.5d471d745.5d471d1024d387d1024d387d745.5d108.5d745.5d108.5d660.5d387d660.5d387d382d471d382hR2d858R3d749.5R4d108.5R5d642R6d0R7d533.5R8d168R9d241.5R10i43R11d108.5R12d858R13ai1i2i2i2i2i2i2i2i2i2i2i2i2hg:99oR0d950.5R1ad499.5d485.5d499.5d571.5d460.5d550d421.25d539.25d382d528.5d342d528.5d252.5d528.5d203d585.25d153.5d642d153.5d744.5d153.5d847d203d903.75d252.5d960.5d342d960.5d382d960.5d421.25d949.75d460.5d939d499.5d917.5d499.5d1002.5d461d1020.5d419.75d1029.5d378.5d1038.5d332d1038.5d205.5d1038.5d131d959d56.5d879.5d56.5d744.5d56.5d607.5d131.75d529d207d450.5d338d450.5d380.5d450.5d421d459.25d461.5d468d499.5d485.5hR2d563R3d499.5R4d56.5R5d573.5R6d-14.5R7d517R8d168R9d241.5R10i99R11d56.5R12d563R13ai1i2i3i3i3i3i3i3i3i3i2i3i3i3i3i3i3i3i3hg:42oR0d950.5R1ad481.5d400.5d302d497.5d481.5d595d452.5d644d284.5d542.5d284.5d731d227.5d731d227.5d542.5d59.5d644d30.5d595d210d497.5d30.5d400.5d59.5d351d227.5d452.5d227.5d264d284.5d264d284.5d452.5d452.5d351d481.5d400.5hR2d512R3d481.5R4d30.5R5d760R6d293R7d729.5R8d168R9d241.5R10i42R11d30.5R12d512R13ai1i2i2i2i2i2i2i2i2i2i2i2i2i2i2i2i2i2i2hg:98oR0d950.5R1ad498.5d744.5d498.5d643d456.75d585.25d415d527.5d342d527.5d269d527.5d227.25d585.25d185.5d643d185.5d744.5d185.5d846d227.25d903.75d269d961.5d342d961.5d415d961.5d456.75d903.75d498.5d846d498.5d744.5d185.5d549d214.5d499d258.75d474.75d303d450.5d364.5d450.5d466.5d450.5d530.25d531.5d594d612.5d594d744.5d594d876.5d530.25d957.5d466.5d1038.5d364.5d1038.5d303d1038.5d258.75d1014.25d214.5d990d185.5d940d185.5d1024d93d1024d93d246d185.5d246d185.5d549hR2d650R3d594R4d93R5d778R6d-14.5R7d685R8d168R9d241.5R10i98R11d93R12d650R13ai1i3i3i3i3i3i3i3i3i1i3i3i3i3i3i3i3i3i2i2i2i2i2hg:41oR0d950.5R1ad82d247d162d247d237d365d274.25d478d311.5d591d311.5d702.5d311.5d814.5d274.25d928d237d1041.5d162d1159d82d1159d148.5d1044.5d181.25d931.25d214d818d214d702.5d214d587d181.25d474.5d148.5d362d82d247hR2d399.5R3d311.5R4d82R5d777R6d-135R7d695R8d168R9d241.5R10i41R11d82R12d399.5R13ai1i2i3i3i3i3i2i3i3i3i3hg:97oR0d950.5R1ad351d742.5d239.5d742.5d196.5d768d153.5d793.5d153.5d855d153.5d904d185.75d932.75d218d961.5d273.5d961.5d350d961.5d396.25d907.25d442.5d853d442.5d763d442.5d742.5d351d742.5d534.5d704.5d534.5d1024d442.5d1024d442.5d939d411d990d364d1014.25d317d1038.5d249d1038.5d163d1038.5d112.25d990.25d61.5d942d61.5d861d61.5d766.5d124.75d718.5d188d670.5d313.5d670.5d442.5d670.5d442.5d661.5d442.5d598d400.75d563.25d359d528.5d283.5d528.5d235.5d528.5d190d540d144.5d551.5d102.5d574.5d102.5d489.5d153d470d200.5d460.25d248d450.5d293d450.5d414.5d450.5d474.5d513.5d534.5d576.5d534.5d704.5hR2d627.5R3d534.5R4d61.5R5d573.5R6d-14.5R7d512R8d168R9d241.5R10i97R11d61.5R12d627.5R13ai1i3i3i3i3i3i3i2i2i1i2i2i2i3i3i3i3i3i3i2i2i3i3i3i3i2i3i3i3i3hg:40oR0d950.5R1ad317.5d247d250.5d362d218d474.5d185.5d587d185.5d702.5d185.5d818d218.25d931.25d251d1044.5d317.5d1159d237.5d1159d162.5d1041.5d125.25d928d88d814.5d88d702.5d88d591d125d478d162d365d237.5d247d317.5d247hR2d399.5R3d317.5R4d88R5d777R6d-135R7d689R8d168R9d241.5R10i40R11d88R12d399.5R13ai1i3i3i3i3i2i3i3i3i3i2hg:96oR0d950.5R1ad183.5d205d324.5d392d248d392d85d205d183.5d205hR2d512R3d324.5R4d85R5d819R6d632R7d734R8d168R9d241.5R10i96R11d85R12d512R13ai1i2i2i2i2hg:39oR0d950.5R1ad183.5d277.5d183.5d555d98.5d555d98.5d277.5d183.5d277.5hR2d281.5R3d183.5R4d98.5R5d746.5R6d469R7d648R8d168R9d241.5R10i39R11d98.5R12d281.5R13ai1i2i2i2i2hg:95oR0d950.5R1ad522d1194d522d1265.5d-10d1265.5d-10d1194d522d1194hR2d512R3d522R4d-10R5d-170R6d-241.5R7d-160R8d168R9d241.5R10i95R11d-10R12d512R13ai1i2i2i2i2hg:38oR0d950.5R1ad249d622.5d203.5d663d182.25d703.25d161d743.5d161d787.5d161d860.5d214d909d267d957.5d347d957.5d394.5d957.5d436d941.75d477.5d926d514d894d249d622.5d319.5d566.5d573.5d826.5d603d782d619.5d731.25d636d680.5d639d623.5d732d623.5d726d689.5d700d754d674d818.5d627.5d881.5d767d1024d641d1024d569.5d950.5d517.5d995d460.5d1016.75d403.5d1038.5d338d1038.5d217.5d1038.5d141d969.75d64.5d901d64.5d793.5d64.5d729.5d98d673.25d131.5d617d198.5d567.5d174.5d536d162d504.75d149.5d473.5d149.5d443.5d149.5d362.5d205d313.25d260.5d264d352.5d264d394d264d435.25d273d476.5d282d519d300d519d391d475.5d367.5d436d355.25d396.5d343d362.5d343d310d343d277.25d370.75d244.5d398.5d244.5d442.5d244.5d468d259.25d493.75d274d519.5d319.5d566.5hR2d798.5R3d767R4d64.5R5d760R6d-14.5R7d695.5R8d168R9d241.5R10i38R11d64.5R12d798.5R13ai1i3i3i3i3i3i3i2i1i2i3i3i2i3i3i2i2i2i3i3i3i3i3i3i3i3i3i3i3i3i2i3i3i3i3i3i3hg:94oR0d950.5R1ad478d277.5d749.5d556d649d556d429d358.5d209d556d108.5d556d380d277.5d478d277.5hR2d858R3d749.5R4d108.5R5d746.5R6d468R7d638R8d168R9d241.5R10i94R11d108.5R12d858R13ai1i2i2i2i2i2i2i2hg:37oR0d950.5R1ad744.5d695.5d701d695.5d676.25d732.5d651.5d769.5d651.5d835.5d651.5d900.5d676.25d937.75d701d975d744.5d975d787d975d811.75d937.75d836.5d900.5d836.5d835.5d836.5d770d811.75d732.75d787d695.5d744.5d695.5d744.5d632d823.5d632d870d687d916.5d742d916.5d835.5d916.5d929d869.75d983.75d823d1038.5d744.5d1038.5d664.5d1038.5d618d983.75d571.5d929d571.5d835.5d571.5d741.5d618.25d686.75d665d632d744.5d632d228.5d327.5d185.5d327.5d160.75d364.75d136d402d136d467d136d533d160.5d570d185d607d228.5d607d272d607d296.75d570d321.5d533d321.5d467d321.5d402.5d296.5d365d271.5d327.5d228.5d327.5d680d264d760d264d293d1038.5d213d1038.5d680d264d228.5d264d307.5d264d354.5d318.75d401.5d373.5d401.5d467d401.5d561.5d354.75d616d308d670.5d228.5d670.5d149d670.5d102.75d615.75d56.5d561d56.5d467d56.5d374d103d319d149.5d264d228.5d264hR2d973R3d916.5R4d56.5R5d760R6d-14.5R7d703.5R8d168R9d241.5R10i37R11d56.5R12d973R13ai1i3i3i3i3i3i3i3i3i1i3i3i3i3i3i3i3i3i1i3i3i3i3i3i3i3i3i1i2i2i2i2i1i3i3i3i3i3i3i3i3hg:93oR0d950.5R1ad311.5d246d311.5d1159d99.5d1159d99.5d1087.5d219d1087.5d219d317.5d99.5d317.5d99.5d246d311.5d246hR2d399.5R3d311.5R4d99.5R5d778R6d-135R7d678.5R8d168R9d241.5R10i93R11d99.5R12d399.5R13ai1i2i2i2i2i2i2i2i2hg:36oR0d950.5R1ad346d1174.5d296d1174.5d295.5d1024d243d1023d190.5d1011.75d138d1000.5d85d978d85d888d136d920d188.25d936.25d240.5d952.5d296d953d296d725d185.5d707d135.25d664d85d621d85d546d85d464.5d139.5d417.5d194d370.5d296d363.5d296d246d346d246d346d362d392.5d364d436d371.75d479.5d379.5d521d393d521d480.5d479.5d459.5d435.75d448d392d436.5d346d434.5d346d648d459.5d665.5d513d710.5d566.5d755.5d566.5d833.5d566.5d918d509.75d966.75d453d1015.5d346d1023d346d1174.5d296d639d296d434d238d440.5d207.5d467d177d493.5d177d537.5d177d580.5d205.25d604.5d233.5d628.5d296d639d346d735d346d951.5d409.5d943d441.75d915.5d474d888d474d843d474d799d443.25d773d412.5d747d346d735hR2d651.5R3d566.5R4d85R5d778R6d-150.5R7d693R8d168R9d241.5R10i36R11d85R12d651.5R13ai1i2i2i3i3i2i3i3i2i3i3i3i3i2i2i2i3i3i2i3i3i2i3i3i3i3i2i1i2i3i3i3i3i1i2i3i3i3i3hg:92oR0d950.5R1ad85d277.5d345d1119d260d1119d0d277.5d85d277.5hR2d345R3d345R4d0R5d746.5R6d-95R7d746.5R8d168R9d241.5R10i92R11d0R12d345R13ai1i2i2i2i2hg:35oR0d950.5R1ad523.5d573.5d378d573.5d336d740.5d482.5d740.5d523.5d573.5d448.5d289d396.5d496.5d542.5d496.5d595d289d675d289d623.5d496.5d779.5d496.5d779.5d573.5d604d573.5d563d740.5d722d740.5d722d817d543.5d817d491.5d1024d411.5d1024d463d817d316.5d817d265d1024d184.5d1024d236.5d817d79d817d79d740.5d255d740.5d297d573.5d136d573.5d136d496.5d316.5d496.5d367.5d289d448.5d289hR2d858R3d779.5R4d79R5d735R6d0R7d656R8d168R9d241.5R10i35R11d79R12d858R13ai1i2i2i2i2i1i2i2i2i2i2i2i2i2i2i2i2i2i2i2i2i2i2i2i2i2i2i2i2i2i2i2i2i2hg:91oR0d950.5R1ad88d246d300d246d300d317.5d180d317.5d180d1087.5d300d1087.5d300d1159d88d1159d88d246hR2d399.5R3d300R4d88R5d778R6d-135R7d690R8d168R9d241.5R10i91R11d88R12d399.5R13ai1i2i2i2i2i2i2i2i2hg:34oR0d950.5R1ad183.5d277.5d183.5d555d98.5d555d98.5d277.5d183.5d277.5d372.5d277.5d372.5d555d287.5d555d287.5d277.5d372.5d277.5hR2d471R3d372.5R4d98.5R5d746.5R6d469R7d648R8d168R9d241.5R10i34R11d98.5R12d471R13ai1i2i2i2i2i1i2i2i2i2hg:90oR0d950.5R1ad57.5d277.5d644d277.5d644d354.5d172d939d655.5d939d655.5d1024d46d1024d46d947d518d362.5d57.5d362.5d57.5d277.5hR2d701.5R3d655.5R4d46R5d746.5R6d0R7d700.5R8d168R9d241.5R10i90R11d46R12d701.5R13ai1i2i2i2i2i2i2i2i2i2i2hg:33oR0d950.5R1ad154.5d897d256d897d256d1024d154.5d1024d154.5d897d154.5d277.5d256d277.5d256d605d246d783.5d165d783.5d154.5d605d154.5d277.5hR2d410.5R3d256R4d154.5R5d746.5R6d0R7d592R8d168R9d241.5R10i33R11d154.5R12d410.5R13ai1i2i2i2i2i1i2i2i2i2i2i2hg:89oR0d950.5R1ad-2d277.5d106.5d277.5d313.5d584.5d519d277.5d627.5d277.5d363.5d668.5d363.5d1024d262d1024d262d668.5d-2d277.5hR2d625.5R3d627.5R4d-2R5d746.5R6d0R7d748.5R8d168R9d241.5R10i89R11d-2R12d625.5R13ai1i2i2i2i2i2i2i2i2i2hg:32oR0d950.5R1ahR2d325.5R3d0R4d0R5d0R6d0R7d0R8d168R9d241.5R10i32R11d0R12d325.5R13ahg:88oR0d950.5R1ad64.5d277.5d173d277.5d358.5d555d545d277.5d653.5d277.5d413.5d636d669.5d1024d561d1024d351d706.5d139.5d1024d30.5d1024d297d625.5d64.5d277.5hR2d701.5R3d669.5R4d30.5R5d746.5R6d0R7d716R8d168R9d241.5R10i88R11d30.5R12d701.5R13ai1i2i2i2i2i2i2i2i2i2i2i2i2hg:87oR0d950.5R1ad34d277.5d136d277.5d293d908.5d449.5d277.5d563d277.5d720d908.5d876.5d277.5d979d277.5d791.5d1024d664.5d1024d507d376d348d1024d221d1024d34d277.5hR2d1012.5R3d979R4d34R5d746.5R6d0R7d712.5R8d168R9d241.5R10i87R11d34R12d1012.5R13ai1i2i2i2i2i2i2i2i2i2i2i2i2i2hg:86oR0d950.5R1ad293d1024d8d277.5d113.5d277.5d350d906d587d277.5d692d277.5d407.5d1024d293d1024hR2d700.5R3d692R4d8R5d746.5R6d0R7d738.5R8d168R9d241.5R10i86R11d8R12d700.5R13ai1i2i2i2i2i2i2i2hg:85oR0d950.5R1ad89d277.5d190.5d277.5d190.5d731d190.5d851d234d903.75d277.5d956.5d375d956.5d472d956.5d515.5d903.75d559d851d559d731d559d277.5d660.5d277.5d660.5d743.5d660.5d889.5d588.25d964d516d1038.5d375d1038.5d233.5d1038.5d161.25d964d89d889.5d89d743.5d89d277.5hR2d749.5R3d660.5R4d89R5d746.5R6d-14.5R7d657.5R8d168R9d241.5R10i85R11d89R12d749.5R13ai1i2i2i3i3i3i3i2i2i2i3i3i3i3i2hg:84oR0d950.5R1ad-3d277.5d628.5d277.5d628.5d362.5d363.5d362.5d363.5d1024d262d1024d262d362.5d-3d362.5d-3d277.5hR2d625.5R3d628.5R4d-3R5d746.5R6d0R7d749.5R8d168R9d241.5R10i84R11d-3R12d625.5R13ai1i2i2i2i2i2i2i2i2hg:83oR0d950.5R1ad548d302d548d400.5d490.5d373d439.5d359.5d388.5d346d341d346d258.5d346d213.75d378d169d410d169d469d169d518.5d198.75d543.75d228.5d569d311.5d584.5d372.5d597d485.5d618.5d539.25d672.75d593d727d593d818d593d926.5d520.25d982.5d447.5d1038.5d307d1038.5d254d1038.5d194.25d1026.5d134.5d1014.5d70.5d991d70.5d887d132d921.5d191d939d250d956.5d307d956.5d393.5d956.5d440.5d922.5d487.5d888.5d487.5d825.5d487.5d770.5d453.75d739.5d420d708.5d343d693d281.5d681d168.5d658.5d118d610.5d67.5d562.5d67.5d477d67.5d378d137.25d321d207d264d329.5d264d382d264d436.5d273.5d491d283d548d302hR2d650R3d593R4d67.5R5d760R6d-14.5R7d692.5R8d168R9d241.5R10i83R11d67.5R12d650R13ai1i2i3i3i3i3i3i3i2i3i3i3i3i3i3i2i3i3i3i3i3i3i2i3i3i3i3i3i3hg:82oR0d950.5R1ad454.5d674d487d685d517.75d721d548.5d757d579.5d820d682d1024d573.5d1024d478d832.5d441d757.5d406.25d733d371.5d708.5d311.5d708.5d201.5d708.5d201.5d1024d100.5d1024d100.5d277.5d328.5d277.5d456.5d277.5d519.5d331d582.5d384.5d582.5d492.5d582.5d563d549.75d609.5d517d656d454.5d674d201.5d360.5d201.5d625.5d328.5d625.5d401.5d625.5d438.75d591.75d476d558d476d492.5d476d427d438.75d393.75d401.5d360.5d328.5d360.5d201.5d360.5hR2d711.5R3d682R4d100.5R5d746.5R6d0R7d646R8d168R9d241.5R10i82R11d100.5R12d711.5R13ai1i3i3i2i2i2i3i3i2i2i2i2i2i3i3i3i3i1i2i2i3i3i3i3i2hg:81oR0d950.5R1ad403.5d346d293.5d346d228.75d428d164d510d164d651.5d164d792.5d228.75d874.5d293.5d956.5d403.5d956.5d513.5d956.5d577.75d874.5d642d792.5d642d651.5d642d510d577.75d428d513.5d346d403.5d346d545d1010.5d678d1156d556d1156d445.5d1036.5d429d1037.5d420.25d1038d411.5d1038.5d403.5d1038.5d246d1038.5d151.75d933.25d57.5d828d57.5d651.5d57.5d474.5d151.75d369.25d246d264d403.5d264d560.5d264d654.5d369.25d748.5d474.5d748.5d651.5d748.5d781.5d696.25d874d644d966.5d545d1010.5hR2d806R3d748.5R4d57.5R5d760R6d-132R7d702.5R8d168R9d241.5R10i81R11d57.5R12d806R13ai1i3i3i3i3i3i3i3i3i1i2i2i2i3i3i3i3i3i3i3i3i3i3hg:80oR0d950.5R1ad201.5d360.5d201.5d641d328.5d641d399d641d437.5d604.5d476d568d476d500.5d476d433.5d437.5d397d399d360.5d328.5d360.5d201.5d360.5d100.5d277.5d328.5d277.5d454d277.5d518.25d334.25d582.5d391d582.5d500.5d582.5d611d518.25d667.5d454d724d328.5d724d201.5d724d201.5d1024d100.5d1024d100.5d277.5hR2d617.5R3d582.5R4d100.5R5d746.5R6d0R7d646R8d168R9d241.5R10i80R11d100.5R12d617.5R13ai1i2i2i3i3i3i3i2i1i2i3i3i3i3i2i2i2i2hg:79oR0d950.5R1ad403.5d346d293.5d346d228.75d428d164d510d164d651.5d164d792.5d228.75d874.5d293.5d956.5d403.5d956.5d513.5d956.5d577.75d874.5d642d792.5d642d651.5d642d510d577.75d428d513.5d346d403.5d346d403.5d264d560.5d264d654.5d369.25d748.5d474.5d748.5d651.5d748.5d828d654.5d933.25d560.5d1038.5d403.5d1038.5d246d1038.5d151.75d933.5d57.5d828.5d57.5d651.5d57.5d474.5d151.75d369.25d246d264d403.5d264hR2d806R3d748.5R4d57.5R5d760R6d-14.5R7d702.5R8d168R9d241.5R10i79R11d57.5R12d806R13ai1i3i3i3i3i3i3i3i3i1i3i3i3i3i3i3i3i3hg:78oR0d950.5R1ad100.5d277.5d236.5d277.5d567.5d902d567.5d277.5d665.5d277.5d665.5d1024d529.5d1024d198.5d399.5d198.5d1024d100.5d1024d100.5d277.5hR2d766R3d665.5R4d100.5R5d746.5R6d0R7d646R8d168R9d241.5R10i78R11d100.5R12d766R13ai1i2i2i2i2i2i2i2i2i2i2hg:77oR0d950.5R1ad100.5d277.5d251d277.5d441.5d785.5d633d277.5d783.5d277.5d783.5d1024d685d1024d685d368.5d492.5d880.5d391d880.5d198.5d368.5d198.5d1024d100.5d1024d100.5d277.5hR2d883.5R3d783.5R4d100.5R5d746.5R6d0R7d646R8d168R9d241.5R10i77R11d100.5R12d883.5R13ai1i2i2i2i2i2i2i2i2i2i2i2i2i2hg:76oR0d950.5R1ad100.5d277.5d201.5d277.5d201.5d939d565d939d565d1024d100.5d1024d100.5d277.5hR2d570.5R3d565R4d100.5R5d746.5R6d0R7d646R8d168R9d241.5R10i76R11d100.5R12d570.5R13ai1i2i2i2i2i2i2hg:75oR0d950.5R1ad100.5d277.5d201.5d277.5d201.5d593d536.5d277.5d666.5d277.5d296d625.5d693d1024d560d1024d201.5d664.5d201.5d1024d100.5d1024d100.5d277.5hR2d671.5R3d693R4d100.5R5d746.5R6d0R7d646R8d168R9d241.5R10i75R11d100.5R12d671.5R13ai1i2i2i2i2i2i2i2i2i2i2i2hg:74oR0d950.5R1ad100.5d277.5d201.5d277.5d201.5d972d201.5d1107d150.25d1168d99d1229d-14.5d1229d-53d1229d-53d1144d-21.5d1144d45.5d1144d73d1106.5d100.5d1069d100.5d972d100.5d277.5hR2d302R3d201.5R4d-53R5d746.5R6d-205R7d799.5R8d168R9d241.5R10i74R11d-53R12d302R13ai1i2i2i3i3i2i2i2i3i3i2hg:73oR0d950.5R1ad100.5d277.5d201.5d277.5d201.5d1024d100.5d1024d100.5d277.5hR2d302R3d201.5R4d100.5R5d746.5R6d0R7d646R8d168R9d241.5R10i73R11d100.5R12d302R13ai1i2i2i2i2hg:72oR0d950.5R1ad100.5d277.5d201.5d277.5d201.5d583.5d568.5d583.5d568.5d277.5d669.5d277.5d669.5d1024d568.5d1024d568.5d668.5d201.5d668.5d201.5d1024d100.5d1024d100.5d277.5hR2d770R3d669.5R4d100.5R5d746.5R6d0R7d646R8d168R9d241.5R10i72R11d100.5R12d770R13ai1i2i2i2i2i2i2i2i2i2i2i2i2hg:71oR0d950.5R1ad609.5d917.5d609.5d717d444.5d717d444.5d634d709.5d634d709.5d954.5d651d996d580.5d1017.25d510d1038.5d430d1038.5d255d1038.5d156.25d936.25d57.5d834d57.5d651.5d57.5d468.5d156.25d366.25d255d264d430d264d503d264d568.75d282d634.5d300d690d335d690d442.5d634d395d571d371d508d347d438.5d347d301.5d347d232.75d423.5d164d500d164d651.5d164d802.5d232.75d879d301.5d955.5d438.5d955.5d492d955.5d534d946.25d576d937d609.5d917.5hR2d793.5R3d709.5R4d57.5R5d760R6d-14.5R7d702.5R8d168R9d241.5R10i71R11d57.5R12d793.5R13ai1i2i2i2i2i2i3i3i3i3i3i3i3i3i2i3i3i3i3i3i3i3i3hg:70oR0d950.5R1ad100.5d277.5d529.5d277.5d529.5d362.5d201.5d362.5d201.5d582.5d497.5d582.5d497.5d667.5d201.5d667.5d201.5d1024d100.5d1024d100.5d277.5hR2d589R3d529.5R4d100.5R5d746.5R6d0R7d646R8d168R9d241.5R10i70R11d100.5R12d589R13ai1i2i2i2i2i2i2i2i2i2i2hg:126oR0d950.5R1ad749.5d615.5d749.5d704.5d697d744d652.25d761d607.5d778d559d778d504d778d431d748.5d425.5d746.5d423d745.5d419.5d744d412d741.5d334.5d710.5d287.5d710.5d243.5d710.5d200.5d729.75d157.5d749d108.5d790.5d108.5d701.5d161d662d205.75d644.75d250.5d627.5d299d627.5d354d627.5d427.5d657.5d432.5d659.5d435d660.5d439d662d446d664.5d523.5d695.5d570.5d695.5d613.5d695.5d655.75d676.5d698d657.5d749.5d615.5hR2d858R3d749.5R4d108.5R5d408.5R6d233.5R7d300R8d168R9d241.5R10i126R11d108.5R12d858R13ai1i2i3i3i3i3i3i3i3i3i2i3i3i3i3i3i3i3i3hg:69oR0d950.5R1ad100.5d277.5d572.5d277.5d572.5d362.5d201.5d362.5d201.5d583.5d557d583.5d557d668.5d201.5d668.5d201.5d939d581.5d939d581.5d1024d100.5d1024d100.5d277.5hR2d647R3d581.5R4d100.5R5d746.5R6d0R7d646R8d168R9d241.5R10i69R11d100.5R12d647R13ai1i2i2i2i2i2i2i2i2i2i2i2i2hg:125oR0d950.5R1ad128d1119d163d1119d233d1119d254.25d1097.5d275.5d1076d275.5d1004.5d275.5d880.5d275.5d802.5d298d767d320.5d731.5d376d718d320.5d705.5d298d670d275.5d634.5d275.5d556d275.5d432d275.5d361d254.25d339.25d233d317.5d163d317.5d128d317.5d128d246d159.5d246d284d246d325.75d282.75d367.5d319.5d367.5d430d367.5d550d367.5d624.5d394.5d653.25d421.5d682d492.5d682d523.5d682d523.5d753.5d492.5d753.5d421.5d753.5d394.5d782.5d367.5d811.5d367.5d887d367.5d1006.5d367.5d1117d325.75d1154d284d1191d159.5d1191d128d1191d128d1119hR2d651.5R3d523.5R4d128R5d778R6d-167R7d650R8d168R9d241.5R10i125R11d128R12d651.5R13ai1i2i3i3i2i3i3i3i3i2i3i3i2i2i2i3i3i2i3i3i2i2i2i3i3i2i3i3i2i2hg:68oR0d950.5R1ad201.5d360.5d201.5d941d323.5d941d478d941d549.75d871d621.5d801d621.5d650d621.5d500d549.75d430.25d478d360.5d323.5d360.5d201.5d360.5d100.5d277.5d308d277.5d525d277.5d626.5d367.75d728d458d728d650d728d843d626d933.5d524d1024d308d1024d100.5d1024d100.5d277.5hR2d788.5R3d728R4d100.5R5d746.5R6d0R7d646R8d168R9d241.5R10i68R11d100.5R12d788.5R13ai1i2i2i3i3i3i3i2i1i2i3i3i3i3i2i2hg:124oR0d950.5R1ad215d241.5d215d1265.5d130d1265.5d130d241.5d215d241.5hR2d345R3d215R4d130R5d782.5R6d-241.5R7d652.5R8d168R9d241.5R10i124R11d130R12d345R13ai1i2i2i2i2hg:67oR0d950.5R1ad659.5d335d659.5d441.5d608.5d394d550.75d370.5d493d347d428d347d300d347d232d425.25d164d503.5d164d651.5d164d799d232d877.25d300d955.5d428d955.5d493d955.5d550.75d932d608.5d908.5d659.5d861d659.5d966.5d606.5d1002.5d547.25d1020.5d488d1038.5d422d1038.5d252.5d1038.5d155d934.75d57.5d831d57.5d651.5d57.5d471.5d155d367.75d252.5d264d422d264d489d264d548.25d281.75d607.5d299.5d659.5d335hR2d715R3d659.5R4d57.5R5d760R6d-14.5R7d702.5R8d168R9d241.5R10i67R11d57.5R12d715R13ai1i2i3i3i3i3i3i3i3i3i2i3i3i3i3i3i3i3i3hg:123oR0d950.5R1ad523.5d1119d523.5d1191d492.5d1191d368d1191d325.75d1154d283.5d1117d283.5d1006.5d283.5d887d283.5d811.5d256.5d782.5d229.5d753.5d158.5d753.5d128d753.5d128d682d158.5d682d230d682d256.75d653.25d283.5d624.5d283.5d550d283.5d430d283.5d319.5d325.75d282.75d368d246d492.5d246d523.5d246d523.5d317.5d489.5d317.5d419d317.5d397.5d339.5d376d361.5d376d432d376d556d376d634.5d353.25d670d330.5d705.5d275.5d718d331d731.5d353.5d767d376d802.5d376d880.5d376d1004.5d376d1075d397.5d1097d419d1119d489.5d1119d523.5d1119hR2d651.5R3d523.5R4d128R5d778R6d-167R7d650R8d168R9d241.5R10i123R11d128R12d651.5R13ai1i2i2i3i3i2i3i3i2i2i2i3i3i2i3i3i2i2i2i3i3i2i3i3i3i3i2i3i3i2hg:66oR0d950.5R1ad201.5d667.5d201.5d941d363.5d941d445d941d484.25d907.25d523.5d873.5d523.5d804d523.5d734d484.25d700.75d445d667.5d363.5d667.5d201.5d667.5d201.5d360.5d201.5d585.5d351d585.5d425d585.5d461.25d557.75d497.5d530d497.5d473d497.5d416.5d461.25d388.5d425d360.5d351d360.5d201.5d360.5d100.5d277.5d358.5d277.5d474d277.5d536.5d325.5d599d373.5d599d462d599d530.5d567d571d535d611.5d473d621.5d547.5d637.5d588.75d688.25d630d739d630d815d630d915d562d969.5d494d1024d368.5d1024d100.5d1024d100.5d277.5hR2d702.5R3d630R4d100.5R5d746.5R6d0R7d646R8d168R9d241.5R10i66R11d100.5R12d702.5R13ai1i2i2i3i3i3i3i2i1i2i2i3i3i3i3i2i1i2i3i3i3i3i3i3i3i3i2i2hg:122oR0d950.5R1ad56.5d464d493.5d464d493.5d548d147.5d950.5d493.5d950.5d493.5d1024d44d1024d44d940d390d537.5d56.5d537.5d56.5d464hR2d537.5R3d493.5R4d44R5d560R6d0R7d516R8d168R9d241.5R10i122R11d44R12d537.5R13ai1i2i2i2i2i2i2i2i2i2i2hg:65oR0d950.5R1ad350d377d213d748.5d487.5d748.5d350d377d293d277.5d407.5d277.5d692d1024d587d1024d519d832.5d182.5d832.5d114.5d1024d8d1024d293d277.5hR2d700.5R3d692R4d8R5d746.5R6d0R7d738.5R8d168R9d241.5R10i65R11d8R12d700.5R13ai1i2i2i2i1i2i2i2i2i2i2i2i2hg:121oR0d950.5R1ad329.5d1076d290.5d1176d253.5d1206.5d216.5d1237d154.5d1237d81d1237d81d1160d135d1160d173d1160d194d1142d215d1124d240.5d1057d257d1015d30.5d464d128d464d303d902d478d464d575.5d464d329.5d1076hR2d606R3d575.5R4d30.5R5d560R6d-213R7d529.5R8d168R9d241.5R10i121R11d30.5R12d606R13ai1i3i3i2i2i2i3i3i2i2i2i2i2i2i2hg:64oR0d950.5R1ad381d755.5d381d827d416.5d867.75d452d908.5d514d908.5d575.5d908.5d610.75d867.5d646d826.5d646d755.5d646d685.5d610d644.25d574d603d513d603d452.5d603d416.75d644d381d685d381d755.5d653.5d905d623.5d943.5d584.75d961.75d546d980d494.5d980d408.5d980d354.75d917.75d301d855.5d301d755.5d301d655.5d355d593d409d530.5d494.5d530.5d546d530.5d585d549.25d624d568d653.5d606d653.5d540.5d725d540.5d725d908.5d798d897.5d839.25d841.75d880.5d786d880.5d697.5d880.5d644d864.75d597d849d550d817d510d765d444.5d690.25d409.75d615.5d375d527.5d375d466d375d409.5d391.25d353d407.5d305d439.5d226.5d490.5d182.25d573.25d138d656d138d752.5d138d832d166.75d901.5d195.5d971d250d1024d302.5d1076d371.5d1103.25d440.5d1130.5d519d1130.5d583.5d1130.5d645.75d1108.75d708d1087d760d1046.5d805d1102d742.5d1150.5d668.75d1176.25d595d1202d519d1202d426.5d1202d344.5d1169.25d262.5d1136.5d198.5d1074d134.5d1011.5d101d929.25d67.5d847d67.5d752.5d67.5d661.5d101.5d579d135.5d496.5d198.5d434d263d370.5d347.5d336.75d432d303d526.5d303d632.5d303d723.25d346.5d814d390d875.5d470d913d519d932.75d576.5d952.5d634d952.5d695.5d952.5d827d873d903d793.5d979d653.5d982d653.5d905hR2d1024R3d952.5R4d67.5R5d721R6d-178R7d653.5R8d168R9d241.5R10i64R11d67.5R12d1024R13ai1i3i3i3i3i3i3i3i3i1i3i3i3i3i3i3i3i3i2i2i2i3i3i3i3i3i3i3i3i3i3i3i3i3i3i3i3i2i3i3i3i3i3i3i3i3i3i3i3i3i3i3i3i3i2hg:120oR0d950.5R1ad562d464d359.5d736.5d572.5d1024d464d1024d301d804d138d1024d29.5d1024d247d731d48d464d156.5d464d305d663.5d453.5d464d562d464hR2d606R3d572.5R4d29.5R5d560R6d0R7d530.5R8d168R9d241.5R10i120R11d29.5R12d606R13ai1i2i2i2i2i2i2i2i2i2i2i2i2hg:63oR0d950.5R1ad195.5d897d297d897d297d1024d195.5d1024d195.5d897d294d823.5d198.5d823.5d198.5d746.5d198.5d696d212.5d663.5d226.5d631d271.5d588d316.5d543.5d345d517d357.75d493.5d370.5d470d370.5d445.5d370.5d401d337.75d373.5d305d346d251d346d211.5d346d166.75d363.5d122d381d73.5d414.5d73.5d320.5d120.5d292d168.75d278d217d264d268.5d264d360.5d264d416.25d312.5d472d361d472d440.5d472d478.5d454d512.75d436d547d391d590d347d633d323.5d656.5d313.75d669.75d304d683d300d695.5d297d706d295.5d721d294d736d294d762d294d823.5hR2d543.5R3d472R4d73.5R5d760R6d0R7d686.5R8d168R9d241.5R10i63R11d73.5R12d543.5R13ai1i2i2i2i2i1i2i2i3i3i2i3i3i3i3i3i3i2i3i3i3i3i3i3i2i3i3i3i3i2hg:119oR0d950.5R1ad43d464d135d464d250d901d364.5d464d473d464d588d901d702.5d464d794.5d464d648d1024d539.5d1024d419d565d298d1024d189.5d1024d43d464hR2d837.5R3d794.5R4d43R5d560R6d0R7d517R8d168R9d241.5R10i119R11d43R12d837.5R13ai1i2i2i2i2i2i2i2i2i2i2i2i2i2hg:62oR0d950.5R1ad108.5d520d108.5d429d749.5d661.5d749.5d744.5d108.5d977d108.5d886d623.5d703.5d108.5d520hR2d858R3d749.5R4d108.5R5d595R6d47R7d486.5R8d168R9d241.5R10i62R11d108.5R12d858R13ai1i2i2i2i2i2i2i2hg:118oR0d950.5R1ad30.5d464d128d464d303d934d478d464d575.5d464d365.5d1024d240.5d1024d30.5d464hR2d606R3d575.5R4d30.5R5d560R6d0R7d529.5R8d168R9d241.5R10i118R11d30.5R12d606R13ai1i2i2i2i2i2i2i2hg:61oR0d950.5R1ad108.5d559d749.5d559d749.5d643d108.5d643d108.5d559d108.5d763d749.5d763d749.5d848d108.5d848d108.5d763hR2d858R3d749.5R4d108.5R5d465R6d176R7d356.5R8d168R9d241.5R10i61R11d108.5R12d858R13ai1i2i2i2i2i1i2i2i2i2hg:117oR0d950.5R1ad87d803d87d464d179d464d179d799.5d179d879d210d918.75d241d958.5d303d958.5d377.5d958.5d420.75d911d464d863.5d464d781.5d464d464d556d464d556d1024d464d1024d464d938d430.5d989d386.25d1013.75d342d1038.5d283.5d1038.5d187d1038.5d137d978.5d87d918.5d87d803hR2d649R3d556R4d87R5d560R6d-14.5R7d473R8d168R9d241.5R10i117R11d87R12d649R13ai1i2i2i2i3i3i3i3i2i2i2i2i2i3i3i3i3hg:60oR0d950.5R1ad749.5d520d233.5d703.5d749.5d886d749.5d977d108.5d744.5d108.5d661.5d749.5d429d749.5d520hR2d858R3d749.5R4d108.5R5d595R6d47R7d486.5R8d168R9d241.5R10i60R11d108.5R12d858R13ai1i2i2i2i2i2i2i2hg:116oR0d950.5R1ad187.5d305d187.5d464d377d464d377d535.5d187.5d535.5d187.5d839.5d187.5d908d206.25d927.5d225d947d282.5d947d377d947d377d1024d282.5d1024d176d1024d135.5d984.25d95d944.5d95d839.5d95d535.5d27.5d535.5d27.5d464d95d464d95d305d187.5d305hR2d401.5R3d377R4d27.5R5d719R6d0R7d691.5R8d168R9d241.5R10i116R11d27.5R12d401.5R13ai1i2i2i2i2i2i3i3i2i2i2i3i3i2i2i2i2i2i2hg:59oR0d950.5R1ad120d494.5d225.5d494.5d225.5d621.5d120d621.5d120d494.5d120d897d225.5d897d225.5d983d143.5d1143d79d1143d120d983d120d897hR2d345R3d225.5R4d79R5d529.5R6d-119R7d450.5R8d168R9d241.5R10i59R11d79R12d345R13ai1i2i2i2i2i1i2i2i2i2i2i2hg:115oR0d950.5R1ad453.5d480.5d453.5d567.5d414.5d547.5d372.5d537.5d330.5d527.5d285.5d527.5d217d527.5d182.75d548.5d148.5d569.5d148.5d611.5d148.5d643.5d173d661.75d197.5d680d271.5d696.5d303d703.5d401d724.5d442.25d762.75d483.5d801d483.5d869.5d483.5d947.5d421.75d993d360d1038.5d252d1038.5d207d1038.5d158.25d1029.75d109.5d1021d55.5d1003.5d55.5d908.5d106.5d935d156d948.25d205.5d961.5d254d961.5d319d961.5d354d939.25d389d917d389d876.5d389d839d363.75d819d338.5d799d253d780.5d221d773d135.5d755d97.5d717.75d59.5d680.5d59.5d615.5d59.5d536.5d115.5d493.5d171.5d450.5d274.5d450.5d325.5d450.5d370.5d458d415.5d465.5d453.5d480.5hR2d533.5R3d483.5R4d55.5R5d573.5R6d-14.5R7d518R8d168R9d241.5R10i115R11d55.5R12d533.5R13ai1i2i3i3i3i3i3i3i2i3i3i3i3i3i3i2i3i3i3i3i3i3i2i3i3i3i3i3i3hg:58oR0d950.5R1ad120d897d225.5d897d225.5d1024d120d1024d120d897d120d494.5d225.5d494.5d225.5d621.5d120d621.5d120d494.5hR2d345R3d225.5R4d120R5d529.5R6d0R7d409.5R8d168R9d241.5R10i58R11d120R12d345R13ai1i2i2i2i2i1i2i2i2i2hg:114oR0d950.5R1ad421d550d405.5d541d387.25d536.75d369d532.5d347d532.5d269d532.5d227.25d583.25d185.5d634d185.5d729d185.5d1024d93d1024d93d464d185.5d464d185.5d551d214.5d500d261d475.25d307.5d450.5d374d450.5d383.5d450.5d395d451.75d406.5d453d420.5d455.5d421d550hR2d421R3d421R4d93R5d573.5R6d0R7d480.5R8d168R9d241.5R10i114R11d93R12d421R13ai1i3i3i3i3i2i2i2i2i2i3i3i3i3i2hg:57oR0d950.5R1ad112.5d1008.5d112.5d916.5d150.5d934.5d189.5d944d228.5d953.5d266d953.5d366d953.5d418.75d886.25d471.5d819d479d682d450d725d405.5d748d361d771d307d771d195d771d129.75d703.25d64.5d635.5d64.5d518d64.5d403d132.5d333.5d200.5d264d313.5d264d443d264d511.25d363.25d579.5d462.5d579.5d651.5d579.5d828d495.75d933.25d412d1038.5d270.5d1038.5d232.5d1038.5d193.5d1031d154.5d1023.5d112.5d1008.5d313.5d692d381.5d692d421.25d645.5d461d599d461d518d461d437.5d421.25d390.75d381.5d344d313.5d344d245.5d344d205.75d390.75d166d437.5d166d518d166d599d205.75d645.5d245.5d692d313.5d692hR2d651.5R3d579.5R4d64.5R5d760R6d-14.5R7d695.5R8d168R9d241.5R10i57R11d64.5R12d651.5R13ai1i2i3i3i3i3i3i3i3i3i3i3i3i3i3i3i3i3i1i3i3i3i3i3i3i3i3hg:113oR0d950.5R1ad151.5d744.5d151.5d846d193.25d903.75d235d961.5d308d961.5d381d961.5d423d903.75d465d846d465d744.5d465d643d423d585.25d381d527.5d308d527.5d235d527.5d193.25d585.25d151.5d643d151.5d744.5d465d940d436d990d391.75d1014.25d347.5d1038.5d285.5d1038.5d184d1038.5d120.25d957.5d56.5d876.5d56.5d744.5d56.5d612.5d120.25d531.5d184d450.5d285.5d450.5d347.5d450.5d391.75d474.75d436d499d465d549d465d464d557d464d557d1237d465d1237d465d940hR2d650R3d557R4d56.5R5d573.5R6d-213R7d517R8d168R9d241.5R10i113R11d56.5R12d650R13ai1i3i3i3i3i3i3i3i3i1i3i3i3i3i3i3i3i3i2i2i2i2i2hg:56oR0d950.5R1ad325.5d669.5d253.5d669.5d212.25d708d171d746.5d171d814d171d881.5d212.25d920d253.5d958.5d325.5d958.5d397.5d958.5d439d919.75d480.5d881d480.5d814d480.5d746.5d439.25d708d398d669.5d325.5d669.5d224.5d626.5d159.5d610.5d123.25d566d87d521.5d87d457.5d87d368d150.75d316d214.5d264d325.5d264d437d264d500.5d316d564d368d564d457.5d564d521.5d527.75d566d491.5d610.5d427d626.5d500d643.5d540.75d693d581.5d742.5d581.5d814d581.5d922.5d515.25d980.5d449d1038.5d325.5d1038.5d202d1038.5d135.75d980.5d69.5d922.5d69.5d814d69.5d742.5d110.5d693d151.5d643.5d224.5d626.5d187.5d467d187.5d525d223.75d557.5d260d590d325.5d590d390.5d590d427.25d557.5d464d525d464d467d464d409d427.25d376.5d390.5d344d325.5d344d260d344d223.75d376.5d187.5d409d187.5d467hR2d651.5R3d581.5R4d69.5R5d760R6d-14.5R7d690.5R8d168R9d241.5R10i56R11d69.5R12d651.5R13ai1i3i3i3i3i3i3i3i3i1i3i3i3i3i3i3i3i3i3i3i3i3i3i3i3i3i1i3i3i3i3i3i3i3i3hg:112oR0d950.5R1ad185.5d940d185.5d1237d93d1237d93d464d185.5d464d185.5d549d214.5d499d258.75d474.75d303d450.5d364.5d450.5d466.5d450.5d530.25d531.5d594d612.5d594d744.5d594d876.5d530.25d957.5d466.5d1038.5d364.5d1038.5d303d1038.5d258.75d1014.25d214.5d990d185.5d940d498.5d744.5d498.5d643d456.75d585.25d415d527.5d342d527.5d269d527.5d227.25d585.25d185.5d643d185.5d744.5d185.5d846d227.25d903.75d269d961.5d342d961.5d415d961.5d456.75d903.75d498.5d846d498.5d744.5hR2d650R3d594R4d93R5d573.5R6d-213R7d480.5R8d168R9d241.5R10i112R11d93R12d650R13ai1i2i2i2i2i2i3i3i3i3i3i3i3i3i1i3i3i3i3i3i3i3i3hgh";
+flash.text.Font.DEFAULT_FONT_SCALE = 9.0;
+flash.text.Font.DEFAULT_FONT_NAME = "Bitstream_Vera_Sans";
+flash.text.Font.DEFAULT_CLASS_NAME = "flash.text.Font";
+flash.text.Font.__registeredFonts = new Array();
+flash.text.TextField.mDefaultFont = "Bitstream_Vera_Sans";
+flash.text.FontInstance.mSolidFonts = new haxe.ds.StringMap();
+flash.text.TextFieldAutoSize.CENTER = "CENTER";
+flash.text.TextFieldAutoSize.LEFT = "LEFT";
+flash.text.TextFieldAutoSize.NONE = "NONE";
+flash.text.TextFieldAutoSize.RIGHT = "RIGHT";
+flash.text.TextFieldType.DYNAMIC = "DYNAMIC";
+flash.text.TextFieldType.INPUT = "INPUT";
 flash.ui.Keyboard.NUMBER_0 = 48;
 flash.ui.Keyboard.NUMBER_1 = 49;
 flash.ui.Keyboard.NUMBER_2 = 50;
@@ -13085,6 +14289,8 @@ haxe.Template.expr_trim = new EReg("^[ ]*([^ ]+)[ ]*$","");
 haxe.Template.expr_int = new EReg("^[0-9]+$","");
 haxe.Template.expr_float = new EReg("^([+-]?)(?=\\d|,\\d)\\d*(,\\d*)?([Ee]([+-]?\\d+))?$","");
 haxe.Template.globals = { };
+haxe.Unserializer.DEFAULT_RESOLVER = Type;
+haxe.Unserializer.BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%:";
 haxe.ds.ObjectMap.count = 0;
 haxe.xml.Parser.escapes = (function($this) {
 	var $r;
@@ -13109,6 +14315,8 @@ nx3.Constants.SIGN_PARENTHESIS_WIDTH = 4.4;
 nx3.Constants.HEAD_ADJUST_X = 0;
 nx3.Constants.COMPLEX_COLLISION_ADJUST_X = 3.0;
 nx3.Constants.NOTE_STEM_X_NORMAL = 1.6;
+nx3.Constants.HEAD_HALFWIDTH_NORMAL = 1.6;
+nx3.Constants.HEAD_HALFWIDTH_WIDE = 2.0;
 nx3.elements.EKey.Sharp6 = new nx3.elements.EKey(6);
 nx3.elements.EKey.Sharp5 = new nx3.elements.EKey(5);
 nx3.elements.EKey.Sharp4 = new nx3.elements.EKey(4);
@@ -13122,79 +14330,41 @@ nx3.elements.EKey.Flat3 = new nx3.elements.EKey(-3);
 nx3.elements.EKey.Flat4 = new nx3.elements.EKey(-4);
 nx3.elements.EKey.Flat5 = new nx3.elements.EKey(-5);
 nx3.elements.EKey.Flat6 = new nx3.elements.EKey(-6);
-nx3.elements.ENoteValue.DOT = 1.5;
-nx3.elements.ENoteValue.DOTDOT = 1.75;
-nx3.elements.ENoteValue.TRI = 2 / 3;
-nx3.elements.ENoteValue.N1 = 4;
-nx3.elements.ENoteValue.N2 = 2;
-nx3.elements.ENoteValue.N8 = .5;
-nx3.elements.ENoteValue.N16 = .25;
-nx3.elements.ENoteValue.N32 = .125;
-nx3.elements.ENoteValue.Nv1 = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N1 * 3024,nx3.elements.EHeadValuetype.HVT1);
-nx3.elements.ENoteValue.Nv1dot = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N1 * 3024 * nx3.elements.ENoteValue.DOT,nx3.elements.EHeadValuetype.HVT1,0,0,1);
-nx3.elements.ENoteValue.Nv1ddot = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N1 * 3024 * nx3.elements.ENoteValue.DOTDOT,nx3.elements.EHeadValuetype.HVT1,0,0,2);
-nx3.elements.ENoteValue.Nv1tri = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N1 * 3024 * nx3.elements.ENoteValue.TRI,nx3.elements.EHeadValuetype.HVT1);
-nx3.elements.ENoteValue.Nv2 = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N2 * 3024,nx3.elements.EHeadValuetype.HVT2,1);
-nx3.elements.ENoteValue.Nv2dot = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N2 * 3024 * nx3.elements.ENoteValue.DOT,nx3.elements.EHeadValuetype.HVT2,1,0,1);
-nx3.elements.ENoteValue.Nv2ddot = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N2 * 3024 * nx3.elements.ENoteValue.DOTDOT,nx3.elements.EHeadValuetype.HVT2,1,0,2);
-nx3.elements.ENoteValue.Nv2tri = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N2 * 3024 * nx3.elements.ENoteValue.TRI,nx3.elements.EHeadValuetype.HVT2,1);
-nx3.elements.ENoteValue.Nv4 = new nx3.elements.ENoteValue(3024,nx3.elements.EHeadValuetype.HVT4,1,0,0);
-nx3.elements.ENoteValue.Nv4dot = new nx3.elements.ENoteValue(3024 * nx3.elements.ENoteValue.DOT,nx3.elements.EHeadValuetype.HVT4,1,0,1);
-nx3.elements.ENoteValue.Nv4ddot = new nx3.elements.ENoteValue(3024 * nx3.elements.ENoteValue.DOTDOT,nx3.elements.EHeadValuetype.HVT4,1,0,2);
-nx3.elements.ENoteValue.Nv4tri = new nx3.elements.ENoteValue(3024 * nx3.elements.ENoteValue.TRI,nx3.elements.EHeadValuetype.HVT4,1,0,0);
-nx3.elements.ENoteValue.Nv8 = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N8 * 3024,nx3.elements.EHeadValuetype.HVT4,1,1,0);
-nx3.elements.ENoteValue.Nv8dot = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N8 * 3024 * nx3.elements.ENoteValue.DOT,nx3.elements.EHeadValuetype.HVT4,1,1,1);
-nx3.elements.ENoteValue.Nv8ddot = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N8 * 3024 * nx3.elements.ENoteValue.DOTDOT,nx3.elements.EHeadValuetype.HVT4,1,1,2);
-nx3.elements.ENoteValue.Nv8tri = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N8 * 3024 * nx3.elements.ENoteValue.TRI,nx3.elements.EHeadValuetype.HVT4,1,1,0);
-nx3.elements.ENoteValue.Nv16 = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N16 * 3024,nx3.elements.EHeadValuetype.HVT4,1,2,0);
-nx3.elements.ENoteValue.Nv16dot = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N16 * 3024 * nx3.elements.ENoteValue.DOT,nx3.elements.EHeadValuetype.HVT4,1,2,1);
-nx3.elements.ENoteValue.Nv16ddot = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N16 * 3024 * nx3.elements.ENoteValue.DOTDOT,nx3.elements.EHeadValuetype.HVT4,1,2,2);
-nx3.elements.ENoteValue.Nv16tri = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N16 * 3024 * nx3.elements.ENoteValue.TRI,nx3.elements.EHeadValuetype.HVT4,1,2,0);
-nx3.elements.ENoteValue.Nv32 = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N32 * 3024,nx3.elements.EHeadValuetype.HVT4,1,3,0);
-nx3.elements.ENoteValue.Nv32dot = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N32 * 3024 * nx3.elements.ENoteValue.DOT,nx3.elements.EHeadValuetype.HVT4,1,3,1);
-nx3.elements.ENoteValue.Nv32ddot = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N32 * 3024 * nx3.elements.ENoteValue.DOTDOT,nx3.elements.EHeadValuetype.HVT4,1,3,2);
-nx3.elements.ENoteValue.Nv32tri = new nx3.elements.ENoteValue(nx3.elements.ENoteValue.N32 * 3024 * nx3.elements.ENoteValue.TRI,nx3.elements.EHeadValuetype.HVT4,1,3,0);
+nx3.elements.ENoteValTools.DOT = 1.5;
+nx3.elements.ENoteValTools.DOTDOT = 1.75;
+nx3.elements.ENoteValTools.TRI = 0.66666666;
+nx3.elements.ENoteValTools.N1 = 4;
+nx3.elements.ENoteValTools.N2 = 2;
+nx3.elements.ENoteValTools.N4 = 1;
+nx3.elements.ENoteValTools.N8 = .5;
+nx3.elements.ENoteValTools.N16 = .25;
+nx3.elements.ENoteValTools.N32 = .125;
+nx3.elements.ENoteValTools.valNv1 = 12096;
+nx3.elements.ENoteValTools.valNv1dot = 18144;
+nx3.elements.ENoteValTools.valNv1ddot = 21168;
+nx3.elements.ENoteValTools.valNv1tri = 8063;
+nx3.elements.ENoteValTools.valNv2 = 6048;
+nx3.elements.ENoteValTools.valNv2dot = 9072;
+nx3.elements.ENoteValTools.valNv2ddot = 10584;
+nx3.elements.ENoteValTools.valNv2tri = 4031;
+nx3.elements.ENoteValTools.valNv4 = 3024;
+nx3.elements.ENoteValTools.valNv4dot = 4536;
+nx3.elements.ENoteValTools.valNv4ddot = 5292;
+nx3.elements.ENoteValTools.valNv4tri = 2015;
+nx3.elements.ENoteValTools.valNv8 = 1512;
+nx3.elements.ENoteValTools.valNv8dot = 2268;
+nx3.elements.ENoteValTools.valNv8ddot = 2646;
+nx3.elements.ENoteValTools.valNv8tri = 1007;
+nx3.elements.ENoteValTools.valNv16 = 756;
+nx3.elements.ENoteValTools.valNv16dot = 1134;
+nx3.elements.ENoteValTools.valNv16ddot = 1323;
+nx3.elements.ENoteValTools.valNv16tri = 503;
+nx3.elements.ENoteValTools.valNv32 = 378;
+nx3.elements.ENoteValTools.valNv32dot = 567;
+nx3.elements.ENoteValTools.valNv32ddot = 661;
+nx3.elements.ENoteValTools.valNv32tri = 251;
 nx3.elements._ULevel.ULevel_Impl_.MAX_LEVEL = 15;
 nx3.elements._ULevel.ULevel_Impl_.MIN_LEVEL = -15;
-nx3.elements.tools.SignsTools.BREAKPOINT = 5;
-nx3.io.BarXML.XBAR = "bar";
-nx3.io.BarXML.XBAR_TYPE = "type";
-nx3.io.BarXML.XBAR_TIME = "time";
-nx3.io.BarXML.XBAR_TIMEDISPLAY = "timedisplay";
-nx3.io.HeadXML.XHEAD = "head";
-nx3.io.HeadXML.XHEAD_TYPE = "type";
-nx3.io.HeadXML.XHEAD_LEVEL = "level";
-nx3.io.HeadXML.XHEAD_SIGN = "sign";
-nx3.io.HeadXML.XHEAD_TIE = "tie";
-nx3.io.HeadXML.XHEAD_TIETO = "tieto";
-nx3.io.NoteXML.XNOTE = "note";
-nx3.io.NoteXML.XPAUSE = "pause";
-nx3.io.NoteXML.XPAUSE_LEVEL = "level";
-nx3.io.NoteXML.XLYRIC = "lyric";
-nx3.io.NoteXML.XLYRIC_TEXT = "text";
-nx3.io.NoteXML.XUNDEFINED = "undefined";
-nx3.io.NoteXML.XNOTE_TYPE = "type";
-nx3.io.NoteXML.XNOTE_TYPE_NOTE = "note";
-nx3.io.NoteXML.XNOTE_TYPE_NOTATION_VARIANT = "variant";
-nx3.io.NoteXML.XNOTE_VALUE = "value";
-nx3.io.NoteXML.XNOTE_DIRECTION = "direction";
-nx3.io.NoteXML.XNOTE_TYPE_PAUSE = "pause";
-nx3.io.NoteXML.XNOTE_TYPE_NOTE_ARTICULATIONS = "articulations";
-nx3.io.NoteXML.LIST_DELIMITER = ";";
-nx3.io.NoteXML.XNOTE_TYPE_NOTE_ATTRIBUTES = "attributes";
-nx3.io.NoteXML.XOFFSET = "offset";
-nx3.io.NoteXML.XLYRIC_CONTINUATION = "continuation";
-nx3.io.NoteXML.XLYRIC_FORMAT = "format";
-nx3.io.PartXML.XPART = "part";
-nx3.io.PartXML.XPART_TYPE = "type";
-nx3.io.PartXML.XPART_CLEF = "clef";
-nx3.io.PartXML.XPART_CLEFDISPLAY = "clefdisplay";
-nx3.io.PartXML.XPART_KEY = "key";
-nx3.io.PartXML.XPART_KEYDISPLAY = "keydisplay";
-nx3.io.VoiceXML.XVOICE = "voice";
-nx3.io.VoiceXML.XVOICE_TYPE = "type";
-nx3.io.VoiceXML.XVOICE_BARPAUSE = "barpause";
-nx3.io.VoiceXML.XVOICE_DIRECTION = "direction";
 nx3.render.scaling.Scaling.MID = { linesWidth : 0.8, space : 12.0, halfSpace : 6.0, noteWidth : 10, halfNoteWidth : 5, quarterNoteWidth : 2.5, signPosWidth : 14.0, svgScale : .27, svgX : 0, svgY : -55.0, fontScaling : 6.0};
 nx3.render.scaling.Scaling.NORMAL = { linesWidth : .5, space : 8.0, halfSpace : 4.0, noteWidth : 7.0, halfNoteWidth : 3.5, quarterNoteWidth : 1.75, signPosWidth : 9.5, svgScale : .175, svgX : 0, svgY : -36.0, fontScaling : 4.0};
 nx3.render.scaling.Scaling.SMALL = { linesWidth : .5, space : 6.0, halfSpace : 3.0, noteWidth : 5.0, halfNoteWidth : 2.5, quarterNoteWidth : 1.25, signPosWidth : 7.0, svgScale : .14, svgX : 0, svgY : -28.5, fontScaling : 3.0};

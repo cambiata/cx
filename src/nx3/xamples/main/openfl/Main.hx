@@ -6,27 +6,14 @@ import flash.display.Sprite;
 import flash.display.Sprite;
 import flash.events.Event;
 import flash.Lib;
-import nx3.elements.DComplex;
-import nx3.elements.ENoteValue;
-import nx3.elements.ESign;
+import nx3.elements.NBar;
 import nx3.elements.NPart;
-import nx3.elements.NVoice;
-import nx3.render.FontRenderer;
-import nx3.render.MultiRenderer;
-import nx3.render.svg.Elements;
-import nx3.render.svg.ShapeTools;
-import nx3.render.tools.RenderTools;
-import nx3.xamples.Examples;
-import nx3.xamples.main.openfl.Main.OpenFlMain;
+import nx3.elements.VTree;
 import nx3.render.scaling.Scaling;
-import nx3.render.FrameRenderer;
-import nx3.elements.NHead;
-import nx3.elements.NNote;
-import nx3.elements.DNote;
-import nx3.elements.EDirectionUD;
-import nx3.elements.ENoteType;
-import nx3.io.NoteXML;
-import nx3.io.VoiceXML;
+import nx3.render.scaling.TScaling;
+import nx3.test.QVoice;
+import nx3.test.TestVRender.DevRenderer;
+
 
 
 /**
@@ -39,10 +26,26 @@ class Main extends OpenFlMain
 	/* ENTRY POINT */
 	override function start()
 	{
-		this.addChild(Examples.basic2()); 
 		
+		var renderer = new DevRenderer(this, Scaling.BIG);		
 		
-		Examples.illustration1();
+		var npart0 = new NPart([
+			new QVoice([2], [-2]),
+			new QVoice([.4, 8], [2, 2]),
+		]);
+		var npart1 = new NPart([
+			new QVoice([8, .4], [-2, -2]),
+			new QVoice([4, 4], [2, 2])
+		]);
+		
+		var vbar = new VBar(new NBar([npart0, npart1]));
+		
+		//this.assertEquals(positionsColumns.keys().keysToArray().toString(), [0, 1512, 3024, 4536].toString());
+		renderer.setDefaultXY(200, 80);
+		renderer.drawVBarNotelines(vbar, 400, -30);
+		renderer.drawVBarColumns(vbar);
+		renderer.drawVBarComplexes(vbar);
+		renderer.drawVBarVoices(vbar);	
 	}
 }
 

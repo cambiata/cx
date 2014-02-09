@@ -4,7 +4,7 @@
 -lib actuate
 -lib svg
 -cp ../../src/
--D tools=1.2.6
+-D tools=1.2.9
 -D html5
 -D web
 -dce std

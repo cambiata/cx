@@ -2,6 +2,8 @@ package nx3.test;
 
 
 import haxe.ds.IntMap.IntMap;
+import nx3.render.svg.Elements;
+import nx3.render.svg.ShapeTools;
 
 import nx3.elements.EDirectionUAD;
 import nx3.elements.ENoteVal;
@@ -24,16 +26,18 @@ import nme.text.TextFormat;
 import nme.text.TextField;
 import nme.display.Sprite;
 import nme.Lib;
+import nme.display.Shape;
 #else
 import flash.text.TextFormat;
 import flash.text.TextField;
 import flash.display.Sprite;
 import flash.Lib;
+import flash.display.Shape;
 #end
 
 using nx3.elements.VTree.VMapTools;
 using cx.ArrayTools;
-
+using nx3.elements.ENoteValTools;
 /**
  * ...
  * @author Jonas Nyström
@@ -188,7 +192,8 @@ class DevRenderer extends FrameRenderer
 					var vvoice = vpart.getVNotesVVoices().get(vnote);
 					var vvoiceIdx = vpart.getVVoices().index(vvoice);
 					var color = (vvoiceIdx == 0) ? 0x00FF00 : 0x0000FF;
-					this.vnoteheads(vnote, colx, party, color);
+					//this.vnoteheads(vnote, colx, party, color);
+					this.heads(colx, party, vnote);
 				}
 			}
 			party += this.partdistance;
@@ -225,6 +230,35 @@ class DevRenderer extends FrameRenderer
 			party += this.partdistance;
 		}
 	}
+	
+	public function heads(x:Float, y:Float, vnote:VNote):Void 
+	{
+		var xmlStr:String = null;
+
+		switch (vnote.nnote.value.head())
+		{
+			case nx3.elements.EHeadValuetype.HVT1: xmlStr = Elements.noteWhole;
+			case nx3.elements.EHeadValuetype.HVT2: xmlStr = Elements.noteWhite;
+			default: xmlStr = Elements.noteBlack;
+		}
+		
+		for (rect in vnote.getVHeadsRectangles())
+		{
+			
+			var shape:Shape = ShapeTools.getShape(xmlStr, this.scaling);
+			drawShape(shape, x, y, rect);
+		}			
+	}	
+	
+	function drawShape(shape:Shape, x:Float, y:Float, rect:Rectangle)
+	{
+		if (shape == null) return;
+		shape.x = x + rect.x * scaling.halfNoteWidth + scaling.svgX;
+		shape.y = y + rect.y * scaling.halfSpace + scaling.svgY;
+		this.target.addChild(shape);
+	}	
+	
+	
 }
 
 
