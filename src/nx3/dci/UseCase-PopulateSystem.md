@@ -1,3 +1,6 @@
+## PopulateSystem - Use case
+
+<pre>
 Take care of first bar in bar array
 Reset BarConfig attributes visibility for current bar
     System has no bars
@@ -22,3 +25,4 @@ Sum system width + current bar attributes and content width
 Add the current bar and BarConfig to System
 Increase the system width by the total width of the current bar
 Shift the current bar from the bar array
+</pre>
