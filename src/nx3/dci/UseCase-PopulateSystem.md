@@ -1,5 +1,5 @@
 Take care of first bar in bar array
-Reset BarConfig attributes visibility for current bar
+?Reset BarConfig attributes visibility for current bar
     System has no bars
         Set BarConfig to SystemConfig
         Bar attributes differs from PrevBarConfig

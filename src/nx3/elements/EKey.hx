@@ -4,6 +4,26 @@ package nx3.elements;
  * ...
  * @author 
  */
+
+ enum EKey
+ {
+	 Sharp6;
+	 Sharp5;
+	 Sharp4;
+	 Sharp3;
+	 Sharp2;
+	 Sharp1;
+	 Natural;
+	 Flat1;
+	 Flat2;
+	 Flat3;
+	 Flat4;
+	 Flat5;
+	 Flat6;
+ }
+ 
+ 
+ /*
 class EKey 
 {
 	static public var Sharp6 		= new EKey(6);
@@ -51,3 +71,4 @@ class EKey
 		
 	}
 }
+*/
