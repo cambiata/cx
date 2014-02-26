@@ -35,6 +35,12 @@ class ArrayTools
 	static public function fromHashKeys<T>(it : Iterator<T>) : Array<T> {
 		return ArrayTools.fromIterator(it);
 	}
+	
+	static  public function allNull<T>(it: Array<T>): Bool
+	{
+		for (v in it) if (v != null) return false;
+		return true;
+	}
 
 	#if (flash)
 	static public function fromVector<T>(v: Vector<T>): Array<T> {		

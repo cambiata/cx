@@ -12,6 +12,7 @@ import nx3.elements.ENoteType;
 import nx3.elements.ENoteVal;
 import nx3.elements.ENoteVal;
 import nx3.elements.ETime;
+import nx3.elements.VSystemGenerator;
 //import nx3.elements.ENoteValue;
 import nx3.elements.ESign;
 import nx3.elements.NBar;
@@ -974,6 +975,330 @@ class TestV extends  haxe.unit.TestCase
 		var vcomplex = vbar.getVParts().second().getVComplexes().second();
 		var vcolumn = vbar.getVColumns().second();
 		this.assertEquals(vbar.getVComplexesVColumns().get(vcomplex), vcolumn);
+	}
+	
+	/*
+	public function testSystemGeneratorOneBar()
+	{		
+		// One part
+		// Get attributes from bar
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])], EClef.ClefC, EKey.Flat2);
+		bars.push(new VBar(new NBar([n0], ETime.Time2_4)));
+		var generator = new VSystemGenerator(bars,  { showFirstClef:true, showFirstKey:true, showFirstTime:true }, null,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();
+		this.assertEquals(system.bars.first().actAttributes.clefs.toString(), [EClef.ClefC].toString());
+		this.assertEquals(system.bars.first().actAttributes.keys.toString(), [EKey.Flat2].toString());
+		this.assertEquals(system.bars.first().actAttributes.time, ETime.Time2_4);
+
+		// One part
+		// Get attributes from defaults
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])]);
+		bars.push(new VBar(new NBar([n0])));
+		var generator = new VSystemGenerator(bars,  { showFirstClef:true, showFirstKey:true, showFirstTime:true }, null,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();
+		this.assertEquals(system.bars.first().actAttributes.clefs.toString(), [EClef.ClefC].toString());
+		this.assertEquals(system.bars.first().actAttributes.keys.toString(), [EKey.Natural].toString());		
+		this.assertEquals(system.bars.first().actAttributes.time, ETime.Time3_4);		
+		
+		// One part
+		// Get attributes from previous bar
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])]);
+		bars.push(new VBar(new NBar([n0])));
+		var prevBarAttributes:VBarAttributes = { clefs: [EClef.ClefF], keys: [EKey.Sharp4], time:ETime.Time5_8 };
+		var generator = new VSystemGenerator(bars,  { showFirstClef:true, showFirstKey:true, showFirstTime:true }, prevBarAttributes,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();
+		this.assertEquals(system.bars.first().actAttributes.clefs.toString(), [EClef.ClefF].toString());
+		this.assertEquals(system.bars.first().actAttributes.keys.toString(), [EKey.Sharp4].toString());		
+		this.assertEquals(system.bars.first().actAttributes.time, ETime.Time5_8);				
+		
+		// Two parts
+		// Get clefs/keys from bar and defaults
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])], EClef.ClefF);
+		var n1 = new NPart([new QVoice([4, 4, 4, 4])], EKey.Sharp5);
+		bars.push(new VBar(new NBar([n0, n1])));
+		var generator = new VSystemGenerator(bars,  { showFirstClef:true, showFirstKey:true, showFirstTime:true }, null,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();
+		this.assertEquals(system.bars.first().actAttributes.clefs.toString(), [EClef.ClefF, EClef.ClefC].toString());
+		this.assertEquals(system.bars.first().actAttributes.keys.toString(), [EKey.Natural, EKey.Sharp5].toString());
+		
+		// Two parts
+		// Get clefs/keys from previous bar
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])]);
+		var n1 = new NPart([new QVoice([4, 4, 4, 4])]);
+		bars.push(new VBar(new NBar([n0, n1])));
+		var prevBarAttributes:VBarAttributes = { clefs: [EClef.ClefF, EClef.ClefG], keys: [EKey.Sharp1, EKey.Flat3], time:ETime.Time5_8 };		
+		var generator = new VSystemGenerator(bars,  { showFirstClef:true, showFirstKey:true, showFirstTime:true }, prevBarAttributes,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();
+		this.assertEquals(system.bars.first().actAttributes.clefs.toString(), [EClef.ClefF, EClef.ClefG].toString());
+		this.assertEquals(system.bars.first().actAttributes.keys.toString(), [EKey.Sharp1, EKey.Flat3].toString());		
+		
+		// Two parts
+		// Get clefs/keys from bar and previous bar
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])], EClef.ClefC);
+		var n1 = new NPart([new QVoice([4, 4, 4, 4])], EKey.Sharp5);
+		bars.push(new VBar(new NBar([n0, n1])));
+		var prevBarAttributes:VBarAttributes = { clefs: [EClef.ClefF, EClef.ClefG], keys: [EKey.Sharp1, EKey.Flat3], time:ETime.Time5_8 };		
+		var generator = new VSystemGenerator(bars,  { showFirstClef:true, showFirstKey:true, showFirstTime:true }, prevBarAttributes,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();
+		this.assertEquals(system.bars.first().actAttributes.clefs.toString(), [EClef.ClefC, EClef.ClefG].toString());
+		this.assertEquals(system.bars.first().actAttributes.keys.toString(), [EKey.Sharp1, EKey.Sharp5].toString());						
+	}
+	*/
+	public function testSystemGeneratorBarConfigResult()
+	{
+		
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])], EClef.ClefC);
+		bars.push(new VBar(new NBar([n0])));
+		var generator = new VSystemGenerator(bars,  { showFirstClef:true, showFirstKey:true, showFirstTime:true }, null,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();				
+		this.assertEquals(system.bars.first().barConfig.showClef, true);
+
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])], EClef.ClefC);
+		bars.push(new VBar(new NBar([n0])));
+		var generator = new VSystemGenerator(bars,  { showFirstClef:false, showFirstKey:true, showFirstTime:true }, null,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();				
+		this.assertEquals(system.bars.first().barConfig.showClef, false);
+		
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])]);
+		bars.push(new VBar(new NBar([n0])));
+		var generator = new VSystemGenerator(bars,  { showFirstClef:true, showFirstKey:true, showFirstTime:true }, null,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();				
+		this.assertEquals(system.bars.first().barConfig.showClef, false);
+		
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])]);
+		bars.push(new VBar(new NBar([n0])));
+		var prevBarAttributes:VBarAttributes = { clefs: [EClef.ClefF], keys: [EKey.Sharp4], time:ETime.Time5_8 };
+		var generator = new VSystemGenerator(bars,  { showFirstClef:true, showFirstKey:true, showFirstTime:true }, prevBarAttributes,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();				
+		this.assertEquals(system.bars.first().barConfig.showClef, true);		
+		this.assertEquals(system.bars.first().actAttributes.clefs.toString(), [EClef.ClefF].toString());
+		
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])], EDisplayALN.Never);
+		bars.push(new VBar(new NBar([n0])));
+		var prevBarAttributes:VBarAttributes = { clefs: [EClef.ClefF], keys: [EKey.Sharp4], time:ETime.Time5_8 };
+		var generator = new VSystemGenerator(bars,  { showFirstClef:true, showFirstKey:true, showFirstTime:true }, prevBarAttributes,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();				
+		this.assertEquals(system.bars.first().barConfig.showClef, false);				
+		
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])], EClef.ClefC, EDisplayALN.Always);
+		bars.push(new VBar(new NBar([n0])));
+		var generator = new VSystemGenerator(bars,  { showFirstClef:false, showFirstKey:true, showFirstTime:true }, null,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();				
+		this.assertEquals(system.bars.first().barConfig.showClef, true);		
+		
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])], EDisplayALN.Always);
+		bars.push(new VBar(new NBar([n0])));
+		var generator = new VSystemGenerator(bars,  { showFirstClef:false, showFirstKey:true, showFirstTime:true }, null,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();				
+		this.assertEquals(system.bars.first().barConfig.showClef, true);						
+		
+		// Keys
+		
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])], EKey.Sharp3);
+		bars.push(new VBar(new NBar([n0])));
+		var generator = new VSystemGenerator(bars,  { showFirstClef:true, showFirstKey:true, showFirstTime:true }, null,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();				
+		this.assertEquals(system.bars.first().barConfig.showKey, true);
+
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])], EKey.Sharp3);
+		bars.push(new VBar(new NBar([n0])));
+		var generator = new VSystemGenerator(bars,  { showFirstClef:false, showFirstKey:false, showFirstTime:true }, null,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();				
+		this.assertEquals(system.bars.first().barConfig.showKey, false);
+		
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])]);
+		bars.push(new VBar(new NBar([n0])));
+		var generator = new VSystemGenerator(bars,  { showFirstClef:true, showFirstKey:true, showFirstTime:true }, null,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();				
+		this.assertEquals(system.bars.first().barConfig.showKey, false);
+		
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])]);
+		bars.push(new VBar(new NBar([n0])));
+		var prevBarAttributes:VBarAttributes = { clefs: [EClef.ClefF], keys: [EKey.Sharp4], time:ETime.Time5_8 };
+		var generator = new VSystemGenerator(bars,  { showFirstClef:true, showFirstKey:true, showFirstTime:true }, prevBarAttributes,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();				
+		this.assertEquals(system.bars.first().barConfig.showKey, true);		
+		this.assertEquals(system.bars.first().actAttributes.keys.toString(), [EKey.Sharp4].toString());
+		
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])], EDisplayALN.Layout, EDisplayALN.Never);
+		bars.push(new VBar(new NBar([n0])));
+		var prevBarAttributes:VBarAttributes = { clefs: [EClef.ClefF], keys: [EKey.Sharp4], time:ETime.Time5_8 };
+		var generator = new VSystemGenerator(bars,  { showFirstClef:true, showFirstKey:true, showFirstTime:true }, prevBarAttributes,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();				
+		this.assertEquals(system.bars.first().barConfig.showKey, false);				
+		
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])], null, null, null, EKey.Sharp3, EDisplayALN.Always);
+		bars.push(new VBar(new NBar([n0])));
+		var generator = new VSystemGenerator(bars,  { showFirstClef:false, showFirstKey:false, showFirstTime:true }, null,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();				
+		this.assertEquals(system.bars.first().barConfig.showKey, true);
+		this.assertEquals(system.bars.first().actAttributes.keys.toString(), [EKey.Sharp3].toString());
+		
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])],null, null, null, null, EDisplayALN.Always);
+		bars.push(new VBar(new NBar([n0])));
+		var generator = new VSystemGenerator(bars,  { showFirstClef:false, showFirstKey:true, showFirstTime:true }, null,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();				
+		this.assertEquals(system.bars.first().barConfig.showKey, true);					
+		this.assertEquals(system.bars.first().actAttributes.keys.toString(), [EKey.Natural].toString());
+		
+		// Time
+		
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])]);
+		bars.push(new VBar(new NBar([n0], ETime.Time2_8)));
+		var generator = new VSystemGenerator(bars,  { showFirstClef:true, showFirstKey:true, showFirstTime:true }, null,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();				
+		this.assertEquals(system.bars.first().barConfig.showTime, true);		
+		
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])]);
+		bars.push(new VBar(new NBar([n0], ETime.Time2_8)));
+		var generator = new VSystemGenerator(bars,  { showFirstClef:true, showFirstKey:true, showFirstTime:false }, null,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();				
+		this.assertEquals(system.bars.first().barConfig.showTime, false);			
+
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])]);
+		bars.push(new VBar(new NBar([n0], ETime.Time2_8, EDisplayALN.Always)));
+		var generator = new VSystemGenerator(bars,  { showFirstClef:true, showFirstKey:true, showFirstTime:false }, null,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();				
+		this.assertEquals(system.bars.first().barConfig.showTime, true);			
+		
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])]);
+		bars.push(new VBar(new NBar([n0], ETime.Time2_8, EDisplayALN.Never)));
+		var generator = new VSystemGenerator(bars,  { showFirstClef:true, showFirstKey:true, showFirstTime:true }, null,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();				
+		this.assertEquals(system.bars.first().barConfig.showTime, false);				
+	
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])]);
+		bars.push(new VBar(new NBar([n0])));
+		var prevBarAttributes:VBarAttributes = { clefs: [EClef.ClefF], keys: [EKey.Sharp4], time:ETime.Time5_8 };
+		var generator = new VSystemGenerator(bars,  { showFirstClef:true, showFirstKey:true, showFirstTime:true }, prevBarAttributes,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();				
+		this.assertEquals(system.bars.first().barConfig.showTime, true);
+		this.assertEquals(system.bars.first().actAttributes.time, ETime.Time5_8);
+	}
+	
+	public function testSystemGeneratorBarConfigResultTwoParts()
+	{
+		
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])], EClef.ClefC);
+		var n1 = new NPart([new QVoice([4, 4, 4, 4])], EClef.ClefF);
+		bars.push(new VBar(new NBar([n0, n1])));
+		var generator = new VSystemGenerator(bars,  { showFirstClef:true, showFirstKey:true, showFirstTime:true }, null,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();				
+		this.assertEquals(system.bars.first().barConfig.showClef, true);	
+
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])], EClef.ClefC, EDisplayALN.Never);
+		var n1 = new NPart([new QVoice([4, 4, 4, 4])], EClef.ClefF);
+		bars.push(new VBar(new NBar([n0, n1])));
+		var generator = new VSystemGenerator(bars,  { showFirstClef:true, showFirstKey:true, showFirstTime:true }, null,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();				
+		this.assertEquals(system.bars.first().barConfig.showClef, true);			
+		
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])], EClef.ClefC);
+		var n1 = new NPart([new QVoice([4, 4, 4, 4])], EClef.ClefF, EDisplayALN.Never);
+		bars.push(new VBar(new NBar([n0, n1])));
+		var generator = new VSystemGenerator(bars,  { showFirstClef:true, showFirstKey:true, showFirstTime:true }, null,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();				
+		this.assertEquals(system.bars.first().barConfig.showClef, true);		
+		
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])], EClef.ClefC, EDisplayALN.Never);
+		var n1 = new NPart([new QVoice([4, 4, 4, 4])], EClef.ClefF, EDisplayALN.Never);
+		bars.push(new VBar(new NBar([n0, n1])));
+		var generator = new VSystemGenerator(bars,  { showFirstClef:true, showFirstKey:true, showFirstTime:true }, null,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();				
+		this.assertEquals(system.bars.first().barConfig.showClef, false);			
+	
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])], EClef.ClefC, EDisplayALN.Always);
+		var n1 = new NPart([new QVoice([4, 4, 4, 4])], EClef.ClefF);
+		bars.push(new VBar(new NBar([n0, n1])));		
+		var generator = new VSystemGenerator(bars,  { showFirstClef:false, showFirstKey:true, showFirstTime:true }, null,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();				
+		this.assertEquals(system.bars.first().barConfig.showClef, true);				
+		
+	}
+	
+	
+	public function testSystemGeneratorContentWidth()
+	{
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])]);
+		bars.push(new VBar(new NBar([n0])));
+		var generator = new VSystemGenerator(bars,  { showFirstClef:true, showFirstKey:true, showFirstTime:true }, null,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();		
+		this.assertEquals(system.bars.first().width, 120);
+		this.assertTrue(true);
+		
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])], EClef.ClefF, EKey.Sharp4);
+		bars.push(new VBar(new NBar([n0], ETime.Time5_8)));
+		var generator = new VSystemGenerator(bars,  { showFirstClef:true, showFirstKey:true, showFirstTime:true }, null,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();		
+		this.assertEquals(system.bars.first().width, 190);
+		this.assertTrue(true);	
+		
+		var bars:Array<VBar> = [];
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])]);
+		bars.push(new VBar(new NBar([n0])));
+		var prevBarAttributes:VBarAttributes = { clefs: [EClef.ClefF], keys: [EKey.Sharp4], time:ETime.Time5_8 };		
+		var generator = new VSystemGenerator(bars,  { showFirstClef:true, showFirstKey:true, showFirstTime:true }, prevBarAttributes,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();		
+		this.assertEquals(system.bars.first().width, 190);
+		this.assertTrue(true);
+		
+	}
+	
+	public function testSystemGeneratorTwoBars()	
+	{	
+		var bars:Array<VBar> = [];		
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])], EClef.ClefG, EKey.Flat3);
+		bars.push(new VBar(new NBar([n0], ETime.Time3_2)));
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])]);
+		bars.push(new VBar(new NBar([n0])));		
+		var generator = new VSystemGenerator(bars,  { showFirstClef:true, showFirstKey:true, showFirstTime:true }, null,  { width:400, height:600 } );
+		var system:VSystem = generator.getSystem();		
+		//this.assertEquals(system.bars.first().width, 120);		
+		this.assertEquals(system.bars.length, 2);
+		this.assertEquals(system.bars.first().actAttributes.clefs.toString(), [EClef.ClefG].toString());
+		this.assertEquals(system.bars.second().actAttributes.clefs.toString(), [EClef.ClefG].toString());
+		this.assertEquals(system.bars.first().actAttributes.keys.toString(), [ EKey.Flat3].toString());
+		this.assertEquals(system.bars.second().actAttributes.keys.toString(), [ EKey.Flat3].toString());		
+		this.assertEquals(system.bars.first().actAttributes.time, ETime.Time3_2);
+		this.assertEquals(system.bars.first().barConfig.showClef, true);
+		this.assertEquals(system.bars.second().barConfig.showClef, false);
+		this.assertEquals(system.bars.first().barConfig.showKey, true);
+		this.assertEquals(system.bars.second().barConfig.showKey, false);		
+		this.assertEquals(system.bars.first().barConfig.showTime, true);
+		this.assertEquals(system.bars.second().barConfig.showTime, false);				
+		
 	}
 	
 	

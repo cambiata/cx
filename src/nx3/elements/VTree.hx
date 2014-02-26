@@ -153,7 +153,11 @@ typedef VBars = Array<VBar>;
 		 {
 			 if (vpart.npart.clefDisplay == null) result = EDisplayALN.Layout;
 			 if (vpart.npart.clefDisplay == EDisplayALN.Layout) result = EDisplayALN.Layout;
-			 if (vpart.npart.clefDisplay == EDisplayALN.Always) result = EDisplayALN.Always;
+			 if (vpart.npart.clefDisplay == EDisplayALN.Always) 
+			 {
+				 result = EDisplayALN.Always;
+				 break;
+			 }
 		 }
 		 return result;
 	 }
@@ -165,7 +169,11 @@ typedef VBars = Array<VBar>;
 		 {
 			 if (vpart.npart.keyDisplay == null) result = EDisplayALN.Layout;
 			 if (vpart.npart.keyDisplay == EDisplayALN.Layout) result = EDisplayALN.Layout;
-			 if (vpart.npart.keyDisplay == EDisplayALN.Always) result = EDisplayALN.Always;
+			 if (vpart.npart.keyDisplay == EDisplayALN.Always) 
+			 {
+				 result = EDisplayALN.Always;
+				 break;
+			 }
 			 
 		 }
 		 return result;
