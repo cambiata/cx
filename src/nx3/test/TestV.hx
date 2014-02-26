@@ -3,11 +3,15 @@ package nx3.test;
 import cx.ArrayTools;
 import haxe.ds.IntMap.IntMap;
 import nx3.Constants;
+import nx3.elements.EClef;
 import nx3.elements.EDirectionUAD;
 import nx3.elements.EDirectionUD;
+import nx3.elements.EDisplayALN;
+import nx3.elements.EKey;
 import nx3.elements.ENoteType;
 import nx3.elements.ENoteVal;
 import nx3.elements.ENoteVal;
+import nx3.elements.ETime;
 //import nx3.elements.ENoteValue;
 import nx3.elements.ESign;
 import nx3.elements.NBar;
@@ -873,6 +877,48 @@ class TestV extends  haxe.unit.TestCase
 		var positionsColumns : IntMap<VColumn> = vbar.getPositionsColumns();
 		this.assertEquals(positionsColumns.keys().keysToArray().toString(), [0, 1512, 3024, 4536].toString());
 	}
+
+	public function testVBarAttributes()
+	{
+		var n0 = new NPart([new QVoice([4, 4, 4])], EClef.ClefC, EKey.Flat2);
+		var n1 = new NPart([new QVoice([4, 4, 4])], EClef.ClefF, EKey.Sharp3);
+		var b0 = new VBar(new NBar([n0, n1], ETime.Time12_8));
+		this.assertEquals(b0.clefs.toString(), [EClef.ClefC, EClef.ClefF].toString());
+		this.assertEquals(b0.keys.toString(), [EKey.Flat2, EKey.Sharp3].toString());
+		this.assertEquals(b0.time, ETime.Time12_8);
+		
+		var n0 = new NPart([new QVoice([4, 4, 4])], EKey.Flat2);
+		var n1 = new NPart([new QVoice([4, 4, 4])], EClef.ClefF);
+		var b0 = new VBar(new NBar([n0, n1]));
+		this.assertEquals(b0.clefs.toString(), [null, EClef.ClefF].toString());
+		this.assertEquals(b0.keys.toString(), [EKey.Flat2, null].toString());
+		this.assertEquals(b0.time, null);
+		this.assertEquals(b0.displayClefs, EDisplayALN.Layout);
+		this.assertEquals(b0.displayKeys, EDisplayALN.Layout);
+		this.assertEquals(b0.displayTime, EDisplayALN.Layout);
+		
+		var n0 = new NPart([new QVoice([4, 4, 4])], EClef.ClefC, EDisplayALN.Never, EKey.Flat2, EDisplayALN.Never);
+		var n1 = new NPart([new QVoice([4, 4, 4])], EClef.ClefF, EDisplayALN.Never, EKey.Sharp3, EDisplayALN.Never);
+		var b0 = new VBar(new NBar([n0, n1], ETime.Time12_8, EDisplayALN.Never));
+		this.assertEquals(b0.clefs.toString(), [EClef.ClefC, EClef.ClefF].toString());
+		this.assertEquals(b0.keys.toString(), [EKey.Flat2, EKey.Sharp3].toString());
+		this.assertEquals(b0.time, ETime.Time12_8);
+		this.assertEquals(b0.displayClefs, EDisplayALN.Never);
+		this.assertEquals(b0.displayKeys, EDisplayALN.Never);
+		this.assertEquals(b0.displayTime, EDisplayALN.Never);
+
+		var n0 = new NPart([new QVoice([4, 4, 4])], EClef.ClefC, EDisplayALN.Never, EKey.Flat2, EDisplayALN.Always);
+		var n1 = new NPart([new QVoice([4, 4, 4])], EClef.ClefF, EDisplayALN.Layout, EKey.Sharp3, EDisplayALN.Never);
+		var b0 = new VBar(new NBar([n0, n1], ETime.Time12_8, EDisplayALN.Always));
+		this.assertEquals(b0.clefs.toString(), [EClef.ClefC, EClef.ClefF].toString());
+		this.assertEquals(b0.keys.toString(), [EKey.Flat2, EKey.Sharp3].toString());
+		this.assertEquals(b0.time, ETime.Time12_8);
+		this.assertEquals(b0.displayClefs, EDisplayALN.Layout);
+		this.assertEquals(b0.displayKeys, EDisplayALN.Always);
+		this.assertEquals(b0.displayTime, EDisplayALN.Always);
+	}
+	
+	
 	
 	
 	public function testVBarVNoteVColumn()

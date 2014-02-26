@@ -16,9 +16,11 @@ class NPart
 			throw "For now, NPart can't have more than two voices";
 		}
 		this.type = (type == null) ? EPartType.Normal : type;
-		this.clef = (clef == null) ? EClef.ClefG : clef;
+		//this.clef = (clef == null) ? EClef.ClefG : clef;
+		this.clef = clef;
 		this.clefDisplay = (clefDisplay == null) ? EDisplayALN.Layout : clefDisplay;
-		this.key = (key == null) ? EKey.Natural : key;
+		//this.key = (key == null) ? EKey.Natural : key;
+		this.key = key;
 		this.keyDisplay = (keyDisplay == null) ? EDisplayALN.Layout : keyDisplay;
 	}
 

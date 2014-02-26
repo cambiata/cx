@@ -31,12 +31,151 @@ using nx3.elements.ENoteValTools;
 
 class VTree { } // Just the module name...
 
+
+class VBarConfig 
+ {
+	 public var showClef:Bool;
+	 public var showKey:Bool;
+	 public var showTime:Bool;
+	
+	 public var showCautClef:Bool;
+	 public var showCautKey:Bool;
+	public var  showCautTime:Bool;
+	
+	public var calculatedWidth:Float;
+	
+	public function new(showClef:Bool=false, showKey:Bool=false, showTime:Bool=false, showCautClef:Bool=false, showCautKey:Bool=false, showCautTime:Bool=false) 
+	{ 
+		this.showClef = showClef;
+		this.showKey = showKey;
+		this.showTime = showTime;
+		this.showCautClef = showCautClef;
+		this.showCautKey = showCautKey;
+		this.showCautTime = showCautTime;
+	};
+ }
+ 
+
+
+ typedef VBarAttributes = 
+ {
+	 clefs:EClefs,
+	 keys:EKeys,
+	 time:ETime,
+ }
+  
+ typedef VSystemBar = 
+ {
+	 bar:VBar,
+	 barConfig:VBarConfig,
+	 width:Float,
+	 actAttributes:VBarAttributes,
+	 caAttributes:VBarAttributes,
+ }
+  
+ class VSystem 
+ {
+	public var bars:Array<VSystemBar>;	
+	public var width:Float;
+	public function new()
+	{
+		this.bars = new Array<VSystemBar>();
+		this.width = 0;
+	}
+	public var status:VSystemStatus;
+ }
+ 
+ typedef VSystemConfig =
+ {
+	showFirstClef:Bool, 
+	showFirstKey:Bool, 
+	showFirstTime:Bool,
+	?showFollowingClef:Bool, 
+	?showFollowingKey:Bool, 
+	?showFollowingTime:Bool,	
+	
+ }
+
+  enum VSystemStatus
+ {
+	 Ok;
+	 Problem(code:Int, msg:String);
+ }
+
+
+
+
+
+
 typedef VBars = Array<VBar>;
 
  class VBar
  {
 	 public var nbar(default, null):NBar;
 	 public function new(nbar:NBar) this.nbar = nbar;
+
+	 public var clefs(get, null):EClefs;
+	 public var keys(get, null):EKeys;
+	 public var time(get, null):ETime;	 
+	 
+	 
+	 var _clefs:EClefs = null;
+	 private function get_clefs():EClefs
+	 {
+		 if (this._clefs != null) return this._clefs;
+		 this._clefs = new EClefs();
+		 for (vpart in this.getVParts()) this._clefs.push(vpart.npart.clef);
+		 return this._clefs;
+	 }
+
+	 var _keys:EKeys = null;
+	 private function get_keys():EKeys
+	 {
+		 if (this._keys != null) return this._keys;
+		 this._keys = new EKeys();
+		 for (vpart in this.getVParts()) this._keys.push(vpart.npart.key);
+		 return this._keys;
+	 }
+	 
+	 private function get_time():ETime
+	 {
+		 return this.nbar.time;
+	 }
+
+	 public var displayClefs(get, null):EDisplayALN;
+	 public var displayKeys(get, null):EDisplayALN;
+	 public var displayTime(get, null):EDisplayALN;
+	 
+	 public function get_displayClefs():EDisplayALN
+	 {
+		 var result = EDisplayALN.Never;
+		 for (vpart in this.getVParts())
+		 {
+			 if (vpart.npart.clefDisplay == null) result = EDisplayALN.Layout;
+			 if (vpart.npart.clefDisplay == EDisplayALN.Layout) result = EDisplayALN.Layout;
+			 if (vpart.npart.clefDisplay == EDisplayALN.Always) result = EDisplayALN.Always;
+		 }
+		 return result;
+	 }
+
+	 public function get_displayKeys():EDisplayALN
+	 {
+		 var result = EDisplayALN.Never;
+		 for (vpart in this.getVParts())
+		 {
+			 if (vpart.npart.keyDisplay == null) result = EDisplayALN.Layout;
+			 if (vpart.npart.keyDisplay == EDisplayALN.Layout) result = EDisplayALN.Layout;
+			 if (vpart.npart.keyDisplay == EDisplayALN.Always) result = EDisplayALN.Always;
+			 
+		 }
+		 return result;
+	 }
+	 
+	 public function get_displayTime():EDisplayALN
+	 {
+		 var result = this.nbar.timeDisplay != null ? this.nbar.timeDisplay : EDisplayALN.Layout;
+		 return this.nbar.timeDisplay;
+	 }
 	 
 	 var vparts:VParts;
 	 public function getVParts():VParts
@@ -132,6 +271,7 @@ typedef VBars = Array<VBar>;
 		 }
 		 return this.vcomplexesVColumns;
 	 }
+
 	 
  }
  
