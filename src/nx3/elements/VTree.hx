@@ -22,6 +22,7 @@ import nx3.elements.VTree.VPartbeamgroupsDirectionCalculator;
 import nx3.geom.Rectangle;
 import nx3.geom.Rectangles;
 
+using cx.ArrayTools;
 using nx3.elements.VTree.VMapTools;
 using nx3.elements.ENoteValTools;
 /**
@@ -83,6 +84,12 @@ class VBarConfig
 		this.width = 0;
 	}
 	public var status:VSystemStatus;
+	
+	public function getLastBarAttributes():VBarAttributes
+	{
+		if (bars.length == 0) return null;
+		return bars.last().actAttributes;
+	}
  }
  
  typedef VSystemConfig =

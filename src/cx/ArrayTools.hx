@@ -115,7 +115,13 @@ class ArrayTools
 		return array[3];
 	}
 	
+	static public function fifth<T>(array:Array<T>): T {
+		return array[4];
+	}
 	
+	static public function sixth<T>(array:Array<T>): T {
+		return array[5];
+	}	
 	
 	public static function shuffle<T>(a : Array<T>) : Array<T> {
 		var t = range(a.length);
