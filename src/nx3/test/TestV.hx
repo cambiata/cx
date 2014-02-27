@@ -23,12 +23,13 @@ import nx3.elements.VTree;
 import nx3.elements.VTree;
 import nx3.geom.Rectangle;
 import nx3.test.QNote.QNote16;
+import nx3.test.QNote.QNote1;
 import nx3.test.QNote.QNote2;
 import nx3.test.QNote.QNote4;
 import nx3.test.QNote.QNote8;
 
 using nx3.elements.VTree.VMapTools;
-using cx.ArrayTools;
+using cx.ArrayTools; 
 using nx3.elements.ENoteValTools;
 /**
  * ...
@@ -620,6 +621,60 @@ class TestV extends  haxe.unit.TestCase
 		
 	}
 	
+	public function testVComplexHeadsCollisionOffset()
+	{
+		var n0 = new VNote(new QNote( -2));
+		var n1 = new VNote(new QNote(-2));
+		var complex = new VComplex([n0, n1]);
+		this.assertEquals(complex.getHeadsCollisionOffsetX(n0), 0);
+		this.assertEquals(complex.getHeadsCollisionOffsetX(n1), Constants.COMPLEX_COLLISION_ADJUST_X);
+		
+		var n0 = new VNote(new QNote( -2));
+		var n1 = new VNote(new QNote(-1));
+		var complex = new VComplex([n0, n1]);
+		this.assertEquals(complex.getHeadsCollisionOffsetX(n0), 0);
+		this.assertEquals(complex.getHeadsCollisionOffsetX(n1), Constants.COMPLEX_COLLISION_ADJUST_X_HALF);		
+		
+		var n0 = new VNote(new QNote( -2));
+		var n1 = new VNote(new QNote(0));
+		var complex = new VComplex([n0, n1]);
+		this.assertEquals(complex.getHeadsCollisionOffsetX(n0), 0);
+		this.assertEquals(complex.getHeadsCollisionOffsetX(n1), 0);					
+	}
+	
+	public function testVComplexHeadsRect()
+	{
+		var n0 = new VNote(new QNote4(0));
+		var complex = new VComplex([n0]);		
+		var rect = complex.getHeadsRect();
+		this.assertEquals(rect.toString(), new Rectangle( -Constants.HEAD_HALFWIDTH_NORMAL, -1, Constants.HEAD_HALFWIDTH_NORMAL * 2, 2).toString());
+		
+		var n0 = new VNote(new QNote1(0));
+		var complex = new VComplex([n0]);		
+		var rect = complex.getHeadsRect();
+		this.assertEquals(rect.toString(), new Rectangle( -Constants.HEAD_HALFWIDTH_WIDE, -1, Constants.HEAD_HALFWIDTH_WIDE * 2, 2).toString());
+
+		var n0 = new VNote(new QNote4(-1));
+		var n1 = new VNote(new QNote4(1));
+		var complex = new VComplex([n0, n1]);		
+		var rect = complex.getHeadsRect();
+		this.assertEquals(rect.toString(), new Rectangle( -Constants.HEAD_HALFWIDTH_NORMAL, -2, Constants.HEAD_HALFWIDTH_NORMAL * 2, 4).toString());
+
+		var n0 = new VNote(new QNote4(-1));
+		var n1 = new VNote(new QNote4(0));
+		var complex = new VComplex([n0, n1]);		
+		var rect = complex.getHeadsRect();
+		this.assertEquals(rect.toString(), new Rectangle( -Constants.HEAD_HALFWIDTH_NORMAL, -2, Constants.HEAD_HALFWIDTH_NORMAL * 2 + Constants.COMPLEX_COLLISION_ADJUST_X_HALF, 3).toString());
+
+		var n0 = new VNote(new QNote4(-1));
+		var n1 = new VNote(new QNote4(-1));
+		var complex = new VComplex([n0, n1]);		
+		var rect = complex.getHeadsRect();
+		this.assertEquals(rect.toString(), new Rectangle( -Constants.HEAD_HALFWIDTH_NORMAL, -2, Constants.HEAD_HALFWIDTH_NORMAL * 2 + Constants.COMPLEX_COLLISION_ADJUST_X, 2).toString());
+		
+	}
+	
+	
 	public function testVPartComplexesGenerator()
 	{
 		var vvoice = new VVoice(new QVoice([4, 8, 8, 2]));
@@ -677,6 +732,10 @@ class TestV extends  haxe.unit.TestCase
 		var positions = vpart.getPositionsVComplexes().keys().keysToArray();
 		this.assertEquals([0, 3024, 4536, 6048].toString(), positions.toString());
 	}
+	
+	
+	
+	
 	
 	public function testPartbeamgroups()
 	{

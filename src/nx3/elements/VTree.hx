@@ -982,11 +982,8 @@ class VComplexVNotesXCalculator
 		{
 			return [0, 0];
 		}
-		throw "shouldn't happen";
-		
+		throw "shouldn't happen";		
 	}
-	
-	
 	
 }
 
@@ -1075,13 +1072,10 @@ class VComplex
 		this.vnotes = vnotes;
 	}
 	
-	
 	var signs:VSigns;
 	var visibleSigns:VSigns;
 	var calculator:VComplexSignsCalculator;
-	
-	
-	
+
 	public function getVNotes():VNotes
 	{
 		return this.vnotes;
@@ -1102,7 +1096,70 @@ class VComplex
 		this.getSigns();
 		return this.visibleSigns;
 	}	
+	
+	public function getHeadsCollisionOffsetX(note:VNote):Float
+	{
+		if (this.vnotes.length == 1) return 0;
+		
+		if (note == this.vnotes.first()) return 0;
+		if (note == this.vnotes.second()) 
+		{
+			var firstnote = this.vnotes.first();
+			var secondnote = note;
+			var diff = secondnote.nnote.getTopLevel() - firstnote.nnote.getBottomLevel();
+			//if (firstnote.nnote.getBottomLevel() > (secondnote.nnote.getTopLevel()-1) return 0
+			if (diff <= 0) 
+			{
+				return Constants.COMPLEX_COLLISION_ADJUST_X;
+			}
+			else if (diff == 1)
+			{
+				return Constants.COMPLEX_COLLISION_ADJUST_X_HALF;
+			}
+			else
+				return 0;
+		}
+		throw "asking for a note that's not a part of current complex";
+		return 0;
+	}
+	
+	public function getHeadsRect():Rectangle
+	{
+		var firstnote = this.vnotes.first();
+		var firstnoteHeadRects = firstnote.getVHeadsRectangles();
+		var firstnoteRect = firstnoteHeadRects.first().clone();
+		if (firstnoteHeadRects.length > 1)
+		{
+			for (i in 1...firstnoteHeadRects.length)
+			{
+				firstnoteRect.union(firstnoteHeadRects[i]);				
+			}
+		}
+		
+		if (this.vnotes.length == 1) return firstnoteRect;		
+		
+		var secondnote = this.vnotes.second();
+		var secondnoteHeadRects = secondnote.getVHeadsRectangles();
+		var secondnoteRect = secondnoteHeadRects.first().clone();				
+		if (secondnoteHeadRects.length > 1)
+		{
+			for (i in 1...secondnoteHeadRects.length)
+			{
+				secondnoteRect.union(secondnoteHeadRects[i]);				
+			}
+		}
+		
+		//-------------------------------------
+		var xoffset = getHeadsCollisionOffsetX(secondnote);
+		secondnoteRect.offset(xoffset, 0);
+		//---------------------------------------
+		
+		firstnoteRect = firstnoteRect.union(secondnoteRect);		
+		return firstnoteRect;
+	}
+	
 }
+
 
 typedef VBeamframe = 
 {

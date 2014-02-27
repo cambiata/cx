@@ -154,9 +154,9 @@ class VSystemGenerator
 	
 	function adaptBarConfig(bar:VBar, barConfig:VBarConfig, prevBarAttributes:VBarAttributes, showClef:Bool, showKey:Bool, showTime:Bool) 
 	{
-		//showClef = (showClef == null) ? false : showClef;
-		//showKey = (showKey == null) ? false : showKey;
-		//showTime = (showTime == null) ? false : showTime;
+		showClef = (showClef == true) ? true : false;
+		showKey = (showKey == true) ? true : false;
+		showTime = (showTime == true) ? true : false;
 		var barAttributes:VBarAttributes = getBarAttributes(bar);
 		
 		switch bar.displayClefs

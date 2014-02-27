@@ -82,20 +82,20 @@ class ArrayTools
 		
 	}
 	
-	static public function first<T>(array:Array<T>): T {
+	inline static public function first<T>(array:Array<T>): T {
 		return array[0];
 	}
 	
-	static public function isFirst<T>(array:Array<T>, item:T) :Bool {
+	inline static public function isFirst<T>(array:Array<T>, item:T) :Bool {
 		return (array[0] == item);
 	}
 	
 
-	static public function last<T>(array:Array<T>): T {
+	inline static public function last<T>(array:Array<T>): T {
 		return array[array.length-1];
 	}
 	
-	static public function isLast<T>(array:Array<T>, item:T) :Bool {
+	inline static public function isLast<T>(array:Array<T>, item:T) :Bool {
 		return (array[array.length-1] == item);
 	}	
 
@@ -103,23 +103,23 @@ class ArrayTools
 		return Lambda.indexOf(array, item);
 	}
 
-	static public function second<T>(array:Array<T>): T {
+	inline static public function second<T>(array:Array<T>): T {
 		return array[1];
 	}
 	
-	static public function third<T>(array:Array<T>): T {
+	inline static public function third<T>(array:Array<T>): T {
 		return array[2];
 	}
 
-	static public function fourth<T>(array:Array<T>): T {
+	inline static public function fourth<T>(array:Array<T>): T {
 		return array[3];
 	}
 	
-	static public function fifth<T>(array:Array<T>): T {
+	inline static public function fifth<T>(array:Array<T>): T {
 		return array[4];
 	}
 	
-	static public function sixth<T>(array:Array<T>): T {
+	inline static public function sixth<T>(array:Array<T>): T {
 		return array[5];
 	}	
 	
