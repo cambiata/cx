@@ -1,10 +1,12 @@
 package nx3.elements;
 import cx.EncodeTools;
 import cx.EnumTools;
-import nx3.dci.PopulateSystem.BarAttributes;
+import nx3.elements.VSystemGenerator.IBarWidthCalculator;
 import nx3.elements.VSystemGenerator.Pagesize;
+import nx3.elements.VSystemGenerator.SimpleBarWidthCalculator;
 import nx3.elements.VTree;
 using cx.ArrayTools;
+
 /**
  * ...
  * @author Jonas Nyström
@@ -17,20 +19,22 @@ class VSystemGenerator
 	static public var defaultClef:EClef = EClef.ClefF;
 	static public var defaultKey:EKey = EKey.Flat2;
 	static public var defaultTime:ETime = ETime.Time6_4;
+	
 	var bars:VBars;
 	var systemConfig:VSystemConfig;
 	var prevBarAttributes:VBarAttributes;
 	var pagesize:Pagesize;
 	var system:VSystem;
+	var barWidthCalculator:IBarWidthCalculator;
 
-	public function new(bars:VBars, systemConfig:VSystemConfig, prevBarAttributes:VBarAttributes, pagesize:Pagesize) 
+	public function new(bars:VBars, systemConfig:VSystemConfig, prevBarAttributes:VBarAttributes, pagesize:Pagesize, barWidthCalculator:IBarWidthCalculator=null) 
 	{
 		this.bars = bars;
 		this.systemConfig = systemConfig;
 		this.prevBarAttributes = prevBarAttributes;
 		this.pagesize = pagesize;
 		this.system = new VSystem();
-		
+		this.barWidthCalculator = (barWidthCalculator != null) ? barWidthCalculator : new SimpleBarWidthCalculator();
 	}
 	
 	public function getSystem():VSystem
@@ -150,9 +154,9 @@ class VSystemGenerator
 	
 	function adaptBarConfig(bar:VBar, barConfig:VBarConfig, prevBarAttributes:VBarAttributes, showClef:Bool, showKey:Bool, showTime:Bool) 
 	{
-		showClef = (showClef == null) ? false : showClef;
-		showKey = (showKey == null) ? false : showKey;
-		showTime = (showTime == null) ? false : showTime;
+		//showClef = (showClef == null) ? false : showClef;
+		//showKey = (showKey == null) ? false : showKey;
+		//showTime = (showTime == null) ? false : showTime;
 		var barAttributes:VBarAttributes = getBarAttributes(bar);
 		
 		switch bar.displayClefs
@@ -213,11 +217,6 @@ class VSystemGenerator
 		}				
 	}
 	
-	function adaptCurrentBarConfigToFollowingSystemBarConditions(bar:VBar, barConfig:VBarConfig, systemConfig:VSystemConfig, prevBarAttributes:VBarAttributes) 
-	{
-
-	}	
-	
 	function getBarWidth(bar:VBar, barAttributes:VBarAttributes, barConfig:VBarConfig, cautAttributes:VBarAttributes=null) : Float
 	{
 		var width = 0.0;
@@ -225,7 +224,8 @@ class VSystemGenerator
 		var clefsWidth = 0.0;
 		if (barConfig.showClef)
 		{
-			for (clef in barAttributes.clefs) clefsWidth = Math.max(clefsWidth, AttributesTools.getClefWidth(clef));			
+			
+			for (clef in barAttributes.clefs) clefsWidth = Math.max(clefsWidth, this.barWidthCalculator.getClefWidth(clef));			
 		}
 		width += clefsWidth;
 		//trace(width);
@@ -233,19 +233,19 @@ class VSystemGenerator
 		var keysWidth = 0.0;
 		if (barConfig.showKey)
 		{
-			for (key in barAttributes.keys) keysWidth = Math.max(keysWidth, AttributesTools.getKeyWidth(key));			
+			for (key in barAttributes.keys) keysWidth = Math.max(keysWidth, this.barWidthCalculator.getKeyWidth(key));			
 		}
 		width += keysWidth;
 		//trace(width);
 		
 		var timeWidth = 0.0;
-		if (barConfig.showTime) timeWidth += AttributesTools.getTimeWidth(barAttributes.time);		
+		if (barConfig.showTime) timeWidth += this.barWidthCalculator.getTimeWidth(barAttributes.time);		
 		width += timeWidth;
 		//trace(width);		
 		
 		//------------------------------------------------------------------------------------------
 		//trace(bar.getValue());
-		var contentWidth:Float = AttributesTools.quickValueToWidth(bar.getValue());
+		var contentWidth:Float = this.barWidthCalculator.getContentWidth(bar);
 		width += contentWidth;
 		//trace(width);
 		
@@ -254,7 +254,7 @@ class VSystemGenerator
 		var clefsWidth = 0.0;
 		if (barConfig.showCautClef && cautAttributes != null)
 		{
-			for (clef in cautAttributes.clefs) clefsWidth = Math.max(clefsWidth, AttributesTools.getClefWidth(clef));			
+			for (clef in cautAttributes.clefs) clefsWidth = Math.max(clefsWidth, this.barWidthCalculator.getClefWidth(clef));			
 		}
 		width += clefsWidth;
 		//trace(width);
@@ -262,14 +262,14 @@ class VSystemGenerator
 		var keysWidth = 0.0;
 		if (barConfig.showCautKey && cautAttributes != null)
 		{
-			for (key in cautAttributes.keys) keysWidth = Math.max(keysWidth, AttributesTools.getKeyWidth(key));			
+			for (key in cautAttributes.keys) keysWidth = Math.max(keysWidth, this.barWidthCalculator.getKeyWidth(key));			
 		}
 		width += keysWidth;
 		//trace(width);
 		
 		var timeWidth = 0.0;
 		if (barConfig.showCautTime && cautAttributes != null) 
-			timeWidth += AttributesTools.getTimeWidth(cautAttributes.time);		
+			timeWidth += this.barWidthCalculator.getTimeWidth(cautAttributes.time);		
 		width += timeWidth;
 		
 		
@@ -330,7 +330,6 @@ class VSystemGenerator
 	
 	function arrayBNullOrDiffers<T>(itemA:Array<T>, itemB:Array<T>):Bool
 	{		
-		
 		if (itemB.allNull()) return false;
 		
 		for (i in 0...itemA.length)
@@ -338,8 +337,6 @@ class VSystemGenerator
 			if (itemB[i] != null && (itemB[i] != itemA[i])) return true;
 		}
 		return false;
-		
-		//return (itemB.toString() != itemA.toString());
 	}	
 
 	function nullOrDiffers<T>(itemA:T, itemB:T):Bool
@@ -347,21 +344,26 @@ class VSystemGenerator
 		if (itemB == null) return false;
 		return (itemB != itemA);
 	}	
-	
-	
-	
 }
 
-
- class AttributesTools 
+ interface IBarWidthCalculator
  {
-	 static public function getClefWidth(clef:EClef):Float
+	 function getClefWidth(clef:EClef):Float;
+	 function getKeyWidth(key:EKey):Float;
+	 function getTimeWidth(time:ETime):Float;
+	 function getContentWidth(bar:VBar):Float;
+ }
+ 
+ class SimpleBarWidthCalculator implements IBarWidthCalculator
+ {
+	 public function new() { };
+	 public function getClefWidth(clef:EClef):Float
 	 {
 		 if (clef == null) return 0;
-		 return 20;
+		 return 20;		 
 	 }
 	 
-	 static public function getKeyWidth(key:EKey):Float
+	 public function getKeyWidth(key:EKey):Float
 	 {
 		 if (key == null) return 0;
 		 return switch key
@@ -373,16 +375,19 @@ class VSystemGenerator
 			case EKey.Sharp5, EKey.Flat5: 50;
 			case EKey.Sharp6, EKey.Flat6: 60;
 			 default: 0;
-		 }
+		 }		 
 	 }
 	 
-	 static public function getTimeWidth(time:ETime):Float
+	 public function getTimeWidth(time:ETime):Float
 	 {
-		 return 10;
+		if (time == null) return 0;
+		 return 10;		 
 	 }
 	 
-	 static public function  quickValueToWidth(value:Int):Float
+	 public function getContentWidth(bar:VBar):Float
 	 {
-		return Std.int(value / 100);				 
+		 return Std.int(bar.getValue() / 100);		
 	 }
+	 
  }
+ 

@@ -10,7 +10,6 @@ import nx3.elements.EDisplayALN;
 import nx3.elements.EKey;
 import nx3.elements.ENoteType;
 import nx3.elements.ENoteVal;
-import nx3.elements.ENoteVal;
 import nx3.elements.ETime;
 import nx3.elements.VSystemGenerator;
 //import nx3.elements.ENoteValue;
@@ -20,8 +19,8 @@ import nx3.elements.NNote;
 import nx3.elements.NPart;
 import nx3.elements.NVoice;
 import nx3.elements.VTree;
-import nx3.elements.VTree.VNote;
-import nx3.elements.VTree.VVoice;
+import nx3.elements.VTree;
+import nx3.elements.VTree;
 import nx3.geom.Rectangle;
 import nx3.test.QNote.QNote16;
 import nx3.test.QNote.QNote2;
@@ -519,7 +518,6 @@ class TestV extends  haxe.unit.TestCase
 		this.assertEquals(beamgroups.length, 3);
 		this.assertEquals(beamgroups.first().getValue(), ENoteVal.Nv4.value());
 	}
-	
 	
 	public function testBeamgroupFrame() 
 	{
@@ -1353,7 +1351,7 @@ class TestV extends  haxe.unit.TestCase
 		//this.assertEquals(barConfToArr( system.bars.fifth().barConfig).toString() , [false, false, false].toString());
 	}
 	
-	/*
+	
 	public function testSystemGeneratorOverflow()
 	{
 		var bars:Array<VBar> = [];		
@@ -1454,10 +1452,10 @@ class TestV extends  haxe.unit.TestCase
 		this.assertEquals(system.bars.first().barConfig.showCautTime, true);
 		this.assertEquals(system.bars.last().caAttributes.time, ETime.Time2_2);
 	}
-	*/
+	
 	public function testSystemGeneratorCautionsTwoParts()
 	{
-		/*
+		
 		var bars:Array<VBar> = [];		
 		var n0 = new NPart([new QVoice([4, 4, 4, 4])], EClef.ClefG, EKey.Flat3);
 		var n1 = new NPart([new QVoice([4, 4, 4, 4])], EClef.ClefF, EKey.Sharp4);
@@ -1503,8 +1501,7 @@ class TestV extends  haxe.unit.TestCase
 		this.assertEquals(system.bars.first().actAttributes.time, ETime.Time3_2);
 		this.assertEquals(system.bars.first().barConfig.showCautTime, true);
 		this.assertEquals(system.bars.first().caAttributes.time, ETime.Time12_8);
-		*/
-		
+				
 		var bars:Array<VBar> = [];			
 		var n0 = new NPart([new QVoice([4, 4, 4, 4])]);
 		var n1 = new NPart([new QVoice([4, 4, 4, 4])]);
@@ -1567,6 +1564,51 @@ class TestV extends  haxe.unit.TestCase
 		this.assertEquals(system.width, 240);
 		
 	}
+	
+	public function testSystemGeneratorCautionsDontFit()
+	{
+		// Here, the two first bar DO fit...
+		var bars:Array<VBar> = [];		
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])], EClef.ClefG, EKey.Flat3);
+		var n1 = new NPart([new QVoice([4, 4, 4, 4])], EClef.ClefF, EKey.Sharp4);
+		bars.push(new VBar(new NBar([n0, n1], ETime.Time3_2)));
+
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])]);
+		var n1 = new NPart([new QVoice([4, 4, 4, 4])]);
+		bars.push(new VBar(new NBar([n0, n1])));		
+
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])]);
+		var n1 = new NPart([new QVoice([4, 4, 4, 4])]/*, EKey.Flat1*/);
+		bars.push(new VBar(new NBar([n0, n1])));		
+		var pagewidth = 315;
+		var generator = new VSystemGenerator(bars,  { showFirstClef:true, showFirstKey:true, showFirstTime:true }, null,  { width:pagewidth, height:600 } );
+		var system:VSystem = generator.getSystem();	
+		assertEquals(system.bars.length, 2);
+		this.assertEquals(system.width, 310);			
+		this.assertEquals(bars.length, 1);
+		
+		// but when adding the need for cautionary attributes on the second bar, they DON'T!
+		var bars:Array<VBar> = [];		
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])], EClef.ClefG, EKey.Flat3);
+		var n1 = new NPart([new QVoice([4, 4, 4, 4])], EClef.ClefF, EKey.Sharp4);
+		bars.push(new VBar(new NBar([n0, n1], ETime.Time3_2)));
+
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])]);
+		var n1 = new NPart([new QVoice([4, 4, 4, 4])]);
+		bars.push(new VBar(new NBar([n0, n1])));		
+
+		var n0 = new NPart([new QVoice([4, 4, 4, 4])]);
+		var n1 = new NPart([new QVoice([4, 4, 4, 4])], EKey.Flat1);
+		bars.push(new VBar(new NBar([n0, n1])));		
+		var pagewidth = 315;
+		var generator = new VSystemGenerator(bars,  { showFirstClef:true, showFirstKey:true, showFirstTime:true }, null,  { width:pagewidth, height:600 } );
+		var system:VSystem = generator.getSystem();	
+		assertEquals(system.bars.length, 1);
+		this.assertEquals(system.width, 190);			
+		this.assertEquals(bars.length, 2);
+		
+	}
+	
 	
 	
 	static private function barConfToArr(conf:VBarConfig):Array<Bool>

@@ -1,13 +1,11 @@
 package nx3.elements;
 
-
 /**
  * ...
  * @author Jonas Nyström
  */
 class NPart
 {
-
 	public function new(voices:Array<NVoice>=null, ?type:EPartType=null, clef:EClef=null, clefDisplay:EDisplayALN=null, key:EKey=null, keyDisplay:EDisplayALN=null) 
 	{
 		this.nvoices = voices;
@@ -30,6 +28,5 @@ class NPart
 	public var clefDisplay(default, default):EDisplayALN;
 	public var key(default, default):EKey;
 	public var keyDisplay(default, default):EDisplayALN;	
-	
 	
 }
