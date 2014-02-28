@@ -2,6 +2,8 @@ package nx3.elements;
 import cx.ArrayTools;
 import haxe.ds.IntMap.IntMap;
 import nx3.Constants;
+import nx3.elements.EDirectionUDs;
+import nx3.elements.ENoteVal;
 import nx3.elements.VTree.Partbeamgroups;
 import nx3.elements.VTree.VBarColumnsGenerator;
 import nx3.elements.VTree.VBeamframe;
@@ -12,13 +14,16 @@ import nx3.elements.VTree.VColumns;
 import nx3.elements.VTree.VComplex;
 import nx3.elements.VTree.VComplexes;
 import nx3.elements.VTree.VComplexSignsCalculator;
+import nx3.elements.VTree.VComplexSignsRectsCalculator;
 import nx3.elements.VTree.VCreateBeamgroups;
 import nx3.elements.VTree.VHeadPlacementCalculator;
 import nx3.elements.VTree.VHeadPlacements;
+import nx3.elements.VTree.VHeads;
 import nx3.elements.VTree.VNoteConfig;
 import nx3.elements.VTree.VNoteHeadsRectsCalculator;
 import nx3.elements.VTree.VNoteInternalDirectionCalculator;
 import nx3.elements.VTree.VPartbeamgroupsDirectionCalculator;
+import nx3.elements.VTree.VSigns;
 import nx3.geom.Rectangle;
 import nx3.geom.Rectangles;
 
@@ -662,8 +667,7 @@ class VNote
 	public var nnote(default, null):NNote;
 	public function new(nnote:NNote)
 	{
-		this.nnote = nnote;
-		
+		this.nnote = nnote;		
 	}
 	
 	var vheads:VHeads;
@@ -686,44 +690,72 @@ class VNote
 		return this.vheadsPlacements;
 	}
 	
+
+	// -----------------------------------------------------------------------------------------------------------	
+	var vheadsPlacementsUp:VHeadPlacements;
+	public function getVHeadPlacementsUp():VHeadPlacements
+	{
+		if (this.vheadsPlacementsUp != null) return this.vheadsPlacementsUp;
+		if (this.vheads == null) this.getVHeads();
+		var calculator:VHeadPlacementCalculator = new VHeadPlacementCalculator(this.vheads, EDirectionUD.Up);
+		this.vheadsPlacementsUp = calculator.getHeadsPlacements();
+		return this.vheadsPlacementsUp;
+	}
+	var vheadsPlacementsDown:VHeadPlacements;
+	public function getVHeadPlacementsDown():VHeadPlacements
+	{
+		if (this.vheadsPlacementsDown != null) return this.vheadsPlacementsDown;
+		if (this.vheads == null) this.getVHeads();
+		var calculator:VHeadPlacementCalculator = new VHeadPlacementCalculator(this.vheads, EDirectionUD.Down);
+		this.vheadsPlacementsDown = calculator.getHeadsPlacements();
+		return this.vheadsPlacementsDown;
+	}	
+	
+	public function getVHeadPlacementsDir(dir:EDirectionUD)
+	{
+		return (dir == EDirectionUD.Up)? this.getVHeadPlacementsUp() : this.getVHeadPlacementsDown();
+	}
+	
+	//=====================================================================
+	/*
 	var vheadsRectangles:Rectangles;
 	public function getVHeadsRectangles():Rectangles
 	{
 		if (this.vheadsRectangles != null) return this.vheadsRectangles;
 		if (this.vheads == null) this.getVHeads();
 		
-		var calculator = new VNoteHeadsRectsCalculator(this);
+		var calculator = new VNoteHeadsRectsCalculator(this.getVHeads(), this.getVHeadsPlacements(), this.nnote.value);
 		this.vheadsRectangles = calculator.getHeadsRects();
 		return this.vheadsRectangles;
 	}
+	*/
+	//------------------------------------------------------------------------------------------------------
 	
-	/*
-	var directionNNote:EDirectionUAD;
-	var directionHeads:EDirectionUD;
-	var directionConfig:EDirectionUD;
-	
-	public function getDirectionHeads()
+	public function getVHeadsRectanglesDir(dir:EDirectionUD)
 	{
-		if (this.directionHeads != null) return this.directionHeads;
+		return (dir == EDirectionUD.Up)? this.getVHeadsRectanglesUp() : this.getVHeadsRectanglesDown();
+	}
+	
+	var vheadsRectanglesUp:Rectangles;
+	function getVHeadsRectanglesUp() :Rectangles
+	{
+		if (this.vheadsRectanglesUp != null) return this.vheadsRectanglesUp;
 		if (this.vheads == null) this.getVHeads();
 		
-		var calculator  = new VNoteInternalDirectionCalculator(this.vheads);
-		this.directionHeads = calculator.getDirection();
-		return this.directionHeads;
+		var calculator = new VNoteHeadsRectsCalculator(this.getVHeads(), this.getVHeadPlacementsUp(), this.nnote.value);
+		this.vheadsRectanglesUp = calculator.getHeadsRects();
+		return this.vheadsRectanglesUp;		
 	}
-	*/
-	//var externalDirection:EDirectionUD;
-	/*
-	public function setDirection(val:EDirectionUD)
+	var vheadsRectanglesDown:Rectangles;
+	function getVHeadsRectanglesDown() :Rectangles
 	{
-		if (this.externalDirection != val)
-		{
-			this.vheadsPlacements = null;
-		}
+		if (this.vheadsRectanglesDown != null) return this.vheadsRectanglesDown;
+		if (this.vheads == null) this.getVHeads();
 		
-		this.externalDirection = val;
-	}
-	*/
+		var calculator = new VNoteHeadsRectsCalculator(this.getVHeads(), this.getVHeadPlacementsDown(), this.nnote.value);
+		this.vheadsRectanglesDown = calculator.getHeadsRects();
+		return this.vheadsRectanglesDown;		
+	}	
 	
 	var config:VNoteConfig;
 	public function setConfig(newConfig:VNoteConfig)
@@ -743,6 +775,7 @@ class VNote
 	}
 	
 	var direction:EDirectionUD;
+	
 	public function getDirection():EDirectionUD
 	{
 		if (this.direction != null) return this.direction;
@@ -825,25 +858,25 @@ class VNoteInternalDirectionCalculator
 
 class VNoteHeadsRectsCalculator
 {
-	var vnote:VNote;
-	public function new(vnote:VNote)
+	var vheads:VHeads;
+	var placements:VHeadPlacements;
+	var notevalue:ENoteVal;
+	
+	public function new( vheads:VHeads, placements:VHeadPlacements, notevalue:ENoteVal )
 	{
-		this.vnote = vnote;		
+		this.vheads = vheads;
+		this.placements = placements;
+		this.notevalue = notevalue;
 	}
-	
-	
 	
 	public function getHeadsRects():Rectangles
 	{
 		var rects = new Rectangles();
-		var headPlacements:VHeadPlacements = vnote.getVHeadsPlacements();
-		var value = this.vnote.nnote.value;
-		
-		for (placement in headPlacements)
+		for (placement in placements)
 		{
 			var rect:Rectangle = null;
 			var headw:Float = 0;
-			switch(value.head())
+			switch(this.notevalue.head())
 			{
 				case EHeadValuetype.HVT1:					
 					headw = Constants.HEAD_HALFWIDTH_WIDE;
@@ -984,7 +1017,6 @@ class VComplexVNotesXCalculator
 		}
 		throw "shouldn't happen";		
 	}
-	
 }
 
 
@@ -1004,7 +1036,9 @@ class VComplexSignsCalculator
 	public function new(vnotes:VNotes) 
 	{ 
 		this.vnotes = vnotes;
+		
 	}
+
 
 	public function getSigns():VSigns
 	{
@@ -1066,11 +1100,22 @@ typedef VComplexes = Array<VComplex>;
 class VComplex 
 {
 	public var vnotes(default, null) :VNotes;
-	public function new(vnotes:VNotes)
+	public function new(vnotes:VNotes, directions: EDirectionUDs=null)
 	{
 		if (vnotes.length > 2) throw "VComplex nr of VNote(s) limited to max 2 - for now";
 		this.vnotes = vnotes;
+		if (directions != null) this.setDirections( directions);
 	}
+
+	var directions(default, null):EDirectionUDs;
+	public function setDirections(directions:EDirectionUDs)
+	{
+		if (directions == null) throw "Can't set directions to null";
+		if (directions.length != this.getVNotes().length) throw "Directions length differ from vnotes length";
+		this.headsRect = null;
+		this.headsRects = null;
+		this.directions = directions;		
+	}	
 	
 	var signs:VSigns;
 	var visibleSigns:VSigns;
@@ -1096,6 +1141,17 @@ class VComplex
 		this.getSigns();
 		return this.visibleSigns;
 	}	
+	
+	var signRects:Rectangles;
+	public function getSignsRects():Rectangles
+	{
+		if (this.signRects != null) return this.signRects;		
+		this.signRects = new VComplexSignsRectsCalculator(this.getVisibleSigns()).getSignRects();
+		return this.signRects;
+	}
+	
+	
+	//------------------------------------------------------------------------------------------------------------
 	
 	public function getHeadsCollisionOffsetX(note:VNote):Float
 	{
@@ -1123,29 +1179,49 @@ class VComplex
 		return 0;
 	}
 	
-	public function getHeadsRect():Rectangle
+	var headsRect:Rectangle;
+	public function getHeadsRect(dirs:EDirectionUDs=null): Rectangle
 	{
+		if (dirs != null && !dirs.equals(this.directions)) this.setDirections(dirs);	
+		if (this.headsRect != null) return this.headsRect;
+		var rects = this.getHeadsRects(dirs);
+		if (rects.length == 1) return rects.first();
+		return rects.first().union(rects.second());
+	}
+	
+	var headsRects:Rectangles;
+	public function getHeadsRects(dirs:EDirectionUDs=null): Rectangles
+	{
+		if (dirs != null && !dirs.equals(this.directions)) this.setDirections(dirs);	
+		if (this.headsRects != null) return this.headsRects;		
 		var firstnote = this.vnotes.first();
-		var firstnoteHeadRects = firstnote.getVHeadsRectangles();
+		if (dirs == null) dirs = this.directions;
+		var firstdir:EDirectionUD = (this.directions != null) ? this.directions.first(): (this.getVNotes().length > 1) ? EDirectionUD.Up :  new VNoteInternalDirectionCalculator(firstnote.getVHeads()).getDirection();		
+		var firstnoteHeadRects = firstnote.getVHeadsRectanglesDir(firstdir);
 		var firstnoteRect = firstnoteHeadRects.first().clone();
 		if (firstnoteHeadRects.length > 1)
 		{
 			for (i in 1...firstnoteHeadRects.length)
 			{
-				firstnoteRect.union(firstnoteHeadRects[i]);				
+				firstnoteRect = firstnoteRect.union(firstnoteHeadRects[i]);				
 			}
 		}
 		
-		if (this.vnotes.length == 1) return firstnoteRect;		
+		if (this.vnotes.length == 1) 
+		{
+			this.headsRects =  [firstnoteRect];		
+			return this.headsRects;
+		}
 		
 		var secondnote = this.vnotes.second();
-		var secondnoteHeadRects = secondnote.getVHeadsRectangles();
+		var seconddir:EDirectionUD = (dirs != null && dirs.length > 1) ? dirs.second() : EDirectionUD.Down;
+		var secondnoteHeadRects = secondnote.getVHeadsRectanglesDir(seconddir);
 		var secondnoteRect = secondnoteHeadRects.first().clone();				
 		if (secondnoteHeadRects.length > 1)
 		{
 			for (i in 1...secondnoteHeadRects.length)
 			{
-				secondnoteRect.union(secondnoteHeadRects[i]);				
+				secondnoteRect = secondnoteRect.union(secondnoteHeadRects[i]);				
 			}
 		}
 		
@@ -1154,9 +1230,65 @@ class VComplex
 		secondnoteRect.offset(xoffset, 0);
 		//---------------------------------------
 		
-		firstnoteRect = firstnoteRect.union(secondnoteRect);		
-		return firstnoteRect;
+		//firstnoteRect = firstnoteRect.union(secondnoteRect);	
+		this.headsRects = [firstnoteRect, secondnoteRect];
+		return this.headsRects;
 	}
+	
+}
+
+class VComplexSignsRectsCalculator
+{
+	var vsigns:VSigns;
+	public function new(vsigns:VSigns)
+	{
+		this.vsigns = vsigns;
+	}
+	
+	public function getSignRects():Rectangles
+	{		
+		var rects = new Rectangles();
+		for (vsign in vsigns)
+		{
+			var rect:Rectangle = getSignRect(vsign.sign);			
+			rect.offset( -rect.width, vsign.level);
+			
+			if (vsigns.length > 1)
+			{
+				for (r in rects)
+				{
+					var i = r.intersection(rect);			
+					while (i.width > 0 || i.height > 0)
+					{
+						rect.offset( -r.width, 0);
+						i = r.intersection(rect);			
+					}
+				}
+			}
+			rects.push(rect);
+		}		
+		return rects;
+	}
+	
+	public function getSignRect(sign:ESign):Rectangle
+	{
+		switch (sign)
+		{
+			case ESign.None:
+				return null;
+			case ESign.DoubleSharp:
+				return new Rectangle( 0, -1.5, Constants.SIGN_NORMAL_WIDTH, 3);
+			case ESign.ParFlat, ESign.ParSharp, ESign.ParNatural:
+				return new Rectangle( 0, -2, Constants.SIGN_PARENTHESIS_WIDTH, 4);
+			case ESign.Flat:
+				return new Rectangle(0, -3, Constants.SIGN_NORMAL_WIDTH, 5);
+			default:	
+				return new Rectangle( 0, -3,Constants.SIGN_NORMAL_WIDTH, 6);
+		}
+		throw "This shouldn't happen!";
+		return null;
+	}		
+	
 	
 }
 

@@ -1,6 +1,7 @@
 package nx3.test;
 
 import cx.ArrayTools;
+import cx.MathTools;
 import haxe.ds.IntMap.IntMap;
 import nx3.Constants;
 import nx3.elements.EClef;
@@ -182,16 +183,32 @@ class TestV extends  haxe.unit.TestCase
 		this.assertEquals(EHeadPosition.Left, placements[3].pos);		
 	}
 	
+	public function testVNoteHeadPlacementDir()
+	{
+		var vnote = new VNote(new QNote([-1, 0, 1]));
+		var placements = vnote.getVHeadPlacementsDir(EDirectionUD.Down); // getVHeadsPlacementsDir(EDirectionUD.Down);
+		this.assertEquals(EHeadPosition.Center, placements.first().pos);
+		this.assertEquals(EHeadPosition.Left, placements.second().pos);
+		this.assertEquals(EHeadPosition.Center, placements.third().pos);	
+		
+		var vnote = new VNote(new QNote([-1, 0, 1]));
+		var placements = vnote.getVHeadPlacementsDir(EDirectionUD.Up); // getVHeadsPlacementsDir(EDirectionUD.Down);
+		this.assertEquals(EHeadPosition.Center, placements.first().pos);
+		this.assertEquals(EHeadPosition.Right, placements.second().pos);
+		this.assertEquals(EHeadPosition.Center, placements.third().pos);					
+	}
+	
+	
 	public function testVNoteHeadRectanglesCalculator()
 	{
 		var vnote = new VNote(new QNote(0));
-		var calculator = new VNoteHeadsRectsCalculator(vnote);
+		var calculator = new VNoteHeadsRectsCalculator( vnote.getVHeads(), vnote.getVHeadsPlacements(), vnote.nnote.value);
 		var rects = calculator.getHeadsRects();
 		assertEquals(rects.length, 1);
 		assertEquals(rects.first().x , -Constants.HEAD_HALFWIDTH_NORMAL);
 
 		var vnote = new VNote(new QNote([0, 1]));
-		var calculator = new VNoteHeadsRectsCalculator(vnote);
+		var calculator = new VNoteHeadsRectsCalculator( vnote.getVHeads(), vnote.getVHeadsPlacements(),vnote.nnote.value);
 		var rects = calculator.getHeadsRects();
 		assertEquals(rects.length, 2);
 		assertEquals(vnote.getDirection(), EDirectionUD.Up);
@@ -199,7 +216,7 @@ class TestV extends  haxe.unit.TestCase
 		assertEquals(rects.second().x , -Constants.HEAD_HALFWIDTH_NORMAL);
 
 		var vnote = new VNote(new QNote([0, 1],EDirectionUAD.Down));
-		var calculator = new VNoteHeadsRectsCalculator(vnote);
+		var calculator = new VNoteHeadsRectsCalculator( vnote.getVHeads(), vnote.getVHeadsPlacements(), vnote.nnote.value);
 		var rects = calculator.getHeadsRects();		
 		assertEquals(rects.length, 2);
 		assertEquals(vnote.getDirection(), EDirectionUD.Down);
@@ -208,14 +225,39 @@ class TestV extends  haxe.unit.TestCase
 
 		var vnote = new VNote(new QNote([0, 1]));
 		vnote.setConfig( { direction:EDirectionUD.Down } );
-		var calculator = new VNoteHeadsRectsCalculator(vnote);
+		var calculator = new VNoteHeadsRectsCalculator( vnote.getVHeads(), vnote.getVHeadsPlacements(), vnote.nnote.value);
 		var rects = calculator.getHeadsRects();		
 		assertEquals(rects.length, 2);
 		assertEquals(vnote.getDirection(), EDirectionUD.Down);
 		assertEquals(rects.first().x , -Constants.HEAD_HALFWIDTH_NORMAL);
-		assertEquals(rects.second().x , 3*-Constants.HEAD_HALFWIDTH_NORMAL);		
-		
+		assertEquals(rects.second().x , 3*-Constants.HEAD_HALFWIDTH_NORMAL);				
 	}
+	
+	public function testVNoteHeadRectanglesDir()
+	{
+		var vnote = new VNote(new QNote([ -1, 0, 1]));		
+		this.assertEquals(vnote.getVHeadsRectanglesDown().toString(), vnote.getVHeadsRectanglesDir(EDirectionUD.Down).toString());
+		this.assertEquals(vnote.getVHeadsRectanglesUp().toString(), vnote.getVHeadsRectanglesDir(EDirectionUD.Up).toString());
+		
+		var vnote = new VNote(new QNote([0, 1]));		
+		var rects = vnote.getVHeadsRectanglesDir(EDirectionUD.Down);
+		this.assertEquals(rects.first().x, -Constants.HEAD_HALFWIDTH_NORMAL);
+		this.assertEquals(rects.second().x, -Constants.HEAD_HALFWIDTH_NORMAL*3);
+		
+		var rects = vnote.getVHeadsRectanglesDir(EDirectionUD.Up);
+		this.assertEquals(rects.first().x, Constants.HEAD_HALFWIDTH_NORMAL);
+		this.assertEquals(rects.second().x, -Constants.HEAD_HALFWIDTH_NORMAL);		
+
+		var vnote = new VNote(new QNote1([0, 1]));		
+		var rects = vnote.getVHeadsRectanglesDir(EDirectionUD.Down);
+		this.assertEquals(rects.first().x, -Constants.HEAD_HALFWIDTH_WIDE);
+		this.assertEquals(rects.second().x, -Constants.HEAD_HALFWIDTH_WIDE*3);
+		
+		var rects = vnote.getVHeadsRectanglesDir(EDirectionUD.Up);
+		this.assertEquals(rects.first().x, Constants.HEAD_HALFWIDTH_WIDE);
+		this.assertEquals(rects.second().x, -Constants.HEAD_HALFWIDTH_WIDE);						
+	}
+	
 	
 	
 
@@ -262,7 +304,6 @@ class TestV extends  haxe.unit.TestCase
 		this.assertEquals(EDirectionUD.Up, vnote.getDirection());
 		
 	}
-	
 	
 	public function testVVoice1()
 	{
@@ -669,11 +710,69 @@ class TestV extends  haxe.unit.TestCase
 		var n0 = new VNote(new QNote4(-1));
 		var n1 = new VNote(new QNote4(-1));
 		var complex = new VComplex([n0, n1]);		
-		var rect = complex.getHeadsRect();
-		this.assertEquals(rect.toString(), new Rectangle( -Constants.HEAD_HALFWIDTH_NORMAL, -2, Constants.HEAD_HALFWIDTH_NORMAL * 2 + Constants.COMPLEX_COLLISION_ADJUST_X, 2).toString());
-		
+		var rect = complex.getHeadsRect();		
+		this.assertTrue(rectEquals(rect, new Rectangle( -Constants.HEAD_HALFWIDTH_NORMAL, -2, Constants.HEAD_HALFWIDTH_NORMAL * 2 + Constants.COMPLEX_COLLISION_ADJUST_X, 2)));
 	}
+
+	public function testVComplexHeadsRectDirs()
+	{	
+		
+		var n0 = new VNote(new QNote4([0, 1]));		
+		var complex = new VComplex([n0]);		
+		var rect = complex.getHeadsRect();
+		this.assertTrue(rectEquals(rect, -Constants.HEAD_HALFWIDTH_NORMAL, -1, Constants.HEAD_HALFWIDTH_NORMAL * 4, 3));
+		
+		var n0 = new VNote(new QNote4([0, 1]));		
+		var complex = new VComplex([n0], [EDirectionUD.Up]);		
+		var rect = complex.getHeadsRect();
+		this.assertTrue(rectEquals(rect, -Constants.HEAD_HALFWIDTH_NORMAL, -1, Constants.HEAD_HALFWIDTH_NORMAL * 4, 3));
+
+		var n0 = new VNote(new QNote4([0, 1]));		
+		var complex = new VComplex([n0], [EDirectionUD.Down]);		
+		complex.setDirections( [EDirectionUD.Up]);
+		var rect = complex.getHeadsRect();
+		this.assertTrue(rectEquals(rect, -Constants.HEAD_HALFWIDTH_NORMAL, -1, Constants.HEAD_HALFWIDTH_NORMAL * 4, 3));
+		
+		var n0 = new VNote(new QNote4([0, 1]));		
+		var complex = new VComplex([n0], [EDirectionUD.Down]);		
+		var rect = complex.getHeadsRect();
+		this.assertTrue(rectEquals(rect, -Constants.HEAD_HALFWIDTH_NORMAL * 3, -1, Constants.HEAD_HALFWIDTH_NORMAL * 4, 3));
+		
+		var n0 = new VNote(new QNote4([0, 1]));		
+		var n1 = new VNote(new QNote4([3]));		
+		var complex = new VComplex([n0, n1], [EDirectionUD.Up, EDirectionUD.Down]);		
+		var rect = complex.getHeadsRect();
+		this.assertTrue(rectEquals(rect, -Constants.HEAD_HALFWIDTH_NORMAL, -1, Constants.HEAD_HALFWIDTH_NORMAL * 4, 5));
+
+		var n0 = new VNote(new QNote4([0, 1]));		
+		var n1 = new VNote(new QNote4([2]));		
+		var complex = new VComplex([n0, n1], [EDirectionUD.Up, EDirectionUD.Down]);		
+		var rect = complex.getHeadsRect();		
+		this.assertTrue(rectEquals(rect, -Constants.HEAD_HALFWIDTH_NORMAL, -1, Constants.HEAD_HALFWIDTH_NORMAL * 4, 4));
+		var rects = complex.getHeadsRects();
+		
+		var n0 = new VNote(new QNote4([0, 1]));		
+		var n1 = new VNote(new QNote4([1]));		
+		var complex = new VComplex([n0, n1], [EDirectionUD.Up, EDirectionUD.Down]);				
+		var rect = complex.getHeadsRect();		
+		this.assertTrue(rectEquals(rect, -Constants.HEAD_HALFWIDTH_NORMAL, -1, Constants.HEAD_HALFWIDTH_NORMAL * 4, 3));
+		
+		
+		var n0 = new VNote(new QNote4([0, 1]));		
+		var n1 = new VNote(new QNote4([1]));		
+		var complex = new VComplex([n0, n1], [EDirectionUD.Up, EDirectionUD.Down]);				
+		var rect = complex.getHeadsRect();		
+		var rects = complex.getHeadsRects();
+		this.assertTrue(rectEquals(rect, -Constants.HEAD_HALFWIDTH_NORMAL, -1, Constants.HEAD_HALFWIDTH_NORMAL * 4, 3));
+	}	
 	
+	public function testComplexSignsRectsGenerator()
+	{
+		var signs:VSigns = [ { sign:ESign.Flat, level:0, position:0 } ,  { sign:ESign.Flat, level:1, position:0 },  { sign:ESign.Flat, level:5, position:0 }];
+		var calculator = new VComplexSignsRectsCalculator(signs);
+		var rects = calculator.getSignRects();
+		this.assertEquals(rects.length, 3);
+	}
 	
 	public function testVPartComplexesGenerator()
 	{
@@ -732,10 +831,6 @@ class TestV extends  haxe.unit.TestCase
 		var positions = vpart.getPositionsVComplexes().keys().keysToArray();
 		this.assertEquals([0, 3024, 4536, 6048].toString(), positions.toString());
 	}
-	
-	
-	
-	
 	
 	public function testPartbeamgroups()
 	{
@@ -1674,4 +1769,22 @@ class TestV extends  haxe.unit.TestCase
 	{
 		return [conf.showClef, conf.showKey, conf.showTime];
 	}
+	
+	function rectEquals(a:Rectangle, ?b:Rectangle=null, bx:Float=null, by:Float=null, bwidth:Float=null, bheight:Float=null): Bool
+	{
+		if (b == null)
+		{
+			if (bx == null || by==null ||bwidth == null || bheight==null) throw "Rect comparison error";
+			return return MathTools.floatEquals(a.x, bx) && MathTools.floatEquals(a.y, by) && MathTools.floatEquals(a.width, bwidth) && MathTools.floatEquals(a.height, bheight);		
+		}		
+		return MathTools.floatEquals(a.x, b.x) && MathTools.floatEquals(a.y, b.y) && MathTools.floatEquals(a.width, b.width) && MathTools.floatEquals(a.height, b.height);		
+	}
+	
+	function arrEquals<T>(a:Array<T>, b:Array<T>):Bool
+	{
+		return (a.toString() == b.toString());
+	}
+	
+
+	
 }

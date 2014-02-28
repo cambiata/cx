@@ -13,12 +13,16 @@ package cx;
 using Lambda;
 class ArrayTools 
 {
+	
+	inline static public function equals<T>(a:Array<T>, b:Array<T>):Bool
+	{
+		return (a.toString() == b.toString());
+	}
+	
 	static public function unique<T>(arr: Array<T>): Array<T> {
 		var result = new Array<T>();
 		for (item in arr) if (!Lambda.has(result, item)) result.push(item);		
-		
 		result.sort(function(a, b) { return Reflect.compare(a, b); } );
-		
 		return result;
 	}
 	
@@ -136,7 +140,8 @@ class ArrayTools
 		return arr;
 	}	
 	
-	static public function countItem<T>(a:Array<T>, item:T): Int {		
+	static public function countItem<T>(a:Array<T>, item:T): Int 
+	{		
 		var cnt = 0;
 		for (ai in a) {
 			if (ai == item) cnt++;			
@@ -150,7 +155,6 @@ class ArrayTools
 		a.sort(function (a, b) { return Reflect.compare(a, b); } );
 		return a;
 	}
-	
 	
 	//-----------------------------------------------------------------------------------------------------
 	

@@ -8,6 +8,11 @@ package cx;
 class MathTools 
 {
 
+	static inline public function floatEquals(a:Float, b:Float):Bool
+	{		
+		return (Math.abs(a - b) <= 0.00001);		
+	}	
+	
 	static inline public function inRange(min:Float, value:Float, max:Float):Bool {
 		if (value < min) return false;
 		if (value > max) return false;

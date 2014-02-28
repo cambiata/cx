@@ -143,7 +143,7 @@ class DevRenderer extends FrameRenderer
 	{
 		this.target.graphics.beginFill(fill);
 		//this.target.graphics.drawCircle(x, y, this.scaling.space);
-		for (rect in vnote.getVHeadsRectangles())
+		for (rect in vnote.getVHeadsRectanglesDir(null))
 		{
 			this.drawRect(rect, x, y);
 		}
@@ -242,7 +242,7 @@ class DevRenderer extends FrameRenderer
 			default: xmlStr = Elements.noteBlack;
 		}
 		
-		for (rect in vnote.getVHeadsRectangles())
+		for (rect in vnote.getVHeadsRectanglesDir(null))
 		{
 			
 			var shape:Shape = ShapeTools.getShape(xmlStr, this.scaling);
