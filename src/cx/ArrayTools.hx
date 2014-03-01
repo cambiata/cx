@@ -126,6 +126,20 @@ class ArrayTools
 	inline static public function sixth<T>(array:Array<T>): T {
 		return array[5];
 	}	
+
+	inline static public function seventh<T>(array:Array<T>): T {
+		return array[6];
+	}	
+
+	inline static public function eighth<T>(array:Array<T>): T {
+		return array[7];
+	}	
+	
+	inline static public function nineth<T>(array:Array<T>): T {
+		return array[8];
+	}		
+	
+	
 	
 	public static function shuffle<T>(a : Array<T>) : Array<T> {
 		var t = range(a.length);

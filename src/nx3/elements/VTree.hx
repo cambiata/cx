@@ -647,14 +647,33 @@ class VVoice
 	public function getBeamgroups(pattern:ENoteVals=null):VBeamgroups
 	{
 		// if new pattern, recreate beamgroups
-		if (pattern != beampattern) this.beamgroups = null;
+		if (pattern != null && pattern != this.beampattern) 
+		{
+			this.beampattern = pattern;
+			this.beamgroups = null;
+		}
 		
 		if (this.beamgroups != null) return this.beamgroups;
-		
 		this.beamgroups = new VCreateBeamgroups(this.getVNotes(), pattern).getBeamgroups();
-		
 		return this.beamgroups;
 	}
+	
+	var notesBeamgroups:Map<VNote, VBeamgroup>;
+	public function getNotesBeamgroups(pattern:ENoteVals=null):Map<VNote, VBeamgroup>
+	{
+		if (pattern != null && pattern != this.beampattern) this.notesBeamgroups = null;
+		if (this.notesBeamgroups != null) return this.notesBeamgroups;
+		if (this.beamgroups == null) this.getBeamgroups(pattern);
+		this.notesBeamgroups = new Map<VNote, VBeamgroup>();
+		for (beamgroup in this.beamgroups)
+		{
+			for (vnote in beamgroup.vnotes)
+			{
+				this.notesBeamgroups.set(vnote, beamgroup);
+			}
+		}
+		return this.notesBeamgroups;
+	}	
 }
 
 typedef VNoteConfig = { direction:EDirectionUD };
@@ -1245,28 +1264,36 @@ class VComplexSignsRectsCalculator
 		this.vsigns = vsigns;
 	}
 	
-	public function getSignRects():Rectangles
+	public function getSignRects(headsRects:Rectangles=null):Rectangles
 	{		
+		var headRectsCount = 0;
 		var rects = new Rectangles();
+		if (headsRects != null)
+		{
+			
+			headRectsCount = headsRects.length;
+			rects = headsRects.copy();
+		}	
 		for (vsign in vsigns)
 		{
 			var rect:Rectangle = getSignRect(vsign.sign);			
 			rect.offset( -rect.width, vsign.level);
 			
-			if (vsigns.length > 1)
+			if (rects.length > 0)
 			{
 				for (r in rects)
 				{
 					var i = r.intersection(rect);			
 					while (i.width > 0 || i.height > 0)
 					{
-						rect.offset( -r.width, 0);
+						rect.offset( -i.width, 0);
 						i = r.intersection(rect);			
 					}
 				}
 			}
 			rects.push(rect);
-		}		
+		}	
+		if (headRectsCount > 0) for (i in 0...headRectsCount) rects.shift();
 		return rects;
 	}
 	
@@ -1535,9 +1562,12 @@ typedef VBeamgroups = Array<VBeamgroup>;
 		}			
 	}
 	
+	
 	private function createBeamGroups() 
-	{
+	{		
 		this.beamgropus = [];
+
+		
 		var vnoteGroupIdx = new Map<VNote, Int>();	
 		
 		for (vnote in this.vnotes)
@@ -1598,6 +1628,7 @@ typedef VBeamgroups = Array<VBeamgroup>;
 		}
 
 		var newBeamGroup = new VBeamgroup(arrVNote);
+		
 		this.beamgropus.push(newBeamGroup);
 	}	
 	

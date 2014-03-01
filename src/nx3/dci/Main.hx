@@ -25,8 +25,7 @@ class Main
 		var runner = new  TestRunner(); 
 		//runner.add(new TestSystemGenerator());		
 		runner.add(new TestSystemGenerator2());		
-		var success = runner.run();
-		
+		var success = runner.run();		
 	}
 	
 }

@@ -592,6 +592,40 @@ class TestV extends  haxe.unit.TestCase
 		this.assertEquals(-4, frame.rightOuterY);
 	}
 	
+	public function testNotesBeamgroups()
+	{
+		var vvoice = new VVoice(new QVoice([8, 8, 8, 8, 8, 8]));		
+		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteVal.Nv4]);		
+		this.assertEquals(beamgroups.length, 3);
+		this.assertEquals(vvoice.getNotesBeamgroups().keys().keysToArray().length, 6);
+		this.assertEquals(vvoice.getNotesBeamgroups().get(vvoice.getVNotes().first()), beamgroups.first());
+		this.assertEquals(vvoice.getNotesBeamgroups().get(vvoice.getVNotes().second()), beamgroups.first());
+		this.assertEquals(vvoice.getNotesBeamgroups().get(vvoice.getVNotes().third()), beamgroups.second());
+		this.assertEquals(vvoice.getNotesBeamgroups().get(vvoice.getVNotes().fourth()), beamgroups.second());
+		this.assertEquals(vvoice.getNotesBeamgroups().get(vvoice.getVNotes().fifth()), beamgroups.third());
+		this.assertEquals(vvoice.getNotesBeamgroups().get(vvoice.getVNotes().sixth()), beamgroups.third());
+		
+		var vvoice = new VVoice(new NVoice([
+			new NNote(ENoteType.Pause(0), ENoteVal.Nv8), 
+			new QNote8(),
+			new QNote8(),
+			new QNote8(),
+			new NNote(ENoteType.Pause(0), ENoteVal.Nv8),
+			new QNote16(), 
+			new QNote16(), 
+			]));		
+		var beamgroups:Array<VBeamgroup> = vvoice.getBeamgroups([ENoteVal.Nv4dot]);		
+		this.assertEquals(beamgroups.length, 5);
+		this.assertEquals(vvoice.getNotesBeamgroups().get(vvoice.getVNotes().first()), beamgroups.first());
+		this.assertEquals(vvoice.getNotesBeamgroups().get(vvoice.getVNotes().second()), beamgroups.second());
+		this.assertEquals(vvoice.getNotesBeamgroups().get(vvoice.getVNotes().third()), beamgroups.second());
+		this.assertEquals(vvoice.getNotesBeamgroups().get(vvoice.getVNotes().fourth()), beamgroups.third());
+		this.assertEquals(vvoice.getNotesBeamgroups().get(vvoice.getVNotes().fifth()), beamgroups.fourth());
+		this.assertEquals(vvoice.getNotesBeamgroups().get(vvoice.getVNotes().sixth()), beamgroups.fifth());
+		this.assertEquals(vvoice.getNotesBeamgroups().get(vvoice.getVNotes().seventh()), beamgroups.fifth());
+		
+	}
+	
 	public function testVComplexSigns()
 	{
 		var vcomplex = new VComplex([new VNote(new QNote4(0))]);
@@ -757,7 +791,6 @@ class TestV extends  haxe.unit.TestCase
 		var rect = complex.getHeadsRect();		
 		this.assertTrue(rectEquals(rect, -Constants.HEAD_HALFWIDTH_NORMAL, -1, Constants.HEAD_HALFWIDTH_NORMAL * 4, 3));
 		
-		
 		var n0 = new VNote(new QNote4([0, 1]));		
 		var n1 = new VNote(new QNote4([1]));		
 		var complex = new VComplex([n0, n1], [EDirectionUD.Up, EDirectionUD.Down]);				
@@ -772,6 +805,20 @@ class TestV extends  haxe.unit.TestCase
 		var calculator = new VComplexSignsRectsCalculator(signs);
 		var rects = calculator.getSignRects();
 		this.assertEquals(rects.length, 3);
+		
+		var signs:VSigns = [ { sign:ESign.Flat, level:0, position:0 } ];
+		var calculator = new VComplexSignsRectsCalculator(signs);
+		var rects = calculator.getSignRects();
+		this.assertEquals(rects.length, 1);
+		trace(rects.first());		
+		
+		var signs:VSigns = [ { sign:ESign.Flat, level:0, position:0 } ];
+		var calculator = new VComplexSignsRectsCalculator(signs);
+		var rects = calculator.getSignRects([new Rectangle(-1, -10, 5, 20)]);
+		this.assertEquals(rects.length, 1);
+		trace(rects.first());
+		
+		
 	}
 	
 	public function testVPartComplexesGenerator()
@@ -1759,10 +1806,8 @@ class TestV extends  haxe.unit.TestCase
 		var system:VSystem = generator.getSystem();	
 		assertEquals(system.bars.length, 1);
 		this.assertEquals(system.width, 190);			
-		this.assertEquals(bars.length, 2);
-		
+		this.assertEquals(bars.length, 2);		
 	}
-	
 	
 	
 	static private function barConfToArr(conf:VBarConfig):Array<Bool>
@@ -1770,11 +1815,11 @@ class TestV extends  haxe.unit.TestCase
 		return [conf.showClef, conf.showKey, conf.showTime];
 	}
 	
-	function rectEquals(a:Rectangle, ?b:Rectangle=null, bx:Float=null, by:Float=null, bwidth:Float=null, bheight:Float=null): Bool
+	function rectEquals(a:Rectangle, ?b:Rectangle=null, bx:Float=-1, by:Float=-1, bwidth:Float=-1, bheight:Float=-1): Bool
 	{
 		if (b == null)
 		{
-			if (bx == null || by==null ||bwidth == null || bheight==null) throw "Rect comparison error";
+			if (bwidth == -1 || bheight==-1) throw "Rect comparison error";
 			return return MathTools.floatEquals(a.x, bx) && MathTools.floatEquals(a.y, by) && MathTools.floatEquals(a.width, bwidth) && MathTools.floatEquals(a.height, bheight);		
 		}		
 		return MathTools.floatEquals(a.x, b.x) && MathTools.floatEquals(a.y, b.y) && MathTools.floatEquals(a.width, b.width) && MathTools.floatEquals(a.height, b.height);		

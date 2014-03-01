@@ -4,8 +4,11 @@ package nx3.test;
 import haxe.ds.IntMap.IntMap;
 import nx3.render.svg.Elements;
 import nx3.render.svg.ShapeTools;
+import nx3.test.QNote.QNote4;
+import nx3.test.QNote.QNote8;
 
 import nx3.elements.EDirectionUAD;
+import nx3.elements.EDirectionUD;
 import nx3.elements.ENoteVal;
 import nx3.elements.NBar;
 import nx3.elements.NHead;
@@ -65,8 +68,10 @@ class TestVRender extends  haxe.unit.TestCase
 		this.assertTrue(true);
 		
 		var npart0 = new NPart([
-			new QVoice([2], [-2]),
-			new QVoice([.4, 8], [2, 2]),
+			//new QVoice([2, 4, 4], [ -2, -1, 1]),
+			new NVoice([new NNote([new NHead(-2), new NHead(-3)],ENoteVal.Nv2), new QNote4(1), new QNote(1)]),			
+			new NVoice([new NNote([new NHead(2), new NHead(3)], ENoteVal.Nv4dot), new QNote8(2)]),
+			//new QVoice([.4, 8], [2, 2]),
 		]);
 		var npart1 = new NPart([
 			new QVoice([8, .4], [-2, -2]),
@@ -77,11 +82,10 @@ class TestVRender extends  haxe.unit.TestCase
 		
 		//this.assertEquals(positionsColumns.keys().keysToArray().toString(), [0, 1512, 3024, 4536].toString());
 		this.renderer.setDefaultXY(200, 80);
-		this.renderer.drawVBarNotelines(vbar, 400, -30);
+		this.renderer.drawVBarNotelines(vbar, 500, 50);
 		this.renderer.drawVBarColumns(vbar);
 		this.renderer.drawVBarComplexes(vbar);
-		this.renderer.drawVBarVoices(vbar);		
-	
+		this.renderer.drawVBarVoices(vbar);			
 	}
 	
 	public function testVBar1()
@@ -91,7 +95,7 @@ class TestVRender extends  haxe.unit.TestCase
 		var npart0 = new NPart([
 			new NVoice([
 				//new QNote2([ -2, -3]),
-				new NNote([new NHead( -2), new NHead( -3)], ENoteVal.Nv1, EDirectionUAD.Up),
+				new NNote([new NHead( -2), new NHead( -3)], ENoteVal.Nv1),
 			]),
 			
 			new QVoice([.4, 8], [2, 2]),
@@ -104,14 +108,12 @@ class TestVRender extends  haxe.unit.TestCase
 		var vbar = new VBar(new NBar([npart0, npart1]));
 		
 		//this.assertEquals(positionsColumns.keys().keysToArray().toString(), [0, 1512, 3024, 4536].toString());
-	
 		
-		this.renderer.setDefaultXY(700, 80);
-		this.renderer.drawVBarNotelines(vbar, 400, -30);
+		this.renderer.setDefaultXY(800, 80);
+		this.renderer.drawVBarNotelines(vbar, 400, 50);
 		this.renderer.drawVBarColumns(vbar);
 		this.renderer.drawVBarComplexes(vbar);
-		this.renderer.drawVBarVoices(vbar);
-	
+		this.renderer.drawVBarVoices(vbar);	
 	}
 	
 	
@@ -129,6 +131,8 @@ class TestVRender extends  haxe.unit.TestCase
 
 class DevRenderer extends FrameRenderer
 {
+	static private var posfactor = .05;
+	
 	public var partdistance(default, default):Float = 120;
 	public var defaultX(default, default):Float = 40;
 	public var defaultY(default, default):Float = 80;
@@ -149,13 +153,13 @@ class DevRenderer extends FrameRenderer
 		}
 	}
 	
-	public function drawVBarNotelines(vbar:VBar, width:Float=800, xMinus:Float=-50)
+	public function drawVBarNotelines(vbar:VBar, width:Float=800, xMinus:Float=100)
 	{
 		var y = this.defaultY;
 		
 		for (vpart in vbar.getVParts())
 		{
-			this.notelines(this.defaultX+xMinus, y, width);
+			this.notelines(this.defaultX - xMinus, y, width+xMinus);
 			y += this.partdistance;
 		}
 	}
@@ -166,7 +170,7 @@ class DevRenderer extends FrameRenderer
 		var positionsColumns : IntMap<VColumn> = vbar.getPositionsColumns();
 		for (pos in positionsColumns.keys())
 		{
-			var colx = pos  / 20;			
+			var colx = pos * posfactor;			
 			this.target.graphics.endFill();
 			this.target.graphics.lineStyle(1, 0x0000ff);
 			this.target.graphics.moveTo(this.defaultX + colx, this.defaultY - this.scaling.space*3);
@@ -179,21 +183,30 @@ class DevRenderer extends FrameRenderer
 		var party = this.defaultY;
 		for (vpart in vbar.getVParts())
 		{
+			var beamgroupsDirections = vpart.getBeamgroupsDirections();
 			for (vcomplex in vpart.getVComplexes())
 			{
 				var vcolumn = vbar.getVComplexesVColumns().get(vcomplex);
 				var pos = vbar.getVColumnsPositions().get(vcolumn);
-				var colx = this.defaultX + pos  / 20;
+				var colx = this.defaultX + pos * posfactor;			
 				this.target.graphics.endFill();
 				this.target.graphics.lineStyle(1, 0xFF0000);
 				this.target.graphics.drawRect(colx - 5, party - 5, 10, 10); 
 				for (vnote in vcomplex.getVNotes())
 				{
 					var vvoice = vpart.getVNotesVVoices().get(vnote);
+					
 					var vvoiceIdx = vpart.getVVoices().index(vvoice);
 					var color = (vvoiceIdx == 0) ? 0x00FF00 : 0x0000FF;
 					//this.vnoteheads(vnote, colx, party, color);
-					this.heads(colx, party, vnote);
+					var beamgroup = vvoice.getNotesBeamgroups().get(vnote);
+					//var direction = beamgroup.getDirection();
+					var direction = beamgroupsDirections.get(beamgroup);
+					var txtY = party + (vvoiceIdx * 10)-14;
+					var txtX = colx + 10;
+					this.addText(txtX, txtY, direction.getName());
+					
+					this.heads(colx, party, vnote, direction);
 				}
 			}
 			party += this.partdistance;
@@ -217,13 +230,9 @@ class DevRenderer extends FrameRenderer
 						var vnoteIdx = beamgroup.vnotes.index(vnote);
 						var vcolumn = vbar.getVNotesVColumns().get(vnote);
 						var pos = vbar.getVColumnsPositions().get(vcolumn);
-						var colx = this.defaultX + pos  / 20;
-						var tf = new TextField();
-						tf.defaultTextFormat = new TextFormat('Arial', 10);
-						tf.text = '$beamgroupIdx';
-						tf.x = colx;
-						tf.y = party + ((vvoiceIdx == 0) ? this.scaling.space * -3 :  this.scaling.space * 3)-this.scaling.halfSpace;
-						this.target.addChild(tf);						
+						var colx = this.defaultX + pos  * posfactor;			
+						var textY = party + ((vvoiceIdx == 0) ? this.scaling.space * -3 :  this.scaling.space * 3)-this.scaling.halfSpace;
+						this.addText(colx, textY,  '$beamgroupIdx');
 					}
 				}
 			}
@@ -231,7 +240,17 @@ class DevRenderer extends FrameRenderer
 		}
 	}
 	
-	public function heads(x:Float, y:Float, vnote:VNote):Void 
+	private function addText(x:Float, y:Float, text:String, color:Int = 0x000000)
+	{
+		var tf = new TextField();
+		tf.defaultTextFormat = new TextFormat('Arial', 10);
+		tf.text = text;
+		tf.x = x;		
+		tf.y = y;
+		this.target.addChild(tf);
+	}
+	
+	public function heads(x:Float, y:Float, vnote:VNote, direction:EDirectionUD):Void 
 	{
 		var xmlStr:String = null;
 
@@ -242,7 +261,7 @@ class DevRenderer extends FrameRenderer
 			default: xmlStr = Elements.noteBlack;
 		}
 		
-		for (rect in vnote.getVHeadsRectanglesDir(null))
+		for (rect in vnote.getVHeadsRectanglesDir(direction))
 		{
 			
 			var shape:Shape = ShapeTools.getShape(xmlStr, this.scaling);
