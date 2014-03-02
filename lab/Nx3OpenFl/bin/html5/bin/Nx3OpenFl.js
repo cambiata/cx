@@ -1946,6 +1946,9 @@ var cx = {}
 cx.ArrayTools = function() { }
 $hxClasses["cx.ArrayTools"] = cx.ArrayTools;
 cx.ArrayTools.__name__ = ["cx","ArrayTools"];
+cx.ArrayTools.equals = function(a,b) {
+	return a.toString() == b.toString();
+}
 cx.ArrayTools.unique = function(arr) {
 	var result = new Array();
 	var _g = 0;
@@ -1972,6 +1975,15 @@ cx.ArrayTools.fromIterables = function(it) {
 }
 cx.ArrayTools.fromHashKeys = function(it) {
 	return cx.ArrayTools.fromIterator(it);
+}
+cx.ArrayTools.allNull = function(it) {
+	var _g = 0;
+	while(_g < it.length) {
+		var v = it[_g];
+		++_g;
+		if(v != null) return false;
+	}
+	return true;
 }
 cx.ArrayTools.doOverlap = function(array1,array2) {
 	var _g = 0;
@@ -2027,6 +2039,21 @@ cx.ArrayTools.third = function(array) {
 }
 cx.ArrayTools.fourth = function(array) {
 	return array[3];
+}
+cx.ArrayTools.fifth = function(array) {
+	return array[4];
+}
+cx.ArrayTools.sixth = function(array) {
+	return array[5];
+}
+cx.ArrayTools.seventh = function(array) {
+	return array[6];
+}
+cx.ArrayTools.eighth = function(array) {
+	return array[7];
+}
+cx.ArrayTools.nineth = function(array) {
+	return array[8];
 }
 cx.ArrayTools.shuffle = function(a) {
 	var t = cx.ArrayTools.range(a.length);
@@ -11332,43 +11359,56 @@ nx3.elements.EHeadType.Rythmic.__enum__ = nx3.elements.EHeadType;
 nx3.elements.EHeadType.Crossed = ["Crossed",2];
 nx3.elements.EHeadType.Crossed.toString = $estr;
 nx3.elements.EHeadType.Crossed.__enum__ = nx3.elements.EHeadType;
-nx3.elements.EHeadValuetype = $hxClasses["nx3.elements.EHeadValuetype"] = { __ename__ : true, __constructs__ : ["HVT4","HVT2","HVT1"] }
-nx3.elements.EHeadValuetype.HVT4 = ["HVT4",0];
-nx3.elements.EHeadValuetype.HVT4.toString = $estr;
-nx3.elements.EHeadValuetype.HVT4.__enum__ = nx3.elements.EHeadValuetype;
-nx3.elements.EHeadValuetype.HVT2 = ["HVT2",1];
-nx3.elements.EHeadValuetype.HVT2.toString = $estr;
-nx3.elements.EHeadValuetype.HVT2.__enum__ = nx3.elements.EHeadValuetype;
-nx3.elements.EHeadValuetype.HVT1 = ["HVT1",2];
-nx3.elements.EHeadValuetype.HVT1.toString = $estr;
-nx3.elements.EHeadValuetype.HVT1.__enum__ = nx3.elements.EHeadValuetype;
-nx3.elements.EKey = function(levelShift) {
-	this.levelShift = levelShift;
-};
-$hxClasses["nx3.elements.EKey"] = nx3.elements.EKey;
-nx3.elements.EKey.__name__ = ["nx3","elements","EKey"];
-nx3.elements.EKey.getSignLevel = function(levelShift,signIndex,clef) {
-	var shift = [0];
-	if(levelShift < 0) shift = [0,-3,1,-2,2,-1,3]; else shift = [-4,-1,-5,-2,-6,-3];
-	var level = shift[signIndex];
-	if(clef != null) {
-		switch( (clef)[1] ) {
-		case 2:
-			level += 1;
-			break;
-		case 1:
-			level += 2;
-			break;
-		default:
-		}
-	}
-	if(level < -5) level += 7;
-	return level;
-}
-nx3.elements.EKey.prototype = {
-	levelShift: null
-	,__class__: nx3.elements.EKey
-}
+nx3.elements.EHeadValueType = $hxClasses["nx3.elements.EHeadValueType"] = { __ename__ : true, __constructs__ : ["HVT4","HVT2","HVT1"] }
+nx3.elements.EHeadValueType.HVT4 = ["HVT4",0];
+nx3.elements.EHeadValueType.HVT4.toString = $estr;
+nx3.elements.EHeadValueType.HVT4.__enum__ = nx3.elements.EHeadValueType;
+nx3.elements.EHeadValueType.HVT2 = ["HVT2",1];
+nx3.elements.EHeadValueType.HVT2.toString = $estr;
+nx3.elements.EHeadValueType.HVT2.__enum__ = nx3.elements.EHeadValueType;
+nx3.elements.EHeadValueType.HVT1 = ["HVT1",2];
+nx3.elements.EHeadValueType.HVT1.toString = $estr;
+nx3.elements.EHeadValueType.HVT1.__enum__ = nx3.elements.EHeadValueType;
+nx3.elements.EKey = $hxClasses["nx3.elements.EKey"] = { __ename__ : true, __constructs__ : ["Sharp6","Sharp5","Sharp4","Sharp3","Sharp2","Sharp1","Natural","Flat1","Flat2","Flat3","Flat4","Flat5","Flat6"] }
+nx3.elements.EKey.Sharp6 = ["Sharp6",0];
+nx3.elements.EKey.Sharp6.toString = $estr;
+nx3.elements.EKey.Sharp6.__enum__ = nx3.elements.EKey;
+nx3.elements.EKey.Sharp5 = ["Sharp5",1];
+nx3.elements.EKey.Sharp5.toString = $estr;
+nx3.elements.EKey.Sharp5.__enum__ = nx3.elements.EKey;
+nx3.elements.EKey.Sharp4 = ["Sharp4",2];
+nx3.elements.EKey.Sharp4.toString = $estr;
+nx3.elements.EKey.Sharp4.__enum__ = nx3.elements.EKey;
+nx3.elements.EKey.Sharp3 = ["Sharp3",3];
+nx3.elements.EKey.Sharp3.toString = $estr;
+nx3.elements.EKey.Sharp3.__enum__ = nx3.elements.EKey;
+nx3.elements.EKey.Sharp2 = ["Sharp2",4];
+nx3.elements.EKey.Sharp2.toString = $estr;
+nx3.elements.EKey.Sharp2.__enum__ = nx3.elements.EKey;
+nx3.elements.EKey.Sharp1 = ["Sharp1",5];
+nx3.elements.EKey.Sharp1.toString = $estr;
+nx3.elements.EKey.Sharp1.__enum__ = nx3.elements.EKey;
+nx3.elements.EKey.Natural = ["Natural",6];
+nx3.elements.EKey.Natural.toString = $estr;
+nx3.elements.EKey.Natural.__enum__ = nx3.elements.EKey;
+nx3.elements.EKey.Flat1 = ["Flat1",7];
+nx3.elements.EKey.Flat1.toString = $estr;
+nx3.elements.EKey.Flat1.__enum__ = nx3.elements.EKey;
+nx3.elements.EKey.Flat2 = ["Flat2",8];
+nx3.elements.EKey.Flat2.toString = $estr;
+nx3.elements.EKey.Flat2.__enum__ = nx3.elements.EKey;
+nx3.elements.EKey.Flat3 = ["Flat3",9];
+nx3.elements.EKey.Flat3.toString = $estr;
+nx3.elements.EKey.Flat3.__enum__ = nx3.elements.EKey;
+nx3.elements.EKey.Flat4 = ["Flat4",10];
+nx3.elements.EKey.Flat4.toString = $estr;
+nx3.elements.EKey.Flat4.__enum__ = nx3.elements.EKey;
+nx3.elements.EKey.Flat5 = ["Flat5",11];
+nx3.elements.EKey.Flat5.toString = $estr;
+nx3.elements.EKey.Flat5.__enum__ = nx3.elements.EKey;
+nx3.elements.EKey.Flat6 = ["Flat6",12];
+nx3.elements.EKey.Flat6.toString = $estr;
+nx3.elements.EKey.Flat6.__enum__ = nx3.elements.EKey;
 nx3.elements.ELyricContinuation = $hxClasses["nx3.elements.ELyricContinuation"] = { __ename__ : true, __constructs__ : ["Hyphen","Melisma"] }
 nx3.elements.ELyricContinuation.Hyphen = ["Hyphen",0];
 nx3.elements.ELyricContinuation.Hyphen.toString = $estr;
@@ -11576,31 +11616,31 @@ nx3.elements.ENoteValTools.head = function(val) {
 		var $r;
 		switch( (val)[1] ) {
 		case 0:
-			$r = nx3.elements.EHeadValuetype.HVT1;
+			$r = nx3.elements.EHeadValueType.HVT1;
 			break;
 		case 3:
-			$r = nx3.elements.EHeadValuetype.HVT1;
+			$r = nx3.elements.EHeadValueType.HVT1;
 			break;
 		case 1:
-			$r = nx3.elements.EHeadValuetype.HVT1;
+			$r = nx3.elements.EHeadValueType.HVT1;
 			break;
 		case 2:
-			$r = nx3.elements.EHeadValuetype.HVT1;
+			$r = nx3.elements.EHeadValueType.HVT1;
 			break;
 		case 4:
-			$r = nx3.elements.EHeadValuetype.HVT2;
+			$r = nx3.elements.EHeadValueType.HVT2;
 			break;
 		case 7:
-			$r = nx3.elements.EHeadValuetype.HVT2;
+			$r = nx3.elements.EHeadValueType.HVT2;
 			break;
 		case 5:
-			$r = nx3.elements.EHeadValuetype.HVT2;
+			$r = nx3.elements.EHeadValueType.HVT2;
 			break;
 		case 6:
-			$r = nx3.elements.EHeadValuetype.HVT2;
+			$r = nx3.elements.EHeadValueType.HVT2;
 			break;
 		default:
-			$r = nx3.elements.EHeadValuetype.HVT4;
+			$r = nx3.elements.EHeadValueType.HVT4;
 		}
 		return $r;
 	}(this));
@@ -11988,7 +12028,7 @@ nx3.elements.EVoiceType.Barpause.__enum__ = nx3.elements.EVoiceType;
 nx3.elements.NBar = function(parts,type,time,timeDisplay) {
 	this.nparts = parts;
 	this.type = type == null?nx3.elements.EBarType.Normal:type;
-	this.time = time == null?nx3.elements.ETime.Time4_4:time;
+	this.time = time;
 	this.timeDisplay = timeDisplay == null?nx3.elements.EDisplayALN.Layout:timeDisplay;
 };
 $hxClasses["nx3.elements.NBar"] = nx3.elements.NBar;
@@ -12077,9 +12117,9 @@ nx3.elements.NPart = function(voices,type,clef,clefDisplay,key,keyDisplay) {
 	this.nvoices = voices;
 	if(this.nvoices.length > 2) throw "For now, NPart can't have more than two voices";
 	this.type = type == null?nx3.elements.EPartType.Normal:type;
-	this.clef = clef == null?nx3.elements.EClef.ClefG:clef;
+	this.clef = clef;
 	this.clefDisplay = clefDisplay == null?nx3.elements.EDisplayALN.Layout:clefDisplay;
-	this.key = key == null?nx3.elements.EKey.Natural:key;
+	this.key = key;
 	this.keyDisplay = keyDisplay == null?nx3.elements.EDisplayALN.Layout:keyDisplay;
 };
 $hxClasses["nx3.elements.NPart"] = nx3.elements.NPart;
@@ -12157,7 +12197,56 @@ nx3.elements._ULevel.ULevel_Impl_.inRange = function(value) {
 nx3.elements.VTree = function() { }
 $hxClasses["nx3.elements.VTree"] = nx3.elements.VTree;
 nx3.elements.VTree.__name__ = ["nx3","elements","VTree"];
+nx3.elements.VBarConfig = function(showClef,showKey,showTime,showCautClef,showCautKey,showCautTime) {
+	if(showCautTime == null) showCautTime = false;
+	if(showCautKey == null) showCautKey = false;
+	if(showCautClef == null) showCautClef = false;
+	if(showTime == null) showTime = false;
+	if(showKey == null) showKey = false;
+	if(showClef == null) showClef = false;
+	this.showClef = showClef;
+	this.showKey = showKey;
+	this.showTime = showTime;
+	this.showCautClef = showCautClef;
+	this.showCautKey = showCautKey;
+	this.showCautTime = showCautTime;
+};
+$hxClasses["nx3.elements.VBarConfig"] = nx3.elements.VBarConfig;
+nx3.elements.VBarConfig.__name__ = ["nx3","elements","VBarConfig"];
+nx3.elements.VBarConfig.prototype = {
+	calculatedWidth: null
+	,showCautTime: null
+	,showCautKey: null
+	,showCautClef: null
+	,showTime: null
+	,showKey: null
+	,showClef: null
+	,__class__: nx3.elements.VBarConfig
+}
+nx3.elements.VSystem = function() {
+	this.bars = new Array();
+	this.width = 0;
+};
+$hxClasses["nx3.elements.VSystem"] = nx3.elements.VSystem;
+nx3.elements.VSystem.__name__ = ["nx3","elements","VSystem"];
+nx3.elements.VSystem.prototype = {
+	getLastBarAttributes: function() {
+		if(this.bars.length == 0) return null;
+		return cx.ArrayTools.last(this.bars).actAttributes;
+	}
+	,status: null
+	,width: null
+	,bars: null
+	,__class__: nx3.elements.VSystem
+}
+nx3.elements.VSystemStatus = $hxClasses["nx3.elements.VSystemStatus"] = { __ename__ : true, __constructs__ : ["Ok","Problem"] }
+nx3.elements.VSystemStatus.Ok = ["Ok",0];
+nx3.elements.VSystemStatus.Ok.toString = $estr;
+nx3.elements.VSystemStatus.Ok.__enum__ = nx3.elements.VSystemStatus;
+nx3.elements.VSystemStatus.Problem = function(code,msg) { var $x = ["Problem",1,code,msg]; $x.__enum__ = nx3.elements.VSystemStatus; $x.toString = $estr; return $x; }
 nx3.elements.VBar = function(nbar) {
+	this._keys = null;
+	this._clefs = null;
 	this.nbar = nbar;
 };
 $hxClasses["nx3.elements.VBar"] = nx3.elements.VBar;
@@ -12257,8 +12346,76 @@ nx3.elements.VBar.prototype = {
 		return this.vparts;
 	}
 	,vparts: null
+	,get_displayTime: function() {
+		var result = this.nbar.timeDisplay != null?this.nbar.timeDisplay:nx3.elements.EDisplayALN.Layout;
+		return this.nbar.timeDisplay;
+	}
+	,get_displayKeys: function() {
+		var result = nx3.elements.EDisplayALN.Never;
+		var _g = 0, _g1 = this.getVParts();
+		while(_g < _g1.length) {
+			var vpart = _g1[_g];
+			++_g;
+			if(vpart.npart.keyDisplay == null) result = nx3.elements.EDisplayALN.Layout;
+			if(vpart.npart.keyDisplay == nx3.elements.EDisplayALN.Layout) result = nx3.elements.EDisplayALN.Layout;
+			if(vpart.npart.keyDisplay == nx3.elements.EDisplayALN.Always) {
+				result = nx3.elements.EDisplayALN.Always;
+				break;
+			}
+		}
+		return result;
+	}
+	,get_displayClefs: function() {
+		var result = nx3.elements.EDisplayALN.Never;
+		var _g = 0, _g1 = this.getVParts();
+		while(_g < _g1.length) {
+			var vpart = _g1[_g];
+			++_g;
+			if(vpart.npart.clefDisplay == null) result = nx3.elements.EDisplayALN.Layout;
+			if(vpart.npart.clefDisplay == nx3.elements.EDisplayALN.Layout) result = nx3.elements.EDisplayALN.Layout;
+			if(vpart.npart.clefDisplay == nx3.elements.EDisplayALN.Always) {
+				result = nx3.elements.EDisplayALN.Always;
+				break;
+			}
+		}
+		return result;
+	}
+	,displayTime: null
+	,displayKeys: null
+	,displayClefs: null
+	,get_time: function() {
+		return this.nbar.time;
+	}
+	,get_keys: function() {
+		if(this._keys != null) return this._keys;
+		this._keys = new Array();
+		var _g = 0, _g1 = this.getVParts();
+		while(_g < _g1.length) {
+			var vpart = _g1[_g];
+			++_g;
+			this._keys.push(vpart.npart.key);
+		}
+		return this._keys;
+	}
+	,_keys: null
+	,get_clefs: function() {
+		if(this._clefs != null) return this._clefs;
+		this._clefs = new Array();
+		var _g = 0, _g1 = this.getVParts();
+		while(_g < _g1.length) {
+			var vpart = _g1[_g];
+			++_g;
+			this._clefs.push(vpart.npart.clef);
+		}
+		return this._clefs;
+	}
+	,_clefs: null
+	,time: null
+	,keys: null
+	,clefs: null
 	,nbar: null
 	,__class__: nx3.elements.VBar
+	,__properties__: {get_clefs:"get_clefs",get_keys:"get_keys",get_time:"get_time",get_displayClefs:"get_displayClefs",get_displayKeys:"get_displayKeys",get_displayTime:"get_displayTime"}
 }
 nx3.elements.VBarColumnsGenerator = function(vparts) {
 	this.vparts = vparts;
@@ -12521,8 +12678,30 @@ nx3.elements.VVoice = function(nvoice) {
 $hxClasses["nx3.elements.VVoice"] = nx3.elements.VVoice;
 nx3.elements.VVoice.__name__ = ["nx3","elements","VVoice"];
 nx3.elements.VVoice.prototype = {
-	getBeamgroups: function(pattern) {
-		if(pattern != this.beampattern) this.beamgroups = null;
+	getNotesBeamgroups: function(pattern) {
+		if(pattern != null && pattern != this.beampattern) this.notesBeamgroups = null;
+		if(this.notesBeamgroups != null) return this.notesBeamgroups;
+		if(this.beamgroups == null) this.getBeamgroups(pattern);
+		this.notesBeamgroups = new haxe.ds.ObjectMap();
+		var _g = 0, _g1 = this.beamgroups;
+		while(_g < _g1.length) {
+			var beamgroup = _g1[_g];
+			++_g;
+			var _g2 = 0, _g3 = beamgroup.vnotes;
+			while(_g2 < _g3.length) {
+				var vnote = _g3[_g2];
+				++_g2;
+				this.notesBeamgroups.set(vnote,beamgroup);
+			}
+		}
+		return this.notesBeamgroups;
+	}
+	,notesBeamgroups: null
+	,getBeamgroups: function(pattern) {
+		if(pattern != null && pattern != this.beampattern) {
+			this.beampattern = pattern;
+			this.beamgroups = null;
+		}
 		if(this.beamgroups != null) return this.beamgroups;
 		this.beamgroups = new nx3.elements.VCreateBeamgroups(this.getVNotes(),pattern).getBeamgroups();
 		return this.beamgroups;
@@ -12594,14 +12773,44 @@ nx3.elements.VNote.prototype = {
 		this.config = newConfig;
 	}
 	,config: null
-	,getVHeadsRectangles: function() {
-		if(this.vheadsRectangles != null) return this.vheadsRectangles;
+	,getVHeadsRectanglesDown: function() {
+		if(this.vheadsRectanglesDown != null) return this.vheadsRectanglesDown;
 		if(this.vheads == null) this.getVHeads();
-		var calculator = new nx3.elements.VNoteHeadsRectsCalculator(this);
-		this.vheadsRectangles = calculator.getHeadsRects();
-		return this.vheadsRectangles;
+		var calculator = new nx3.elements.VNoteHeadsRectsCalculator(this.getVHeads(),this.getVHeadPlacementsDown(),this.nnote.value);
+		this.vheadsRectanglesDown = calculator.getHeadsRects();
+		return this.vheadsRectanglesDown;
 	}
-	,vheadsRectangles: null
+	,vheadsRectanglesDown: null
+	,getVHeadsRectanglesUp: function() {
+		if(this.vheadsRectanglesUp != null) return this.vheadsRectanglesUp;
+		if(this.vheads == null) this.getVHeads();
+		var calculator = new nx3.elements.VNoteHeadsRectsCalculator(this.getVHeads(),this.getVHeadPlacementsUp(),this.nnote.value);
+		this.vheadsRectanglesUp = calculator.getHeadsRects();
+		return this.vheadsRectanglesUp;
+	}
+	,vheadsRectanglesUp: null
+	,getVHeadsRectanglesDir: function(dir) {
+		return dir == nx3.elements.EDirectionUD.Up?this.getVHeadsRectanglesUp():this.getVHeadsRectanglesDown();
+	}
+	,getVHeadPlacementsDir: function(dir) {
+		return dir == nx3.elements.EDirectionUD.Up?this.getVHeadPlacementsUp():this.getVHeadPlacementsDown();
+	}
+	,getVHeadPlacementsDown: function() {
+		if(this.vheadsPlacementsDown != null) return this.vheadsPlacementsDown;
+		if(this.vheads == null) this.getVHeads();
+		var calculator = new nx3.elements.VHeadPlacementCalculator(this.vheads,nx3.elements.EDirectionUD.Down);
+		this.vheadsPlacementsDown = calculator.getHeadsPlacements();
+		return this.vheadsPlacementsDown;
+	}
+	,vheadsPlacementsDown: null
+	,getVHeadPlacementsUp: function() {
+		if(this.vheadsPlacementsUp != null) return this.vheadsPlacementsUp;
+		if(this.vheads == null) this.getVHeads();
+		var calculator = new nx3.elements.VHeadPlacementCalculator(this.vheads,nx3.elements.EDirectionUD.Up);
+		this.vheadsPlacementsUp = calculator.getHeadsPlacements();
+		return this.vheadsPlacementsUp;
+	}
+	,vheadsPlacementsUp: null
 	,getVHeadsPlacements: function() {
 		if(this.vheadsPlacements != null) return this.vheadsPlacements;
 		if(this.vheads == null) this.getVHeads();
@@ -12677,24 +12886,24 @@ nx3.elements.VNoteInternalDirectionCalculator.prototype = {
 	,vheads: null
 	,__class__: nx3.elements.VNoteInternalDirectionCalculator
 }
-nx3.elements.VNoteHeadsRectsCalculator = function(vnote) {
-	this.vnote = vnote;
+nx3.elements.VNoteHeadsRectsCalculator = function(vheads,placements,notevalue) {
+	this.vheads = vheads;
+	this.placements = placements;
+	this.notevalue = notevalue;
 };
 $hxClasses["nx3.elements.VNoteHeadsRectsCalculator"] = nx3.elements.VNoteHeadsRectsCalculator;
 nx3.elements.VNoteHeadsRectsCalculator.__name__ = ["nx3","elements","VNoteHeadsRectsCalculator"];
 nx3.elements.VNoteHeadsRectsCalculator.prototype = {
 	getHeadsRects: function() {
 		var rects = new Array();
-		var headPlacements = this.vnote.getVHeadsPlacements();
-		var value = this.vnote.nnote.value;
-		var _g = 0;
-		while(_g < headPlacements.length) {
-			var placement = headPlacements[_g];
+		var _g = 0, _g1 = this.placements;
+		while(_g < _g1.length) {
+			var placement = _g1[_g];
 			++_g;
 			var rect = null;
 			var headw = 0;
-			var _g1 = nx3.elements.ENoteValTools.head(value);
-			switch( (_g1)[1] ) {
+			var _g2 = nx3.elements.ENoteValTools.head(this.notevalue);
+			switch( (_g2)[1] ) {
 			case 2:
 				headw = 2.0;
 				break;
@@ -12718,7 +12927,9 @@ nx3.elements.VNoteHeadsRectsCalculator.prototype = {
 		}
 		return rects;
 	}
-	,vnote: null
+	,notevalue: null
+	,placements: null
+	,vheads: null
 	,__class__: nx3.elements.VNoteHeadsRectsCalculator
 }
 nx3.elements.VHeadPlacementCalculator = function(vheads,direction) {
@@ -12796,6 +13007,24 @@ nx3.elements.VHead.prototype = {
 	nhead: null
 	,__class__: nx3.elements.VHead
 }
+nx3.elements.VComplexVNotesXCalculator = function(vcomplex) {
+	this.vcomplex = vcomplex;
+};
+$hxClasses["nx3.elements.VComplexVNotesXCalculator"] = nx3.elements.VComplexVNotesXCalculator;
+nx3.elements.VComplexVNotesXCalculator.__name__ = ["nx3","elements","VComplexVNotesXCalculator"];
+nx3.elements.VComplexVNotesXCalculator.prototype = {
+	getVNotesX: function() {
+		if(this.vcomplex.vnotes.length == 1) return [0];
+		var vnote0 = this.vcomplex.vnotes[0];
+		var vnote1 = this.vcomplex.vnotes[1];
+		var vnote0bottom = vnote0.nnote.getBottomLevel();
+		var vnote1top = vnote1.nnote.getTopLevel();
+		if(vnote1top <= vnote0bottom) return [0,2]; else if(vnote1top == vnote0bottom + 1) return [0,1]; else return [0,0];
+		throw "shouldn't happen";
+	}
+	,vcomplex: null
+	,__class__: nx3.elements.VComplexVNotesXCalculator
+}
 nx3.elements.VComplexSignsCalculator = function(vnotes) {
 	this.vnotes = vnotes;
 };
@@ -12848,14 +13077,91 @@ nx3.elements.VComplexSignsCalculator.prototype = {
 	,vnotes: null
 	,__class__: nx3.elements.VComplexSignsCalculator
 }
-nx3.elements.VComplex = function(vnotes) {
+nx3.elements.VComplex = function(vnotes,directions) {
 	if(vnotes.length > 2) throw "VComplex nr of VNote(s) limited to max 2 - for now";
 	this.vnotes = vnotes;
 };
 $hxClasses["nx3.elements.VComplex"] = nx3.elements.VComplex;
 nx3.elements.VComplex.__name__ = ["nx3","elements","VComplex"];
 nx3.elements.VComplex.prototype = {
-	getVisibleSigns: function() {
+	getNoteHeadsRect: function(note,dir) {
+		var result = null;
+		if(note == this.vnotes[0]) {
+			if(dir == null) dir = new nx3.elements.VNoteInternalDirectionCalculator(note.getVHeads()).getDirection();
+			var rects = note.getVHeadsRectanglesDir(dir);
+			result = rects[0].clone();
+			var _g1 = 1, _g = rects.length;
+			while(_g1 < _g) {
+				var i = _g1++;
+				result = result.union(rects[i]);
+			}
+			return result;
+		}
+		if(dir == null) dir = new nx3.elements.VNoteInternalDirectionCalculator(note.getVHeads()).getDirection();
+		var rects = note.getVHeadsRectanglesDir(dir);
+		result = rects[0].clone();
+		var _g1 = 1, _g = rects.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			result = result.union(rects[i]);
+		}
+		return result;
+	}
+	,getRectanglesXIntersection: function(rectsA,rectsB) {
+		var rectsB2 = new Array();
+		var _g = 0;
+		while(_g < rectsB.length) {
+			var r = rectsB[_g];
+			++_g;
+			rectsB2.push(r.clone());
+		}
+		var check = function() {
+			var _g = 0;
+			while(_g < rectsA.length) {
+				var ra = rectsA[_g];
+				++_g;
+				var _g1 = 0;
+				while(_g1 < rectsB2.length) {
+					var rb = rectsB2[_g1];
+					++_g1;
+					var i = ra.intersection(rb);
+					if(i.width > 0) return i.width;
+				}
+			}
+			return 0;
+		};
+		var x = 0;
+		var moveX = check();
+		while(moveX > 0) {
+			x += moveX;
+			var _g = 0;
+			while(_g < rectsB2.length) {
+				var r = rectsB2[_g];
+				++_g;
+				r.offset(moveX,0);
+			}
+			moveX = check();
+		}
+		return x;
+	}
+	,getHeadsCollisionOffsetX: function(note,direction) {
+		if(this.vnotes.length == 1) return 0;
+		if(note == this.vnotes[0]) return 0;
+		var firstnote = this.vnotes[0];
+		var secondnote = note;
+		var offsetX = this.getRectanglesXIntersection(firstnote.getVHeadsRectanglesDir(nx3.elements.EDirectionUD.Up),secondnote.getVHeadsRectanglesDir(direction));
+		var diff = secondnote.nnote.getTopLevel() - firstnote.nnote.getBottomLevel();
+		if(diff == 1) offsetX = nx3.elements.ENoteValTools.head(firstnote.nnote.value) == nx3.elements.EHeadValueType.HVT1?0.9 * offsetX:0.7 * offsetX;
+		if(diff < 1 && offsetX == 0) offsetX = -0.8;
+		return offsetX;
+	}
+	,getSignsRects: function() {
+		if(this.signRects != null) return this.signRects;
+		this.signRects = new nx3.elements.VComplexSignsRectsCalculator(this.getVisibleSigns()).getSignRects();
+		return this.signRects;
+	}
+	,signRects: null
+	,getVisibleSigns: function() {
 		if(this.visibleSigns != null) return this.visibleSigns;
 		this.getSigns();
 		return this.visibleSigns;
@@ -12874,6 +13180,69 @@ nx3.elements.VComplex.prototype = {
 	,signs: null
 	,vnotes: null
 	,__class__: nx3.elements.VComplex
+}
+nx3.elements.VComplexSignsRectsCalculator = function(vsigns) {
+	this.vsigns = vsigns;
+};
+$hxClasses["nx3.elements.VComplexSignsRectsCalculator"] = nx3.elements.VComplexSignsRectsCalculator;
+nx3.elements.VComplexSignsRectsCalculator.__name__ = ["nx3","elements","VComplexSignsRectsCalculator"];
+nx3.elements.VComplexSignsRectsCalculator.prototype = {
+	getSignRect: function(sign) {
+		switch( (sign)[1] ) {
+		case 0:
+			return null;
+		case 5:
+			return new flash.geom.Rectangle(0,-1.5,2.6,3);
+		case 7:
+		case 8:
+		case 6:
+			return new flash.geom.Rectangle(0,-2,4.4,4);
+		case 2:
+			return new flash.geom.Rectangle(0,-3,2.6,5);
+		default:
+			return new flash.geom.Rectangle(0,-3,2.6,6);
+		}
+		throw "This shouldn't happen!";
+		return null;
+	}
+	,getSignRects: function(headsRects) {
+		var headRectsCount = 0;
+		var rects = new Array();
+		if(headsRects != null) {
+			headRectsCount = headsRects.length;
+			rects = headsRects.slice();
+		}
+		var _g = 0, _g1 = this.vsigns;
+		while(_g < _g1.length) {
+			var vsign = _g1[_g];
+			++_g;
+			var rect = this.getSignRect(vsign.sign);
+			rect.offset(-rect.width,vsign.level);
+			if(rects.length > 0) {
+				var _g2 = 0;
+				while(_g2 < rects.length) {
+					var r = rects[_g2];
+					++_g2;
+					var i = r.intersection(rect);
+					while(i.width > 0 || i.height > 0) {
+						rect.offset(-i.width,0);
+						i = r.intersection(rect);
+					}
+				}
+			}
+			rects.push(rect);
+		}
+		if(headRectsCount > 0) {
+			var _g = 0;
+			while(_g < headRectsCount) {
+				var i = _g++;
+				rects.shift();
+			}
+		}
+		return rects;
+	}
+	,vsigns: null
+	,__class__: nx3.elements.VComplexSignsRectsCalculator
 }
 nx3.elements.VBeamgroup = function(vnotes) {
 	this.value = null;
@@ -13459,6 +13828,16 @@ nx3.test.QNote2.__super__ = nx3.test.QNote;
 nx3.test.QNote2.prototype = $extend(nx3.test.QNote.prototype,{
 	__class__: nx3.test.QNote2
 });
+nx3.test.QNote1 = function(headLevel,headLevels,signs) {
+	if(signs == null) signs = "";
+	nx3.test.QNote.call(this,headLevel,headLevels,null,null,nx3.elements.ENoteVal.Nv1);
+};
+$hxClasses["nx3.test.QNote1"] = nx3.test.QNote1;
+nx3.test.QNote1.__name__ = ["nx3","test","QNote1"];
+nx3.test.QNote1.__super__ = nx3.test.QNote;
+nx3.test.QNote1.prototype = $extend(nx3.test.QNote.prototype,{
+	__class__: nx3.test.QNote1
+});
 nx3.test.QVoice = function(notevalues,notevalue,headlevels,levelrepeats,signs,direction) {
 	if(levelrepeats == null) levelrepeats = 1;
 	var _notevalues = notevalues;
@@ -13562,30 +13941,28 @@ $hxClasses["nx3.test.TestVRender"] = nx3.test.TestVRender;
 nx3.test.TestVRender.__name__ = ["nx3","test","TestVRender"];
 nx3.test.TestVRender.__super__ = haxe.unit.TestCase;
 nx3.test.TestVRender.prototype = $extend(haxe.unit.TestCase.prototype,{
-	testVBar1: function() {
-		this.assertTrue(true,{ fileName : "TestVRender.hx", lineNumber : 89, className : "nx3.test.TestVRender", methodName : "testVBar1"});
-		var npart0 = new nx3.elements.NPart([new nx3.elements.NVoice([new nx3.elements.NNote(null,[new nx3.elements.NHead(null,nx3.elements._ULevel.ULevel_Impl_.inRange(-2)),new nx3.elements.NHead(null,nx3.elements._ULevel.ULevel_Impl_.inRange(-3))],nx3.elements.ENoteVal.Nv1,nx3.elements.EDirectionUAD.Up)]),new nx3.test.QVoice([.4,8],null,[2,2])]);
-		var npart1 = new nx3.elements.NPart([new nx3.test.QVoice([8,.4],null,[-2,-2]),new nx3.test.QVoice([4,4],null,[2,2])]);
-		var vbar = new nx3.elements.VBar(new nx3.elements.NBar([npart0,npart1]));
-		this.renderer.setDefaultXY(700,80);
-		this.renderer.drawVBarNotelines(vbar,400,-30);
+	testVBar3: function() {
+		this.assertTrue(true,{ fileName : "TestVRender.hx", lineNumber : 148, className : "nx3.test.TestVRender", methodName : "testVBar3"});
+		var npart0 = new nx3.elements.NPart([new nx3.test.QVoice([4,4,4,1,1],null,[0,0,0,0,0]),new nx3.test.QVoice([4,4,4,1,1],null,[2,1,0,1,0])]);
+		var vbar = new nx3.elements.VBar(new nx3.elements.NBar([npart0]));
+		this.renderer.setDefaultXY(150,180);
+		this.renderer.drawVBarNotelines(vbar,500,50);
 		this.renderer.drawVBarColumns(vbar);
 		this.renderer.drawVBarComplexes(vbar);
 		this.renderer.drawVBarVoices(vbar);
 	}
-	,testVBar: function() {
-		this.assertTrue(true,{ fileName : "TestVRender.hx", lineNumber : 65, className : "nx3.test.TestVRender", methodName : "testVBar"});
-		var npart0 = new nx3.elements.NPart([new nx3.test.QVoice([2],null,[-2]),new nx3.test.QVoice([.4,8],null,[2,2])]);
-		var npart1 = new nx3.elements.NPart([new nx3.test.QVoice([8,.4],null,[-2,-2]),new nx3.test.QVoice([4,4],null,[2,2])]);
-		var vbar = new nx3.elements.VBar(new nx3.elements.NBar([npart0,npart1]));
-		this.renderer.setDefaultXY(200,80);
-		this.renderer.drawVBarNotelines(vbar,400,-30);
+	,testVBar2: function() {
+		this.assertTrue(true,{ fileName : "TestVRender.hx", lineNumber : 128, className : "nx3.test.TestVRender", methodName : "testVBar2"});
+		var npart0 = new nx3.elements.NPart([new nx3.elements.NVoice([new nx3.test.QNote4(null,[-4,0])]),new nx3.elements.NVoice([new nx3.test.QNote4(null,[-2,2])])]);
+		var vbar = new nx3.elements.VBar(new nx3.elements.NBar([npart0]));
+		this.renderer.setDefaultXY(50,180);
+		this.renderer.drawVBarNotelines(vbar,500,50);
 		this.renderer.drawVBarColumns(vbar);
 		this.renderer.drawVBarComplexes(vbar);
 		this.renderer.drawVBarVoices(vbar);
 	}
 	,test0: function() {
-		this.assertEquals(1,1,{ fileName : "TestVRender.hx", lineNumber : 59, className : "nx3.test.TestVRender", methodName : "test0"});
+		this.assertEquals(1,1,{ fileName : "TestVRender.hx", lineNumber : 67, className : "nx3.test.TestVRender", methodName : "test0"});
 	}
 	,renderer: null
 	,target: null
@@ -13601,13 +13978,17 @@ $hxClasses["nx3.test.DevRenderer"] = nx3.test.DevRenderer;
 nx3.test.DevRenderer.__name__ = ["nx3","test","DevRenderer"];
 nx3.test.DevRenderer.__super__ = nx3.render.FrameRenderer;
 nx3.test.DevRenderer.prototype = $extend(nx3.render.FrameRenderer.prototype,{
-	drawShape: function(shape,x,y,rect) {
+	drawRectangle: function(graphics,rect) {
+		graphics.drawRect(rect.x,rect.y,rect.width,rect.height);
+	}
+	,drawShape: function(shape,x,y,rect) {
 		if(shape == null) return;
 		shape.set_x(x + rect.x * this.scaling.halfNoteWidth + this.scaling.svgX);
 		shape.set_y(y + rect.y * this.scaling.halfSpace + this.scaling.svgY);
 		this.target.addChild(shape);
 	}
-	,heads: function(x,y,vnote) {
+	,heads: function(x,y,vnote,direction,xOffset) {
+		if(xOffset == null) xOffset = 0;
 		var xmlStr = null;
 		var _g = nx3.elements.ENoteValTools.head(vnote.nnote.value);
 		switch( (_g)[1] ) {
@@ -13620,13 +14001,22 @@ nx3.test.DevRenderer.prototype = $extend(nx3.render.FrameRenderer.prototype,{
 		default:
 			xmlStr = nx3.render.svg.Elements.noteBlack;
 		}
-		var _g1 = 0, _g2 = vnote.getVHeadsRectangles();
+		var _g1 = 0, _g2 = vnote.getVHeadsRectanglesDir(direction);
 		while(_g1 < _g2.length) {
 			var rect = _g2[_g1];
 			++_g1;
 			var shape = nx3.render.svg.ShapeTools.getShape(xmlStr,this.scaling);
 			this.drawShape(shape,x,y,rect);
 		}
+	}
+	,addText: function(x,y,text,color) {
+		if(color == null) color = 0;
+		var tf = new flash.text.TextField();
+		tf.set_defaultTextFormat(new flash.text.TextFormat("Arial",10));
+		tf.set_text(text);
+		tf.set_x(x);
+		tf.set_y(y);
+		this.target.addChild(tf);
 	}
 	,drawVBarVoices: function(vbar) {
 		var party = this.defaultY;
@@ -13651,13 +14041,9 @@ nx3.test.DevRenderer.prototype = $extend(nx3.render.FrameRenderer.prototype,{
 						var vnoteIdx = cx.ArrayTools.index(beamgroup.vnotes,vnote);
 						var vcolumn = vbar.getVNotesVColumns().h[vnote.__id__];
 						var pos = vbar.getVColumnsPositions().h[vcolumn.__id__];
-						var colx = this.defaultX + pos / 20;
-						var tf = new flash.text.TextField();
-						tf.set_defaultTextFormat(new flash.text.TextFormat("Arial",10));
-						tf.set_text("" + beamgroupIdx);
-						tf.set_x(colx);
-						tf.set_y(party + (vvoiceIdx == 0?this.scaling.space * -3:this.scaling.space * 3) - this.scaling.halfSpace);
-						this.target.addChild(tf);
+						var colx = this.defaultX + pos * nx3.test.DevRenderer.posfactor;
+						var textY = party + (vvoiceIdx == 0?this.scaling.space * -3:this.scaling.space * 3) - this.scaling.halfSpace;
+						this.addText(colx,textY,"" + beamgroupIdx);
 					}
 				}
 			}
@@ -13670,13 +14056,14 @@ nx3.test.DevRenderer.prototype = $extend(nx3.render.FrameRenderer.prototype,{
 		while(_g < _g1.length) {
 			var vpart = _g1[_g];
 			++_g;
+			var beamgroupsDirections = vpart.getBeamgroupsDirections();
 			var _g2 = 0, _g3 = vpart.getVComplexes();
 			while(_g2 < _g3.length) {
 				var vcomplex = _g3[_g2];
 				++_g2;
 				var vcolumn = vbar.getVComplexesVColumns().h[vcomplex.__id__];
 				var pos = vbar.getVColumnsPositions().h[vcolumn.__id__];
-				var colx = this.defaultX + pos / 20;
+				var colx = this.defaultX + pos * nx3.test.DevRenderer.posfactor;
 				this.target.get_graphics().endFill();
 				this.target.get_graphics().lineStyle(1,16711680);
 				this.target.get_graphics().drawRect(colx - 5,party - 5,10,10);
@@ -13685,9 +14072,15 @@ nx3.test.DevRenderer.prototype = $extend(nx3.render.FrameRenderer.prototype,{
 					var vnote = _g5[_g4];
 					++_g4;
 					var vvoice = vpart.getVNotesVVoices().h[vnote.__id__];
+					var noteComplexIdx = cx.ArrayTools.index(vcomplex.getVNotes(),vnote);
+					var beamgroup = vvoice.getNotesBeamgroups().h[vnote.__id__];
+					var direction = beamgroupsDirections.h[beamgroup.__id__];
+					var headsXOffset = vcomplex.getHeadsCollisionOffsetX(vnote) * this.scaling.halfNoteWidth;
+					this.heads(colx + headsXOffset,party,vnote,direction);
 					var vvoiceIdx = cx.ArrayTools.index(vpart.getVVoices(),vvoice);
-					var color = vvoiceIdx == 0?65280:255;
-					this.heads(colx,party,vnote);
+					var txtY = party + vvoiceIdx * 10 - 14;
+					var txtX = colx + headsXOffset + 10;
+					this.addText(txtX,txtY,direction[0]);
 				}
 			}
 			party += this.partdistance;
@@ -13699,7 +14092,7 @@ nx3.test.DevRenderer.prototype = $extend(nx3.render.FrameRenderer.prototype,{
 		var $it0 = positionsColumns.keys();
 		while( $it0.hasNext() ) {
 			var pos = $it0.next();
-			var colx = pos / 20;
+			var colx = pos * nx3.test.DevRenderer.posfactor;
 			this.target.get_graphics().endFill();
 			this.target.get_graphics().lineStyle(1,255);
 			this.target.get_graphics().moveTo(this.defaultX + colx,this.defaultY - this.scaling.space * 3);
@@ -13707,21 +14100,21 @@ nx3.test.DevRenderer.prototype = $extend(nx3.render.FrameRenderer.prototype,{
 		}
 	}
 	,drawVBarNotelines: function(vbar,width,xMinus) {
-		if(xMinus == null) xMinus = -50;
+		if(xMinus == null) xMinus = 100;
 		if(width == null) width = 800;
 		var y = this.defaultY;
 		var _g = 0, _g1 = vbar.getVParts();
 		while(_g < _g1.length) {
 			var vpart = _g1[_g];
 			++_g;
-			this.notelines(this.defaultX + xMinus,y,width);
+			this.notelines(this.defaultX - xMinus,y,width + xMinus);
 			y += this.partdistance;
 		}
 	}
 	,vnoteheads: function(vnote,x,y,fill) {
 		if(fill == null) fill = 65280;
 		this.target.get_graphics().beginFill(fill);
-		var _g = 0, _g1 = vnote.getVHeadsRectangles();
+		var _g = 0, _g1 = vnote.getVHeadsRectanglesDir(null);
 		while(_g < _g1.length) {
 			var rect = _g1[_g];
 			++_g;
@@ -14313,23 +14706,16 @@ nx3.Constants.COMPLEX_COLLISION_OVERLAP_XTRA = 0.6;
 nx3.Constants.SIGN_NORMAL_WIDTH = 2.6;
 nx3.Constants.SIGN_PARENTHESIS_WIDTH = 4.4;
 nx3.Constants.HEAD_ADJUST_X = 0;
-nx3.Constants.COMPLEX_COLLISION_ADJUST_X = 3.0;
+nx3.Constants.COMPLEX_COLLISION_ADJUST_SAMELINE = 3.0;
+nx3.Constants.COMPLEX_COLLISION_ADJUST_NEXTLINE = 2.2;
+nx3.Constants.COMPLEX_COLLISION_ADJUST_SAMELINE_WHOLE = 4.3;
+nx3.Constants.COMPLEX_COLLISION_ADJUST_NEXTLINE_WHOLE = 4;
 nx3.Constants.NOTE_STEM_X_NORMAL = 1.6;
 nx3.Constants.HEAD_HALFWIDTH_NORMAL = 1.6;
 nx3.Constants.HEAD_HALFWIDTH_WIDE = 2.0;
-nx3.elements.EKey.Sharp6 = new nx3.elements.EKey(6);
-nx3.elements.EKey.Sharp5 = new nx3.elements.EKey(5);
-nx3.elements.EKey.Sharp4 = new nx3.elements.EKey(4);
-nx3.elements.EKey.Sharp3 = new nx3.elements.EKey(3);
-nx3.elements.EKey.Sharp2 = new nx3.elements.EKey(2);
-nx3.elements.EKey.Sharp1 = new nx3.elements.EKey(1);
-nx3.elements.EKey.Natural = new nx3.elements.EKey(0);
-nx3.elements.EKey.Flat1 = new nx3.elements.EKey(-1);
-nx3.elements.EKey.Flat2 = new nx3.elements.EKey(-2);
-nx3.elements.EKey.Flat3 = new nx3.elements.EKey(-3);
-nx3.elements.EKey.Flat4 = new nx3.elements.EKey(-4);
-nx3.elements.EKey.Flat5 = new nx3.elements.EKey(-5);
-nx3.elements.EKey.Flat6 = new nx3.elements.EKey(-6);
+nx3.Constants.COMPLEX_COLLISION_CHORD_INTERSECTION = 0.8;
+nx3.Constants.COMPLEX_COLLISION_NEXTLINEDELTA = 0.7;
+nx3.Constants.COMPLEX_COLLISION_NEXTLINEDELTA_H1 = 0.9;
 nx3.elements.ENoteValTools.DOT = 1.5;
 nx3.elements.ENoteValTools.DOTDOT = 1.75;
 nx3.elements.ENoteValTools.TRI = 0.66666666;
@@ -14413,6 +14799,7 @@ nx3.render.svg.Elements.tpl5 = "\r\n<svg ><g visibility=\"visible\" id=\"page1\"
 nx3.render.svg.Elements.tpl6x = "\r\n<svg ><g visibility=\"visible\" id=\"page1\"><desc>Slide</desc><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:none\"><rect x=\"0\" y=\"464\" width=\"503\" height=\"1205\"/></g><g/></g></g><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:#000000\"><path d=\"M 124,150 L 111,151 C 110,146 108,143 106,141 103,138 99,136 94,136 90,136 86,137 83,139 80,142 77,145 74,150 72,155 71,162 71,172 74,168 78,165 82,162 86,160 91,159 96,159 104,159 111,162 117,168 123,174 126,182 126,192 126,198 125,204 122,209 119,215 115,219 110,222 105,225 100,226 94,226 83,226 75,222 68,215 61,207 58,195 58,178 58,158 62,144 69,135 75,128 84,124 95,124 103,124 110,126 115,131 120,136 123,142 124,150 Z M 71,191 C 71,195 72,199 74,203 76,206 78,209 82,211 85,213 89,214 93,214 99,214 103,212 107,208 111,204 113,199 113,192 113,186 111,180 107,177 104,173 99,171 92,171 86,171 81,173 77,177 73,180 71,185 71,191 Z\"/></g><g style=\"stroke:none;fill:none\"><rect x=\"58\" y=\"124\" width=\"69\" height=\"104\"/></g><g/></g></g></g></svg>\t\r\n\t";
 nx3.render.svg.Elements.tpl6 = "\r\n<svg ><g style=\"stroke:none;fill:#000000\"><path d=\"M 124,150 L 111,151 C 110,146 108,143 106,141 103,138 99,136 94,136 90,136 86,137 83,139 80,142 77,145 74,150 72,155 71,162 71,172 74,168 78,165 82,162 86,160 91,159 96,159 104,159 111,162 117,168 123,174 126,182 126,192 126,198 125,204 122,209 119,215 115,219 110,222 105,225 100,226 94,226 83,226 75,222 68,215 61,207 58,195 58,178 58,158 62,144 69,135 75,128 84,124 95,124 103,124 110,126 115,131 120,136 123,142 124,150 Z M 71,191 C 71,195 72,199 74,203 76,206 78,209 82,211 85,213 89,214 93,214 99,214 103,212 107,208 111,204 113,199 113,192 113,186 111,180 107,177 104,173 99,171 92,171 86,171 81,173 77,177 73,180 71,185 71,191 Z\"/></g></svg>\t\r\n\t";
 nx3.render.svg.Elements.tpl7 = "\r\n<svg ><g visibility=\"visible\" id=\"page1\"><desc>Slide</desc><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:none\"><rect x=\"0\" y=\"464\" width=\"503\" height=\"1205\"/></g><g/></g></g><g><desc>Drawing</desc><g><g style=\"stroke:none;fill:#000000\"><path d=\"M 61,138 L 61,125 126,125 126,136 C 120,142 114,152 108,163 102,174 97,186 94,197 91,206 90,215 89,225 L 76,225 C 76,217 78,208 81,196 83,185 87,175 93,164 98,154 104,145 110,138 L 61,138 Z\"/></g><g style=\"stroke:none;fill:none\"><rect x=\"61\" y=\"125\" width=\"67\" height=\"101\"/></g><g/></g></g></g></svg>\t\r\n\t";
+nx3.test.DevRenderer.posfactor = .05;
 openfl.display.Tilesheet.TILE_SCALE = 1;
 openfl.display.Tilesheet.TILE_ROTATION = 2;
 openfl.display.Tilesheet.TILE_RGB = 4;

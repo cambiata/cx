@@ -89,16 +89,16 @@ class ENoteValTools
 	 {
 		return switch val
 		 {
-			case ENoteVal.Nv1:  EHeadValuetype.HVT1;
-			case ENoteVal.Nv1tri: EHeadValuetype.HVT1;
-			case ENoteVal.Nv1dot: EHeadValuetype.HVT1;
-			case ENoteVal.Nv1ddot:  EHeadValuetype.HVT1;
+			case ENoteVal.Nv1:  EHeadValueType.HVT1;
+			case ENoteVal.Nv1tri: EHeadValueType.HVT1;
+			case ENoteVal.Nv1dot: EHeadValueType.HVT1;
+			case ENoteVal.Nv1ddot:  EHeadValueType.HVT1;
 				
-			case ENoteVal.Nv2:  EHeadValuetype.HVT2;
-			case ENoteVal.Nv2tri:  EHeadValuetype.HVT2;
-			case ENoteVal.Nv2dot:  EHeadValuetype.HVT2;
-			case ENoteVal.Nv2ddot:   EHeadValuetype.HVT2;
-			default:  EHeadValuetype.HVT4;
+			case ENoteVal.Nv2:  EHeadValueType.HVT2;
+			case ENoteVal.Nv2tri:  EHeadValueType.HVT2;
+			case ENoteVal.Nv2dot:  EHeadValueType.HVT2;
+			case ENoteVal.Nv2ddot:   EHeadValueType.HVT2;
+			default:  EHeadValueType.HVT4;
 		 }
 	 }
 	 

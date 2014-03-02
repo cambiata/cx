@@ -6,12 +6,17 @@ import flash.display.Sprite;
 import flash.display.Sprite;
 import flash.events.Event;
 import flash.Lib;
+import haxe.unit.TestRunner;
 import nx3.elements.NBar;
 import nx3.elements.NPart;
 import nx3.elements.VTree;
 import nx3.render.scaling.Scaling;
 import nx3.render.scaling.TScaling;
 import nx3.test.QVoice;
+import nx3.test.TestN;
+import nx3.test.TestQ;
+import nx3.test.TestV;
+import nx3.test.TestVRender;
 import nx3.test.TestVRender.DevRenderer;
 
 
@@ -23,7 +28,7 @@ import nx3.test.TestVRender.DevRenderer;
 
 class Main extends OpenFlMain 
 {
-	/* ENTRY POINT */
+	/*
 	override function start()
 	{
 		
@@ -47,6 +52,21 @@ class Main extends OpenFlMain
 		renderer.drawVBarComplexes(vbar);
 		renderer.drawVBarVoices(vbar);	
 	}
+	*/
+	
+
+	static public function main() 
+	{
+		var runner = new  TestRunner(); 
+		runner.add(new TestQ());
+		runner.add(new TestN());
+		runner.add(new TestV());
+		runner.add(new TestVRender());
+		//runner.add(new TestDVoice());
+		//runner.add(new TestDPart());
+		var success = runner.run();
+	}
+	
 }
 
 class OpenFlMain extends Sprite

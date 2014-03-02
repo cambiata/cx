@@ -24,6 +24,7 @@ import nx3.elements.VTree.VNoteHeadsRectsCalculator;
 import nx3.elements.VTree.VNoteInternalDirectionCalculator;
 import nx3.elements.VTree.VPartbeamgroupsDirectionCalculator;
 import nx3.elements.VTree.VSigns;
+import nx3.elements.EHeadValueType;
 import nx3.geom.Rectangle;
 import nx3.geom.Rectangles;
 
@@ -897,7 +898,7 @@ class VNoteHeadsRectsCalculator
 			var headw:Float = 0;
 			switch(this.notevalue.head())
 			{
-				case EHeadValuetype.HVT1:					
+				case EHeadValueType.HVT1:					
 					headw = Constants.HEAD_HALFWIDTH_WIDE;
 				default:
 					headw = Constants.HEAD_HALFWIDTH_NORMAL;
@@ -1123,18 +1124,20 @@ class VComplex
 	{
 		if (vnotes.length > 2) throw "VComplex nr of VNote(s) limited to max 2 - for now";
 		this.vnotes = vnotes;
-		if (directions != null) this.setDirections( directions);
+		//if (directions != null) this.setDirections( directions);
 	}
 
+	/*
 	var directions(default, null):EDirectionUDs;
 	public function setDirections(directions:EDirectionUDs)
 	{
 		if (directions == null) throw "Can't set directions to null";
 		if (directions.length != this.getVNotes().length) throw "Directions length differ from vnotes length";
-		this.headsRect = null;
-		this.headsRects = null;
+		this.firstNoteRect = null;
+		this.secondNoteRect = null;
 		this.directions = directions;		
 	}	
+	*/
 	
 	var signs:VSigns;
 	var visibleSigns:VSigns;
@@ -1172,86 +1175,91 @@ class VComplex
 	
 	//------------------------------------------------------------------------------------------------------------
 	
-	public function getHeadsCollisionOffsetX(note:VNote):Float
+	public function getHeadsCollisionOffsetX(note:VNote, direction:EDirectionUD=null):Float
 	{
 		if (this.vnotes.length == 1) return 0;
 		
 		if (note == this.vnotes.first()) return 0;
-		if (note == this.vnotes.second()) 
+
+		// note IS second!
+		var firstnote = this.vnotes.first();
+		var secondnote = note;
+	
+		var offsetX = getRectanglesXIntersection(firstnote.getVHeadsRectanglesDir(EDirectionUD.Up), secondnote.getVHeadsRectanglesDir(direction));
+		
+		var diff = secondnote.nnote.getTopLevel() - firstnote.nnote.getBottomLevel();
+		
+		// touch...
+		if (diff == 1)  
 		{
-			var firstnote = this.vnotes.first();
-			var secondnote = note;
-			var diff = secondnote.nnote.getTopLevel() - firstnote.nnote.getBottomLevel();
-			//if (firstnote.nnote.getBottomLevel() > (secondnote.nnote.getTopLevel()-1) return 0
-			if (diff <= 0) 
-			{
-				return Constants.COMPLEX_COLLISION_ADJUST_X;
-			}
-			else if (diff == 1)
-			{
-				return Constants.COMPLEX_COLLISION_ADJUST_X_HALF;
-			}
-			else
-				return 0;
+			offsetX = (firstnote.nnote.value.head() == nx3.elements.EHeadValueType.HVT1) ? Constants.COMPLEX_COLLISION_NEXTLINEDELTA_H1 * offsetX : Constants.COMPLEX_COLLISION_NEXTLINEDELTA * offsetX;
 		}
-		throw "asking for a note that's not a part of current complex";
-		return 0;
+		
+		// chord intersection
+		if (diff < 1 && offsetX == 0)
+		{
+			offsetX = -Constants.COMPLEX_COLLISION_CHORD_INTERSECTION;
+		}
+
+		return offsetX;
 	}
 	
-	var headsRect:Rectangle;
-	public function getHeadsUnionRect(dirs:EDirectionUDs=null): Rectangle
+	public function getRectanglesXIntersection(rectsA:Rectangles, rectsB:Rectangles)
 	{
-		if (dirs != null && !dirs.equals(this.directions)) this.setDirections(dirs);	
-		if (this.headsRect != null) return this.headsRect;
-		var rects = this.getHeadsRects(dirs);
-		if (rects.length == 1) return rects.first();
-		return rects.first().union(rects.second());
-	}
+		var rectsB2 = new Rectangles();
+		for (r in rectsB) rectsB2.push(r.clone());		
+		function check():Float
+		{
+			for (ra in rectsA)
+			{
+				for (rb in rectsB2)
+				{
+					var i = ra.intersection(rb);	
+					if (i.width > 0) return i.width;
+				}			
+			}
+			return 0;
+		}		
+		var x:Float = 0;
+		var moveX:Float = check();
+		while (moveX > 0)
+		{
+			x += moveX;
+			for (r in rectsB2) r.offset(moveX, 0);			
+			moveX = check();
+		}		
+		return x;		
+	}	
 	
-	var headsRects:Rectangles;
-	public function getHeadsRects(dirs:EDirectionUDs=null): Rectangles
+	
+	public function getNoteHeadsRect(note:VNote, dir:EDirectionUD=null):Rectangle
 	{
-		if (dirs != null && !dirs.equals(this.directions)) this.setDirections(dirs);	
-		if (this.headsRects != null) return this.headsRects;
-		var firstnote = this.getVNotes().first();
-		if (dirs == null) dirs = this.directions;
-		var firstdir:EDirectionUD = (this.directions != null) ? this.directions.first(): (this.getVNotes().length > 1) ? EDirectionUD.Up :  new VNoteInternalDirectionCalculator(firstnote.getVHeads()).getDirection();		
-		var firstnoteHeadRects = firstnote.getVHeadsRectanglesDir(firstdir);
-		var firstnoteRect = firstnoteHeadRects.first().clone();
-		if (firstnoteHeadRects.length > 1)
-		{
-			for (i in 1...firstnoteHeadRects.length)
+		// TODO: Optimize!
+		
+		var result:Rectangle = null;
+		
+		// first vnote
+		if (note == this.vnotes.first())
+		{			
+			if (dir == null)  dir = new VNoteInternalDirectionCalculator(note.getVHeads()).getDirection();		
+			var rects = note.getVHeadsRectanglesDir(dir);
+			result = rects.first().clone();
+			for (i in 1...rects.length)
 			{
-				firstnoteRect = firstnoteRect.union(firstnoteHeadRects[i]);				
-			}
+				result = result.union(rects[i]);				
+			}			
+			return  result;
 		}
 		
-		if (this.vnotes.length == 1) 
+		// second vnote
+		if (dir == null) dir = new VNoteInternalDirectionCalculator(note.getVHeads()).getDirection();		
+		var rects = note.getVHeadsRectanglesDir(dir);
+		result = rects.first().clone();
+		for (i in 1...rects.length)
 		{
-			this.headsRects =  [firstnoteRect];		
-			return this.headsRects;
-		}
-		
-		var secondnote = this.vnotes.second();
-		var seconddir:EDirectionUD = (dirs != null && dirs.length > 1) ? dirs.second() : EDirectionUD.Down;
-		var secondnoteHeadRects = secondnote.getVHeadsRectanglesDir(seconddir);
-		var secondnoteRect = secondnoteHeadRects.first().clone();				
-		if (secondnoteHeadRects.length > 1)
-		{
-			for (i in 1...secondnoteHeadRects.length)
-			{
-				secondnoteRect = secondnoteRect.union(secondnoteHeadRects[i]);				
-			}
-		}
-		
-		//-------------------------------------
-		var xoffset = getHeadsCollisionOffsetX(secondnote);
-		secondnoteRect.offset(xoffset, 0);
-		//---------------------------------------
-		
-		//firstnoteRect = firstnoteRect.union(secondnoteRect);	
-		this.headsRects = [firstnoteRect, secondnoteRect];
-		return this.headsRects;
+			result = result.union(rects[i]);				
+		}			
+		return result;		
 	}
 	
 }

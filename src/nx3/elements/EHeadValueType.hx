@@ -4,7 +4,7 @@ package nx3.elements;
  * ...
  * @author Jonas Nyström
  */
-enum EHeadValuetype 
+enum EHeadValueType 
 {
 	HVT4;		// fourth
 	HVT2;		// halv

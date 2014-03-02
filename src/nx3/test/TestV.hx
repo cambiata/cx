@@ -702,21 +702,69 @@ class TestV extends  haxe.unit.TestCase
 		var n1 = new VNote(new QNote(-2));
 		var complex = new VComplex([n0, n1]);
 		this.assertEquals(complex.getHeadsCollisionOffsetX(n0), 0);
-		this.assertEquals(complex.getHeadsCollisionOffsetX(n1), Constants.COMPLEX_COLLISION_ADJUST_X);
+		this.assertEquals(complex.getHeadsCollisionOffsetX(n1), Constants.HEAD_HALFWIDTH_NORMAL*2);
 		
 		var n0 = new VNote(new QNote( -2));
 		var n1 = new VNote(new QNote(-1));
 		var complex = new VComplex([n0, n1]);
 		this.assertEquals(complex.getHeadsCollisionOffsetX(n0), 0);
-		this.assertEquals(complex.getHeadsCollisionOffsetX(n1), Constants.COMPLEX_COLLISION_ADJUST_X_HALF);		
+		this.assertEquals(complex.getHeadsCollisionOffsetX(n1), Constants.HEAD_HALFWIDTH_NORMAL*2*0.7);		
 		
 		var n0 = new VNote(new QNote( -2));
 		var n1 = new VNote(new QNote(0));
-		var complex = new VComplex([n0, n1]);
+		var complex = new VComplex([n0, n1]);		
 		this.assertEquals(complex.getHeadsCollisionOffsetX(n0), 0);
 		this.assertEquals(complex.getHeadsCollisionOffsetX(n1), 0);					
 	}
 	
+	public function testVComplexHeadsIntersectionOffset()
+	{
+		var n0 = new VNote(new QNote(0));
+		var n1 = new VNote(new QNote(2));
+		var complex = new VComplex([n0, n1]);		
+		var rects0 = n0.getVHeadsRectanglesDir(EDirectionUD.Up);
+		var rects1 = n1.getVHeadsRectanglesDir(EDirectionUD.Down);
+
+		//var x = complex.getRectanglesXIntersection(rects0, rects1);
+		//trace(x);
+		this.assertTrue(true);
+	}
+	
+	public function testVComplexNoteHeadsRectOneNote()
+	{
+		var n0 = new VNote(new QNote( 0));
+		var complex = new VComplex([n0]);
+		var r0 = complex.getNoteHeadsRect(n0);
+		this.assertTrue(rectEquals(r0, -Constants.HEAD_HALFWIDTH_NORMAL, -1, Constants.HEAD_HALFWIDTH_NORMAL*2, 2));
+
+		var n0 = new VNote(new QNote([0, 1]));
+		var complex = new VComplex([n0]);
+		var r0 = complex.getNoteHeadsRect(n0);
+		this.assertTrue(rectEquals(r0, -Constants.HEAD_HALFWIDTH_NORMAL, -1, Constants.HEAD_HALFWIDTH_NORMAL*4, 3));
+
+		var n0 = new VNote(new QNote([0, 1]));
+		var complex = new VComplex([n0]);
+		var r0 = complex.getNoteHeadsRect(n0, EDirectionUD.Up);
+		this.assertTrue(rectEquals(r0, -Constants.HEAD_HALFWIDTH_NORMAL, -1, Constants.HEAD_HALFWIDTH_NORMAL*4, 3));		
+		
+		var n0 = new VNote(new QNote([0, 1]));
+		var complex = new VComplex([n0]);
+		var r0 = complex.getNoteHeadsRect(n0, EDirectionUD.Down);
+		this.assertTrue(rectEquals(r0, -Constants.HEAD_HALFWIDTH_NORMAL*3, -1, Constants.HEAD_HALFWIDTH_NORMAL*4, 3));						
+	}
+
+	public function testVComplexNoteHeadsRectTwoNotes()
+	{
+		var n0 = new VNote(new QNote([0,1]));
+		var n1 = new VNote(new QNote([2, 3]));
+		var complex = new VComplex([n0, n1]);
+		var r0 = complex.getNoteHeadsRect(n0);
+		var r1 = complex.getNoteHeadsRect(n1, EDirectionUD.Down);
+		this.assertTrue(rectEquals(r0, -Constants.HEAD_HALFWIDTH_NORMAL, -1, Constants.HEAD_HALFWIDTH_NORMAL*4, 3));
+		this.assertTrue(rectEquals(r1, -Constants.HEAD_HALFWIDTH_NORMAL*3, 1, Constants.HEAD_HALFWIDTH_NORMAL*4, 3));
+	}
+	
+	/*
 	public function testVComplexHeadsRect()
 	{
 		var n0 = new VNote(new QNote4(0));
@@ -739,15 +787,17 @@ class TestV extends  haxe.unit.TestCase
 		var n1 = new VNote(new QNote4(0));
 		var complex = new VComplex([n0, n1]);		
 		var rect = complex.getHeadsUnionRect();
-		this.assertEquals(rect.toString(), new Rectangle( -Constants.HEAD_HALFWIDTH_NORMAL, -2, Constants.HEAD_HALFWIDTH_NORMAL * 2 + Constants.COMPLEX_COLLISION_ADJUST_X_HALF, 3).toString());
+		this.assertEquals(rect.toString(), new Rectangle( -Constants.HEAD_HALFWIDTH_NORMAL, -2, Constants.HEAD_HALFWIDTH_NORMAL * 2 + Constants.COMPLEX_COLLISION_ADJUST_NEXTLINE, 3).toString());
 
 		var n0 = new VNote(new QNote4(-1));
 		var n1 = new VNote(new QNote4(-1));
 		var complex = new VComplex([n0, n1]);		
 		var rect = complex.getHeadsUnionRect();		
-		this.assertTrue(rectEquals(rect, new Rectangle( -Constants.HEAD_HALFWIDTH_NORMAL, -2, Constants.HEAD_HALFWIDTH_NORMAL * 2 + Constants.COMPLEX_COLLISION_ADJUST_X, 2)));
+		this.assertTrue(rectEquals(rect, new Rectangle( -Constants.HEAD_HALFWIDTH_NORMAL, -2, Constants.HEAD_HALFWIDTH_NORMAL * 2 + Constants.COMPLEX_COLLISION_ADJUST_SAMELINE, 2)));
 	}
-
+	*/
+	
+	/*
 	public function testVComplexHeadsRectDirs()
 	{	
 		
@@ -798,6 +848,7 @@ class TestV extends  haxe.unit.TestCase
 		var rects = complex.getHeadsRects();
 		this.assertTrue(rectEquals(rect, -Constants.HEAD_HALFWIDTH_NORMAL, -1, Constants.HEAD_HALFWIDTH_NORMAL * 4, 3));
 	}	
+	*/
 	
 	public function testComplexSignsRectsGenerator()
 	{
@@ -810,14 +861,12 @@ class TestV extends  haxe.unit.TestCase
 		var calculator = new VComplexSignsRectsCalculator(signs);
 		var rects = calculator.getSignRects();
 		this.assertEquals(rects.length, 1);
-		trace(rects.first());		
 		
 		var signs:VSigns = [ { sign:ESign.Flat, level:0, position:0 } ];
 		var calculator = new VComplexSignsRectsCalculator(signs);
 		var rects = calculator.getSignRects([new Rectangle(-1, -10, 5, 20)]);
 		this.assertEquals(rects.length, 1);
-		trace(rects.first());
-		
+
 		
 	}
 	
@@ -1817,12 +1866,17 @@ class TestV extends  haxe.unit.TestCase
 	
 	function rectEquals(a:Rectangle, ?b:Rectangle=null, bx:Float=-1, by:Float=-1, bwidth:Float=-1, bheight:Float=-1): Bool
 	{
+		var result:Bool = false;
 		if (b == null)
 		{
 			if (bwidth == -1 || bheight==-1) throw "Rect comparison error";
-			return return MathTools.floatEquals(a.x, bx) && MathTools.floatEquals(a.y, by) && MathTools.floatEquals(a.width, bwidth) && MathTools.floatEquals(a.height, bheight);		
+			result =  MathTools.floatEquals(a.x, bx) && MathTools.floatEquals(a.y, by) && MathTools.floatEquals(a.width, bwidth) && MathTools.floatEquals(a.height, bheight);		
+			if (!result) trace(['Rectangle not equal', a]);
+			return result;
 		}		
-		return MathTools.floatEquals(a.x, b.x) && MathTools.floatEquals(a.y, b.y) && MathTools.floatEquals(a.width, b.width) && MathTools.floatEquals(a.height, b.height);		
+		result = MathTools.floatEquals(a.x, b.x) && MathTools.floatEquals(a.y, b.y) && MathTools.floatEquals(a.width, b.width) && MathTools.floatEquals(a.height, b.height);		
+		if (!result) trace(['Rectangle not equal', a]);
+		return result;
 	}
 	
 	function arrEquals<T>(a:Array<T>, b:Array<T>):Bool

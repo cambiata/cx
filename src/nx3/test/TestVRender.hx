@@ -4,10 +4,10 @@ package nx3.test;
 
 import haxe.ds.IntMap.IntMap;
 import nx3.elements.EDirectionUDs;
+import nx3.elements.EHeadValueType;
 import nx3.render.svg.Elements;
 import nx3.render.svg.ShapeTools;
-import nx3.test.QNote.QNote4;
-import nx3.test.QNote.QNote8;
+import nx3.test.QNote;
 
 import nx3.elements.EDirectionUAD;
 import nx3.elements.EDirectionUD;
@@ -23,7 +23,6 @@ import nx3.render.FrameRenderer;
 import nx3.render.scaling.Scaling;
 import nx3.render.scaling.TScaling;
 import nx3.render.tools.RenderTools;
-import nx3.test.QNote.QNote2;
 import nx3.test.TestVRender.DevRenderer;
 
 #if (nme)
@@ -68,7 +67,7 @@ class TestVRender extends  haxe.unit.TestCase
 		this.assertEquals(1, 1);
 		//this.renderer.notelines(10, 50, 300);
 	}
-	
+	/*
 	public function testVBar()
 	{
 		this.assertTrue(true);
@@ -80,8 +79,8 @@ class TestVRender extends  haxe.unit.TestCase
 			//new QVoice([.4, 8], [2, 2]),
 		]);
 		var npart1 = new NPart([
-			new QVoice([8, .4], [-2, -2]),
-			new QVoice([4, 4], [2, 2])
+			new QVoice([8, .4], [-1, -2]),
+			new QVoice([4, 4], [0, 2])
 		]);
 		
 		var vbar = new VBar(new NBar([npart0, npart1]));
@@ -121,7 +120,47 @@ class TestVRender extends  haxe.unit.TestCase
 		this.renderer.drawVBarComplexes(vbar);
 		this.renderer.drawVBarVoices(vbar);	
 	}
+	*/
 	
+	
+	public function testVBar2()
+	{
+		this.assertTrue(true);
+
+		var npart0 = new NPart([
+			/*new QVoice([4], [0]), // */new NVoice([new QNote4([-4,0])]),
+			/*new QVoice([4], [1]), // */new NVoice([new QNote4([-2, 2])]),
+		]);
+		
+		var vbar = new VBar(new NBar([npart0]));
+		
+		//this.assertEquals(positionsColumns.keys().keysToArray().toString(), [0, 1512, 3024, 4536].toString());
+		this.renderer.setDefaultXY(50, 180);
+		this.renderer.drawVBarNotelines(vbar, 500, 50);
+		this.renderer.drawVBarColumns(vbar);
+		this.renderer.drawVBarComplexes(vbar);
+		this.renderer.drawVBarVoices(vbar);			
+	}	
+	
+	
+	public function testVBar3()
+	{
+		this.assertTrue(true);
+
+		var npart0 = new NPart([
+			new QVoice([4,4, 4, 1, 1], [0, 0, 0, 0, 0]), 
+			new QVoice([4, 4, 4, 1, 1], [2, 1, 0, 1, 0]), 
+		]);
+		
+		var vbar = new VBar(new NBar([npart0]));
+		
+		//this.assertEquals(positionsColumns.keys().keysToArray().toString(), [0, 1512, 3024, 4536].toString());
+		this.renderer.setDefaultXY(150, 180);
+		this.renderer.drawVBarNotelines(vbar, 500, 50);
+		this.renderer.drawVBarColumns(vbar);
+		this.renderer.drawVBarComplexes(vbar);
+		this.renderer.drawVBarVoices(vbar);			
+	}		
 	
 	
 	
@@ -199,49 +238,21 @@ class DevRenderer extends FrameRenderer
 				this.target.graphics.lineStyle(1, 0xFF0000);
 				this.target.graphics.drawRect(colx - 5, party - 5, 10, 10); 
 				
-				var directions =  new EDirectionUDs ();
-				for (vnote in vcomplex.getVNotes()) 
-				{
-					var vvoice = vpart.getVNotesVVoices().get(vnote);
-					var beamgroup = vvoice.getNotesBeamgroups().get(vnote);
-					var direction = beamgroupsDirections.get(beamgroup);
-					directions.push(direction);
-				}
-				//trace(directions);
-				//var rects = vcomplex.getHeadsRects(directions);
-				/*
-				trace(rects);
-				//target.graphics.drawRect
-				for (rect in rects)
-					drawRectangle(this.target.graphics, rect);
-				*/
-				
-				var idx = 0;
 				for (vnote in vcomplex.getVNotes())
 				{
 					var vvoice = vpart.getVNotesVVoices().get(vnote);
-					
-					var vvoiceIdx = vpart.getVVoices().index(vvoice);
-					
-					var color = (vvoiceIdx == 0) ? 0x00FF00 : 0x0000FF;
-					//this.vnoteheads(vnote, colx, party, color);
-					var beamgroup = vvoice.getNotesBeamgroups().get(vnote);
-					//var direction = beamgroup.getDirection();
-					var direction = beamgroupsDirections.get(beamgroup);
-					var txtY = party + (vvoiceIdx * 10)-14;
-					var txtX = colx + 10;
-					this.addText(txtX, txtY, direction.getName());
-					this.heads(colx, party, vnote, direction);
-
 					var noteComplexIdx = vcomplex.getVNotes().index(vnote);
-					vcomplex.getHeadsUnionRect();
-					
-					idx++;
+					var beamgroup = vvoice.getNotesBeamgroups().get(vnote);
+					var direction = beamgroupsDirections.get(beamgroup);
+					var headsXOffset = vcomplex.getHeadsCollisionOffsetX(vnote) * scaling.halfNoteWidth;
+					this.heads(colx+headsXOffset, party, vnote, direction);
+
+					// text
+					var vvoiceIdx = vpart.getVVoices().index(vvoice);
+					var txtY = party + (vvoiceIdx * 10)-14;
+					var txtX = colx+headsXOffset + 10;
+					this.addText(txtX, txtY, direction.getName());
 				}
-				
-				//var rects = vcomplex.getHeadsRects(directions);
-				
-				
 			}
 			
 			
@@ -286,20 +297,19 @@ class DevRenderer extends FrameRenderer
 		this.target.addChild(tf);
 	}
 	
-	public function heads(x:Float, y:Float, vnote:VNote, direction:EDirectionUD):Void 
+	public function heads(x:Float, y:Float, vnote:VNote, direction:EDirectionUD, xOffset:Float=0):Void 
 	{
 		var xmlStr:String = null;
 
 		switch (vnote.nnote.value.head())
 		{
-			case nx3.elements.EHeadValuetype.HVT1: xmlStr = Elements.noteWhole;
-			case nx3.elements.EHeadValuetype.HVT2: xmlStr = Elements.noteWhite;
+			case EHeadValueType.HVT1: xmlStr = Elements.noteWhole;
+			case EHeadValueType.HVT2: xmlStr = Elements.noteWhite;
 			default: xmlStr = Elements.noteBlack;
 		}
 		
 		for (rect in vnote.getVHeadsRectanglesDir(direction))
 		{
-			
 			var shape:Shape = ShapeTools.getShape(xmlStr, this.scaling);
 			drawShape(shape, x, y, rect);
 		}			
