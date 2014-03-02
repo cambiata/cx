@@ -1,7 +1,9 @@
 package nx3.test;
 
 
+
 import haxe.ds.IntMap.IntMap;
+import nx3.elements.EDirectionUDs;
 import nx3.render.svg.Elements;
 import nx3.render.svg.ShapeTools;
 import nx3.test.QNote.QNote4;
@@ -30,10 +32,12 @@ import nme.text.TextField;
 import nme.display.Sprite;
 import nme.Lib;
 import nme.display.Shape;
+import nme.display.Graphics;
 #else
 import flash.text.TextFormat;
 import flash.text.TextField;
 import flash.display.Sprite;
+import flash.display.Graphics;
 import flash.Lib;
 import flash.display.Shape;
 #end
@@ -41,6 +45,8 @@ import flash.display.Shape;
 using nx3.elements.VTree.VMapTools;
 using cx.ArrayTools;
 using nx3.elements.ENoteValTools;
+
+
 /**
  * ...
  * @author Jonas Nyström
@@ -192,11 +198,31 @@ class DevRenderer extends FrameRenderer
 				this.target.graphics.endFill();
 				this.target.graphics.lineStyle(1, 0xFF0000);
 				this.target.graphics.drawRect(colx - 5, party - 5, 10, 10); 
+				
+				var directions =  new EDirectionUDs ();
+				for (vnote in vcomplex.getVNotes()) 
+				{
+					var vvoice = vpart.getVNotesVVoices().get(vnote);
+					var beamgroup = vvoice.getNotesBeamgroups().get(vnote);
+					var direction = beamgroupsDirections.get(beamgroup);
+					directions.push(direction);
+				}
+				//trace(directions);
+				//var rects = vcomplex.getHeadsRects(directions);
+				/*
+				trace(rects);
+				//target.graphics.drawRect
+				for (rect in rects)
+					drawRectangle(this.target.graphics, rect);
+				*/
+				
+				var idx = 0;
 				for (vnote in vcomplex.getVNotes())
 				{
 					var vvoice = vpart.getVNotesVVoices().get(vnote);
 					
 					var vvoiceIdx = vpart.getVVoices().index(vvoice);
+					
 					var color = (vvoiceIdx == 0) ? 0x00FF00 : 0x0000FF;
 					//this.vnoteheads(vnote, colx, party, color);
 					var beamgroup = vvoice.getNotesBeamgroups().get(vnote);
@@ -205,10 +231,20 @@ class DevRenderer extends FrameRenderer
 					var txtY = party + (vvoiceIdx * 10)-14;
 					var txtX = colx + 10;
 					this.addText(txtX, txtY, direction.getName());
-					
 					this.heads(colx, party, vnote, direction);
+
+					var noteComplexIdx = vcomplex.getVNotes().index(vnote);
+					vcomplex.getHeadsUnionRect();
+					
+					idx++;
 				}
+				
+				//var rects = vcomplex.getHeadsRects(directions);
+				
+				
 			}
+			
+			
 			party += this.partdistance;
 		}
 	}
@@ -277,6 +313,10 @@ class DevRenderer extends FrameRenderer
 		this.target.addChild(shape);
 	}	
 	
+	public function drawRectangle(graphics:Graphics, rect:Rectangle)
+	{
+		graphics.drawRect(rect.x, rect.y, rect.width, rect.height);
+	}
 	
 }
 

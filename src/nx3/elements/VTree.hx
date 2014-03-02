@@ -1199,7 +1199,7 @@ class VComplex
 	}
 	
 	var headsRect:Rectangle;
-	public function getHeadsRect(dirs:EDirectionUDs=null): Rectangle
+	public function getHeadsUnionRect(dirs:EDirectionUDs=null): Rectangle
 	{
 		if (dirs != null && !dirs.equals(this.directions)) this.setDirections(dirs);	
 		if (this.headsRect != null) return this.headsRect;
@@ -1212,8 +1212,8 @@ class VComplex
 	public function getHeadsRects(dirs:EDirectionUDs=null): Rectangles
 	{
 		if (dirs != null && !dirs.equals(this.directions)) this.setDirections(dirs);	
-		if (this.headsRects != null) return this.headsRects;		
-		var firstnote = this.vnotes.first();
+		if (this.headsRects != null) return this.headsRects;
+		var firstnote = this.getVNotes().first();
 		if (dirs == null) dirs = this.directions;
 		var firstdir:EDirectionUD = (this.directions != null) ? this.directions.first(): (this.getVNotes().length > 1) ? EDirectionUD.Up :  new VNoteInternalDirectionCalculator(firstnote.getVHeads()).getDirection();		
 		var firstnoteHeadRects = firstnote.getVHeadsRectanglesDir(firstdir);

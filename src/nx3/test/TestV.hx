@@ -721,30 +721,30 @@ class TestV extends  haxe.unit.TestCase
 	{
 		var n0 = new VNote(new QNote4(0));
 		var complex = new VComplex([n0]);		
-		var rect = complex.getHeadsRect();
+		var rect = complex.getHeadsUnionRect();
 		this.assertEquals(rect.toString(), new Rectangle( -Constants.HEAD_HALFWIDTH_NORMAL, -1, Constants.HEAD_HALFWIDTH_NORMAL * 2, 2).toString());
 		
 		var n0 = new VNote(new QNote1(0));
 		var complex = new VComplex([n0]);		
-		var rect = complex.getHeadsRect();
+		var rect = complex.getHeadsUnionRect();
 		this.assertEquals(rect.toString(), new Rectangle( -Constants.HEAD_HALFWIDTH_WIDE, -1, Constants.HEAD_HALFWIDTH_WIDE * 2, 2).toString());
 
 		var n0 = new VNote(new QNote4(-1));
 		var n1 = new VNote(new QNote4(1));
 		var complex = new VComplex([n0, n1]);		
-		var rect = complex.getHeadsRect();
+		var rect = complex.getHeadsUnionRect();
 		this.assertEquals(rect.toString(), new Rectangle( -Constants.HEAD_HALFWIDTH_NORMAL, -2, Constants.HEAD_HALFWIDTH_NORMAL * 2, 4).toString());
 
 		var n0 = new VNote(new QNote4(-1));
 		var n1 = new VNote(new QNote4(0));
 		var complex = new VComplex([n0, n1]);		
-		var rect = complex.getHeadsRect();
+		var rect = complex.getHeadsUnionRect();
 		this.assertEquals(rect.toString(), new Rectangle( -Constants.HEAD_HALFWIDTH_NORMAL, -2, Constants.HEAD_HALFWIDTH_NORMAL * 2 + Constants.COMPLEX_COLLISION_ADJUST_X_HALF, 3).toString());
 
 		var n0 = new VNote(new QNote4(-1));
 		var n1 = new VNote(new QNote4(-1));
 		var complex = new VComplex([n0, n1]);		
-		var rect = complex.getHeadsRect();		
+		var rect = complex.getHeadsUnionRect();		
 		this.assertTrue(rectEquals(rect, new Rectangle( -Constants.HEAD_HALFWIDTH_NORMAL, -2, Constants.HEAD_HALFWIDTH_NORMAL * 2 + Constants.COMPLEX_COLLISION_ADJUST_X, 2)));
 	}
 
@@ -753,48 +753,48 @@ class TestV extends  haxe.unit.TestCase
 		
 		var n0 = new VNote(new QNote4([0, 1]));		
 		var complex = new VComplex([n0]);		
-		var rect = complex.getHeadsRect();
+		var rect = complex.getHeadsUnionRect();
 		this.assertTrue(rectEquals(rect, -Constants.HEAD_HALFWIDTH_NORMAL, -1, Constants.HEAD_HALFWIDTH_NORMAL * 4, 3));
 		
 		var n0 = new VNote(new QNote4([0, 1]));		
 		var complex = new VComplex([n0], [EDirectionUD.Up]);		
-		var rect = complex.getHeadsRect();
+		var rect = complex.getHeadsUnionRect();
 		this.assertTrue(rectEquals(rect, -Constants.HEAD_HALFWIDTH_NORMAL, -1, Constants.HEAD_HALFWIDTH_NORMAL * 4, 3));
 
 		var n0 = new VNote(new QNote4([0, 1]));		
 		var complex = new VComplex([n0], [EDirectionUD.Down]);		
 		complex.setDirections( [EDirectionUD.Up]);
-		var rect = complex.getHeadsRect();
+		var rect = complex.getHeadsUnionRect();
 		this.assertTrue(rectEquals(rect, -Constants.HEAD_HALFWIDTH_NORMAL, -1, Constants.HEAD_HALFWIDTH_NORMAL * 4, 3));
 		
 		var n0 = new VNote(new QNote4([0, 1]));		
 		var complex = new VComplex([n0], [EDirectionUD.Down]);		
-		var rect = complex.getHeadsRect();
+		var rect = complex.getHeadsUnionRect();
 		this.assertTrue(rectEquals(rect, -Constants.HEAD_HALFWIDTH_NORMAL * 3, -1, Constants.HEAD_HALFWIDTH_NORMAL * 4, 3));
 		
 		var n0 = new VNote(new QNote4([0, 1]));		
 		var n1 = new VNote(new QNote4([3]));		
 		var complex = new VComplex([n0, n1], [EDirectionUD.Up, EDirectionUD.Down]);		
-		var rect = complex.getHeadsRect();
+		var rect = complex.getHeadsUnionRect();
 		this.assertTrue(rectEquals(rect, -Constants.HEAD_HALFWIDTH_NORMAL, -1, Constants.HEAD_HALFWIDTH_NORMAL * 4, 5));
 
 		var n0 = new VNote(new QNote4([0, 1]));		
 		var n1 = new VNote(new QNote4([2]));		
 		var complex = new VComplex([n0, n1], [EDirectionUD.Up, EDirectionUD.Down]);		
-		var rect = complex.getHeadsRect();		
+		var rect = complex.getHeadsUnionRect();		
 		this.assertTrue(rectEquals(rect, -Constants.HEAD_HALFWIDTH_NORMAL, -1, Constants.HEAD_HALFWIDTH_NORMAL * 4, 4));
 		var rects = complex.getHeadsRects();
 		
 		var n0 = new VNote(new QNote4([0, 1]));		
 		var n1 = new VNote(new QNote4([1]));		
 		var complex = new VComplex([n0, n1], [EDirectionUD.Up, EDirectionUD.Down]);				
-		var rect = complex.getHeadsRect();		
+		var rect = complex.getHeadsUnionRect();		
 		this.assertTrue(rectEquals(rect, -Constants.HEAD_HALFWIDTH_NORMAL, -1, Constants.HEAD_HALFWIDTH_NORMAL * 4, 3));
 		
 		var n0 = new VNote(new QNote4([0, 1]));		
 		var n1 = new VNote(new QNote4([1]));		
 		var complex = new VComplex([n0, n1], [EDirectionUD.Up, EDirectionUD.Down]);				
-		var rect = complex.getHeadsRect();		
+		var rect = complex.getHeadsUnionRect();		
 		var rects = complex.getHeadsRects();
 		this.assertTrue(rectEquals(rect, -Constants.HEAD_HALFWIDTH_NORMAL, -1, Constants.HEAD_HALFWIDTH_NORMAL * 4, 3));
 	}	
