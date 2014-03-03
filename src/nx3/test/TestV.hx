@@ -1871,11 +1871,11 @@ class TestV extends  haxe.unit.TestCase
 		{
 			if (bwidth == -1 || bheight==-1) throw "Rect comparison error";
 			result =  MathTools.floatEquals(a.x, bx) && MathTools.floatEquals(a.y, by) && MathTools.floatEquals(a.width, bwidth) && MathTools.floatEquals(a.height, bheight);		
-			if (!result) trace(['Rectangle not equal', a]);
+			if (!result) trace(['Rectangle not equal', Std.string(a)]);
 			return result;
 		}		
 		result = MathTools.floatEquals(a.x, b.x) && MathTools.floatEquals(a.y, b.y) && MathTools.floatEquals(a.width, b.width) && MathTools.floatEquals(a.height, b.height);		
-		if (!result) trace(['Rectangle not equal', a]);
+		if (!result) trace(['Rectangle not equal', Std.string(a)]);
 		return result;
 	}
 	

@@ -5,6 +5,7 @@ package nx3.test;
 import haxe.ds.IntMap.IntMap;
 import nx3.elements.EDirectionUDs;
 import nx3.elements.EHeadValueType;
+import nx3.geom.Rectangles;
 import nx3.render.svg.Elements;
 import nx3.render.svg.ShapeTools;
 import nx3.test.QNote;
@@ -245,8 +246,12 @@ class DevRenderer extends FrameRenderer
 					var beamgroup = vvoice.getNotesBeamgroups().get(vnote);
 					var direction = beamgroupsDirections.get(beamgroup);
 					var headsXOffset = vcomplex.getHeadsCollisionOffsetX(vnote) * scaling.halfNoteWidth;
-					this.heads(colx+headsXOffset, party, vnote, direction);
+					//this.heads(colx+headsXOffset, party, vnote, direction);
 
+					var headsRects = vnote.getVHeadsRectanglesDir(direction);
+					this.drawRectanglesScaled(this.target.graphics, headsRects, headsXOffset);
+					
+					
 					// text
 					var vvoiceIdx = vpart.getVVoices().index(vvoice);
 					var txtY = party + (vvoiceIdx * 10)-14;
@@ -323,10 +328,22 @@ class DevRenderer extends FrameRenderer
 		this.target.addChild(shape);
 	}	
 	
-	public function drawRectangle(graphics:Graphics, rect:Rectangle)
+	public function drawRectangle(graphics:Graphics, rect:Rectangle, xoffset=0.0)
 	{
-		graphics.drawRect(rect.x, rect.y, rect.width, rect.height);
+		graphics.drawRect(rect.x+xoffset, rect.y, rect.width, rect.height);
 	}
+	
+	public function drawRectangles(graphics:Graphics, rects:Rectangles, xoffset=0.0)
+	{
+		for (rect in rects)
+			graphics.drawRect(rect.x+xoffset, rect.y, rect.width, rect.height);
+	}	
+	
+	public function drawRectanglesScaled(graphics:Graphics, rects:Rectangles, xoffset=0.0)
+	{
+		for (rect in rects)
+			graphics.drawRect(rect.x*scaling.halfNoteWidth+xoffset*scaling.halfNoteWidth, rect.y*scaling.halfSpace, rect.width*scaling.halfNoteWidth, rect.height*scaling.halfSpace);
+	}		
 	
 }
 

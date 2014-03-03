@@ -28,7 +28,7 @@ import nx3.test.TestVRender.DevRenderer;
 
 class Main extends OpenFlMain 
 {
-	/*
+	
 	override function start()
 	{
 		
@@ -52,18 +52,14 @@ class Main extends OpenFlMain
 		renderer.drawVBarComplexes(vbar);
 		renderer.drawVBarVoices(vbar);	
 	}
-	*/
 	
-
-	static public function main() 
+	static public function mainx() 
 	{
 		var runner = new  TestRunner(); 
 		runner.add(new TestQ());
 		runner.add(new TestN());
 		runner.add(new TestV());
 		runner.add(new TestVRender());
-		//runner.add(new TestDVoice());
-		//runner.add(new TestDPart());
 		var success = runner.run();
 	}
 	
