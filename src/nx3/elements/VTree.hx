@@ -482,6 +482,28 @@ class VPart
 		return this.vnotesVVoices;
 	}
 	
+	var vcomplexDirections:Map<VComplex, EDirectionUDs>;
+	public function getVComplexDirections():Map<VComplex, EDirectionUDs>
+	{
+		if (this.vcomplexDirections != null) return this.vcomplexDirections;
+		this.vcomplexDirections = new Map<VComplex, EDirectionUDs>();
+		
+		var beamgroupsDirections = this.getBeamgroupsDirections();
+		for (vcomplex in this.getVComplexes())
+		{
+			var directions =  new EDirectionUDs();
+			for (vnote in vcomplex.getVNotes())
+			{
+				var vvoice = this.getVNotesVVoices().get(vnote);
+				var beamgroup = vvoice.getNotesBeamgroups().get(vnote);
+				var direction = beamgroupsDirections.get(beamgroup);		
+				directions.push(direction);
+			}
+			this.vcomplexDirections.set(vcomplex, directions);
+		}
+		return this.vcomplexDirections;
+	}
+	
 }
 
 typedef Partbeamgroups = Array<VBeamgroups>;

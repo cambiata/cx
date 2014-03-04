@@ -230,6 +230,7 @@ class DevRenderer extends FrameRenderer
 		for (vpart in vbar.getVParts())
 		{
 			var beamgroupsDirections = vpart.getBeamgroupsDirections();
+			
 			for (vcomplex in vpart.getVComplexes())
 			{
 				var vcolumn = vbar.getVComplexesVColumns().get(vcomplex);
@@ -246,11 +247,10 @@ class DevRenderer extends FrameRenderer
 					var beamgroup = vvoice.getNotesBeamgroups().get(vnote);
 					var direction = beamgroupsDirections.get(beamgroup);
 					var headsXOffset = vcomplex.getHeadsCollisionOffsetX(vnote) * scaling.halfNoteWidth;
-					//this.heads(colx+headsXOffset, party, vnote, direction);
+					this.heads(colx+headsXOffset, party, vnote, direction);
 
 					var headsRects = vnote.getVHeadsRectanglesDir(direction);
-					this.drawRectanglesScaled(this.target.graphics, headsRects, headsXOffset);
-					
+					this.drawRectanglesScaled(this.target.graphics, colx+headsXOffset, party, headsRects);
 					
 					// text
 					var vvoiceIdx = vpart.getVVoices().index(vvoice);
@@ -259,6 +259,7 @@ class DevRenderer extends FrameRenderer
 					this.addText(txtX, txtY, direction.getName());
 				}
 			}
+
 			
 			
 			party += this.partdistance;
@@ -338,11 +339,18 @@ class DevRenderer extends FrameRenderer
 		for (rect in rects)
 			graphics.drawRect(rect.x+xoffset, rect.y, rect.width, rect.height);
 	}	
+
+	public function drawRectangleScaled(graphics:Graphics, x:Float, y:Float, rect:Rectangle)
+	{
+			graphics.drawRect(x+ rect.x*scaling.halfNoteWidth, y+rect.y*scaling.halfSpace, rect.width*scaling.halfNoteWidth, rect.height*scaling.halfSpace);
+	}		
 	
-	public function drawRectanglesScaled(graphics:Graphics, rects:Rectangles, xoffset=0.0)
+	
+	public function drawRectanglesScaled(graphics:Graphics, x:Float, y:Float, rects:Rectangles)
 	{
 		for (rect in rects)
-			graphics.drawRect(rect.x*scaling.halfNoteWidth+xoffset*scaling.halfNoteWidth, rect.y*scaling.halfSpace, rect.width*scaling.halfNoteWidth, rect.height*scaling.halfSpace);
+			drawRectangleScaled(graphics, x, y, rect);
+			//graphics.drawRect(x+ rect.x*scaling.halfNoteWidth, y+rect.y*scaling.halfSpace, rect.width*scaling.halfNoteWidth, rect.height*scaling.halfSpace);
 	}		
 	
 }
