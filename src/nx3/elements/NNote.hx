@@ -38,7 +38,8 @@ class NNote
 		switch(this.type) 
 		{
 			case ENoteType.Note(nheads, variant, articulations, attributes):
-				nheads.cleverSort(_.level);
+				CleverSort.cleverSort(nheads, _.level);
+				//nheads.cleverSort(_.level);
 				this.nheads_ = nheads;
 			default:
 				this.nheads_ = [];

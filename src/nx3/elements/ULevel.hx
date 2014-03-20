@@ -28,6 +28,12 @@ abstract ULevel(Int)
 		//trace('to...');													// <-- but this is never called!
 		return this;
 	}
+
+	@:to public inline function toFloat():Float  // <-- needed for example to run...
+	{
+		//trace('to...');													// <-- but this is never called!
+		return this * 1.0;
+	}	
 	
 	@:op(A + B) static public function add (l:ULevel, h:ULevel):ULevel
 	{
@@ -56,7 +62,8 @@ abstract ULevel(Int)
 	@:commutative @:op(A + B) static public function addFloat(l:ULevel, r:Float):ULevel
 	{
 		//trace('addInteger');
-		return new ULevel(l + r);
+		var val = Std.int(l.toFloat() + r);
+		return new ULevel(val);
 	}	
 	
 	@:commutative @:op(A > B) static public function gtFloat(l:ULevel, r:Float):Bool return (l > r);

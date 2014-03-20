@@ -937,6 +937,7 @@ class VNoteHeadsRectsCalculator
 			}			
 			rect.offset(pos, placement.level);					
 			rects.push(rect);
+			
 		}
 
 		return rects;

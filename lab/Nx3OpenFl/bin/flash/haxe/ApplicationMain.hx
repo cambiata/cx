@@ -1,150 +1,272 @@
 #if (!macro || !haxe3)
 #if (nme || openfl)
 
-import nx3.xamples.main.openfl.Main;
+
 import flash.display.DisplayObject;
-import openfl.Assets;
+import flash.display.LoaderInfo;
+import flash.display.StageAlign;
+import flash.display.StageScaleMode;
 import flash.events.Event;
+import flash.events.ProgressEvent;
+import flash.Lib;
+import openfl.Assets;
 
-class ApplicationMain {
-
-	static var mPreloader:NMEPreloader;
-
-	public static function main() {
-		
-		
-		
-		var call_real = true;
-		
-		//nme.Lib.setPackage("", "Nx3OpenFl", "nx3.xamples.main.openfl.Nx3OpenFl", "1.0.0");
-		
-		
-		var loaded:Int = flash.Lib.current.loaderInfo.bytesLoaded;
-		var total:Int = flash.Lib.current.loaderInfo.bytesTotal;
-		
-		flash.Lib.current.stage.align = flash.display.StageAlign.TOP_LEFT;
-		flash.Lib.current.stage.scaleMode = flash.display.StageScaleMode.NO_SCALE;
-		
-		if (loaded < total || true) /* Always wait for event */ {
-			call_real = false;
-			mPreloader = new NMEPreloader();
-			flash.Lib.current.addChild(mPreloader);
-			mPreloader.onInit();
-			mPreloader.onUpdate(loaded,total);
-			flash.Lib.current.addEventListener(flash.events.Event.ENTER_FRAME, onEnter);
-		}
-		
-		
-		if (call_real)
-			begin();
-	}
-
-	private static function begin() {
-		var hasMain = false;
-		
-		for (methodName in Type.getClassFields(nx3.xamples.main.openfl.Main))
-		{
-			if (methodName == "main")
-			{
-				hasMain = true;
-				break;
-			}
-		}
-		
-		if (hasMain)
-		{
-			Reflect.callMethod(nx3.xamples.main.openfl.Main, Reflect.field (nx3.xamples.main.openfl.Main, "main"), []);
-		}
-		else
-		{
-			var instance = Type.createInstance(DocumentClass, []);
-			if (Std.is(instance, flash.display.DisplayObject)) {
-				flash.Lib.current.addChild(cast instance);
-			}
-		}
-	}
-
-	static function onEnter(_) {
-		var loaded = flash.Lib.current.loaderInfo.bytesLoaded;
-		var total = flash.Lib.current.loaderInfo.bytesTotal;
-		mPreloader.onUpdate(loaded,total);
-		
-		if (loaded >= total) {
-			flash.Lib.current.removeEventListener(flash.events.Event.ENTER_FRAME, onEnter);
-			mPreloader.addEventListener (Event.COMPLETE, preloader_onComplete);
-			mPreloader.onLoaded();
-		}
-	}
-
-	private static function preloader_onComplete(event:Event):Void {
-		mPreloader.removeEventListener (Event.COMPLETE, preloader_onComplete);
-		flash.Lib.current.removeChild(mPreloader);
-		mPreloader = null;
-		begin();
-	}
-}
-
-#else
-
-import nx3.xamples.main.openfl.Main;
 
 class ApplicationMain {
 	
-	public static function main() {
+	
+	private static var complete:Bool;
+	private static var loaderInfo:LoaderInfo;
+	private static var preloader:NMEPreloader;
+	
+	
+	public static function main () {
+		
+		
+		
+		//nme.Lib.setPackage("", "Nx3OpenFl", "nx3.xamples.main.openfl.Nx3OpenFl", "1.0.0");
+		
+		loaderInfo = flash.Lib.current.loaderInfo;
+		
+		loaderInfo.addEventListener (Event.COMPLETE, loaderInfo_onComplete);
+		loaderInfo.addEventListener (Event.INIT, loaderInfo_onInit);
+		loaderInfo.addEventListener (ProgressEvent.PROGRESS, loaderInfo_onProgress);
+		//loaderInfo.addEventListener (IOErrorEvent.IO_ERROR, ioErrorHandler);
+		//loaderInfo.addEventListener (HTTPStatusEvent.HTTP_STATUS, httpStatusHandler);
+		
+		
+		
+		Lib.current.stage.align = StageAlign.TOP_LEFT;
+		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
+		
+		//if (loaderInfo.bytesLoaded < loaderInfo.bytesTotal || loaderInfo.bytesLoaded <= 0) {
+			
+			preloader = new NMEPreloader ();
+			Lib.current.addChild (preloader);
+			
+			preloader.onInit ();
+			preloader.onUpdate (loaderInfo.bytesLoaded, loaderInfo.bytesTotal);
+			
+			Lib.current.addEventListener (Event.ENTER_FRAME, current_onEnter);
+			
+		//} else {
+			
+			//start ();
+			
+		//}
+		
+		
+		
+	}
+	
+	
+	private static function start ():Void {
+		
+		var hasMain = false;
+		var mainClass = Type.resolveClass ("nx3.xamples.main.openfl.Main");
+		
+		for (methodName in Type.getClassFields (mainClass)) {
+			
+			if (methodName == "main") {
+				
+				hasMain = true;
+				break;
+				
+			}
+			
+		}
+		
+		if (hasMain) {
+			
+			Reflect.callMethod (mainClass, Reflect.field (mainClass, "main"), []);
+			
+		} else {
+			
+			var instance = Type.createInstance (DocumentClass, []);
+			
+			if (Std.is (instance, DisplayObject)) {
+				
+				Lib.current.addChild (cast instance);
+				
+			}
+			
+		}
+		
+	}
+	
+	
+	private static function update ():Void {
+		
+		if (preloader != null) {
+			
+			preloader.onUpdate (loaderInfo.bytesLoaded, loaderInfo.bytesTotal);
+			
+		}
+		
+	}
+	
+	
+	
+	
+	// Event Handlers
+	
+	
+	
+	
+	private static function current_onEnter (event:Event):Void {
+		
+		if (complete) {
+			
+			Lib.current.removeEventListener (Event.ENTER_FRAME, current_onEnter);
+			loaderInfo.removeEventListener (Event.COMPLETE, loaderInfo_onComplete);
+			loaderInfo.removeEventListener (Event.INIT, loaderInfo_onInit);
+			loaderInfo.removeEventListener (ProgressEvent.PROGRESS, loaderInfo_onProgress);
+			
+			if (preloader != null) {
+				
+				preloader.addEventListener (Event.COMPLETE, preloader_onComplete);
+				preloader.onLoaded();
+				
+			} else {
+				
+				start ();
+				
+			}
+			
+		}
+		
+	}
+	
+	
+	private static function loaderInfo_onComplete (event:Event):Void {
+		
+		complete = true;
+		update ();
+		
+	}
+	
+	
+	private static function loaderInfo_onInit (event:Event):Void {
+		
+		update ();
+		
+	}
+	
+	
+	private static function loaderInfo_onProgress (event:ProgressEvent):Void {
+		
+		update ();
+		
+	}
+	
+
+	private static function preloader_onComplete (event:Event):Void {
+		
+		preloader.removeEventListener (Event.COMPLETE, preloader_onComplete);
+		Lib.current.removeChild (preloader);
+		preloader = null;
+		
+		start ();
+	}
+	
+	
+}
+
+
+#else
+
+
+import nx3.xamples.main.openfl.Main;
+import flash.display.DisplayObject;
+import flash.Lib;
+
+
+class ApplicationMain {
+	
+	
+	public static function main () {
 		
 		var hasMain = false;
 		
-		for (methodName in Type.getClassFields(nx3.xamples.main.openfl.Main))
-		{
-			if (methodName == "main")
-			{
+		for (methodName in Type.getClassFields (nx3.xamples.main.openfl.Main)) {
+			
+			if (methodName == "main") {
+				
 				hasMain = true;
 				break;
+				
 			}
+			
 		}
 		
-		if (hasMain)
-		{
-			Reflect.callMethod(nx3.xamples.main.openfl.Main, Reflect.field (nx3.xamples.main.openfl.Main, "main"), []);
-		}
-		else
-		{
-			var instance = Type.createInstance(DocumentClass, []);
-			if (Std.is(instance, flash.display.DisplayObject)) {
-				flash.Lib.current.addChild(cast instance);
+		if (hasMain) {
+			
+			Reflect.callMethod (nx3.xamples.main.openfl.Main, Reflect.field (nx3.xamples.main.openfl.Main, "main"), []);
+			
+		} else {
+			
+			var instance = Type.createInstance (DocumentClass, []);
+			
+			if (Std.is (instance, DisplayObject)) {
+				
+				Lib.current.addChild (cast instance);
+				
 			}
+			
 		}
+		
 	}
+	
+	
 }
+
 
 #end
 
+
 #if haxe3 @:build(DocumentClass.build()) #end
-class DocumentClass extends nx3.xamples.main.openfl.Main { }
+@:keep class DocumentClass extends nx3.xamples.main.openfl.Main { }
+
 
 #else
+
 
 import haxe.macro.Context;
 import haxe.macro.Expr;
 
+
 class DocumentClass {
 	
+	
 	macro public static function build ():Array<Field> {
-		var classType = Context.getLocalClass().get();
+		
+		var classType = Context.getLocalClass ().get ();
 		var searchTypes = classType;
+		
 		while (searchTypes.superClass != null) {
+			
 			if (searchTypes.pack.length == 2 && searchTypes.pack[1] == "display" && searchTypes.name == "DisplayObject") {
-				var fields = Context.getBuildFields();
+				
+				var fields = Context.getBuildFields ();
 				var method = macro {
 					return flash.Lib.current.stage;
 				}
+				
 				fields.push ({ name: "get_stage", access: [ APrivate ], meta: [ { name: ":getter", params: [ macro stage ], pos: Context.currentPos() } ], kind: FFun({ args: [], expr: method, params: [], ret: macro :flash.display.Stage }), pos: Context.currentPos() });
 				return fields;
+				
 			}
-			searchTypes = searchTypes.superClass.t.get();
+			
+			searchTypes = searchTypes.superClass.t.get ();
+			
 		}
+		
 		return null;
+		
 	}
 	
+	
 }
+
+
 #end

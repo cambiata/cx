@@ -1,16 +1,15 @@
 -main ApplicationMain 
 -lib openfl
--lib openfl-html5-dom
+-lib openfl-html5
 -lib actuate
 -lib svg
 -cp ../../src/
--D tools=1.2.9
+-D tools=1.3.1
 -D html5
 -D web
 -dce std
 -js bin/html5/bin/Nx3OpenFl.js
 -cp bin/html5/haxe
 -D html5
--D html
---remap flash:flash
+--macro allowPackage("flash")
 -debug
