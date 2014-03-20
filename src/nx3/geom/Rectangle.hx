@@ -1,4 +1,5 @@
 package nx3.geom;
+import cx.MathTools;
 
 #if (openfl)
 typedef Rectangle = flash.geom.Rectangle;
@@ -151,7 +152,7 @@ class Rectangle {
 			
 		}
 		
-		return new Rectangle (x0, y0, x1 - x0, y1 - y0);
+		return new Rectangle (x0, y0,MathTools.round2( x1 - x0), MathTools.round2(y1 - y0));
 		
 	}
 	
@@ -182,8 +183,8 @@ class Rectangle {
 	
 	public function offset (dx:Float, dy:Float):Void {
 		
-		x += dx;
-		y += dy;
+		x = MathTools.round2(x+dx);
+		y = MathTools.round2(y+dy);
 		
 	}
 	

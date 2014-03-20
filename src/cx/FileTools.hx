@@ -53,6 +53,7 @@ class FileTools
 	}
 	
 	static public function exists(path:String) {
+		
 		return FileSystem.exists(path);
 	}
 	
@@ -241,8 +242,8 @@ class FileTools
 		return null;
 	}
 
-	static public function getDirectory(fullfilename:String) {
-		return Tools.stringBeforeIncludingLast(FileTools.safeSlashes(fullfilename), '/');
+	static public function getDirectory(fullfilename:String, slash='/') {
+		return Tools.stringBeforeIncludingLast(FileTools.safeSlashes(fullfilename), slash);
 	}
 	
 	static public function getFilename(fullfilename:String, includeExt:Bool = true) {

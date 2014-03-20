@@ -1,5 +1,6 @@
 package nx3.elements;
 import cx.ArrayTools;
+import cx.MathTools;
 import haxe.ds.IntMap.IntMap;
 import nx3.Constants;
 import nx3.elements.EDirectionUDs;
@@ -311,7 +312,7 @@ typedef VBars = Array<VBar>;
 	 public function getColumns():VColumns
 	 {
 		if (this.columns != null) return this.columns;
-		 this.positions =  calcPositions(this.vparts);		 
+		 this.positions =  calcPositions(this.vparts);
 		calcColumns(this.positions, this.vparts);
 		return this.columns;
 	 }
@@ -363,9 +364,7 @@ typedef VBars = Array<VBar>;
 		}
 		
 		var positions:Array<Int> = positionsMap.keys().keysToArray();
-		//trace(positions);
 		positions.sort(function(a, b) { return Reflect.compare(a, b); } );
-		//trace(positions);
 		return positions;
 	 }
 	 
@@ -651,7 +650,7 @@ class VVoice
 		for (vnote in this.vnotes) 
 		{
 			this.vnotePositions.set(vnote, pos);
-			pos += vnote.nnote.value.value();			
+			pos += vnote.nnote.value.value();
 		}		
 		return this.vnotePositions;
 		
@@ -939,7 +938,6 @@ class VNoteHeadsRectsCalculator
 			}			
 			rect.offset(pos, placement.level);					
 			rects.push(rect);
-			
 		}
 
 		return rects;
@@ -1198,14 +1196,9 @@ class VComplex
 		return this.signRects;
 	}
 	
-	
-	var tiestoRects:Rectangles;	
-	public function getTiestoRects(headsRects:Rectangles=null):Rectangles
+	public function getTiestoRects(signRects:Rectangles = null):Rectangles
 	{
-		if (this.signRects == null) this.getSignsRects(headsRects);
-		trace('sign rects');
 		
-		return null;
 		
 	}
 	
@@ -1222,7 +1215,7 @@ class VComplex
 		var firstnote = this.vnotes.first();
 		var secondnote = note;
 	
-		var offsetX = getRectanglesXIntersection(firstnote.getVHeadsRectanglesDir(EDirectionUD.Up), secondnote.getVHeadsRectanglesDir(direction));
+		var offsetX = RectanglesTools.getXIntersection(firstnote.getVHeadsRectanglesDir(EDirectionUD.Up), secondnote.getVHeadsRectanglesDir(direction));
 		
 		var diff = secondnote.nnote.getTopLevel() - firstnote.nnote.getBottomLevel();
 		
@@ -1240,34 +1233,7 @@ class VComplex
 
 		return offsetX;
 	}
-	
-	public function getRectanglesXIntersection(rectsA:Rectangles, rectsB:Rectangles)
-	{
-		var rectsB2 = new Rectangles();
-		for (r in rectsB) rectsB2.push(r.clone());		
-		function check():Float
-		{
-			for (ra in rectsA)
-			{
-				for (rb in rectsB2)
-				{
-					var i = ra.intersection(rb);	
-					if (i.width > 0) return i.width;
-				}			
-			}
-			return 0;
-		}		
-		var x:Float = 0;
-		var moveX:Float = check();
-		while (moveX > 0)
-		{
-			x += moveX;
-			for (r in rectsB2) r.offset(moveX, 0);			
-			moveX = check();
-		}		
-		return x;		
-	}	
-	
+
 	public function getNoteRect(note:VNote, dir:EDirectionUD=null):Rectangle
 	{
 		// TODO: Optimize!
@@ -1315,39 +1281,7 @@ class VComplex
 			result.push(rect);
 		}
 		return result;		
-	}	
-	
-	/*
-	public function getNoteHeadsRect(note:VNote, dir:EDirectionUD=null):Rectangle
-	{
-		// TODO: Optimize!
-		
-		var result:Rectangle = null;
-		
-		// first vnote
-		if (note == this.vnotes.first())
-		{			
-			if (dir == null)  dir = new VNoteInternalDirectionCalculator(note.getVHeads()).getDirection();		
-			var rects = note.getVHeadsRectanglesDir(dir);
-			result = rects.first().clone();
-			for (i in 1...rects.length)
-			{
-				result = result.union(rects[i]);				
-			}			
-			return  result;
-		}
-		
-		// second vnote
-		if (dir == null) dir = new VNoteInternalDirectionCalculator(note.getVHeads()).getDirection();		
-		var rects = note.getVHeadsRectanglesDir(dir);
-		result = rects.first().clone();
-		for (i in 1...rects.length)
-		{
-			result = result.union(rects[i]);				
-		}			
-		return result;		
 	}
-	*/
 	
 }
 

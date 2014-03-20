@@ -8,7 +8,7 @@ import nx3.elements.tools.ENoteTypeTools;
  * ...
  * @author Jonas Nyström
  */
-using jasononeil.CleverSort;
+
  
 class NNote
 {

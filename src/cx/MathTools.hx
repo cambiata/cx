@@ -1,4 +1,5 @@
 package cx;
+using StringTools;
 
 /**
  * ...
@@ -8,6 +9,19 @@ package cx;
 class MathTools 
 {
 
+	static  public function  floatFromString(str:String, comma:String = ',')	:Float
+	{
+		str = str.replace(',', '.');
+		return Std.parseFloat(str);
+	}
+	
+	static inline public function  floatToString(val:Float, comma:String = ',')
+	{
+		var result = Std.string(val);
+		if (comma != '.') result = StringTools.replace(result, '.', comma);
+		return result;
+	}
+	
 	static inline public function floatEquals(a:Float, b:Float):Bool
 	{		
 		return (Math.abs(a - b) <= 0.00001);		
@@ -25,7 +39,7 @@ class MathTools
 		return value;
 	}	
 	
-	static inline public function round2(number:Float, precision:Int=2): Float {
+	static inline public function round2(number:Float, precision:Int=8): Float {
 		number = number * Math.pow(10, precision);
 		number = Math.round( number ) / Math.pow(10, precision);
 		return number;

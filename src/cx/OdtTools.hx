@@ -87,16 +87,17 @@ class OdtTools
 		recursiveParser(parts.text);
 		
 		var html = HxdomTools.ehtmlToHtml(this.html, true, false , stripOuterLevels);
+		
+		// hack!
+		html = StringTools.replace(html, '&amp;amp;apos;', "'");
+		html = StringTools.replace(html, '&amp;amp;quot;', '"');
+		
 		if (meta) html = getMeta() + html;
 		return html;
 	}
 	
-	
-	
-	
-	
-	static public function test(odtFileName:String) {
-		
+	static public function test(odtFileName:String) 
+	{	
 		var html = getMeta() + getHtmlFromOdt(odtFileName);
 		FileTools.putContent(odtFileName+'.html', html);	
 

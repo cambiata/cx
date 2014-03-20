@@ -13,6 +13,11 @@ package cx;
 using Lambda;
 class ArrayTools 
 {
+
+	inline static public function indexOrNull<T>(a:Array<T>, idx:Int)
+	{
+		return (idx < 0 || idx > a.length) ? null : a[idx];
+	}
 	
 	inline static public function equals<T>(a:Array<T>, b:Array<T>):Bool
 	{
