@@ -35,9 +35,11 @@ class HeadXML
 		{
 			switch(head.tie)
 			{
-				case ETie.Tie(direction), ETie.Gliss(direction):
+				case ETie.Tie(direction, level):
 					xml.set(XHEAD_TIE,/* StrTools.until(*/Std.string(head.tie)/*, '(')*/);						
 				//default:
+				 case  ETie.Gliss(direction, levelLeft, levelRight):
+					 xml.set(XHEAD_TIE,/* StrTools.until(*/Std.string(head.tie)/*, '(')*/);						
 			}			
 		}
 		
@@ -46,7 +48,9 @@ class HeadXML
 		{
 			switch(head.tieTo)
 			{
-				case ETie.Tie(direction), ETie.Gliss(direction):
+				case ETie.Tie(direction, level):
+					xml.set(XHEAD_TIETO, Std.string(head.tieTo));
+				case ETie.Gliss(direction, levelLeft, levelRight):
 					xml.set(XHEAD_TIETO, Std.string(head.tieTo));						
 				//default:
 			}			

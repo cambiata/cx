@@ -8,10 +8,12 @@ import nx3.elements.EClef;
 import nx3.elements.EDirectionUAD;
 import nx3.elements.EDirectionUD;
 import nx3.elements.EDisplayALN;
+import nx3.elements.EDots;
 import nx3.elements.EKey;
 import nx3.elements.ENoteType;
 import nx3.elements.ENoteVal;
 import nx3.elements.ETime;
+import nx3.elements.NHead;
 import nx3.elements.VSystemGenerator;
 //import nx3.elements.ENoteValue;
 import nx3.elements.ESign;
@@ -752,7 +754,20 @@ class TestV extends  haxe.unit.TestCase
 		var r0 = complex.getNoteRect(n0, EDirectionUD.Down);
 		this.assertTrue(rectEquals(r0, -Constants.HEAD_HALFWIDTH_NORMAL*3, -1, Constants.HEAD_HALFWIDTH_NORMAL*4, 3));						
 	}
-
+	
+	/*
+	public function testVComplexGetDots()
+	{
+		
+		var n0 = new VNote(new NNote([new NHead(1)], ENoteVal.Nv4dot));		
+		var n1 = new VNote(new NNote([new NHead(3)], ENoteVal.Nv4ddot));		
+		var complex = new VComplex([n0, n1]);
+		var dots:EDots = complex.getDots();
+		this.assertEquals(dots.length, 2);		
+		
+	}	
+	*/
+	
 	/*
 	public function testVComplexNoteHeadsRectTwoNotes()
 	{
@@ -872,6 +887,8 @@ class TestV extends  haxe.unit.TestCase
 		
 	}
 	
+
+	
 	public function testVPartComplexesGenerator()
 	{
 		var vvoice = new VVoice(new QVoice([4, 8, 8, 2]));
@@ -921,7 +938,6 @@ class TestV extends  haxe.unit.TestCase
 		this.assertEquals(vcomplex1, vcomplex2);
 		var vcomplex1pos = generator.getComplexesPositions().get(vcomplex1);
 		this.assertEquals(vcomplex1pos, 3024);
-		
 	}
 	
 	public function testVPartComplexes()
@@ -936,6 +952,38 @@ class TestV extends  haxe.unit.TestCase
 		var positions = vpart.getPositionsVComplexes().keys().keysToArray();
 		positions.sort(function(a, b) { return Reflect.compare(a, b); } );		
 		this.assertEquals([0, 3024, 4536, 6048].toString(), positions.toString());
+	}
+	
+	public function testVPartComplexesMinDistances()
+	{
+		
+		var vpart = new VPart(new NPart([
+			new QVoice([4, 1]),
+		]));				
+		var distances = vpart.getVComplexesMinDistances();		
+		this.assertEquals(distances.get(vpart.getVComplexes().first()), 3.6);
+		this.assertEquals(distances.get(vpart.getVComplexes().second()), 2);
+		
+		var vpart = new VPart(new NPart([
+			new NVoice([
+				new NNote([new NHead(0)], ENoteVal.Nv4dot),
+				new QNote(),
+			])
+		]));				
+		var distances = vpart.getVComplexesMinDistances();		
+		this.assertEquals(distances.get(vpart.getVComplexes().first()), 6.2);
+		this.assertEquals(distances.get(vpart.getVComplexes().second()), 1.6);
+
+		var vpart = new VPart(new NPart([
+			new NVoice([
+			new QNote(),
+				new NNote([new NHead(0, ESign.Flat)]),
+			])
+		]));				
+		var distances = vpart.getVComplexesMinDistances();		
+		this.assertEquals(distances.get(vpart.getVComplexes().first()), 5.8);
+		this.assertEquals(distances.get(vpart.getVComplexes().second()), 1.6);
+		
 	}
 	
 	public function testPartbeamgroups()
@@ -1235,6 +1283,18 @@ class TestV extends  haxe.unit.TestCase
 		var vcomplex = vbar.getVParts().second().getVComplexes().second();
 		var vcolumn = vbar.getVColumns().second();
 		this.assertEquals(vbar.getVComplexesVColumns().get(vcomplex), vcolumn);
+	}
+	
+	public function testVBarColumnMinDistances()
+	{
+		var npart0 = new NPart([new QVoice([2, 4]),]);	
+		var npart1 = new NPart([new QVoice([4, 4, 4]),]);	
+
+		var vbar = new VBar(new NBar([npart0, npart1]));		
+		
+		var distances = vbar.getVColumnsDistances();
+		
+		
 	}
 	
 	

@@ -70,6 +70,35 @@ class TestVRender extends  haxe.unit.TestCase
 		//this.renderer.notelines(10, 50, 300);
 	}
 	
+	
+	public function testDist1()
+	{
+		var npart0 = new NPart([new QVoice([2, 4]),]);	
+		var npart1 = new NPart([new QVoice([4, 4, 4]),]);	
+		
+		
+		
+		/*
+		var npart0 = new NPart([
+			new NVoice([
+				new NNote([new NHead(2)], ENoteVal.Nv4dot),
+				new NNote([new NHead(-1, ESign.Sharp)], ENoteVal.Nv8),
+			])
+		]);	
+		*/
+		
+		
+		var vbar = new VBar(new NBar([npart0, npart1]));
+		this.renderer.setDefaultXY(200, 80);
+		this.renderer.drawVBarNotelines(vbar, 800, 50);
+		this.renderer.drawVBarColumns(vbar);
+		this.renderer.drawVBarComplexes(vbar);
+		this.renderer.drawVBarVoices(vbar);					
+		this.assertTrue(true);
+	}	
+	
+	
+	/*
 	public function testVBar()
 	{
 		this.assertTrue(true);
@@ -94,7 +123,9 @@ class TestVRender extends  haxe.unit.TestCase
 		this.renderer.drawVBarComplexes(vbar);
 		this.renderer.drawVBarVoices(vbar);			
 	}
+	*/
 	
+	/*
 	public function testVBar1()
 	{
 		this.assertTrue(true);
@@ -122,7 +153,7 @@ class TestVRender extends  haxe.unit.TestCase
 		this.renderer.drawVBarComplexes(vbar);
 		this.renderer.drawVBarVoices(vbar);	
 	}
-	
+	*/
 	
 	
 	public function testVBar2()
@@ -130,8 +161,8 @@ class TestVRender extends  haxe.unit.TestCase
 		this.assertTrue(true);
 
 		var npart0 = new NPart([
-			new NVoice([new NNote([new NHead(-7, ESign.Sharp), new NHead(0,  ESign.Sharp)], ENoteVal.Nv4)]),
-			new NVoice([new NNote([new NHead(-2, ESign.Sharp), new NHead(4, ESign.Sharp)], ENoteVal.Nv4)]),
+			new NVoice([new NNote([new NHead(-7, ESign.Sharp), new NHead(0,  ESign.Sharp)], ENoteVal.Nv2), new NNote([new NHead(2, ESign.None)], ENoteVal.Nv8), new NNote([new NHead(2, ESign.None)], ENoteVal.Nv8)]),
+			new NVoice([new NNote([new NHead(-2, ESign.Sharp), new NHead(6, ESign.Sharp)], ENoteVal.Nv4dot)]),
 		]);
 		
 		var vbar = new VBar(new NBar([npart0]));
@@ -143,6 +174,7 @@ class TestVRender extends  haxe.unit.TestCase
 	}	
 	
 	
+	/*
 	public function testVBar3()
 	{
 		this.assertTrue(true);
@@ -159,6 +191,9 @@ class TestVRender extends  haxe.unit.TestCase
 		this.renderer.drawVBarComplexes(vbar);
 		this.renderer.drawVBarVoices(vbar);			
 	}		
+	*/
+	
+
 	
 	
 	
@@ -227,12 +262,23 @@ class DevRenderer extends FrameRenderer
 		for (vpart in vbar.getVParts())
 		{
 			var beamgroupsDirections = vpart.getBeamgroupsDirections();
+			var complexMinDistances = vpart.getVComplexesMinDistances();
 			
+			
+			var pos = 0.0;
 			for (vcomplex in vpart.getVComplexes())
 			{
 				var vcolumn = vbar.getVComplexesVColumns().get(vcomplex);
-				var pos = vbar.getVColumnsPositions().get(vcolumn);
-				var colx = this.defaultX + pos * posfactor;			
+				
+				
+				//var pos = vbar.getVColumnsPositions().get(vcolumn);
+				//var colx = this.defaultX + pos * posfactor;			
+				
+				//var dist = complexMinDistances.get(vcomplex);
+				//trace(dist);
+				var colx =  this.defaultX +  pos;
+				
+				
 				this.target.graphics.endFill();
 				this.target.graphics.lineStyle(1, 0xFF0000);
 				this.target.graphics.drawRect(colx - 5, party - 5, 10, 10); 
@@ -259,10 +305,17 @@ class DevRenderer extends FrameRenderer
 				var directions = vpart.getVComplexDirections().get(vcomplex);
 				var noterects = vcomplex.getNotesRects(directions);
 				this.drawRectanglesScaled(this.target.graphics, colx, party, noterects);
-				var hrects = vcomplex.getSignsRects(noterects);
-				this.drawRectanglesScaled(this.target.graphics, colx, party, hrects);
-				var ttrects = vcomplex.getTiestoRects(noterects);
 				
+				var staverects = vcomplex.getStaveBasicRects(directions);
+				this.drawRectanglesScaled(this.target.graphics, colx, party, staverects);
+				
+				
+				var signsrects = vcomplex.getSignsRects(noterects);
+				this.drawRectanglesScaled(this.target.graphics, colx, party, signsrects);
+				//var ttrects = vcomplex.getTiestoRects(noterects);				
+				var dotrects = vcomplex.getDotsRects(noterects, directions);				
+				this.drawRectanglesScaled(this.target.graphics, colx, party, dotrects);
+								
 				/*
 				var directions = vpart.getVComplexDirections().get(vcomplex);
 				var firstnote = vcomplex.getVNotes().first();
@@ -278,8 +331,9 @@ class DevRenderer extends FrameRenderer
 					var headsRects = secondnote.getVHeadsRectanglesDir(secondirection);
 					this.drawRectanglesScaled(this.target.graphics, colx, party, headsRects);
 				}
-				*/
+				*/				
 				
+				pos += complexMinDistances.get(vcomplex) * scaling.halfNoteWidth;
 				
 			}
 
@@ -373,6 +427,7 @@ class DevRenderer extends FrameRenderer
 	
 	public function drawRectanglesScaled(graphics:Graphics, x:Float, y:Float, rects:Rectangles)
 	{
+		if (rects == null) return;
 		for (rect in rects)
 			drawRectangleScaled(graphics, x, y, rect);
 			//graphics.drawRect(x+ rect.x*scaling.halfNoteWidth, y+rect.y*scaling.halfSpace, rect.width*scaling.halfNoteWidth, rect.height*scaling.halfSpace);

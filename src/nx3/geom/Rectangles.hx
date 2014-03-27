@@ -51,6 +51,17 @@ class RectanglesTools
 		for (r in rects) r.offset(x, y);
 	}
 	
-
+	static public function unionAll(rects:Rectangles): Rectangle
+	{
+		if (rects == null) return null;
+		if (rects.length == 1) return rects[0].clone();
+		
+		var r:Rectangle = rects[0].clone();
+		for (i in 1...rects.length)
+		{
+			r = r.union(rects[i]);
+		}
+		return r;		
+	}
 	
 }

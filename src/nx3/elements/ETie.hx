@@ -7,6 +7,6 @@ package nx3.elements;
 
 enum ETie 
 {	
-	Tie(direction:EDirectionUAD);	
-	Gliss(direction:EDirectionUAD);
+	Tie(direction:EDirectionUAD, level:Int);	
+	Gliss(direction:EDirectionUAD, levelLeft:Int, levelRight:Int);
 }

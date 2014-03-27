@@ -1,8 +1,10 @@
 package nx3.elements;
 import cx.ArrayTools;
+import cx.MathTools;
 import haxe.ds.IntMap.IntMap;
 import nx3.Constants;
 import nx3.elements.EDirectionUDs;
+import nx3.elements.EDots;
 import nx3.elements.ENoteVal;
 import nx3.elements.VTree.Partbeamgroups;
 import nx3.elements.VTree.VBarColumnsGenerator;
@@ -10,6 +12,7 @@ import nx3.elements.VTree.VBeamframe;
 import nx3.elements.VTree.VBeamgroup;
 import nx3.elements.VTree.VBeamgroupDirectionCalculator;
 import nx3.elements.VTree.VBeamgroupFrameCalculator;
+import nx3.elements.VTree.VBeamgroups;
 import nx3.elements.VTree.VColumns;
 import nx3.elements.VTree.VComplex;
 import nx3.elements.VTree.VComplexes;
@@ -22,6 +25,7 @@ import nx3.elements.VTree.VHeads;
 import nx3.elements.VTree.VNoteConfig;
 import nx3.elements.VTree.VNoteHeadsRectsCalculator;
 import nx3.elements.VTree.VNoteInternalDirectionCalculator;
+import nx3.elements.VTree.VPart;
 import nx3.elements.VTree.VPartbeamgroupsDirectionCalculator;
 import nx3.elements.VTree.VSigns;
 import nx3.elements.EHeadValueType;
@@ -31,6 +35,8 @@ import nx3.geom.Rectangles;
 using cx.ArrayTools;
 using nx3.elements.VTree.VMapTools;
 using nx3.elements.ENoteValTools;
+using nx3.geom.Rectangles.RectanglesTools;
+
 /**
  * ...
  * @author Jonas Nyström
@@ -114,11 +120,6 @@ class VBarConfig
 	 Ok;
 	 Problem(code:Int, msg:String);
  }
-
-
-
-
-
 
 typedef VBars = Array<VBar>;
 
@@ -292,8 +293,32 @@ typedef VBars = Array<VBar>;
 		 }
 		 return this.vcomplexesVColumns;
 	 }
-
 	 
+	 
+	 
+	 public function getVColumnsDistances() 
+	 {
+
+		 for (ic in 0...this.getVColumns().length)
+		 {
+			var column:VColumn = this.getVColumns()[ic];
+
+
+			for (ip in 0...this.getVParts().length)
+			{				
+				var vpart = this.getVParts()[ip];
+				var complexDistances = vpart.getVComplexesMinDistances();
+				var complex:VComplex = column.vcomplexes[ip];
+			
+				var distance = (complex != null) ? complexDistances.get(complex) : 12345 ;
+
+				trace('column $ic - part $ip - distnance $distance');
+				
+			}
+			 
+		 }
+		 return null;
+	 }
  }
  
  class VBarColumnsGenerator 
@@ -404,6 +429,8 @@ class VPart
 	var vcomplexesPositions:Map<VComplex,Int>;
 	var positionsVComplexes:IntMap<VComplex>;
 	
+	
+	
 	var generator: VPartComplexesGenerator;
 	public function getVComplexes():VComplexes
 	{
@@ -426,6 +453,48 @@ class VPart
 		if (this.vcomplexes == null) this.getVComplexes();
 		return this.vcomplexesPositions;
 	}
+	
+	public var vcomplexesMinDistances:Map<VComplex, Float>;
+	public function getVComplexesMinDistances():Map<VComplex, Float>
+	{
+		if (this.vcomplexesMinDistances != null) return this.vcomplexesMinDistances;		
+		this.vcomplexesMinDistances = new  Map<VComplex, Float>();
+		
+		var complexes:VComplexes = this.getVComplexes();
+		
+		// TODO - is this needed?
+		this.getBeamgroupsDirections();
+		
+		var i = 0;
+		for (i in 0...complexes.length)
+		{
+			var leftComplex:VComplex = complexes[i];			
+			var rightComplex:VComplex = (i < complexes.length) ? complexes[i + 1] : null;		
+			
+			var distance:Float = new VPartCalculateComplexesDistance(this).getDistance(leftComplex, rightComplex);
+			this.vcomplexesMinDistances.set(leftComplex, distance);
+		}
+		return this.vcomplexesMinDistances;
+	}
+
+	
+	
+	
+	/*
+	public  function calculatePartStuff()
+	{
+		var beamgroupsDirections = this.getBeamgroupsDirections();
+			
+		for (vcomplex in this.getVComplexes())
+		{
+			var directions = this.getVComplexDirections().get(vcomplex);
+			var noterects = vcomplex.getNotesRects(directions);
+			var signsrects = vcomplex.getSignsRects(noterects);
+			var dotrects = vcomplex.getDotsRects(noterects, directions);				
+		}
+	}
+	*/
+	
 	
 	var value:Null<Int>;
 	public function getValue():Int
@@ -508,6 +577,79 @@ class VPart
 	
 }
 
+class VPartCalculateComplexesDistance 
+{
+	var vpart:VPart;
+	
+	public function new(vpart:VPart)
+	{
+		this.vpart = vpart;
+	}
+
+	public function getDistance(leftComplex:VComplex, rightComplex:VComplex):Float
+	{	
+		var left = getComplexRightside(leftComplex);
+		var right = getComplexLeftside(rightComplex);
+		
+		//trace(right);		
+		var minDistance:Float  = (left.minrect.width + left.minrect.x) + -right.minrect.x;
+		//trace(minDistance);
+		
+		var rectsDistance:Float = MathTools.round2(RectanglesTools.getXIntersection(left.rects, right.rects));
+		//trace(rectsDistance);
+		
+		return Math.max(minDistance, rectsDistance);
+	}
+	
+	public function getComplexRightside(complex:VComplex): { minrect:Rectangle, rects:Rectangles }
+	{
+		if (complex == null) return  { minrect:new Rectangle(0,0,0,0), rects:[] };
+		
+		var directions = this.vpart.getVComplexDirections().get(complex);
+		var noterects:Rectangles = complex.getNotesRects(directions);
+		var minrect:Rectangle = noterects.unionAll();
+		minrect.y = -5;
+		minrect.height = 10;
+		
+		var rects:Rectangles = 	noterects;
+		
+		
+		rects = rects.concat(complex.getStaveBasicRects(directions));
+		// dots are the rightest...
+		var dotrects:Rectangles = complex.getDotsRects(noterects, directions);			
+		if (dotrects != null && dotrects != []) rects = rects.concat(dotrects);
+		return { minrect:minrect, rects:rects };		
+	}
+	
+	public function getComplexLeftside(complex:VComplex): { minrect:Rectangle, rects:Rectangles }
+	{
+		if (complex == null) return  { minrect:new Rectangle(0,0,0,0), rects:[] };
+		
+		var directions = this.vpart.getVComplexDirections().get(complex);
+		var noterects:Rectangles = complex.getNotesRects(directions);
+		var minrect:Rectangle = noterects.unionAll();
+		minrect.y = -5;
+		minrect.height = 10;
+		var rects:Rectangles = 	noterects;		
+		
+		var vnotes = complex.getVNotes();
+		var beamgroups = new VBeamgroups();
+		for (vnote in vnotes)
+		{
+			var vvoice = this.vpart.getVNotesVVoices().get(vnote);
+			var beamgroup = vvoice.getNotesBeamgroups().get(vnote);
+			beamgroups.push(beamgroup);
+		}
+		
+		rects = rects.concat(complex.getStaveBasicRects(directions, beamgroups));
+		// signs are the leftest...
+		var signsrects:Rectangles =  complex.getSignsRects(noterects);		
+		if (signsrects != null && signsrects != []) rects = rects.concat(signsrects);
+		
+		return { minrect:minrect, rects:rects };		
+	}
+}
+
 typedef Partbeamgroups = Array<VBeamgroups>;
 
 class VPartbeamgroupsDirectionCalculator 
@@ -559,7 +701,6 @@ class VPartbeamgroupsDirectionCalculator
 			
 			if ((voiceDirection0 == EDirectionUAD.Auto) && (voiceDirection1 == EDirectionUAD.Auto))
 			{
-
 				var voice0value = voice0.getValue();
 				var voice1value = voice1.getValue();
 				
@@ -945,11 +1086,7 @@ class VNoteHeadsRectsCalculator
 		return rects;
 	}
 	
-	
-	
 }
-
-
 
 class VHeadPlacementCalculator
 {
@@ -1203,10 +1340,55 @@ class VComplex
 	public function getTiestoRects(headsRects:Rectangles=null):Rectangles
 	{
 		if (this.signRects == null) this.getSignsRects(headsRects);
-		trace('sign rects');
+		if (this.tiestoRects != null) return this.tiestoRects;
 		
+		var rects = (this.signRects != null && this.signRects.length > 0) ? this.signRects: headsRects;
+		
+		this.tiestoRects = new VComplexTiestoRectsCalculator(this.getComplexTiestos()).getTiestoRects(rects);
+		
+		return this.tiestoRects;
+		
+	}
+	
+	public function getComplexTiestos()
+	{
+		// TODO!
 		return null;
+	}
+	
+	
+	var dotsRects:Rectangles;
+	public function getDotsRects(headsRects:Rectangles=null, directions: EDirectionUDs=null): Rectangles
+	{
+		if (this.dotsRects != null) return this.dotsRects;
 		
+		this.dotsRects = new VComplexDotsRectsCalculator(this.getDots(directions)).getDotsRects(headsRects);
+		
+		return this.dotsRects;
+	}
+	
+	public  function getDots( directions: EDirectionUDs=null): EDots
+	{		
+		
+		var result:EDots = null;
+		
+		for (vnote in this.getVNotes())
+		{
+			var dotlevel = vnote.nnote.value.dotlevel() ;			
+			if (dotlevel != 0)
+			{
+				if (result == null) result = new EDots();
+				for (nhead in vnote.nnote.nheads)
+				{
+					var dot:EDot = EDot.Normal(nhead.level);
+					if (dotlevel == 2) dot = EDot.Double(nhead.level);
+					result.push(dot);
+				}				
+			}
+		}
+		// TODO
+		// do stuff to organize dot placement according to voice and directions...
+		return result;
 	}
 	
 	
@@ -1317,39 +1499,132 @@ class VComplex
 		return result;		
 	}	
 	
-	/*
-	public function getNoteHeadsRect(note:VNote, dir:EDirectionUD=null):Rectangle
+	public function getStaveBasicRects(directions:EDirectionUDs, beamgroups:VBeamgroups=null):Rectangles
 	{
-		// TODO: Optimize!
 		
-		var result:Rectangle = null;
-		
-		// first vnote
-		if (note == this.vnotes.first())
-		{			
-			if (dir == null)  dir = new VNoteInternalDirectionCalculator(note.getVHeads()).getDirection();		
-			var rects = note.getVHeadsRectanglesDir(dir);
-			result = rects.first().clone();
-			for (i in 1...rects.length)
+		if (directions.length != this.getVNotes().length) throw "Directions.length != vnotes.length";
+		var result = new Rectangles();
+		for (i in 0...this.getVNotes().length)
+		{
+			var vnote = this.getVNotes()[i];
+			if (vnote.nnote.value.stavinglevel() == 0) continue;
+				
+			var direction:EDirectionUD = directions[i];
+			
+			
+			var rect:Rectangle = null;
+			var headw:Float = switch vnote.nnote.value.head()
 			{
-				result = result.union(rects[i]);				
-			}			
-			return  result;
+				case EHeadValueType.HVT1: Constants.HEAD_HALFWIDTH_WIDE;
+				default: Constants.HEAD_HALFWIDTH_NORMAL;
+			}
+			
+			if (direction == EDirectionUD.Up) 
+			{
+				rect = new Rectangle( 0, vnote.nnote.getBottomLevel() - Constants.STAVE_BASIC_LENGTH, headw, Constants.STAVE_BASIC_LENGTH);
+				result.push(rect);
+				if (vnote.nnote.value.beaminglevel() > 0 /*&& beamgroups != null*/) 
+				{
+					//var beamgroup:VBeamgroup = beamgroups[i];
+					//trace(beamgroup);
+					//trace(beamgroup.vnotes.length);
+					var flagrect = new Rectangle(headw, vnote.nnote.getBottomLevel() - Constants.STAVE_BASIC_LENGTH, Constants.FLAG_WIDTH, Constants.FLAG_HEIGHT);
+					result.push(flagrect);
+				}
+			}
+			else
+			{
+				rect = new Rectangle( -headw, vnote.nnote.getTopLevel(), headw, Constants.STAVE_BASIC_LENGTH);
+				result.push(rect);
+
+				if (vnote.nnote.value.beaminglevel() > 0  /*&& beamgroups != null*/) 
+				{
+					//var beamgroup:VBeamgroup = beamgroups[i];
+					//trace(beamgroup);
+					//trace(beamgroup.vnotes.length);
+					var flagrect = new Rectangle( -headw, vnote.nnote.getTopLevel() + Constants.STAVE_BASIC_LENGTH - Constants.FLAG_HEIGHT, Constants.FLAG_WIDTH, Constants.FLAG_HEIGHT);
+					result.push(flagrect);
+				}				
+				
+			}
+		}		
+		return result;
+	}
+	
+	/*
+	public function getFlagRects(directions:EDirectionUDs): Rectangles
+	{
+		if (directions.length != this.getVNotes().length) throw "Directions.length != vnotes.length";
+		var result = new Rectangles();
+		for (i in 0...this.getVNotes().length)
+		{
+			var vnote = this.getVNotes()[i];
+			if (vnote.nnote.value.beaminglevel() == 0) continue;
 		}
 		
-		// second vnote
-		if (dir == null) dir = new VNoteInternalDirectionCalculator(note.getVHeads()).getDirection();		
-		var rects = note.getVHeadsRectanglesDir(dir);
-		result = rects.first().clone();
-		for (i in 1...rects.length)
-		{
-			result = result.union(rects[i]);				
-		}			
-		return result;		
+		
 	}
 	*/
 	
 }
+
+
+class VComplexDotsRectsCalculator
+{
+	var dots:EDots;
+	public function new(dots:EDots)
+	{
+		this.dots = dots;
+	}
+	
+	public function getDotsRects(headsRects:Rectangles):Rectangles
+	{		
+		if (this.dots == null || this.dots ==  []) return [];
+		if (headsRects == null) headsRects = [];
+		
+		var rects:Rectangles =[];		
+		for (dot in this.dots)
+		{
+			var rect:Rectangle = null;
+			switch (dot)
+			{
+				case EDot.Normal(level):
+					rect = new Rectangle(0, level-1, Constants.DOT_WIDTH, 2);
+				case EDot.Double(level):
+					rect = new Rectangle(0, level - 1, Constants.DDOT_WIDTH, 2);				
+			}
+			
+			for (hr in headsRects)
+			{
+				var i = rect.intersection(hr);		
+				if (i.width > 0) rect.offset(i.width, 0);
+			}			
+			
+			rects.push(rect);
+		}	
+	
+		return rects;
+	}
+	
+}
+
+
+class VComplexTiestoRectsCalculator
+{
+	public function new(ties:ETies)
+	{
+		
+	}
+	
+	public function getTiestoRects(rects:Rectangles):Rectangles
+	{		
+		return null;
+	}
+	
+}
+
+
+
 
 class VComplexSignsRectsCalculator
 {

@@ -85,6 +85,19 @@ class ENoteValTools
 		 }
 	 }
 	 
+	 static public function dotlevel(val:ENoteVal):Int
+	 {
+		 switch val
+		 {
+			 case ENoteVal.Nv1dot, ENoteVal.Nv2dot, ENoteVal.Nv4dot, ENoteVal.Nv8dot, ENoteVal.Nv16dot, ENoteVal.Nv32dot:
+				 return 1;
+			 case ENoteVal.Nv1ddot, ENoteVal.Nv2ddot, ENoteVal.Nv4ddot, ENoteVal.Nv8ddot, ENoteVal.Nv16ddot, ENoteVal.Nv32ddot:
+				return 2;
+			default: return 0;
+		}
+		 
+	 }
+	 
 	 static public function head(val:ENoteVal)
 	 {
 		return switch val
