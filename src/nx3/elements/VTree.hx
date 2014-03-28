@@ -7,6 +7,7 @@ import nx3.elements.EDirectionUDs;
 import nx3.elements.EDots;
 import nx3.elements.ENoteVal;
 import nx3.elements.VTree.Partbeamgroups;
+import nx3.elements.VTree.VBar;
 import nx3.elements.VTree.VBarColumnsGenerator;
 import nx3.elements.VTree.VBeamframe;
 import nx3.elements.VTree.VBeamgroup;
@@ -294,30 +295,170 @@ typedef VBars = Array<VBar>;
 		 return this.vcomplexesVColumns;
 	 }
 	 
+	 // ======================================================================
+	 // distances
 	 
+	 var vcolumnsMinDistances: Map < VColumn, Float >;
+	 var vcolumnsMinPositions: Map < VColumn, Float >;
 	 
-	 public function getVColumnsDistances() 
+	 public function getVColumnsMinDistances() : Map < VColumn, Float >
 	 {
+		 if (this.vcolumnsMinDistances != null) return this.vcolumnsMinDistances;		 
+		 var distancesData = new VBarColumnsMinDistancesGenerator(this).getDistancesData();
+		 
+		 this.vcolumnsMinDistances = distancesData.distances;
+		 this.vcolumnsMinPositions = distancesData.positions;
+		 return this.vcolumnsMinDistances;
+	 }
+	 
+	 public function getVColumnsMinPositions():Map<VColumn, Float>
+	 {
+		 if (this.vcolumnsMinPositions != null) return this.vcolumnsMinPositions;
+		 if (this.vcolumnsMinDistances == null) this.getVColumnsMinDistances();
+		 return this.vcolumnsMinPositions;		 		 
+	 }
+	 
+	 var vcolumnsMinWidth:Null<Float>;
+	 public function getVColumnsMinWidth():Float
+	 {
+		 if (this.vcolumnsMinWidth != null)  return this.vcolumnsMinWidth;
+		 if (this.vcolumnsMinDistances == null) this.getVColumnsMinDistances();
+		 var lastColumn:VColumn = this.getVColumns().last();
+		 var lastPosition = this.getVColumnsMinPositions().get(lastColumn);
+		 var lastDistance = this.getVColumnsMinDistances().get(lastColumn);
+		 this.vcolumnsMinWidth = lastPosition + lastDistance;
+		return this.vcolumnsMinWidth; 
+	 }
+	 
+ }
 
-		 for (ic in 0...this.getVColumns().length)
+ class VBarColumnsMinDistancesGenerator
+ {
+	 var vbar:VBar;
+	 
+	 public function new(vbar:VBar)
+	 {
+		 this.vbar = vbar;
+	 }
+	 
+	 public function getDistancesData(): {distances:Map<VColumn, Float>, positions:Map<VColumn, Float>}
+	 {
+		 var distances = this.getDistances(); 
+		 var positions = this.getPositions(distances); 
+		 return { distances:distances, positions:positions };
+	 }
+	 
+	 private function getDistances(): Map<VColumn, Float>
+	 {
+		var distances = new Map < VColumn, Float >();		
+		var positions = new Map < VColumn, Float >();
+		
+		var nrOfColumns = this.vbar.getVColumns().length;
+		var nrOfParts = this.vbar.getVParts().length;
+		
+		var prevComplexBucket = new IntMap<VComplex>();
+		var prevColumnBucket = new IntMap<VColumn>();
+		
+		trace('');
+		var curpos:Float = 0;
+		
+		for (ic in 0...nrOfColumns)
 		 {
-			var column:VColumn = this.getVColumns()[ic];
-
-
-			for (ip in 0...this.getVParts().length)
-			{				
-				var vpart = this.getVParts()[ip];
-				var complexDistances = vpart.getVComplexesMinDistances();
-				var complex:VComplex = column.vcomplexes[ip];
+			var column:VColumn = this.vbar.getVColumns()[ic];
+			var nextColumn:VColumn = this.vbar.getVColumns().indexOrNull(ic + 1);
 			
-				var distance = (complex != null) ? complexDistances.get(complex) : 12345 ;
+			var maxdist:Float = 0;
+			for (ip in 0...nrOfParts)
+			{				
+				var vpart = this.vbar.getVParts()[ip];				
+				var complex:VComplex  = column.vcomplexes[ip];							
+				var nextcomplex:VComplex  = (nextColumn != null) ? nextColumn.vcomplexes[ip] : null;
 
-				trace('column $ic - part $ip - distnance $distance');
-				
+				//trace('PART $ip');
+				if (complex != null && nextcomplex != null)
+				{
+					//trace( '- both');
+					var dist = new VPartComplexesMinDistancesCalculator(vpart).getDistance(complex, nextcomplex);
+					//trace(dist);
+					maxdist = Math.max(maxdist, dist);
+					//trace(' - store complex in bucket');
+					prevComplexBucket.set(ip, complex);
+					prevColumnBucket.set(ip, column);
+				}
+				else if (complex == null && nextcomplex != null)
+				{
+					//trace('- NO complex but nextcomplex');
+					maxdist = Math.max(Constants.HEAD_HALFWIDTH_NORMAL*2, maxdist);
+				}
+				else if (complex != null && nextcomplex == null)
+				{
+					//trace('- complex but NO nextcomplex');
+					//trace('- store complex in bucket');					
+					var dist = new VPartComplexesMinDistancesCalculator(vpart).getDistance(complex, nextcomplex);
+					maxdist = Math.max(maxdist, dist);					
+					prevComplexBucket.set(ip, complex);
+					prevColumnBucket.set(ip, column);
+				}
+				else
+				{
+					trace('Shouldnt happen!');
+				}
 			}
-			 
+			
+			distances.set(column, maxdist);
+			positions.set(column, curpos);
+			curpos = /*MathTools.round2*/(curpos + maxdist);
+			//trace(curpos);
+			//trace('--- store position for column $ic : $curpos');			
+		 }		 
+		
+		/*
+		 for (key in this.vbar.getVColumns())
+		 {
+			 trace([positions.get(key), distances.get(key)]);
 		 }
-		 return null;
+		*/
+		 
+		 return distances;
+	 }	 
+
+	 private function getPositions(distances:Map<VColumn, Float>):Map<VColumn, Float>
+	 {
+		 var positions = new Map<VColumn, Float>();
+		 var curpos:Float = this.getFirstColumnPosition();
+		
+		 for (vcolumn in this.vbar.getVColumns())
+		 {
+			 var distance = distances.get(vcolumn);			 
+			 positions.set(vcolumn, curpos);
+			curpos = /*MathTools.round2*/(curpos + distance);
+		 }
+		
+		/*
+		 for (key in positions.keys())
+		 {
+			 trace(positions.get(key));
+		 }		 
+		*/
+		 
+		 return positions;
+	 }
+	 
+	 private function getFirstColumnPosition():Float
+	 {
+		 var pos:Float = 0;
+		 
+		 for (vpart in this.vbar.getVParts())
+		 {
+			 var distanceCalculator = new VPartComplexesMinDistancesCalculator(vpart);
+			 var firstcomplex = vpart.getVComplexes().first();
+			 var distancedata = distanceCalculator.getComplexLeftside(firstcomplex);			
+			 for (rect in distancedata.rects)
+			 {
+				 pos = Math.max(pos, -rect.x);				 
+			 }
+		 }	
+		 return pos;
 	 }
  }
  
@@ -471,30 +612,11 @@ class VPart
 			var leftComplex:VComplex = complexes[i];			
 			var rightComplex:VComplex = (i < complexes.length) ? complexes[i + 1] : null;		
 			
-			var distance:Float = new VPartCalculateComplexesDistance(this).getDistance(leftComplex, rightComplex);
+			var distance:Float = new VPartComplexesMinDistancesCalculator(this).getDistance(leftComplex, rightComplex);
 			this.vcomplexesMinDistances.set(leftComplex, distance);
 		}
 		return this.vcomplexesMinDistances;
 	}
-
-	
-	
-	
-	/*
-	public  function calculatePartStuff()
-	{
-		var beamgroupsDirections = this.getBeamgroupsDirections();
-			
-		for (vcomplex in this.getVComplexes())
-		{
-			var directions = this.getVComplexDirections().get(vcomplex);
-			var noterects = vcomplex.getNotesRects(directions);
-			var signsrects = vcomplex.getSignsRects(noterects);
-			var dotrects = vcomplex.getDotsRects(noterects, directions);				
-		}
-	}
-	*/
-	
 	
 	var value:Null<Int>;
 	public function getValue():Int
@@ -577,7 +699,7 @@ class VPart
 	
 }
 
-class VPartCalculateComplexesDistance 
+class VPartComplexesMinDistancesCalculator 
 {
 	var vpart:VPart;
 	
@@ -633,15 +755,8 @@ class VPartCalculateComplexesDistance
 		var rects:Rectangles = 	noterects;		
 		
 		var vnotes = complex.getVNotes();
-		var beamgroups = new VBeamgroups();
-		for (vnote in vnotes)
-		{
-			var vvoice = this.vpart.getVNotesVVoices().get(vnote);
-			var beamgroup = vvoice.getNotesBeamgroups().get(vnote);
-			beamgroups.push(beamgroup);
-		}
-		
-		rects = rects.concat(complex.getStaveBasicRects(directions, beamgroups));
+				
+		rects = rects.concat(complex.getStaveBasicRects(directions));
 		// signs are the leftest...
 		var signsrects:Rectangles =  complex.getSignsRects(noterects);		
 		if (signsrects != null && signsrects != []) rects = rects.concat(signsrects);
@@ -1499,14 +1614,19 @@ class VComplex
 		return result;		
 	}	
 	
-	public function getStaveBasicRects(directions:EDirectionUDs, beamgroups:VBeamgroups=null):Rectangles
+	public function getStaveBasicRects(directions:EDirectionUDs/*, beamgroups:VBeamgroups=null*/):Rectangles
 	{
 		
 		if (directions.length != this.getVNotes().length) throw "Directions.length != vnotes.length";
+		
+		var firstnote = this.getVNotes().first();
+		
 		var result = new Rectangles();
 		for (i in 0...this.getVNotes().length)
 		{
 			var vnote = this.getVNotes()[i];
+			
+			
 			if (vnote.nnote.value.stavinglevel() == 0) continue;
 				
 			var direction:EDirectionUD = directions[i];
@@ -1519,35 +1639,49 @@ class VComplex
 				default: Constants.HEAD_HALFWIDTH_NORMAL;
 			}
 			
+			// stave rect
+			
 			if (direction == EDirectionUD.Up) 
 			{
 				rect = new Rectangle( 0, vnote.nnote.getBottomLevel() - Constants.STAVE_BASIC_LENGTH, headw, Constants.STAVE_BASIC_LENGTH);
-				result.push(rect);
-				if (vnote.nnote.value.beaminglevel() > 0 /*&& beamgroups != null*/) 
-				{
-					//var beamgroup:VBeamgroup = beamgroups[i];
-					//trace(beamgroup);
-					//trace(beamgroup.vnotes.length);
-					var flagrect = new Rectangle(headw, vnote.nnote.getBottomLevel() - Constants.STAVE_BASIC_LENGTH, Constants.FLAG_WIDTH, Constants.FLAG_HEIGHT);
-					result.push(flagrect);
-				}
 			}
 			else
 			{
 				rect = new Rectangle( -headw, vnote.nnote.getTopLevel(), headw, Constants.STAVE_BASIC_LENGTH);
-				result.push(rect);
+			}
 
-				if (vnote.nnote.value.beaminglevel() > 0  /*&& beamgroups != null*/) 
+			if (vnote != firstnote) 
+			{
+					var offset = getHeadsCollisionOffsetX(vnote, direction);			
+					rect.offset(offset, 0);
+			}
+			result.push(rect);
+			
+			// flag rect
+			
+			if (vnote.nnote.value.beaminglevel() > 0 ) 
+			{
+				var flagrect:Rectangle = null; 
+				if (direction == EDirectionUD.Up) 
+				{				
+					flagrect = new Rectangle(headw, vnote.nnote.getBottomLevel() - Constants.STAVE_BASIC_LENGTH, Constants.FLAG_WIDTH, Constants.FLAG_HEIGHT);
+				}
+				else
 				{
-					//var beamgroup:VBeamgroup = beamgroups[i];
-					//trace(beamgroup);
-					//trace(beamgroup.vnotes.length);
-					var flagrect = new Rectangle( -headw, vnote.nnote.getTopLevel() + Constants.STAVE_BASIC_LENGTH - Constants.FLAG_HEIGHT, Constants.FLAG_WIDTH, Constants.FLAG_HEIGHT);
-					result.push(flagrect);
+					flagrect = new Rectangle( -headw, vnote.nnote.getTopLevel() + Constants.STAVE_BASIC_LENGTH - Constants.FLAG_HEIGHT, Constants.FLAG_WIDTH, Constants.FLAG_HEIGHT);
+				}			
+				
+				if (vnote != firstnote) 
+				{
+						var offset = getHeadsCollisionOffsetX(vnote, direction);			
+						flagrect.offset(offset, 0);
 				}				
 				
-			}
-		}		
+				result.push(flagrect);
+				
+			}		
+		}
+		
 		return result;
 	}
 	

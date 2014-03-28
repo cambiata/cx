@@ -1285,18 +1285,32 @@ class TestV extends  haxe.unit.TestCase
 		this.assertEquals(vbar.getVComplexesVColumns().get(vcomplex), vcolumn);
 	}
 	
+	/*
 	public function testVBarColumnMinDistances()
 	{
-		var npart0 = new NPart([new QVoice([2, 4]),]);	
-		var npart1 = new NPart([new QVoice([4, 4, 4]),]);	
 
-		var vbar = new VBar(new NBar([npart0, npart1]));		
 		
-		var distances = vbar.getVColumnsDistances();
+		var vbar = new VBar(new NBar([
+			new NPart([new QVoice([4, 2, 4]), ]),
+			new NPart([new QVoice([2, 4]),]),
+		]));		
 		
-		
+		var distances = vbar.getVColumnsMinDistances();
+		var column0 = vbar.getVColumns().first();
+		this.assertEquals(distances.get(column0), 3.2);		
 	}
-	
+	*/
+	/*
+	public function testVBarColumnMinPositions()
+	{
+		var npart0 = new NPart([new QVoice([2, 4], '#'),]);	
+		var npart1 = new NPart([new QVoice([4, 4, 4], '#'),]);	
+		var vbar = new VBar(new NBar([npart0, npart1]));				
+		var positions = vbar.getVColumnsMinPositions();
+		var column0 = vbar.getVColumns().first();
+		this.assertEquals(positions.get(column0), 4.2);
+	}
+	*/
 	
 	public function testSystemGeneratorOneBar()
 	{		

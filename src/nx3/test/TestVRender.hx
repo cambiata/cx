@@ -73,25 +73,17 @@ class TestVRender extends  haxe.unit.TestCase
 	
 	public function testDist1()
 	{
-		var npart0 = new NPart([new QVoice([2, 4]),]);	
-		var npart1 = new NPart([new QVoice([4, 4, 4]),]);	
+		var vbar = new VBar(new NBar([
+			//new NPart([new QVoice([4, 2, 4, 8, 8, 8], [1, -3, 0], '#b......'), ]),
+			//new NPart([new QVoice([2, 8,8,4], [0, 0, 1, -1], '...b'),]),
+			//new NPart([new QVoice([4], [ -1]), new QVoice([4], [0])]),
+			new NPart([new QVoice([4], [0]), new QVoice([8, .8, 8], [1, 1, 5], '..#')]),
+			new NPart([new QVoice([8, 8, 8, 8], [0])]),
+		]));
 		
-		
-		
-		/*
-		var npart0 = new NPart([
-			new NVoice([
-				new NNote([new NHead(2)], ENoteVal.Nv4dot),
-				new NNote([new NHead(-1, ESign.Sharp)], ENoteVal.Nv8),
-			])
-		]);	
-		*/
-		
-		
-		var vbar = new VBar(new NBar([npart0, npart1]));
 		this.renderer.setDefaultXY(200, 80);
 		this.renderer.drawVBarNotelines(vbar, 800, 50);
-		this.renderer.drawVBarColumns(vbar);
+		//this.renderer.drawVBarColumns(vbar);
 		this.renderer.drawVBarComplexes(vbar);
 		this.renderer.drawVBarVoices(vbar);					
 		this.assertTrue(true);
@@ -155,7 +147,7 @@ class TestVRender extends  haxe.unit.TestCase
 	}
 	*/
 	
-	
+	/*
 	public function testVBar2()
 	{
 		this.assertTrue(true);
@@ -168,11 +160,12 @@ class TestVRender extends  haxe.unit.TestCase
 		var vbar = new VBar(new NBar([npart0]));
 		this.renderer.setDefaultXY(80, 400);
 		this.renderer.drawVBarNotelines(vbar, 100, 50);
-		this.renderer.drawVBarColumns(vbar);
+		//this.renderer.drawVBarColumns(vbar);
 		this.renderer.drawVBarComplexes(vbar);
 		this.renderer.drawVBarVoices(vbar);			
+		
 	}	
-	
+	*/
 	
 	/*
 	public function testVBar3()
@@ -258,26 +251,24 @@ class DevRenderer extends FrameRenderer
 	
 	public function drawVBarComplexes(vbar:VBar)
 	{
+		var barMinWidth = vbar.getVColumnsMinWidth();
+		this.drawRectangleScaled(this.target.graphics,  this.defaultX,  this.defaultY, new Rectangle(0, -7, barMinWidth, 30));
+		
+		var columnsMinPositions  = vbar.getVColumnsMinPositions();
+
 		var party = this.defaultY;
 		for (vpart in vbar.getVParts())
 		{
 			var beamgroupsDirections = vpart.getBeamgroupsDirections();
-			var complexMinDistances = vpart.getVComplexesMinDistances();
+			//var complexMinDistances = vpart.getVComplexesMinDistances();
 			
-			
-			var pos = 0.0;
+			//var pos = 0.0;
 			for (vcomplex in vpart.getVComplexes())
 			{
 				var vcolumn = vbar.getVComplexesVColumns().get(vcomplex);
 				
-				
-				//var pos = vbar.getVColumnsPositions().get(vcolumn);
-				//var colx = this.defaultX + pos * posfactor;			
-				
-				//var dist = complexMinDistances.get(vcomplex);
-				//trace(dist);
-				var colx =  this.defaultX +  pos;
-				
+				var pos = columnsMinPositions.get(vcolumn);				
+				var colx = this.defaultX + pos * scaling.halfNoteWidth;
 				
 				this.target.graphics.endFill();
 				this.target.graphics.lineStyle(1, 0xFF0000);
@@ -292,14 +283,16 @@ class DevRenderer extends FrameRenderer
 					var headsXOffset = vcomplex.getHeadsCollisionOffsetX(vnote) * scaling.halfNoteWidth;
 					this.heads(colx+headsXOffset, party, vnote, direction);
 
-					var headsRects = vnote.getVHeadsRectanglesDir(direction);
+					//var headsRects = vnote.getVHeadsRectanglesDir(direction);
 					//this.drawRectanglesScaled(this.target.graphics, colx+headsXOffset, party, headsRects);
 					
+					/*
 					// text
 					var vvoiceIdx = vpart.getVVoices().index(vvoice);
 					var txtY = party + (vvoiceIdx * 10)-14;
 					var txtX = colx+headsXOffset + 10;
 					this.addText(txtX, txtY, direction.getName());
+					*/
 				}
 				
 				var directions = vpart.getVComplexDirections().get(vcomplex);
@@ -333,7 +326,7 @@ class DevRenderer extends FrameRenderer
 				}
 				*/				
 				
-				pos += complexMinDistances.get(vcomplex) * scaling.halfNoteWidth;
+				//pos += complexMinDistances.get(vcomplex) * scaling.halfNoteWidth;
 				
 			}
 
