@@ -1,4 +1,0 @@
--cp ../../src
---no-output
---macro nx3.test.Main.main()
--lib nanotest
