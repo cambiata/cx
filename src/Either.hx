@@ -21,5 +21,5 @@ abstract Either<A,B> (EEither<A,B>)
 enum EEither<A,B>
 {
 	Left( v:A );
-	Right( v:B );
+	Right( v:B ); 
 }
