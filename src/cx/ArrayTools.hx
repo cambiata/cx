@@ -14,6 +14,12 @@ using Lambda;
 class ArrayTools 
 {
 
+	inline static public function has<T>(a:Array<T>, item:T)
+	{
+		return a.indexOf(item) != -1;
+	}	
+	
+	
 	inline static public function indexOrNull<T>(a:Array<T>, idx:Int)
 	{
 		return (idx < 0 || idx > a.length) ? null : a[idx];

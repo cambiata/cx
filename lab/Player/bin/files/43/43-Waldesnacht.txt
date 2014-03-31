@@ -1,0 +1,20 @@
+//-------------------------------------------------------------------------
+// 43 - Waldesnacht
+standardProduct = new StandardProduct("Waldesnacht", organization, "43-waldesnacht", true);
+standardProduct.Collectiontitle = "Folkbildningsrådet 30 fria";
+standardProduct.Subtitle = "";
+standardProduct.LicenseType = context.Set<LicenseType>().Local.Where(m => m.Code == LicensetypeConstants.LIC_CODE_FREE).Single();
+standardProduct.Distributor = context.Set<Organization>().Local.Where(m => m.Code == OrganizationConstants.ORG_CODE_FOLKBILDNINGSRADET).Single();
+context.Set<StandardProduct>().AddOrUpdate(m => m.Title, standardProduct);
+premiumProduct = new PremiumProduct(standardProduct);
+context.Set<PremiumProduct>().AddOrUpdate(m => m.Title, premiumProduct);
+standardProduct.Composers.Add(ImportHelpers.getOrCreateOriginator((ScorxContext)context, "Johannes", "Brahms", "1833", "1897"));
+standardProduct.Lyricists.Add(ImportHelpers.getOrCreateOriginator((ScorxContext)context, "Paul", "Heyse", "", ""));
+standardProduct.Instruments.Add(context.Set<Instrument>().Local.Where(m => m.Name == "Kör").Single());
+standardProduct.Instrumentations.Add(context.Set<Instrumentation>().Local.Where(m => m.Name == "SATB").Single());
+standardProduct.Instrumentations.Add(context.Set<Instrumentation>().Local.Where(m => m.Name == "A cappella").Single());
+standardProduct.Instrumentations.Add(context.Set<Instrumentation>().Local.Where(m => m.Name == "SATB").Single());
+standardProduct.Instrumentations.Add(context.Set<Instrumentation>().Local.Where(m => m.Name == "A cappella").Single());
+standardProduct.Themes.Add(context.Set<Theme>().Local.Where(m => m.Name.ToUpper() == "Profan".ToUpper()).Single());
+standardProduct.Description = "Denna sång låter som en tavla av Caspar David Friedrich! Tillvarons trivialiteter och kval ger vika och i stället uppfylls sinnet av den rofyllda skogsnattens dimmor och drömmar.";
+context.SaveChanges();

@@ -1,0 +1,21 @@
+//-------------------------------------------------------------------------
+// 44 - Abschied vom Walde
+standardProduct = new StandardProduct("Abschied vom Walde", organization, "44-abschied", true);
+standardProduct.Collectiontitle = "Folkbildningsrådet 30 fria";
+standardProduct.Subtitle = "";
+standardProduct.LicenseType = context.Set<LicenseType>().Local.Where(m => m.Code == LicensetypeConstants.LIC_CODE_FREE).Single();
+standardProduct.Distributor = context.Set<Organization>().Local.Where(m => m.Code == OrganizationConstants.ORG_CODE_FOLKBILDNINGSRADET).Single();
+context.Set<StandardProduct>().AddOrUpdate(m => m.Title, standardProduct);
+premiumProduct = new PremiumProduct(standardProduct);
+context.Set<PremiumProduct>().AddOrUpdate(m => m.Title, premiumProduct);
+standardProduct.Composers.Add(ImportHelpers.getOrCreateOriginator((ScorxContext)context, "Johannes", "Brahms", "1833", "1897"));
+standardProduct.Lyricists.Add(ImportHelpers.getOrCreateOriginator((ScorxContext)context, "Joseph", "von Eichendorff ", "", ""));
+standardProduct.Instruments.Add(context.Set<Instrument>().Local.Where(m => m.Name == "Kör").Single());
+standardProduct.Instrumentations.Add(context.Set<Instrumentation>().Local.Where(m => m.Name == "SATB").Single());
+standardProduct.Instrumentations.Add(context.Set<Instrumentation>().Local.Where(m => m.Name == "A cappella").Single());
+standardProduct.Instrumentations.Add(context.Set<Instrumentation>().Local.Where(m => m.Name == "SATB").Single());
+standardProduct.Instrumentations.Add(context.Set<Instrumentation>().Local.Where(m => m.Name == "A cappella").Single());
+standardProduct.Themes.Add(context.Set<Theme>().Local.Where(m => m.Name.ToUpper() == "naturen".ToUpper()).Single());
+standardProduct.Themes.Add(context.Set<Theme>().Local.Where(m => m.Name.ToUpper() == "Profan".ToUpper()).Single());
+standardProduct.Description = "Ännu ett exempel på hur skickligt de tyska romantiska tonsättarna lyckas förena det enkla folkvise-idiomet med ett mustigt dynamiskt tonspråk som verkligen sjunger! En riktig trädkramare!";
+context.SaveChanges();
