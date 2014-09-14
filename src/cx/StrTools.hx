@@ -83,6 +83,7 @@ class StrTools
 		return str.substr(idx);
 	}		
 	
+	/*
 	static public function similarityCaseIgnore(strA:String, strB:String):Float {
 		return similarity(strA.toLowerCase(), strB.toLowerCase());
 	}
@@ -92,27 +93,28 @@ class StrTools
 	}
 	
 	static public function similarity(strA:String, strB:String):Float {
-		if (strA == strB) return 1;
-		function sim(strA:String, strB:String) {
-			var score = _similarity(strA, strB);
-			// if different length, swap and run a second pass...	
-			if (strA.length != strB.length) score = (score + _similarity(strB, strA)) / 2;
-			return score;
-		}
-		return sim(strA, strB);
+		trace([strA, strB]);
+		return _similarity(strA, strB);
 	}
 	
 	static public function similarityAssymetric(strShorter:String, strLonger:String):Float {
 		if (strShorter == strLonger) return 1;
 		return  _similarity(strShorter, strShorter);
 	}
+	*/
 	
-	static public function _similarity(strA:String, strB:String) {
+	static public function similarity(strA:String, strB:String) {
+		if (strA == strB) return 1.0;
+		if (strA.length > strB.length) {
+			var strA2 = strA;
+			strA = strB;
+			strB = strA2;
+		}
 		var lengthA = strA.length;
 		var lengthB = strB.length;
 		var i = 0;
 		var segmentCount = 0;
-		var segmentsInfos = new Array<SimilaritySegment>();
+		var segmentsInfos = new Array<{segment:String,score:Float}>();
 		var segment = '';
 		while (i < lengthA) {
 			var char = strA.charAt(i);
@@ -145,6 +147,7 @@ class StrTools
 				usedSegmentsCount++;
 			}
 		}
+		
 		// every used segment more than 2 gives a tiny score minus
 		totalScore = totalScore - (Math.max(usedSegmentsCount, 0) * 0.02);
 		return Math.max(0, Math.min(totalScore, 1));
@@ -262,8 +265,9 @@ class StrTools
 	
 	
 }
-
+/*
 typedef SimilaritySegment = {
 	segment:String,
 	score:Float
 }
+*/
