@@ -11,7 +11,7 @@ import wx.BoxSizer;
 import nme.display.StageAlign;
 import nme.display.StageScaleMode;
 
-class Main
+class Server
 {
 	private var frame:Frame;
 	
@@ -50,6 +50,6 @@ class Main
 	// Entry
 	public static function main()
 	{
-		App.boot( function(){ new Main(); } );
+		App.boot( function(){ new Server(); } );
 	}
 }

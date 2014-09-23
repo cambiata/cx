@@ -38,7 +38,7 @@ class RegexTools
 		for (i in 1...5) {
 			try {
 				var s = r.matched(i);
-				//trace(s);
+				trace(s);
 				a.push(s);
 			} catch (e:Dynamic) {
 				return a;
@@ -46,5 +46,24 @@ class RegexTools
 		}
 		return a;
 	}
+	
+	static public function getAllMatches(r:EReg, str:String):Array<String>
+	{
+		var result:Array<String> = [];
+		var pos = 1;
+		while (true)
+		{
+			try {
+				str = str.substr(pos);
+				r.match(str);
+				result.push(r.matched(0).substr(0, -1));
+				pos = r.matchedPos().pos + r.matchedPos().len+1;
+			} catch (e:Dynamic) {
+				return result;
+			}
+		}
+		return [];
+	}	
+	
 	
 }

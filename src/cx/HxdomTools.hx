@@ -5,7 +5,7 @@ import hxdom.Elements.VirtualNode;
 import hxdom.html.Element;
 import hxdom.html.HtmlElement;
 import hxdom.HtmlSerializer;
-import thx.xml.XmlFormat;
+//import thx.xml.XmlFormat;
 
 /**
  * ...
@@ -17,7 +17,8 @@ class HxdomTools
 	{
 		var html = HtmlSerializer.run(ehtml);
 		if (clean) html = cleanHtml(html);
-		
+	
+		/*
 		if (format) {
 			var xml:Xml = Xml.parse(html);		
 			
@@ -30,16 +31,18 @@ class HxdomTools
 			var format = new XmlFormat(true, '\t');
 			html = format.format(xml).toString();	
 		}
+		*/
 		return html;
+		//return Xml.parse(html).toString();
 	}	
 	
 	
 	static public function cleanHtml(htmlStr:String)
 	{
 		var str = htmlStr;
-		var r = ~/data-hxclass='[a-zA-Z0-9-.\s]+'/g;
+		var r = ~/ data-hxclass='[a-zA-Z0-9-.\s]+'/g;
 		str = r.replace(str, "");		
-		var r = ~/data-hxid='[a-zA-Z0-9-.\s]+'/g;
+		var r = ~/ data-hxid='[a-zA-Z0-9-.\s]+'/g;
 		str = r.replace(str, "");		
 		str = StringTools.replace(str, "  ", " ");		
 		return str;

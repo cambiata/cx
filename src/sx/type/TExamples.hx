@@ -1,8 +1,9 @@
 package sx.type;
+import haxe.ds.IntMap.IntMap;
 
 /**
  * ...
  * @author Jonas Nyström
  */
 
-typedef TExamples = IntHash<TExample>;
+typedef TExamples = IntMap<TExample>;

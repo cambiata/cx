@@ -1,8 +1,9 @@
 package sx.type;
+import haxe.ds.StringMap.StringMap;
 
 /**
  * ...
  * @author Jonas Nyström
  */
 
-typedef THashIds = Hash<Array<Int>>;
+typedef THashIds = StringMap<Array<Int>>;

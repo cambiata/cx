@@ -1,7 +1,7 @@
 package sx.util;
 import cx.FileTools;
 import ka.types.Scorxtillgangligheter;
-import neko.Utf8;
+import haxe.Utf8;
 import sx.type.THashIds;
 import sx.type.TListExamples;
 import sx.type.TOriginatorItem;

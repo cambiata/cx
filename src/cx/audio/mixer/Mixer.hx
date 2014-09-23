@@ -129,5 +129,7 @@ class Mixer {
 	}
 	
 	public function getPosition():Float return this.posCurrent;
+	
+
 } 
 

@@ -6,6 +6,7 @@ import cx.docs.IndexTools.IndexParser;
 import cx.OdtTools.OdtListStyle;
 import haxe.ds.StringMap.StringMap;
 import hxdom.Attr;
+
 import hxdom.Elements.EAnchor;
 import hxdom.Elements.EBase;
 import hxdom.Elements.EBody;
@@ -54,6 +55,8 @@ class OdtTools
 
 	var imgscale:Float;
 	var zipEntries:List<format.zip.Data.Entry>;
+	var path:String;
+	
 	
 	public function getHtmlFromContent2(xmlParts:OdtXmlParts, ?zipEntries:List<format.zip.Data.Entry>, ?imgScale:Float = 40):String 
 	{		
@@ -68,6 +71,8 @@ class OdtTools
 
 	public function getHtmlFromOdt2(odtFileName:String, meta:Bool=true, ?imgScale:Float=40.0, stripOuterLevels=0): String {
 		var zipEntries = getZipEntries(odtFileName);
+		
+		this.path = FileTools.getDirectory(odtFileName);
 		
 		this.zipEntries = zipEntries;
 		this.imgscale = imgScale;
@@ -583,7 +588,7 @@ class OdtTools
 		}
 	}		
 	
-	function getNewNode(e:Xml, n:VirtualElement<Dynamic>):VirtualElement<Dynamic> 
+	function getNewNode(e:Xml, inNode:VirtualElement<Dynamic>):VirtualElement<Dynamic> 
 	{
 		var nodeName = e.nodeName;
 		var styleName = e.get('text:style-name');
@@ -646,11 +651,6 @@ class OdtTools
 					} 
 					else if (link.startsWith('http'))
 					{
-						//trace(link);
-						//var img = new EImage();
-						//img.attr(Attr.Src, link);
-						//node.appendChild(img);
-						
 						var imgTag = '<img src="$link" style="$imgstyle" />';
 						node.addHtml(imgTag);
 						
@@ -670,23 +670,65 @@ class OdtTools
 				var href = e.get('xlink:href');
 				
 				var hrefClass = StrTools.until(href, ':');
+				var parameters = StrTools.afterLast(href, ':');
 
 				//trace(hrefClass);
 				switch hrefClass 
 				{
 					case 'player': {
-						node = new EObject();
+						node = new EDiv();
+						var path = this.path + '/' + parameters;
+						//path = path.replace('//', ':');
+						//path = path.replace('/', ':');
+						path = EncodeTools.base64Encode(path);
 						
+						
+						path = '/audio/$path';
+						node.addHtml(embedFlash('/assets/swf/player.swf', path)); 
+						//node.addText(parameters); 
 					}
-					default: 
+					
+					case 'score': {
+						node = new EDiv();
+						node.classes('score');
+						var path = this.path + '/' + parameters;
+						//path = path.replace('//', ':');
+						//path = path.replace('/', ':');
+						path = EncodeTools.base64Encode(path);
+						path = '/asset/$path';
+						node.addHtml(embedScore('/assets/swf/score.swf', path)); 
+						//node.addText(parameters); 
+					}	
+					
+					case 'random': {
+						node = new EDiv();
+						node.classes('random');
+						var path = this.path + '/' + parameters;
+
+						path = EncodeTools.base64Encode(path);
+						path = '/asset/$path';
+						node.addHtml(embedRandom('/assets/swf/Randomizer.swf', path)); 
+						node.addText(path); 
+					}					
+					
+					
+					
+					case 'flash': {
+						node = new EDiv();
+						node.addText('this is a flash object');						
+						node.addText(parameters);
+					}
+					
+					default:  
 					{
 						node = new EAnchor();
+						
 						node.attr(Attr.Target, target);
 						node.attr(Attr.ClassName, '$hrefClass' );
-						
+						node.attr(Attr.Href, href);
 					}
 				}
-				node.attr(Attr.Href, href);
+				
 				
 				
 			case 'text:list':
@@ -711,6 +753,79 @@ class OdtTools
 		}
 		return node;
 	}
+	
+	private function embedFlash(player:String, filename:String)
+	{
+		
+		var embedStr = '
+		<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" width="200" height="20" id="movie_name" align="middle">
+		    <param name="movie" value="$player"/>
+		    <param name="flashvars" value="soundFile=$filename"/>
+		    <!--[if !IE]>-->
+		    <object type="application/x-shockwave-flash" data="$player" width="200" height="20">
+		        <param name="movie" value="$player"/>
+		        <param name="flashvars" value="soundFile=$filename"/>
+		    <!--<![endif]-->
+		        <a href="http://www.adobe.com/go/getflash">
+			<img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player"/>
+		        </a>
+		    <!--[if !IE]>-->
+		    </object>
+		    <!--<![endif]-->
+		</object>
+		';
+		
+		return embedStr;
+	}
+	
+	private function embedScore(player:String, filename:String) 
+	{
+		
+		var embedStr = '
+		<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" width="700" height="100" id="movie_name" align="middle">
+		    <param name="movie" value="$player"/>
+		    <param name="flashvars" value="score=$filename"/>
+		    <!--[if !IE]>-->
+		    <object type="application/x-shockwave-flash" data="$player" width="700" height="100">
+		        <param name="movie" value="$player"/>
+		        <param name="flashvars" value="score=$filename"/>
+		    <!--<![endif]-->
+		        <a href="http://www.adobe.com/go/getflash">
+			<img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player"/>
+		        </a>
+		    <!--[if !IE]>-->
+		    </object>
+		    <!--<![endif]-->
+		</object>
+		';
+		
+		return embedStr;
+	}
+	
+	private function embedRandom(player:String, filename:String) 
+	{
+		
+		var embedStr = '
+		<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" width="1000" height="700" id="movie_name" align="middle">
+		    <param name="movie" value="$player"/>
+		    <param name="flashvars" value="score=$filename"/>
+		    <!--[if !IE]>-->
+		    <object type="application/x-shockwave-flash" data="$player" width="1000" height="700">
+		        <param name="movie" value="$player"/>
+		        <param name="flashvars" value="score=$filename"/>
+		    <!--<![endif]-->
+		        <a href="http://www.adobe.com/go/getflash">
+			<img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player"/>
+		        </a>
+		    <!--[if !IE]>-->
+		    </object>
+		    <!--<![endif]-->
+		</object>
+		';
+		
+		return embedStr;
+	}	
+	
 	
 }
 
